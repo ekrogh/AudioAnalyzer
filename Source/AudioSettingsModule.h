@@ -50,48 +50,33 @@
 
 #include "Utilities.h"
 
+extern AudioDeviceManager& getSharedAudioDeviceManager(int numInputChannels = 1, int numOutputChannels = 1);
 
 //==============================================================================
-class AudioSettingsModule final : public Component,
-                                  public ChangeListener
+class AudioSettingsModule final : public Component
 {
 public:
     AudioSettingsModule()
     {
         setOpaque (true);
 
-       #ifndef JUCE_DEMO_RUNNER
         RuntimePermissions::request (RuntimePermissions::recordAudio,
                                      [this] (bool granted)
                                      {
-                                         int numInputChannels = granted ? 2 : 0;
-                                         audioDeviceManager.initialise (numInputChannels, 2, nullptr, true, {}, nullptr);
+                                         int numInputChannels = granted ? 1 : 0;
+                                         getSharedAudioDeviceManager().initialise (numInputChannels, 1, nullptr, true, {}, nullptr);
                                      });
-       #endif
 
-        audioSetupComp.reset (new AudioDeviceSelectorComponent (audioDeviceManager,
-                                                                0, 256, 0, 256, true, true, true, false));
+        audioSetupComp.reset (new AudioDeviceSelectorComponent (getSharedAudioDeviceManager(),
+                                                                1, 1, 1, 2, false, false, false, false));
         addAndMakeVisible (audioSetupComp.get());
-
-        addAndMakeVisible (diagnosticsBox);
-        diagnosticsBox.setMultiLine (true);
-        diagnosticsBox.setReturnKeyStartsNewLine (true);
-        diagnosticsBox.setReadOnly (true);
-        diagnosticsBox.setScrollbarsShown (true);
-        diagnosticsBox.setCaretVisible (false);
-        diagnosticsBox.setPopupMenuEnabled (true);
-
-        audioDeviceManager.addChangeListener (this);
-
-        logMessage ("Audio device diagnostics:\n");
-        dumpDeviceInfo();
 
         setSize (500, 600);
     }
 
     ~AudioSettingsModule() override
     {
-        audioDeviceManager.removeChangeListener (this);
+        audioSetupComp = nullptr;
     }
 
     void paint (Graphics& g) override
@@ -103,72 +88,13 @@ public:
     {
         auto r =  getLocalBounds().reduced (4);
         audioSetupComp->setBounds (r.removeFromTop (proportionOfHeight (0.65f)));
-        diagnosticsBox.setBounds (r);
     }
 
-    void dumpDeviceInfo()
-    {
-        logMessage ("--------------------------------------");
-        logMessage ("Current audio device type: " + (audioDeviceManager.getCurrentDeviceTypeObject() != nullptr
-                                                     ? audioDeviceManager.getCurrentDeviceTypeObject()->getTypeName()
-                                                     : "<none>"));
-
-        if (AudioIODevice* device = audioDeviceManager.getCurrentAudioDevice())
-        {
-            logMessage ("Current audio device: "   + device->getName().quoted());
-            logMessage ("Sample rate: "    + String (device->getCurrentSampleRate()) + " Hz");
-            logMessage ("Block size: "     + String (device->getCurrentBufferSizeSamples()) + " samples");
-            logMessage ("Output Latency: " + String (device->getOutputLatencyInSamples())   + " samples");
-            logMessage ("Input Latency: "  + String (device->getInputLatencyInSamples())    + " samples");
-            logMessage ("Bit depth: "      + String (device->getCurrentBitDepth()));
-            logMessage ("Input channel names: "    + device->getInputChannelNames().joinIntoString (", "));
-            logMessage ("Active input channels: "  + getListOfActiveBits (device->getActiveInputChannels()));
-            logMessage ("Output channel names: "   + device->getOutputChannelNames().joinIntoString (", "));
-            logMessage ("Active output channels: " + getListOfActiveBits (device->getActiveOutputChannels()));
-        }
-        else
-        {
-            logMessage ("No audio device open");
-        }
-    }
-
-    void logMessage (const String& m)
-    {
-        diagnosticsBox.moveCaretToEnd();
-        diagnosticsBox.insertTextAtCaret (m + newLine);
-    }
 
 private:
-    // if this PIP is running inside the demo runner, we'll use the shared device manager instead
-   #ifndef JUCE_DEMO_RUNNER
-    AudioDeviceManager audioDeviceManager;
-   #else
-    AudioDeviceManager& audioDeviceManager { getSharedAudioDeviceManager() };
-   #endif
 
     std::unique_ptr<AudioDeviceSelectorComponent> audioSetupComp;
-    TextEditor diagnosticsBox;
 
-    void changeListenerCallback (ChangeBroadcaster*) override
-    {
-        dumpDeviceInfo();
-    }
-
-    void lookAndFeelChanged() override
-    {
-        diagnosticsBox.applyFontToAllText (diagnosticsBox.getFont());
-    }
-
-    static String getListOfActiveBits (const BigInteger& b)
-    {
-        StringArray bits;
-
-        for (int i = 0; i <= b.getHighestBit(); ++i)
-            if (b[i])
-                bits.add (String (i));
-
-        return bits.joinIntoString (", ");
-    }
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (AudioSettingsModule)
 };
