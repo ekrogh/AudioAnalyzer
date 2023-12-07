@@ -35,13 +35,14 @@ MainComponent::MainComponent ()
     juce__tabbedComponent.reset (new juce::TabbedComponent (juce::TabbedButtonBar::TabsAtTop));
     addAndMakeVisible (juce__tabbedComponent.get());
     juce__tabbedComponent->setTabBarDepth (30);
-    juce__tabbedComponent->addTab (TRANS ("Plot"), juce::Colours::lightgrey, 0, false);
-    juce__tabbedComponent->addTab (TRANS ("Freq. Control"), juce::Colours::lightgrey, 0, false);
-    juce__tabbedComponent->addTab (TRANS ("Audio Settings"), juce::Colours::lightgrey, 0, false);
-    juce__tabbedComponent->setCurrentTabIndex (0);
+    juce__tabbedComponent->setCurrentTabIndex (-1);
 
 
     //[UserPreSize]
+    juce__tabbedComponent->addTab(TRANS("Plot"), juce::Colours::lightgrey, 0, false);
+    juce__tabbedComponent->addTab(TRANS("Freq. Control"), juce::Colours::lightgrey, 0, false);
+    juce__tabbedComponent->addTab(TRANS("Audio Settings"), juce::Colours::lightgrey, module_AudioSettings.get(), false);
+    juce__tabbedComponent->setCurrentTabIndex(3);
     //[/UserPreSize]
 
     setSize (600, 400);
@@ -80,7 +81,7 @@ void MainComponent::resized()
     //[UserPreResize] Add your own custom resize code here..
     //[/UserPreResize]
 
-    juce__tabbedComponent->setBounds (0, 0, proportionOfWidth (0.9900f), proportionOfHeight (0.9919f));
+    juce__tabbedComponent->setBounds (0, 0, proportionOfWidth (0.9899f), proportionOfHeight (0.9919f));
     //[UserResized] Add your own custom resize handling here..
     //[/UserResized]
 }
@@ -106,15 +107,8 @@ BEGIN_JUCER_METADATA
                  fixedSize="0" initialWidth="600" initialHeight="400">
   <BACKGROUND backgroundColour="ff505050"/>
   <TABBEDCOMPONENT name="new tabbed component" id="b42ee76ffd12e39c" memberName="juce__tabbedComponent"
-                   virtualName="" explicitFocusOrder="0" pos="0 0 99.003% 99.194%"
-                   orientation="top" tabBarDepth="30" initialTab="0">
-    <TAB name="Plot" colour="ffd3d3d3" useJucerComp="0" contentClassName=""
-         constructorParams="" jucerComponentFile=""/>
-    <TAB name="Freq. Control" colour="ffd3d3d3" useJucerComp="0" contentClassName=""
-         constructorParams="" jucerComponentFile=""/>
-    <TAB name="Audio Settings" colour="ffd3d3d3" useJucerComp="0" contentClassName=""
-         constructorParams="" jucerComponentFile=""/>
-  </TABBEDCOMPONENT>
+                   virtualName="" explicitFocusOrder="0" pos="0 0 98.993% 99.194%"
+                   orientation="top" tabBarDepth="30" initialTab="-1"/>
 </JUCER_COMPONENT>
 
 END_JUCER_METADATA

@@ -3021,7 +3021,13 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\..\Source\AudioSettingsModule.h">
+      <Filter>AudioAnalyzer\Source</Filter>
+    </ClInclude>
     <ClInclude Include="..\..\Source\MainComponent.h">
+      <Filter>AudioAnalyzer\Source</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Utilities.h">
       <Filter>AudioAnalyzer\Source</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\JUCE\modules\juce_audio_basics\audio_play_head\juce_AudioPlayHead.h">

@@ -36,9 +36,11 @@ add_library( ${BINARY_NAME}
 
     SHARED
 
+    "../../../Source/AudioSettingsModule.h"
     "../../../Source/Main.cpp"
     "../../../Source/MainComponent.cpp"
     "../../../Source/MainComponent.h"
+    "../../../Source/Utilities.h"
     "../../../../JUCE/modules/juce_audio_basics/audio_play_head/juce_AudioPlayHead.cpp"
     "../../../../JUCE/modules/juce_audio_basics/audio_play_head/juce_AudioPlayHead.h"
     "../../../../JUCE/modules/juce_audio_basics/buffers/juce_AudioChannelSet.cpp"
@@ -1812,7 +1814,9 @@ add_library( ${BINARY_NAME}
 )
 
 set_source_files_properties(
+    "../../../Source/AudioSettingsModule.h"
     "../../../Source/MainComponent.h"
+    "../../../Source/Utilities.h"
     "../../../../JUCE/modules/juce_audio_basics/audio_play_head/juce_AudioPlayHead.cpp"
     "../../../../JUCE/modules/juce_audio_basics/audio_play_head/juce_AudioPlayHead.h"
     "../../../../JUCE/modules/juce_audio_basics/buffers/juce_AudioChannelSet.cpp"

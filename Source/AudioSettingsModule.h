@@ -23,7 +23,7 @@
 
  BEGIN_JUCE_PIP_METADATA
 
- name:             AudioSettingsDemo
+ name:             AudioSettingsModule
  version:          1.0.0
  vendor:           JUCE
  website:          http://juce.com
@@ -38,7 +38,7 @@
  moduleFlags:      JUCE_STRICT_REFCOUNTEDPOINTER=1
 
  type:             Component
- mainClass:        AudioSettingsDemo
+ mainClass:        AudioSettingsModule
 
  useLocalCopy:     1
 
@@ -48,14 +48,15 @@
 
 #pragma once
 
-#include "DemoUtilities.h"
+#include "Utilities.h"
+
 
 //==============================================================================
-class AudioSettingsDemo final : public Component,
-                                public ChangeListener
+class AudioSettingsModule final : public Component,
+                                  public ChangeListener
 {
 public:
-    AudioSettingsDemo()
+    AudioSettingsModule()
     {
         setOpaque (true);
 
@@ -88,7 +89,7 @@ public:
         setSize (500, 600);
     }
 
-    ~AudioSettingsDemo() override
+    ~AudioSettingsModule() override
     {
         audioDeviceManager.removeChangeListener (this);
     }
@@ -169,5 +170,5 @@ private:
         return bits.joinIntoString (", ");
     }
 
-    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (AudioSettingsDemo)
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (AudioSettingsModule)
 };
