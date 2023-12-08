@@ -1,126 +1,72 @@
 /*
   ==============================================================================
 
-   This file is part of the JUCE tutorials.
-   Copyright (c) 2020 - Raw Material Software Limited
+  This is an automatically generated GUI class created by the Projucer!
 
-   The code included in this file is provided under the terms of the ISC license
-   http://www.isc.org/downloads/software-support-policy/isc-license. Permission
-   To use, copy, modify, and/or distribute this software for any purpose with or
-   without fee is hereby granted provided that the above copyright notice and
-   this permission notice appear in all copies.
+  Be careful when adding custom code to these files, as only the code within
+  the "//[xyz]" and "//[/xyz]" sections will be retained when the file is loaded
+  and re-saved.
 
-   THE SOFTWARE IS PROVIDED "AS IS" WITHOUT ANY WARRANTY, AND ALL WARRANTIES,
-   WHETHER EXPRESSED OR IMPLIED, INCLUDING MERCHANTABILITY AND FITNESS FOR
-   PURPOSE, ARE DISCLAIMED.
+  Created with Projucer version: 7.0.9
+
+  ------------------------------------------------------------------------------
+
+  The Projucer is part of the JUCE library.
+  Copyright (c) 2020 - Raw Material Software Limited.
 
   ==============================================================================
 */
 
-/*******************************************************************************
- The block below describes the properties of this PIP. A PIP is a short snippet
- of code that can be read by the Projucer and used to generate a JUCE project.
-
- BEGIN_JUCE_PIP_METADATA
-
- name:             SineSynthModule
- version:          1.0.0
- vendor:           JUCE
- website:          http://juce.com
- description:      Simple sine synthesiser.
-
- dependencies:     juce_audio_basics, juce_audio_devices, juce_audio_formats,
-                   juce_audio_processors, juce_audio_utils, juce_core,
-                   juce_data_structures, juce_events, juce_graphics,
-                   juce_gui_basics, juce_gui_extra
- exporters:        xcode_mac, vs2019, linux_make
-
- type:             Component
- mainClass:        SineSynthModule
-
- useLocalCopy:     1
-
- END_JUCE_PIP_METADATA
-
-*******************************************************************************/
-
-
 #pragma once
 
+//[Headers]     -- You can add your own extra header files here --
+#include <JuceHeader.h>
+//[/Headers]
+
+
+
 //==============================================================================
-class SineSynthModule   : public juce::AudioAppComponent
+/**
+                                                                    //[Comments]
+    An auto-generated component, created by the Projucer.
+
+    Describe your class and how it works here!
+                                                                    //[/Comments]
+*/
+class SineSynthModule  : public juce::AudioAppComponent
 {
 public:
-//! [constructor]
-    SineSynthModule()
-        : AudioAppComponent(getSharedAudioDeviceManager())
-    {
-        addAndMakeVisible (frequencySlider);
-        frequencySlider.setRange (50.0, 5000.0);
-        frequencySlider.setSkewFactorFromMidPoint (500.0); // [4]
-//! [constructor]
-//! [onValueChange]
-        frequencySlider.onValueChange = [this]
-        {
-            if (currentSampleRate > 0.0)
-                updateAngleDelta();
-        };
-//! [onValueChange]
+    //==============================================================================
+    SineSynthModule ();
+    ~SineSynthModule() override;
 
-        setSize (600, 100);
-        setAudioChannels (1, 1); // One input, one output
-    }
+    //==============================================================================
+    //[UserMethods]     -- You can add your own custom methods in this section.
+    void updateAngleDelta();
+    void prepareToPlay(int, double sampleRate) override;
+    void releaseResources() override {};
+    void getNextAudioBlock(const juce::AudioSourceChannelInfo& bufferToFill) override;
+    //[/UserMethods]
 
-    ~SineSynthModule() override
-    {
-        shutdownAudio();
-    }
+    void paint (juce::Graphics& g) override;
+    void resized() override;
 
-    void resized() override
-    {
-        frequencySlider.setBounds (10, 10, getWidth() - 20, 20);
-    }
 
-//! [updateAngleDelta]
-    void updateAngleDelta()
-    {
-        auto cyclesPerSample = frequencySlider.getValue() / currentSampleRate;         // [2]
-        angleDelta = cyclesPerSample * 2.0 * juce::MathConstants<double>::pi;          // [3]
-    }
-//! [updateAngleDelta]
-
-//! [prepareToPlay]
-    void prepareToPlay (int, double sampleRate) override
-    {
-        currentSampleRate = sampleRate;
-        updateAngleDelta();
-    }
-//! [prepareToPlay]
-
-    void releaseResources() override {}
-
-//! [getNextAudioBlock]
-    void getNextAudioBlock (const juce::AudioSourceChannelInfo& bufferToFill) override
-    {
-        auto level = 0.125f;
-        auto* leftBuffer  = bufferToFill.buffer->getWritePointer (0, bufferToFill.startSample);
-        //auto* rightBuffer = bufferToFill.buffer->getWritePointer (1, bufferToFill.startSample);
-
-        for (auto sample = 0; sample < bufferToFill.numSamples; ++sample)
-        {
-            auto currentSample = (float) std::sin (currentAngle);
-            currentAngle += angleDelta;
-            leftBuffer[sample]  = currentSample * level;
-            //rightBuffer[sample] = currentSample * level;
-        }
-    }
-//! [getNextAudioBlock]
 
 private:
-    juce::Slider frequencySlider;
-//! [double members]
-    double currentSampleRate = 0.0, currentAngle = 0.0, angleDelta = 0.0; // [1]
-//! [double members]
+    //[UserVariables]   -- You can add your own custom variables in this section.
+    double currentSampleRate = 0.0, currentAngle = 0.0, angleDelta = 0.0;
+    //[/UserVariables]
 
+    //==============================================================================
+    std::unique_ptr<juce::Slider> frequencySlider;
+    std::unique_ptr<juce::ToggleButton> run__toggleButton;
+
+
+    //==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (SineSynthModule)
 };
+
+//[EndFile] You can add extra defines here...
+//[/EndFile]
+
