@@ -23,7 +23,7 @@
 
  BEGIN_JUCE_PIP_METADATA
 
- name:             SineSynthTutorial
+ name:             SineSynthModule
  version:          1.0.0
  vendor:           JUCE
  website:          http://juce.com
@@ -36,7 +36,7 @@
  exporters:        xcode_mac, vs2019, linux_make
 
  type:             Component
- mainClass:        MainContentComponent
+ mainClass:        SineSynthModule
 
  useLocalCopy:     1
 
@@ -48,11 +48,12 @@
 #pragma once
 
 //==============================================================================
-class MainContentComponent   : public juce::AudioAppComponent
+class SineSynthModule   : public juce::AudioAppComponent
 {
 public:
 //! [constructor]
-    MainContentComponent()
+    SineSynthModule()
+        : AudioAppComponent(getSharedAudioDeviceManager())
     {
         addAndMakeVisible (frequencySlider);
         frequencySlider.setRange (50.0, 5000.0);
@@ -67,10 +68,10 @@ public:
 //! [onValueChange]
 
         setSize (600, 100);
-        setAudioChannels (0, 2); // no inputs, two outputs
+        setAudioChannels (1, 1); // One input, one output
     }
 
-    ~MainContentComponent() override
+    ~SineSynthModule() override
     {
         shutdownAudio();
     }
@@ -103,14 +104,14 @@ public:
     {
         auto level = 0.125f;
         auto* leftBuffer  = bufferToFill.buffer->getWritePointer (0, bufferToFill.startSample);
-        auto* rightBuffer = bufferToFill.buffer->getWritePointer (1, bufferToFill.startSample);
+        //auto* rightBuffer = bufferToFill.buffer->getWritePointer (1, bufferToFill.startSample);
 
         for (auto sample = 0; sample < bufferToFill.numSamples; ++sample)
         {
             auto currentSample = (float) std::sin (currentAngle);
             currentAngle += angleDelta;
             leftBuffer[sample]  = currentSample * level;
-            rightBuffer[sample] = currentSample * level;
+            //rightBuffer[sample] = currentSample * level;
         }
     }
 //! [getNextAudioBlock]
@@ -121,5 +122,5 @@ private:
     double currentSampleRate = 0.0, currentAngle = 0.0, angleDelta = 0.0; // [1]
 //! [double members]
 
-    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (MainContentComponent)
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (SineSynthModule)
 };

@@ -21,6 +21,7 @@
 
 //[Headers]     -- You can add your own extra header files here --
 #include "AudioSettingsModule.h"
+#include "SineSynthModule.h"
 #include <JuceHeader.h>
 //[/Headers]
 
@@ -53,6 +54,7 @@ public:
 private:
     //[UserVariables]   -- You can add your own custom variables in this section.
     std::unique_ptr<AudioSettingsModule> module_AudioSettings = std::make_unique<AudioSettingsModule>();
+    std::unique_ptr<SineSynthModule> module_SineSynth = std::make_unique<SineSynthModule>();
     //[/UserVariables]
 
     //==============================================================================

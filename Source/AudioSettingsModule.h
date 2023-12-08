@@ -64,7 +64,7 @@ public:
                                      [this] (bool granted)
                                      {
                                          int numInputChannels = granted ? 1 : 0;
-                                         getSharedAudioDeviceManager().initialise (numInputChannels, 1, nullptr, true, {}, nullptr);
+                                         getSharedAudioDeviceManager().initialise(numInputChannels, 1, nullptr, true, {}, nullptr);
                                      });
 
         audioSetupComp.reset (new AudioDeviceSelectorComponent (getSharedAudioDeviceManager(),
