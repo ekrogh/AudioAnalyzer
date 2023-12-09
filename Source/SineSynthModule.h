@@ -55,7 +55,7 @@ public:
 
 private:
     //[UserVariables]   -- You can add your own custom variables in this section.
-    double currentSampleRate = 0.0, currentAngle = 0.0, angleDelta = 0.0;
+    double currentSampleRate = 0.0, currentPhase = 0.0, phaseDeltaPerSample = 0.0;
     //[/UserVariables]
 
     //==============================================================================
