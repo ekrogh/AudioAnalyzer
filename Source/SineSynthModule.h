@@ -64,7 +64,6 @@ private:
     //==============================================================================
     std::unique_ptr<juce::Slider> frequencySlider;
     std::unique_ptr<juce::ToggleButton> run__toggleButton;
-    std::unique_ptr<juce::ToggleButton> newGNDB__toggleButton;
     std::unique_ptr<juce::Label> Ts_label;
 
 
