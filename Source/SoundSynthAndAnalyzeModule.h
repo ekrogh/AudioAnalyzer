@@ -56,6 +56,8 @@ public:
 private:
     //[UserVariables]   -- You can add your own custom variables in this section.
     double currentSampleRate = 0.0, currentPhase = 0.0, phaseDeltaPerSample = 0.0;
+    double audioSamplesSquareSum = 0.0f;
+    unsigned int noSamplesInAudioSamplesSquareSum = 0;
     //[/UserVariables]
 
     //==============================================================================

@@ -129,13 +129,21 @@ void SoundSynthAndAnalyzeModule::prepareToPlay(int, double sampleRate)
 
 void SoundSynthAndAnalyzeModule::getNextAudioBlock(const juce::AudioSourceChannelInfo& bufferToFill)
 {
-	// For when read audio input
+	// Sum squares
 	//auto tst = bufferToFill.buffer->getRMSLevel(0, 0, bufferToFill.numSamples);
+    auto* channelRead = bufferToFill.buffer->getReadPointer(0);
+    double curSample;
+    for (auto sample = 0; sample < bufferToFill.numSamples; ++sample)
+    {
+        curSample = (double)(channelRead[sample]);
+        audioSamplesSquareSum += curSample * curSample;
+    }
+    noSamplesInAudioSamplesSquareSum += bufferToFill.numSamples;
 
-	auto* channelData = bufferToFill.buffer->getWritePointer(0, bufferToFill.startSample);
+	auto* channelWrite = bufferToFill.buffer->getWritePointer(0);
 	for (auto sample = 0; sample < bufferToFill.numSamples; ++sample)
 	{
-		channelData[sample] = (float)std::sin(currentPhase);
+		channelWrite[sample] = (float)std::sin(currentPhase);
 		currentPhase += phaseDeltaPerSample;
 	}
 	currentPhase = std::fmod(currentPhase, juce::MathConstants<double>::twoPi);
