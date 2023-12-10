@@ -62,7 +62,7 @@ private:
     double currentSampleRate = 0.0, currentPhase = 0.0, phaseDeltaPerSample = 0.0;
     double minFrequencyHz = 1.0f;
     double maxFrequencyHz = 50.0f;
-    double currentFrequencyHz = minFrequencyHz;
+    double currentFrequencyHz = 0.0f;
     double deltaFrequencyHz = 1.0f;
     double deltaTimeS = 1.0f;  // 1 sec
     double currentTimeToRunS =
