@@ -147,7 +147,7 @@ MainComponent::MainComponent ()
 	juce__tabbedComponent->setCurrentTabIndex(1);
     //[/UserPreSize]
 
-    setSize (600, 400);
+    setSize (600, 600);
 
 
     //[Constructor] You can add your own custom stuff here..
@@ -208,10 +208,10 @@ BEGIN_JUCER_METADATA
 <JUCER_COMPONENT documentType="Component" className="MainComponent" componentName=""
                  parentClasses="public juce::Component" constructorParams="" variableInitialisers=""
                  snapPixels="8" snapActive="1" snapShown="1" overlayOpacity="0.330"
-                 fixedSize="0" initialWidth="600" initialHeight="400">
+                 fixedSize="0" initialWidth="600" initialHeight="600">
   <BACKGROUND backgroundColour="ff505050"/>
   <TABBEDCOMPONENT name="new tabbed component" id="b42ee76ffd12e39c" memberName="juce__tabbedComponent"
-                   virtualName="" explicitFocusOrder="0" pos="0 0 99.085% 99.194%"
+                   virtualName="" explicitFocusOrder="0" pos="0 0 99.029% 99.194%"
                    orientation="top" tabBarDepth="30" initialTab="-1"/>
 </JUCER_COMPONENT>
 

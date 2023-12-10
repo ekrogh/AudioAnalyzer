@@ -28,117 +28,260 @@ extern AudioDeviceManager& getSharedAudioDeviceManager(int numInputChannels = 1,
 //[/MiscUserDefs]
 
 //==============================================================================
-SoundSynthAndAnalyzeModule::SoundSynthAndAnalyzeModule ()
-    : AudioAppComponent(getSharedAudioDeviceManager())
+SoundSynthAndAnalyzeModule::SoundSynthAndAnalyzeModule()
+	: AudioAppComponent(getSharedAudioDeviceManager()),
+	Thread("Freq. shifter")
 {
-    //[Constructor_pre] You can add your own custom stuff here..
-    //[/Constructor_pre]
+	//[Constructor_pre] You can add your own custom stuff here..
+	//[/Constructor_pre]
 
-    setName ("Sound Synth And Analyze Module");
-    frequencySlider.reset (new juce::Slider ("Frequency Slider"));
-    addAndMakeVisible (frequencySlider.get());
-    frequencySlider->setRange (50, 5000, 1);
-    frequencySlider->setSliderStyle (juce::Slider::LinearHorizontal);
-    frequencySlider->setTextBoxStyle (juce::Slider::TextBoxLeft, false, 80, 20);
+	setName("Sound Synth And Analyze Module");
+	maxFrequency__Slider.reset(new juce::Slider("Max Frequency Slider"));
+	addAndMakeVisible(maxFrequency__Slider.get());
+	maxFrequency__Slider->setTooltip(TRANS("Max freq."));
+	maxFrequency__Slider->setRange(50, 15000, 1);
+	maxFrequency__Slider->setSliderStyle(juce::Slider::LinearHorizontal);
+	maxFrequency__Slider->setTextBoxStyle(juce::Slider::TextBoxLeft, false, 80, 20);
 
-    run__toggleButton.reset (new juce::ToggleButton ("run toggle button"));
-    addAndMakeVisible (run__toggleButton.get());
-    run__toggleButton->setButtonText (TRANS ("Run"));
+	run__toggleButton.reset(new juce::ToggleButton("run toggle button"));
+	addAndMakeVisible(run__toggleButton.get());
+	run__toggleButton->setButtonText(TRANS("Run"));
+
+	deltaTime__slider.reset(new juce::Slider("delta time slider"));
+	addAndMakeVisible(deltaTime__slider.get());
+	deltaTime__slider->setTooltip(TRANS("Delta Time [Sec]"));
+	deltaTime__slider->setRange(1, 60, 1);
+	deltaTime__slider->setSliderStyle(juce::Slider::LinearHorizontal);
+	deltaTime__slider->setTextBoxStyle(juce::Slider::TextBoxLeft, false, 80, 20);
+
+	juce__label.reset(new juce::Label("new label",
+		TRANS("Max freq.")));
+	addAndMakeVisible(juce__label.get());
+	juce__label->setFont(juce::Font(15.00f, juce::Font::plain).withTypefaceStyle("Regular"));
+	juce__label->setJustificationType(juce::Justification::centredLeft);
+	juce__label->setEditable(false, false, false);
+	juce__label->setColour(juce::TextEditor::textColourId, juce::Colours::black);
+	juce__label->setColour(juce::TextEditor::backgroundColourId, juce::Colour(0x00000000));
+
+	juce__label2.reset(new juce::Label("new label",
+		TRANS("Delta Time [Sec]")));
+	addAndMakeVisible(juce__label2.get());
+	juce__label2->setFont(juce::Font(15.00f, juce::Font::plain).withTypefaceStyle("Regular"));
+	juce__label2->setJustificationType(juce::Justification::centredLeft);
+	juce__label2->setEditable(false, false, false);
+	juce__label2->setColour(juce::TextEditor::textColourId, juce::Colours::black);
+	juce__label2->setColour(juce::TextEditor::backgroundColourId, juce::Colour(0x00000000));
+
+	juce__label3.reset(new juce::Label("new label",
+		TRANS("Delta freq [Hz]")));
+	addAndMakeVisible(juce__label3.get());
+	juce__label3->setFont(juce::Font(15.00f, juce::Font::plain).withTypefaceStyle("Regular"));
+	juce__label3->setJustificationType(juce::Justification::centredLeft);
+	juce__label3->setEditable(false, false, false);
+	juce__label3->setColour(juce::TextEditor::textColourId, juce::Colours::black);
+	juce__label3->setColour(juce::TextEditor::backgroundColourId, juce::Colour(0x00000000));
+
+	juce__label3->setBounds(8, 88, 150, 24);
+
+	deltaFreq__slider.reset(new juce::Slider("Delta Freq slider"));
+	addAndMakeVisible(deltaFreq__slider.get());
+	deltaFreq__slider->setTooltip(TRANS("Delta Freq [Hz]"));
+	deltaFreq__slider->setRange(1, 1000, 1);
+	deltaFreq__slider->setSliderStyle(juce::Slider::LinearHorizontal);
+	deltaFreq__slider->setTextBoxStyle(juce::Slider::TextBoxLeft, false, 80, 20);
+
+	timeToRun__label.reset(new juce::Label("time To Run label",
+		TRANS("Time To Run:")));
+	addAndMakeVisible(timeToRun__label.get());
+	timeToRun__label->setFont(juce::Font(15.00f, juce::Font::plain).withTypefaceStyle("Regular"));
+	timeToRun__label->setJustificationType(juce::Justification::centredLeft);
+	timeToRun__label->setEditable(false, false, false);
+	timeToRun__label->setColour(juce::TextEditor::textColourId, juce::Colours::black);
+	timeToRun__label->setColour(juce::TextEditor::backgroundColourId, juce::Colour(0x00000000));
+
+	timeToRun__label->setBounds(8, 250, 150, 24);
+
+	timeToRunValue__label.reset(new juce::Label("Time To Run Value  label",
+		TRANS("Time To Run Value")));
+	addAndMakeVisible(timeToRunValue__label.get());
+	timeToRunValue__label->setFont(juce::Font(15.00f, juce::Font::plain).withTypefaceStyle("Regular"));
+	timeToRunValue__label->setJustificationType(juce::Justification::centredLeft);
+	timeToRunValue__label->setEditable(false, false, false);
+	timeToRunValue__label->setColour(juce::TextEditor::textColourId, juce::Colours::black);
+	timeToRunValue__label->setColour(juce::TextEditor::backgroundColourId, juce::Colour(0x00000000));
+
+	timeToRunValue__label->setBounds(8, 280, 150, 24);
+
+	juce__label4.reset(new juce::Label("new label",
+		TRANS("Current frequency:")));
+	addAndMakeVisible(juce__label4.get());
+	juce__label4->setFont(juce::Font(15.00f, juce::Font::plain).withTypefaceStyle("Regular"));
+	juce__label4->setJustificationType(juce::Justification::centredLeft);
+	juce__label4->setEditable(false, false, false);
+	juce__label4->setColour(juce::TextEditor::textColourId, juce::Colours::black);
+	juce__label4->setColour(juce::TextEditor::backgroundColourId, juce::Colour(0x00000000));
+
+	juce__label4->setBounds(8, 328, 150, 24);
+
+	currentFrequency__label.reset(new juce::Label("Current Frequency  label",
+		TRANS("Current Frequency")));
+	addAndMakeVisible(currentFrequency__label.get());
+	currentFrequency__label->setFont(juce::Font(15.00f, juce::Font::plain).withTypefaceStyle("Regular"));
+	currentFrequency__label->setJustificationType(juce::Justification::centredLeft);
+	currentFrequency__label->setEditable(false, false, false);
+	currentFrequency__label->setColour(juce::TextEditor::textColourId, juce::Colours::black);
+	currentFrequency__label->setColour(juce::TextEditor::backgroundColourId, juce::Colour(0x00000000));
+
+	currentFrequency__label->setBounds(8, 360, 150, 24);
 
 
-    //[UserPreSize]
-    //[/UserPreSize]
+	//[UserPreSize]
+	//[/UserPreSize]
 
-    setSize (600, 400);
+	setSize(600, 500);
 
 
-    //[Constructor] You can add your own custom stuff here..
+	//[Constructor] You can add your own custom stuff here..
 	run__toggleButton->onClick =
 		[this]
 		{
 			if (run__toggleButton->getToggleState())
 			{
+				updateFrequencyAndAngleDelta();
+
 				setAudioChannels(1, 1); // One input, one output
+
+				startThread(Priority::normal);
 			}
 			else
 			{
+				signalThreadShouldExit();
+
 				shutdownAudio();
 			}
 		};
 
-	frequencySlider->setSkewFactorFromMidPoint(500.0);
-	frequencySlider->onValueChange = [this]
+	maxFrequency__Slider->onValueChange =
+		[this]
 		{
-			if (currentSampleRate > 0.0)
-				updateAngleDelta();
+			maxFrequencyHz = maxFrequency__Slider->getValue();
+			updateFrequencyAndAngleDelta();
 		};
-    //[/Constructor]
+
+	deltaTime__slider->onValueChange =
+		[this]
+		{
+			deltaTimeS = deltaTime__slider->getValue();
+			updateFrequencyAndAngleDelta();
+		};
+
+	deltaFreq__slider->onValueChange =
+		[this]
+		{
+			deltaFrequencyHz = deltaFreq__slider->getValue();
+			updateFrequencyAndAngleDelta();
+		};
+
+	updateFrequencyAndAngleDelta();
+	//[/Constructor]
 }
 
 SoundSynthAndAnalyzeModule::~SoundSynthAndAnalyzeModule()
 {
-    //[Destructor_pre]. You can add your own custom destruction code here..
+	//[Destructor_pre]. You can add your own custom destruction code here..
+	signalThreadShouldExit();
 	eksShutdownAudio();
-    //[/Destructor_pre]
+	//[/Destructor_pre]
 
-    frequencySlider = nullptr;
-    run__toggleButton = nullptr;
+	maxFrequency__Slider = nullptr;
+	run__toggleButton = nullptr;
+	deltaTime__slider = nullptr;
+	juce__label = nullptr;
+	juce__label2 = nullptr;
+	juce__label3 = nullptr;
+	deltaFreq__slider = nullptr;
+	timeToRun__label = nullptr;
+	timeToRunValue__label = nullptr;
+	juce__label4 = nullptr;
+	currentFrequency__label = nullptr;
 
 
-    //[Destructor]. You can add your own custom destruction code here..
-    //[/Destructor]
+	//[Destructor]. You can add your own custom destruction code here..
+	//[/Destructor]
 }
 
 //==============================================================================
-void SoundSynthAndAnalyzeModule::paint (juce::Graphics& g)
+void SoundSynthAndAnalyzeModule::paint(juce::Graphics& g)
 {
-    //[UserPrePaint] Add your own custom painting code here..
-    //[/UserPrePaint]
+	//[UserPrePaint] Add your own custom painting code here..
+	//[/UserPrePaint]
 
-    g.fillAll (juce::Colour (0xff505050));
+	g.fillAll(juce::Colour(0xff505050));
 
-    //[UserPaint] Add your own custom painting code here..
-    //[/UserPaint]
+	//[UserPaint] Add your own custom painting code here..
+	//[/UserPaint]
 }
 
 void SoundSynthAndAnalyzeModule::resized()
 {
-    //[UserPreResize] Add your own custom resize code here..
-    //[/UserPreResize]
+	//[UserPreResize] Add your own custom resize code here..
+	//[/UserPreResize]
 
-    frequencySlider->setBounds (8, 16, getWidth() - 27, 24);
-    run__toggleButton->setBounds (52 - (88 / 2), 56, 88, 24);
-    //[UserResized] Add your own custom resize handling here..
-    //[/UserResized]
+	maxFrequency__Slider->setBounds(8, 48, getWidth() - 27, 24);
+	run__toggleButton->setBounds(52 - (88 / 2), 427, 88, 24);
+	deltaTime__slider->setBounds(8, 194, getWidth() - 27, 24);
+	juce__label->setBounds(8, 16, getWidth() - 0, 24);
+	juce__label2->setBounds(8, 163, getWidth() - 205, 24);
+	deltaFreq__slider->setBounds(8, 120, getWidth() - 27, 24);
+	//[UserResized] Add your own custom resize handling here..
+	//[/UserResized]
 }
 
 
 
 //[MiscUserCode] You can add your own definitions of your custom methods or any other code here...
-void SoundSynthAndAnalyzeModule::updateAngleDelta()
+void SoundSynthAndAnalyzeModule::updateFrequencyAndAngleDelta()
 {
-	auto cyclesPerSample = frequencySlider->getValue() / currentSampleRate;
-	phaseDeltaPerSample = cyclesPerSample * juce::MathConstants<double>::twoPi;
+	if (currentSampleRate > 0.0)
+	{
+		auto cyclesPerSample = currentFrequencyHz / currentSampleRate;
+		phaseDeltaPerSample = cyclesPerSample * juce::MathConstants<double>::twoPi;
+	}
+
+	if (deltaFrequencyHz > 0.0f)
+	{
+		currentTimeToRunS = deltaTimeS * (maxFrequencyHz - currentFrequencyHz) / deltaFrequencyHz;
+
+		timeToRunValue__label->setText
+		(
+			std::to_string
+			(
+				currentTimeToRunS / 60.0f
+			)
+			+ " [min]"
+			, dontSendNotification
+		);
+	}
 }
 
 void SoundSynthAndAnalyzeModule::prepareToPlay(int, double sampleRate)
 {
 	currentSampleRate = sampleRate;
-	updateAngleDelta();
+	updateFrequencyAndAngleDelta();
 }
 
 void SoundSynthAndAnalyzeModule::getNextAudioBlock(const juce::AudioSourceChannelInfo& bufferToFill)
 {
 	// Sum squares
 	//auto tst = bufferToFill.buffer->getRMSLevel(0, 0, bufferToFill.numSamples);
-    auto* channelRead = bufferToFill.buffer->getReadPointer(0);
-    double curSample;
-    for (auto sample = 0; sample < bufferToFill.numSamples; ++sample)
-    {
-        curSample = (double)(channelRead[sample]);
-        audioSamplesSquareSum += curSample * curSample;
-    }
-    noSamplesInAudioSamplesSquareSum += bufferToFill.numSamples;
+	auto* channelRead = bufferToFill.buffer->getReadPointer(0);
+	double curSample;
+	for (auto sample = 0; sample < bufferToFill.numSamples; ++sample)
+	{
+		curSample = channelRead[sample];
+		audioSamplesSquareSum += curSample * curSample;
+	}
+	noSamplesInAudioSamplesSquareSum += bufferToFill.numSamples;
 
 	auto* channelWrite = bufferToFill.buffer->getWritePointer(0);
 	for (auto sample = 0; sample < bufferToFill.numSamples; ++sample)
@@ -149,6 +292,33 @@ void SoundSynthAndAnalyzeModule::getNextAudioBlock(const juce::AudioSourceChanne
 	currentPhase = std::fmod(currentPhase, juce::MathConstants<double>::twoPi);
 
 }
+
+// the thread
+void SoundSynthAndAnalyzeModule::run()
+{
+	while (!threadShouldExit())
+	{
+		updateCurrentFrequencyLabel();
+
+		sleep((int)(1000.0f * deltaTimeS)); // sleep ms
+
+	}
+}
+
+void SoundSynthAndAnalyzeModule::updateCurrentFrequencyLabel()
+{
+	const MessageManagerLock mml;
+	currentFrequency__label->setText
+	(
+		std::to_string
+		(
+			currentFrequencyHz
+		)
+		+" [Hz]"
+		, dontSendNotification
+	);
+
+}
 //[/MiscUserCode]
 
 
@@ -156,25 +326,70 @@ void SoundSynthAndAnalyzeModule::getNextAudioBlock(const juce::AudioSourceChanne
 #if 0
 /*  -- Projucer information section --
 
-    This is where the Projucer stores the metadata that describe this GUI layout, so
-    make changes in here at your peril!
+	This is where the Projucer stores the metadata that describe this GUI layout, so
+	make changes in here at your peril!
 
 BEGIN_JUCER_METADATA
 
 <JUCER_COMPONENT documentType="Component" className="SoundSynthAndAnalyzeModule"
-                 componentName="Sound Synth And Analyze Module" parentClasses="public juce::AudioAppComponent"
-                 constructorParams="" variableInitialisers="AudioAppComponent(getSharedAudioDeviceManager())"
-                 snapPixels="8" snapActive="1" snapShown="1" overlayOpacity="0.330"
-                 fixedSize="0" initialWidth="600" initialHeight="400">
+				 componentName="Sound Synth And Analyze Module" parentClasses="public juce::AudioAppComponent, private juce::Thread"
+				 constructorParams="" variableInitialisers="AudioAppComponent(getSharedAudioDeviceManager())&#10;Thread(&quot;Freq. shifter&quot;)"
+				 snapPixels="8" snapActive="1" snapShown="1" overlayOpacity="0.330"
+				 fixedSize="0" initialWidth="600" initialHeight="500">
   <BACKGROUND backgroundColour="ff505050"/>
-  <SLIDER name="Frequency Slider" id="3ad3aaa1f69d9a54" memberName="frequencySlider"
-          virtualName="" explicitFocusOrder="0" pos="8 16 27M 24" min="50.0"
-          max="5000.0" int="1.0" style="LinearHorizontal" textBoxPos="TextBoxLeft"
-          textBoxEditable="1" textBoxWidth="80" textBoxHeight="20" skewFactor="1.0"
-          needsCallback="0"/>
+  <SLIDER name="Max Frequency Slider" id="3ad3aaa1f69d9a54" memberName="maxFrequency__Slider"
+		  virtualName="" explicitFocusOrder="0" pos="8 48 27M 24" tooltip="Max freq."
+		  min="50.0" max="15000.0" int="1.0" style="LinearHorizontal" textBoxPos="TextBoxLeft"
+		  textBoxEditable="1" textBoxWidth="80" textBoxHeight="20" skewFactor="1.0"
+		  needsCallback="0"/>
   <TOGGLEBUTTON name="run toggle button" id="3e0da1935c285e8f" memberName="run__toggleButton"
-                virtualName="" explicitFocusOrder="0" pos="52c 56 88 24" buttonText="Run"
-                connectedEdges="0" needsCallback="0" radioGroupId="0" state="0"/>
+				virtualName="" explicitFocusOrder="0" pos="52c 427 88 24" buttonText="Run"
+				connectedEdges="0" needsCallback="0" radioGroupId="0" state="0"/>
+  <SLIDER name="delta time slider" id="3f78bae238bae958" memberName="deltaTime__slider"
+		  virtualName="" explicitFocusOrder="0" pos="8 194 27M 24" tooltip="Delta Time [Sec]"
+		  min="1.0" max="60.0" int="1.0" style="LinearHorizontal" textBoxPos="TextBoxLeft"
+		  textBoxEditable="1" textBoxWidth="80" textBoxHeight="20" skewFactor="1.0"
+		  needsCallback="0"/>
+  <LABEL name="new label" id="4b95e9e55b2502d9" memberName="juce__label"
+		 virtualName="" explicitFocusOrder="0" pos="8 16 0M 24" edTextCol="ff000000"
+		 edBkgCol="0" labelText="Max freq." editableSingleClick="0" editableDoubleClick="0"
+		 focusDiscardsChanges="0" fontname="Default font" fontsize="15.0"
+		 kerning="0.0" bold="0" italic="0" justification="33"/>
+  <LABEL name="new label" id="69170c72758aeb9e" memberName="juce__label2"
+		 virtualName="" explicitFocusOrder="0" pos="8 163 205M 24" edTextCol="ff000000"
+		 edBkgCol="0" labelText="Delta Time [Sec]" editableSingleClick="0"
+		 editableDoubleClick="0" focusDiscardsChanges="0" fontname="Default font"
+		 fontsize="15.0" kerning="0.0" bold="0" italic="0" justification="33"/>
+  <LABEL name="new label" id="30871f40ff4c0cbe" memberName="juce__label3"
+		 virtualName="" explicitFocusOrder="0" pos="8 88 150 24" edTextCol="ff000000"
+		 edBkgCol="0" labelText="Delta freq [Hz]" editableSingleClick="0"
+		 editableDoubleClick="0" focusDiscardsChanges="0" fontname="Default font"
+		 fontsize="15.0" kerning="0.0" bold="0" italic="0" justification="33"/>
+  <SLIDER name="Delta Freq slider" id="27e8662d217379e4" memberName="deltaFreq__slider"
+		  virtualName="" explicitFocusOrder="0" pos="8 120 27M 24" tooltip="Delta Freq [Hz]"
+		  min="1.0" max="1000.0" int="1.0" style="LinearHorizontal" textBoxPos="TextBoxLeft"
+		  textBoxEditable="1" textBoxWidth="80" textBoxHeight="20" skewFactor="1.0"
+		  needsCallback="0"/>
+  <LABEL name="time To Run label" id="88f16d9da9e68c20" memberName="timeToRun__label"
+		 virtualName="" explicitFocusOrder="0" pos="8 250 150 24" edTextCol="ff000000"
+		 edBkgCol="0" labelText="Time To Run:" editableSingleClick="0"
+		 editableDoubleClick="0" focusDiscardsChanges="0" fontname="Default font"
+		 fontsize="15.0" kerning="0.0" bold="0" italic="0" justification="33"/>
+  <LABEL name="Time To Run Value  label" id="37068ae926a0a595" memberName="timeToRunValue__label"
+		 virtualName="" explicitFocusOrder="0" pos="8 280 150 24" edTextCol="ff000000"
+		 edBkgCol="0" labelText="Time To Run Value" editableSingleClick="0"
+		 editableDoubleClick="0" focusDiscardsChanges="0" fontname="Default font"
+		 fontsize="15.0" kerning="0.0" bold="0" italic="0" justification="33"/>
+  <LABEL name="new label" id="7a68dc774966fe8" memberName="juce__label4"
+		 virtualName="" explicitFocusOrder="0" pos="8 328 150 24" edTextCol="ff000000"
+		 edBkgCol="0" labelText="Current frequency:" editableSingleClick="0"
+		 editableDoubleClick="0" focusDiscardsChanges="0" fontname="Default font"
+		 fontsize="15.0" kerning="0.0" bold="0" italic="0" justification="33"/>
+  <LABEL name="Current Frequency  label" id="fb908497d89dec02" memberName="currentFrequency__label"
+		 virtualName="" explicitFocusOrder="0" pos="8 360 150 24" edTextCol="ff000000"
+		 edBkgCol="0" labelText="Current Frequency" editableSingleClick="0"
+		 editableDoubleClick="0" focusDiscardsChanges="0" fontname="Default font"
+		 fontsize="15.0" kerning="0.0" bold="0" italic="0" justification="33"/>
 </JUCER_COMPONENT>
 
 END_JUCER_METADATA
