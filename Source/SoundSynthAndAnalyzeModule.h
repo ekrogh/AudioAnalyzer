@@ -56,21 +56,11 @@ public:
 private:
     //[UserVariables]   -- You can add your own custom variables in this section.
     double currentSampleRate = 0.0, currentPhase = 0.0, phaseDeltaPerSample = 0.0;
-    long long getNextAudioBlockDurationSum = 0;
-    int getNextAudioBlockNoCalls = 0;
-    bool newGNDB = false;
-    double getNextAudioBlockDurationAvgSum = 0.0f;
-    int noSmplsGetNextAudioBlockDurationAvgSum = 0;
     //[/UserVariables]
 
     //==============================================================================
     std::unique_ptr<juce::Slider> frequencySlider;
     std::unique_ptr<juce::ToggleButton> run__toggleButton;
-    std::unique_ptr<juce::Label> Ts_label;
-    std::unique_ptr<juce::ToggleButton> GNAB__toggleButton;
-    std::unique_ptr<juce::Label> measured_ts__label;
-    std::unique_ptr<juce::Label> forDurationRms__label;
-    std::unique_ptr<juce::Label> for_eachDurationRms__label;
 
 
     //==============================================================================
