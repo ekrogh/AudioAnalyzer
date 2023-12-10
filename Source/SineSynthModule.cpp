@@ -84,12 +84,6 @@ SineSynthModule::SineSynthModule ()
 				updateAngleDelta();
 		};
 
-	newGNDB__toggleButton->onStateChange =
-		[this]
-		{
-			newGNDB = newGNDB__toggleButton->getToggleState();
-		};
-
     //[/Constructor]
 }
 
@@ -161,7 +155,7 @@ void SineSynthModule::prepareToPlay(int, double sampleRate)
 void SineSynthModule::getNextAudioBlock(const juce::AudioSourceChannelInfo& bufferToFill)
 {
     // For when read audio input
-    //auto tst = bufferToFill.buffer->getRMSLevel(0, 0, bufferToFill.numSamples);
+    auto tst = bufferToFill.buffer->getRMSLevel(0, 0, bufferToFill.numSamples);
 
 	auto* channelData = bufferToFill.buffer->getWritePointer(0, bufferToFill.startSample);
 
