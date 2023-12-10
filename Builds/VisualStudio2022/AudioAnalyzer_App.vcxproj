@@ -143,7 +143,7 @@
   <ItemGroup>
     <ClCompile Include="..\..\Source\Main.cpp"/>
     <ClCompile Include="..\..\Source\MainComponent.cpp"/>
-    <ClCompile Include="..\..\Source\SineSynthModule.cpp"/>
+    <ClCompile Include="..\..\Source\SoundSynthAndAnalyzeModule.cpp"/>
     <ClCompile Include="..\..\..\JUCE\modules\juce_audio_basics\audio_play_head\juce_AudioPlayHead.cpp">
       <ExcludedFromBuild>true</ExcludedFromBuild>
     </ClCompile>
@@ -2408,7 +2408,7 @@
   <ItemGroup>
     <ClInclude Include="..\..\Source\AudioSettingsModule.h"/>
     <ClInclude Include="..\..\Source\MainComponent.h"/>
-    <ClInclude Include="..\..\Source\SineSynthModule.h"/>
+    <ClInclude Include="..\..\Source\SoundSynthAndAnalyzeModule.h"/>
     <ClInclude Include="..\..\Source\Utilities.h"/>
     <ClInclude Include="..\..\..\JUCE\modules\juce_audio_basics\audio_play_head\juce_AudioPlayHead.h"/>
     <ClInclude Include="..\..\..\JUCE\modules\juce_audio_basics\buffers\juce_AudioChannelSet.h"/>

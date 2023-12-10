@@ -33,12 +33,12 @@
     Describe your class and how it works here!
                                                                     //[/Comments]
 */
-class SineSynthModule  : public juce::AudioAppComponent
+class SoundSynthAndAnalyzeModule  : public juce::AudioAppComponent
 {
 public:
     //==============================================================================
-    SineSynthModule ();
-    ~SineSynthModule() override;
+    SoundSynthAndAnalyzeModule ();
+    ~SoundSynthAndAnalyzeModule() override;
 
     //==============================================================================
     //[UserMethods]     -- You can add your own custom methods in this section.
@@ -59,16 +59,22 @@ private:
     long long getNextAudioBlockDurationSum = 0;
     int getNextAudioBlockNoCalls = 0;
     bool newGNDB = false;
+    double getNextAudioBlockDurationAvgSum = 0.0f;
+    int noSmplsGetNextAudioBlockDurationAvgSum = 0;
     //[/UserVariables]
 
     //==============================================================================
     std::unique_ptr<juce::Slider> frequencySlider;
     std::unique_ptr<juce::ToggleButton> run__toggleButton;
     std::unique_ptr<juce::Label> Ts_label;
+    std::unique_ptr<juce::ToggleButton> GNAB__toggleButton;
+    std::unique_ptr<juce::Label> measured_ts__label;
+    std::unique_ptr<juce::Label> forDurationRms__label;
+    std::unique_ptr<juce::Label> for_eachDurationRms__label;
 
 
     //==============================================================================
-    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (SineSynthModule)
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (SoundSynthAndAnalyzeModule)
 };
 
 //[EndFile] You can add extra defines here...

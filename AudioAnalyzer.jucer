@@ -11,10 +11,10 @@
       <FILE id="R8zn7a" name="MainComponent.cpp" compile="1" resource="0"
             file="Source/MainComponent.cpp"/>
       <FILE id="drB857" name="MainComponent.h" compile="0" resource="0" file="Source/MainComponent.h"/>
-      <FILE id="iY4WPw" name="SineSynthModule.cpp" compile="1" resource="0"
-            file="Source/SineSynthModule.cpp"/>
-      <FILE id="kysDNn" name="SineSynthModule.h" compile="0" resource="0"
-            file="Source/SineSynthModule.h"/>
+      <FILE id="iY4WPw" name="SoundSynthAndAnalyzeModule.cpp" compile="1"
+            resource="0" file="Source/SoundSynthAndAnalyzeModule.cpp"/>
+      <FILE id="kysDNn" name="SoundSynthAndAnalyzeModule.h" compile="0" resource="0"
+            file="Source/SoundSynthAndAnalyzeModule.h"/>
       <FILE id="cqhsP1" name="Utilities.h" compile="0" resource="0" file="Source/Utilities.h"/>
     </GROUP>
   </MAINGROUP>

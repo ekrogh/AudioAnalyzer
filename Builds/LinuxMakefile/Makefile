@@ -74,7 +74,7 @@ endif
 OBJECTS_APP := \
   $(JUCE_OBJDIR)/Main_90ebc5c2.o \
   $(JUCE_OBJDIR)/MainComponent_a6ffb4a5.o \
-  $(JUCE_OBJDIR)/SineSynthModule_ca25fedc.o \
+  $(JUCE_OBJDIR)/SoundSynthAndAnalyzeModule_cc21e657.o \
   $(JUCE_OBJDIR)/include_juce_audio_basics_8a4e984a.o \
   $(JUCE_OBJDIR)/include_juce_audio_devices_63111d02.o \
   $(JUCE_OBJDIR)/include_juce_audio_formats_15f82001.o \
@@ -112,9 +112,9 @@ $(JUCE_OBJDIR)/MainComponent_a6ffb4a5.o: ../../Source/MainComponent.cpp
 	@echo "Compiling MainComponent.cpp"
 	$(V_AT)$(CXX) $(JUCE_CXXFLAGS) $(JUCE_CPPFLAGS_APP) $(JUCE_CFLAGS_APP) -o "$@" -c "$<"
 
-$(JUCE_OBJDIR)/SineSynthModule_ca25fedc.o: ../../Source/SineSynthModule.cpp
+$(JUCE_OBJDIR)/SoundSynthAndAnalyzeModule_cc21e657.o: ../../Source/SoundSynthAndAnalyzeModule.cpp
 	-$(V_AT)mkdir -p $(@D)
-	@echo "Compiling SineSynthModule.cpp"
+	@echo "Compiling SoundSynthAndAnalyzeModule.cpp"
 	$(V_AT)$(CXX) $(JUCE_CXXFLAGS) $(JUCE_CPPFLAGS_APP) $(JUCE_CFLAGS_APP) -o "$@" -c "$<"
 
 $(JUCE_OBJDIR)/include_juce_audio_basics_8a4e984a.o: ../../JuceLibraryCode/include_juce_audio_basics.cpp

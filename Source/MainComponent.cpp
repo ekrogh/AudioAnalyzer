@@ -134,7 +134,7 @@ MainComponent::MainComponent ()
 	(
 		TRANS("Freq. Control")
 		, juce::Colours::lightgrey
-		, module_SineSynth.get()
+		, module_SoundSynthAndAnalyze.get()
 		, false
 	);
 	juce__tabbedComponent->addTab
@@ -144,7 +144,7 @@ MainComponent::MainComponent ()
 		, module_AudioSettings.get()
 		, false
 	);
-	juce__tabbedComponent->setCurrentTabIndex(2);
+	juce__tabbedComponent->setCurrentTabIndex(1);
     //[/UserPreSize]
 
     setSize (600, 400);
@@ -185,7 +185,7 @@ void MainComponent::resized()
     //[UserPreResize] Add your own custom resize code here..
     //[/UserPreResize]
 
-    juce__tabbedComponent->setBounds (0, 0, proportionOfWidth (0.9903f), proportionOfHeight (0.9919f));
+    juce__tabbedComponent->setBounds (0, 0, proportionOfWidth (0.9908f), proportionOfHeight (0.9919f));
     //[UserResized] Add your own custom resize handling here..
     //[/UserResized]
 }
@@ -211,7 +211,7 @@ BEGIN_JUCER_METADATA
                  fixedSize="0" initialWidth="600" initialHeight="400">
   <BACKGROUND backgroundColour="ff505050"/>
   <TABBEDCOMPONENT name="new tabbed component" id="b42ee76ffd12e39c" memberName="juce__tabbedComponent"
-                   virtualName="" explicitFocusOrder="0" pos="0 0 99.029% 99.194%"
+                   virtualName="" explicitFocusOrder="0" pos="0 0 99.085% 99.194%"
                    orientation="top" tabBarDepth="30" initialTab="-1"/>
 </JUCER_COMPONENT>
 

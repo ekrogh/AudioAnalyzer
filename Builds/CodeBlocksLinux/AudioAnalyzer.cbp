@@ -152,11 +152,11 @@
       <Option compile="0"/>
       <Option link="0"/>
     </Unit>
-    <Unit filename="../../Source/SineSynthModule.cpp">
+    <Unit filename="../../Source/SoundSynthAndAnalyzeModule.cpp">
       <Option target="App | Debug"/>
       <Option target="App | Release"/>
     </Unit>
-    <Unit filename="../../Source/SineSynthModule.h">
+    <Unit filename="../../Source/SoundSynthAndAnalyzeModule.h">
       <Option target="App | Debug"/>
       <Option target="App | Release"/>
       <Option compile="0"/>

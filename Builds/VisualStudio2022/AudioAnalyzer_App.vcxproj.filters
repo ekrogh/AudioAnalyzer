@@ -595,7 +595,7 @@
     <ClCompile Include="..\..\Source\MainComponent.cpp">
       <Filter>AudioAnalyzer\Source</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\Source\SineSynthModule.cpp">
+    <ClCompile Include="..\..\Source\SoundSynthAndAnalyzeModule.cpp">
       <Filter>AudioAnalyzer\Source</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\JUCE\modules\juce_audio_basics\audio_play_head\juce_AudioPlayHead.cpp">
@@ -3030,7 +3030,7 @@
     <ClInclude Include="..\..\Source\MainComponent.h">
       <Filter>AudioAnalyzer\Source</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\Source\SineSynthModule.h">
+    <ClInclude Include="..\..\Source\SoundSynthAndAnalyzeModule.h">
       <Filter>AudioAnalyzer\Source</Filter>
     </ClInclude>
     <ClInclude Include="..\..\Source\Utilities.h">
