@@ -155,11 +155,22 @@ void SineSynthModule::prepareToPlay(int, double sampleRate)
 void SineSynthModule::getNextAudioBlock(const juce::AudioSourceChannelInfo& bufferToFill)
 {
     // For when read audio input
-    auto tst = bufferToFill.buffer->getRMSLevel(0, 0, bufferToFill.numSamples);
+    //auto tst = bufferToFill.buffer->getRMSLevel(0, 0, bufferToFill.numSamples);
 
 	auto* channelData = bufferToFill.buffer->getWritePointer(0, bufferToFill.startSample);
 
-	for (auto sample = 0; sample < bufferToFill.numSamples; ++sample)
+    std::ranges::for_each
+    (
+        channelData, channelData + bufferToFill.numSamples,
+        [this]
+        (float& soundSample)
+        {
+            currentPhase = std::fmod(currentPhase + phaseDeltaPerSample, juce::MathConstants<double>::twoPi);
+            soundSample = (float)(std::sin(currentPhase));
+        }
+    );
+    
+    for (auto sample = 0; sample < bufferToFill.numSamples; ++sample)
 	{
 		channelData[sample] = (float)std::sin(currentPhase);
 		currentPhase += phaseDeltaPerSample;
