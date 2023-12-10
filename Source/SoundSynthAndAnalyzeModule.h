@@ -43,6 +43,7 @@ public:
 
     //==============================================================================
     //[UserMethods]     -- You can add your own custom methods in this section.
+    void updateAngleDelta();
     void updateFrequencyAndAngleDelta();
     void prepareToPlay(int, double sampleRate) override;
     void releaseResources() override {};
@@ -59,8 +60,9 @@ public:
 private:
     //[UserVariables]   -- You can add your own custom variables in this section.
     double currentSampleRate = 0.0, currentPhase = 0.0, phaseDeltaPerSample = 0.0;
+    double minFrequencyHz = 1.0f;
     double maxFrequencyHz = 50.0f;
-    double currentFrequencyHz = 50.0f;
+    double currentFrequencyHz = minFrequencyHz;
     double deltaFrequencyHz = 1.0f;
     double deltaTimeS = 1.0f;  // 1 sec
     double currentTimeToRunS =
@@ -73,7 +75,6 @@ private:
     std::unique_ptr<juce::Slider> maxFrequency__Slider;
     std::unique_ptr<juce::ToggleButton> run__toggleButton;
     std::unique_ptr<juce::Slider> deltaTime__slider;
-    std::unique_ptr<juce::Label> juce__label;
     std::unique_ptr<juce::Label> juce__label2;
     std::unique_ptr<juce::Label> juce__label3;
     std::unique_ptr<juce::Slider> deltaFreq__slider;
@@ -81,6 +82,11 @@ private:
     std::unique_ptr<juce::Label> timeToRunValue__label;
     std::unique_ptr<juce::Label> juce__label4;
     std::unique_ptr<juce::Label> currentFrequency__label;
+    std::unique_ptr<juce::Label> juce__label5;
+    std::unique_ptr<juce::Slider> minFreq__slider;
+    std::unique_ptr<juce::Label> juce__label;
+    std::unique_ptr<juce::Label> juce__label6;
+    std::unique_ptr<juce::Label> timeToRunTotally__label;
 
 
     //==============================================================================
