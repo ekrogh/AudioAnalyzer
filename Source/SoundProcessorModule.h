@@ -33,13 +33,13 @@
     Describe your class and how it works here!
                                                                     //[/Comments]
 */
-class SoundSynthAndAnalyzeModule  : public juce::AudioAppComponent,
-                                    private juce::Thread
+class SoundProcessorModule  : public juce::AudioAppComponent,
+                              private juce::Thread
 {
 public:
     //==============================================================================
-    SoundSynthAndAnalyzeModule ();
-    ~SoundSynthAndAnalyzeModule() override;
+    SoundProcessorModule ();
+    ~SoundProcessorModule() override;
 
     //==============================================================================
     //[UserMethods]     -- You can add your own custom methods in this section.
@@ -59,6 +59,7 @@ public:
 
 private:
     //[UserVariables]   -- You can add your own custom variables in this section.
+    CriticalSection rmsLock;
     double currentSampleRate = 0.0, currentPhase = 0.0, phaseDeltaPerSample = 0.0;
     double minFrequencyHz = 1.0f;
     double maxFrequencyHz = 50.0f;
@@ -69,6 +70,12 @@ private:
         deltaTimeS * (maxFrequencyHz - currentFrequencyHz) / deltaFrequencyHz;
     double audioSamplesSquareSum = 0.0f;
     unsigned int noSamplesInAudioSamplesSquareSum = 0;
+
+    double copyCurrentFrequencyHz = 0.0f;
+    double copyAudioSamplesSquareSum = 0.0f;
+    unsigned int copyNoSamplesInAudioSamplesSquareSum = 0;
+    std::vector<double> frequencyValues;
+    std::vector<double> rmsValues;
     //[/UserVariables]
 
     //==============================================================================
@@ -90,7 +97,7 @@ private:
 
 
     //==============================================================================
-    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (SoundSynthAndAnalyzeModule)
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (SoundProcessorModule)
 };
 
 //[EndFile] You can add extra defines here...

@@ -2,6 +2,9 @@
 
 <Project ToolsVersion="17.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
+    <Filter Include="AudioAnalyzer\Source\cmp_plot_source">
+      <UniqueIdentifier>{A4623CF3-9E12-ACA9-64BB-5ADED1F4984C}</UniqueIdentifier>
+    </Filter>
     <Filter Include="AudioAnalyzer\Source">
       <UniqueIdentifier>{842DD761-C5A6-8277-7584-D9DE2EEBF167}</UniqueIdentifier>
     </Filter>
@@ -589,13 +592,43 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="..\..\Source\cmp_downsampler.cpp">
+      <Filter>AudioAnalyzer\Source\cmp_plot_source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\cmp_frame.cpp">
+      <Filter>AudioAnalyzer\Source\cmp_plot_source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\cmp_graph_area.cpp">
+      <Filter>AudioAnalyzer\Source\cmp_plot_source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\cmp_graph_line.cpp">
+      <Filter>AudioAnalyzer\Source\cmp_plot_source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\cmp_grid.cpp">
+      <Filter>AudioAnalyzer\Source\cmp_plot_source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\cmp_label.cpp">
+      <Filter>AudioAnalyzer\Source\cmp_plot_source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\cmp_legend.cpp">
+      <Filter>AudioAnalyzer\Source\cmp_plot_source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\cmp_lookandfeel.cpp">
+      <Filter>AudioAnalyzer\Source\cmp_plot_source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\cmp_plot.cpp">
+      <Filter>AudioAnalyzer\Source\cmp_plot_source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\cmp_trace.cpp">
+      <Filter>AudioAnalyzer\Source\cmp_plot_source</Filter>
+    </ClCompile>
     <ClCompile Include="..\..\Source\Main.cpp">
       <Filter>AudioAnalyzer\Source</Filter>
     </ClCompile>
     <ClCompile Include="..\..\Source\MainComponent.cpp">
       <Filter>AudioAnalyzer\Source</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\Source\SoundSynthAndAnalyzeModule.cpp">
+    <ClCompile Include="..\..\Source\SoundProcessorModule.cpp">
       <Filter>AudioAnalyzer\Source</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\JUCE\modules\juce_audio_basics\audio_play_head\juce_AudioPlayHead.cpp">
@@ -3024,13 +3057,58 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\..\Source\cmp_datamodels.h">
+      <Filter>AudioAnalyzer\Source\cmp_plot_source</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\cmp_downsampler.h">
+      <Filter>AudioAnalyzer\Source\cmp_plot_source</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\cmp_frame.h">
+      <Filter>AudioAnalyzer\Source\cmp_plot_source</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\cmp_graph_area.h">
+      <Filter>AudioAnalyzer\Source\cmp_plot_source</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\cmp_graph_line.h">
+      <Filter>AudioAnalyzer\Source\cmp_plot_source</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\cmp_grid.h">
+      <Filter>AudioAnalyzer\Source\cmp_plot_source</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\cmp_label.h">
+      <Filter>AudioAnalyzer\Source\cmp_plot_source</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\cmp_legend.h">
+      <Filter>AudioAnalyzer\Source\cmp_plot_source</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\cmp_lookandfeel.h">
+      <Filter>AudioAnalyzer\Source\cmp_plot_source</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\cmp_plot.h">
+      <Filter>AudioAnalyzer\Source\cmp_plot_source</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\cmp_trace.h">
+      <Filter>AudioAnalyzer\Source\cmp_plot_source</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\cmp_utils.h">
+      <Filter>AudioAnalyzer\Source\cmp_plot_source</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\cmp_version.h">
+      <Filter>AudioAnalyzer\Source\cmp_plot_source</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\example_utils.h">
+      <Filter>AudioAnalyzer\Source\cmp_plot_source</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\package.h">
+      <Filter>AudioAnalyzer\Source\cmp_plot_source</Filter>
+    </ClInclude>
     <ClInclude Include="..\..\Source\AudioSettingsModule.h">
       <Filter>AudioAnalyzer\Source</Filter>
     </ClInclude>
     <ClInclude Include="..\..\Source\MainComponent.h">
       <Filter>AudioAnalyzer\Source</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\Source\SoundSynthAndAnalyzeModule.h">
+    <ClInclude Include="..\..\Source\SoundProcessorModule.h">
       <Filter>AudioAnalyzer\Source</Filter>
     </ClInclude>
     <ClInclude Include="..\..\Source\Utilities.h">

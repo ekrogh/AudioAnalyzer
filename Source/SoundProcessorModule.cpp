@@ -20,7 +20,7 @@
 //[Headers] You can add your own extra header files here...
 //[/Headers]
 
-#include "SoundSynthAndAnalyzeModule.h"
+#include "SoundProcessorModule.h"
 
 
 //[MiscUserDefs] You can add your own user definitions and misc code here...
@@ -28,7 +28,7 @@ extern AudioDeviceManager& getSharedAudioDeviceManager(int numInputChannels = 1,
 //[/MiscUserDefs]
 
 //==============================================================================
-SoundSynthAndAnalyzeModule::SoundSynthAndAnalyzeModule ()
+SoundProcessorModule::SoundProcessorModule ()
     : AudioAppComponent(getSharedAudioDeviceManager()),
       Thread("Freq. shifter")
 {
@@ -179,20 +179,24 @@ SoundSynthAndAnalyzeModule::SoundSynthAndAnalyzeModule ()
 		{
 			if (run__toggleButton->getToggleState())
 			{
-                currentFrequencyHz = minFrequencyHz; 
-                
+                currentFrequencyHz = minFrequencyHz;
+
                 updateFrequencyAndAngleDelta();
 
-				setAudioChannels(1, 1); // One input, one output
+                frequencyValues.clear();
+                rmsValues.clear();
 
-				startThread(Priority::normal);
+                setAudioChannels(1, 1); // One input, one output
+
+				startThread(Priority::low);
 			}
 			else
 			{
 				signalThreadShouldExit();
+                notify(); // So thread exits
 
 				shutdownAudio();
-            
+
                 currentFrequencyHz = 0;
 
                 updateFrequencyAndAngleDelta();
@@ -245,7 +249,7 @@ SoundSynthAndAnalyzeModule::SoundSynthAndAnalyzeModule ()
     //[/Constructor]
 }
 
-SoundSynthAndAnalyzeModule::~SoundSynthAndAnalyzeModule()
+SoundProcessorModule::~SoundProcessorModule()
 {
     //[Destructor_pre]. You can add your own custom destruction code here..
 	signalThreadShouldExit();
@@ -275,7 +279,7 @@ SoundSynthAndAnalyzeModule::~SoundSynthAndAnalyzeModule()
 }
 
 //==============================================================================
-void SoundSynthAndAnalyzeModule::paint (juce::Graphics& g)
+void SoundProcessorModule::paint (juce::Graphics& g)
 {
     //[UserPrePaint] Add your own custom painting code here..
     //[/UserPrePaint]
@@ -286,7 +290,7 @@ void SoundSynthAndAnalyzeModule::paint (juce::Graphics& g)
     //[/UserPaint]
 }
 
-void SoundSynthAndAnalyzeModule::resized()
+void SoundProcessorModule::resized()
 {
     //[UserPreResize] Add your own custom resize code here..
     //[/UserPreResize]
@@ -309,7 +313,7 @@ void SoundSynthAndAnalyzeModule::resized()
 
 
 //[MiscUserCode] You can add your own definitions of your custom methods or any other code here...
-void SoundSynthAndAnalyzeModule::updateAngleDelta()
+void SoundProcessorModule::updateAngleDelta()
 {
 	if (currentSampleRate > 0.0)
 	{
@@ -319,7 +323,7 @@ void SoundSynthAndAnalyzeModule::updateAngleDelta()
 
 }
 
-void SoundSynthAndAnalyzeModule::updateFrequencyAndAngleDelta()
+void SoundProcessorModule::updateFrequencyAndAngleDelta()
 {
 	updateAngleDelta();
 
@@ -360,14 +364,16 @@ void SoundSynthAndAnalyzeModule::updateFrequencyAndAngleDelta()
 
 }
 
-void SoundSynthAndAnalyzeModule::prepareToPlay(int, double sampleRate)
+void SoundProcessorModule::prepareToPlay(int, double sampleRate)
 {
 	currentSampleRate = sampleRate;
 	updateFrequencyAndAngleDelta();
 }
 
-void SoundSynthAndAnalyzeModule::getNextAudioBlock(const juce::AudioSourceChannelInfo& bufferToFill)
+void SoundProcessorModule::getNextAudioBlock(const juce::AudioSourceChannelInfo& bufferToFill)
 {
+    const ScopedLock sl(rmsLock);
+
 	// Sum squares
 	//auto tst = bufferToFill.buffer->getRMSLevel(0, 0, bufferToFill.numSamples);
 	auto* channelRead = bufferToFill.buffer->getReadPointer(0);
@@ -390,7 +396,7 @@ void SoundSynthAndAnalyzeModule::getNextAudioBlock(const juce::AudioSourceChanne
 }
 
 // the thread
-void SoundSynthAndAnalyzeModule::run()
+void SoundProcessorModule::run()
 {
 	while ((!threadShouldExit()) && (currentFrequencyHz <= maxFrequencyHz))
 	{
@@ -403,7 +409,24 @@ void SoundSynthAndAnalyzeModule::run()
 
 		if (!threadShouldExit())
 		{
-			currentFrequencyHz += deltaFrequencyHz;
+            { // ScopedLock sl scope begin
+                const ScopedLock sl(rmsLock);
+
+                copyAudioSamplesSquareSum = audioSamplesSquareSum;
+                audioSamplesSquareSum = 0.0f;
+
+                copyNoSamplesInAudioSamplesSquareSum = noSamplesInAudioSamplesSquareSum;
+                noSamplesInAudioSamplesSquareSum = 0;
+
+                copyCurrentFrequencyHz = currentFrequencyHz;
+                currentFrequencyHz += deltaFrequencyHz;
+            }  // ScopedLock sl scope end
+
+            frequencyValues.push_back(copyCurrentFrequencyHz);
+
+            auto curRMS = std::sqrt(copyAudioSamplesSquareSum / copyNoSamplesInAudioSamplesSquareSum);
+            rmsValues.push_back(curRMS);
+
 		}
 	}
 
@@ -414,7 +437,7 @@ void SoundSynthAndAnalyzeModule::run()
 
 }
 
-void SoundSynthAndAnalyzeModule::updateCurrentFrequencyLabel()
+void SoundProcessorModule::updateCurrentFrequencyLabel()
 {
 	const MessageManagerLock mml;
 	currentFrequency__label->setText
@@ -440,8 +463,8 @@ void SoundSynthAndAnalyzeModule::updateCurrentFrequencyLabel()
 
 BEGIN_JUCER_METADATA
 
-<JUCER_COMPONENT documentType="Component" className="SoundSynthAndAnalyzeModule"
-                 componentName="Sound Synth And Analyze Module" parentClasses="public juce::AudioAppComponent, private juce::Thread"
+<JUCER_COMPONENT documentType="Component" className="SoundProcessorModule" componentName="Sound Synth And Analyze Module"
+                 parentClasses="public juce::AudioAppComponent, private juce::Thread"
                  constructorParams="" variableInitialisers="AudioAppComponent(getSharedAudioDeviceManager())&#10;Thread(&quot;Freq. shifter&quot;)"
                  snapPixels="8" snapActive="1" snapShown="1" overlayOpacity="0.330"
                  fixedSize="0" initialWidth="600" initialHeight="600">

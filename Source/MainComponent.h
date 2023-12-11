@@ -21,7 +21,9 @@
 
 //[Headers]     -- You can add your own extra header files here --
 #include "AudioSettingsModule.h"
-#include "SoundSynthAndAnalyzeModule.h"
+#include "SoundProcessorModule.h"
+#include "cmp_plot.h"
+#include "example_utils.h"
 #include <JuceHeader.h>
 //[/Headers]
 
@@ -53,8 +55,12 @@ public:
 
 private:
     //[UserVariables]   -- You can add your own custom variables in this section.
-    std::unique_ptr<AudioSettingsModule> module_AudioSettings = std::make_unique<AudioSettingsModule>();
-    std::unique_ptr<SoundSynthAndAnalyzeModule> module_SoundSynthAndAnalyze = std::make_unique<SoundSynthAndAnalyzeModule>();
+    std::unique_ptr<AudioSettingsModule> module_AudioSettings =
+        std::make_unique<AudioSettingsModule>();
+    std::unique_ptr<SoundProcessorModule> module_SoundProcessor =
+        std::make_unique<SoundProcessorModule>();
+    std::unique_ptr<cmp::Plot> m_plot =
+        std::make_unique<cmp::Plot>();
     //[/UserVariables]
 
     //==============================================================================

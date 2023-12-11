@@ -141,9 +141,19 @@
     <Lib/>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="..\..\Source\cmp_downsampler.cpp"/>
+    <ClCompile Include="..\..\Source\cmp_frame.cpp"/>
+    <ClCompile Include="..\..\Source\cmp_graph_area.cpp"/>
+    <ClCompile Include="..\..\Source\cmp_graph_line.cpp"/>
+    <ClCompile Include="..\..\Source\cmp_grid.cpp"/>
+    <ClCompile Include="..\..\Source\cmp_label.cpp"/>
+    <ClCompile Include="..\..\Source\cmp_legend.cpp"/>
+    <ClCompile Include="..\..\Source\cmp_lookandfeel.cpp"/>
+    <ClCompile Include="..\..\Source\cmp_plot.cpp"/>
+    <ClCompile Include="..\..\Source\cmp_trace.cpp"/>
     <ClCompile Include="..\..\Source\Main.cpp"/>
     <ClCompile Include="..\..\Source\MainComponent.cpp"/>
-    <ClCompile Include="..\..\Source\SoundSynthAndAnalyzeModule.cpp"/>
+    <ClCompile Include="..\..\Source\SoundProcessorModule.cpp"/>
     <ClCompile Include="..\..\..\JUCE\modules\juce_audio_basics\audio_play_head\juce_AudioPlayHead.cpp">
       <ExcludedFromBuild>true</ExcludedFromBuild>
     </ClCompile>
@@ -2406,9 +2416,24 @@
     <ClCompile Include="..\..\JuceLibraryCode\include_juce_gui_extra.cpp"/>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\..\Source\cmp_datamodels.h"/>
+    <ClInclude Include="..\..\Source\cmp_downsampler.h"/>
+    <ClInclude Include="..\..\Source\cmp_frame.h"/>
+    <ClInclude Include="..\..\Source\cmp_graph_area.h"/>
+    <ClInclude Include="..\..\Source\cmp_graph_line.h"/>
+    <ClInclude Include="..\..\Source\cmp_grid.h"/>
+    <ClInclude Include="..\..\Source\cmp_label.h"/>
+    <ClInclude Include="..\..\Source\cmp_legend.h"/>
+    <ClInclude Include="..\..\Source\cmp_lookandfeel.h"/>
+    <ClInclude Include="..\..\Source\cmp_plot.h"/>
+    <ClInclude Include="..\..\Source\cmp_trace.h"/>
+    <ClInclude Include="..\..\Source\cmp_utils.h"/>
+    <ClInclude Include="..\..\Source\cmp_version.h"/>
+    <ClInclude Include="..\..\Source\example_utils.h"/>
+    <ClInclude Include="..\..\Source\package.h"/>
     <ClInclude Include="..\..\Source\AudioSettingsModule.h"/>
     <ClInclude Include="..\..\Source\MainComponent.h"/>
-    <ClInclude Include="..\..\Source\SoundSynthAndAnalyzeModule.h"/>
+    <ClInclude Include="..\..\Source\SoundProcessorModule.h"/>
     <ClInclude Include="..\..\Source\Utilities.h"/>
     <ClInclude Include="..\..\..\JUCE\modules\juce_audio_basics\audio_play_head\juce_AudioPlayHead.h"/>
     <ClInclude Include="..\..\..\JUCE\modules\juce_audio_basics\buffers\juce_AudioChannelSet.h"/>

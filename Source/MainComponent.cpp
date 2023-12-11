@@ -127,14 +127,14 @@ MainComponent::MainComponent ()
 	(
 		TRANS("Plot")
 		, juce::Colours::lightgrey
-		, 0
+		, m_plot.get()
 		, false
 	);
 	juce__tabbedComponent->addTab
 	(
 		TRANS("Freq. Control")
 		, juce::Colours::lightgrey
-		, module_SoundSynthAndAnalyze.get()
+		, module_SoundProcessor.get()
 		, false
 	);
 	juce__tabbedComponent->addTab
@@ -151,7 +151,10 @@ MainComponent::MainComponent ()
 
 
     //[Constructor] You can add your own custom stuff here..
-    //[/Constructor]
+			// Always plot atleast ones before calling realTimePlot
+	m_plot->plot(
+		{ cmp::generateSineWaveVector<float>((1 << 10), -1.0f, 1.0f, 1, 1) });
+	//[/Constructor]
 }
 
 MainComponent::~MainComponent()
