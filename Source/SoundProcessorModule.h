@@ -20,6 +20,8 @@
 #pragma once
 
 //[Headers]     -- You can add your own extra header files here --
+#include "cmp_plot.h"
+#include "PlotModule.h"
 #include <JuceHeader.h>
 //[/Headers]
 
@@ -38,7 +40,7 @@ class SoundProcessorModule  : public juce::AudioAppComponent,
 {
 public:
     //==============================================================================
-    SoundProcessorModule ();
+    SoundProcessorModule (std::shared_ptr<PlotModule> ptr_module_Plot);
     ~SoundProcessorModule() override;
 
     //==============================================================================
@@ -59,6 +61,7 @@ public:
 
 private:
     //[UserVariables]   -- You can add your own custom variables in this section.
+    std::shared_ptr<PlotModule> module_Plot;
     CriticalSection rmsLock;
     double currentSampleRate = 0.0, currentPhase = 0.0, phaseDeltaPerSample = 0.0;
     double minFrequencyHz = 1.0f;

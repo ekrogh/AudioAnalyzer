@@ -28,9 +28,10 @@ extern AudioDeviceManager& getSharedAudioDeviceManager(int numInputChannels = 1,
 //[/MiscUserDefs]
 
 //==============================================================================
-SoundProcessorModule::SoundProcessorModule ()
+SoundProcessorModule::SoundProcessorModule (std::shared_ptr<PlotModule> ptr_module_Plot)
     : AudioAppComponent(getSharedAudioDeviceManager()),
-      Thread("Freq. shifter")
+      Thread("Freq. shifter"),
+      module_Plot{ ptr_module_Plot }
 {
     //[Constructor_pre] You can add your own custom stuff here..
     //[/Constructor_pre]
@@ -465,7 +466,8 @@ BEGIN_JUCER_METADATA
 
 <JUCER_COMPONENT documentType="Component" className="SoundProcessorModule" componentName="Sound Synth And Analyze Module"
                  parentClasses="public juce::AudioAppComponent, private juce::Thread"
-                 constructorParams="" variableInitialisers="AudioAppComponent(getSharedAudioDeviceManager())&#10;Thread(&quot;Freq. shifter&quot;)"
+                 constructorParams="std::shared_ptr&lt;PlotModule&gt; ptr_module_Plot"
+                 variableInitialisers="AudioAppComponent(getSharedAudioDeviceManager())&#10;Thread(&quot;Freq. shifter&quot;)&#10;module_Plot(ptr_module_Plot)"
                  snapPixels="8" snapActive="1" snapShown="1" overlayOpacity="0.330"
                  fixedSize="0" initialWidth="600" initialHeight="600">
   <BACKGROUND backgroundColour="ff505050"/>

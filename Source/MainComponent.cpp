@@ -127,7 +127,7 @@ MainComponent::MainComponent ()
 	(
 		TRANS("Plot")
 		, juce::Colours::lightgrey
-		, m_plot.get()
+		, module_Plot.get()
 		, false
 	);
 	juce__tabbedComponent->addTab
@@ -144,17 +144,14 @@ MainComponent::MainComponent ()
 		, module_AudioSettings.get()
 		, false
 	);
-	juce__tabbedComponent->setCurrentTabIndex(1);
+	//juce__tabbedComponent->setCurrentTabIndex(1);
     //[/UserPreSize]
 
     setSize (600, 700);
 
 
     //[Constructor] You can add your own custom stuff here..
-			// Always plot atleast ones before calling realTimePlot
-	m_plot->plot(
-		{ cmp::generateSineWaveVector<float>((1 << 10), -1.0f, 1.0f, 1, 1) });
-	//[/Constructor]
+    //[/Constructor]
 }
 
 MainComponent::~MainComponent()
@@ -188,7 +185,7 @@ void MainComponent::resized()
     //[UserPreResize] Add your own custom resize code here..
     //[/UserPreResize]
 
-    juce__tabbedComponent->setBounds (0, 0, proportionOfWidth (0.9900f), proportionOfHeight (0.9925f));
+    juce__tabbedComponent->setBounds (0, 0, proportionOfWidth (0.9908f), proportionOfHeight (0.9919f));
     //[UserResized] Add your own custom resize handling here..
     //[/UserResized]
 }

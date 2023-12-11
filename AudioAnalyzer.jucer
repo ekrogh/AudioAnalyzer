@@ -47,6 +47,8 @@
       <FILE id="R8zn7a" name="MainComponent.cpp" compile="1" resource="0"
             file="Source/MainComponent.cpp"/>
       <FILE id="drB857" name="MainComponent.h" compile="0" resource="0" file="Source/MainComponent.h"/>
+      <FILE id="ezQVuB" name="PlotModule.cpp" compile="1" resource="0" file="Source/PlotModule.cpp"/>
+      <FILE id="rMdbof" name="PlotModule.h" compile="0" resource="0" file="Source/PlotModule.h"/>
       <FILE id="iY4WPw" name="SoundProcessorModule.cpp" compile="1" resource="0"
             file="Source/SoundProcessorModule.cpp"/>
       <FILE id="kysDNn" name="SoundProcessorModule.h" compile="0" resource="0"

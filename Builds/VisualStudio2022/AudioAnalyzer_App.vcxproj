@@ -153,6 +153,7 @@
     <ClCompile Include="..\..\Source\cmp_trace.cpp"/>
     <ClCompile Include="..\..\Source\Main.cpp"/>
     <ClCompile Include="..\..\Source\MainComponent.cpp"/>
+    <ClCompile Include="..\..\Source\PlotModule.cpp"/>
     <ClCompile Include="..\..\Source\SoundProcessorModule.cpp"/>
     <ClCompile Include="..\..\..\JUCE\modules\juce_audio_basics\audio_play_head\juce_AudioPlayHead.cpp">
       <ExcludedFromBuild>true</ExcludedFromBuild>
@@ -2433,6 +2434,7 @@
     <ClInclude Include="..\..\Source\package.h"/>
     <ClInclude Include="..\..\Source\AudioSettingsModule.h"/>
     <ClInclude Include="..\..\Source\MainComponent.h"/>
+    <ClInclude Include="..\..\Source\PlotModule.h"/>
     <ClInclude Include="..\..\Source\SoundProcessorModule.h"/>
     <ClInclude Include="..\..\Source\Utilities.h"/>
     <ClInclude Include="..\..\..\JUCE\modules\juce_audio_basics\audio_play_head\juce_AudioPlayHead.h"/>

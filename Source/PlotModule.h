@@ -20,10 +20,8 @@
 #pragma once
 
 //[Headers]     -- You can add your own extra header files here --
-#include "AudioSettingsModule.h"
-#include "SoundProcessorModule.h"
-#include "PlotModule.h"
 #include "cmp_plot.h"
+#include "example_utils.h"
 #include <JuceHeader.h>
 //[/Headers]
 
@@ -37,15 +35,17 @@
     Describe your class and how it works here!
                                                                     //[/Comments]
 */
-class MainComponent  : public juce::Component
+class PlotModule  : public juce::Component
 {
 public:
     //==============================================================================
-    MainComponent ();
-    ~MainComponent() override;
+    PlotModule ();
+    ~PlotModule() override;
 
     //==============================================================================
     //[UserMethods]     -- You can add your own custom methods in this section.
+    void doPlot(std::vector<double> x_values, std::vector<double> y_values);
+    void doPlotRealTime(std::vector<double> y_values);
     //[/UserMethods]
 
     void paint (juce::Graphics& g) override;
@@ -55,20 +55,14 @@ public:
 
 private:
     //[UserVariables]   -- You can add your own custom variables in this section.
-    std::shared_ptr<PlotModule> module_Plot =
-        std::make_shared<PlotModule>();
-    std::unique_ptr<SoundProcessorModule> module_SoundProcessor =
-        std::make_unique<SoundProcessorModule>(module_Plot);
-    std::unique_ptr<AudioSettingsModule> module_AudioSettings =
-        std::make_unique<AudioSettingsModule>();
+    cmp::Plot m_plot;
     //[/UserVariables]
 
     //==============================================================================
-    std::unique_ptr<juce::TabbedComponent> juce__tabbedComponent;
 
 
     //==============================================================================
-    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (MainComponent)
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (PlotModule)
 };
 
 //[EndFile] You can add extra defines here...

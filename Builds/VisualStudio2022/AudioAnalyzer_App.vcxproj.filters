@@ -628,6 +628,9 @@
     <ClCompile Include="..\..\Source\MainComponent.cpp">
       <Filter>AudioAnalyzer\Source</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\Source\PlotModule.cpp">
+      <Filter>AudioAnalyzer\Source</Filter>
+    </ClCompile>
     <ClCompile Include="..\..\Source\SoundProcessorModule.cpp">
       <Filter>AudioAnalyzer\Source</Filter>
     </ClCompile>
@@ -3106,6 +3109,9 @@
       <Filter>AudioAnalyzer\Source</Filter>
     </ClInclude>
     <ClInclude Include="..\..\Source\MainComponent.h">
+      <Filter>AudioAnalyzer\Source</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\PlotModule.h">
       <Filter>AudioAnalyzer\Source</Filter>
     </ClInclude>
     <ClInclude Include="..\..\Source\SoundProcessorModule.h">
