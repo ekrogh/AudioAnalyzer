@@ -28,7 +28,7 @@
 
 //==============================================================================
 PlotModule::PlotModule ()
-    : m_plot{ cmp::Plot()}
+    : m_plot{cmp::Plot()}
 {
     //[Constructor_pre] You can add your own custom stuff here..
     addAndMakeVisible(m_plot);
@@ -38,7 +38,7 @@ PlotModule::PlotModule ()
     //[UserPreSize]
     //[/UserPreSize]
 
-    setSize (600, 400);
+    setSize (1000, 1000);
 
 
     //[Constructor] You can add your own custom stuff here..
@@ -112,9 +112,9 @@ void PlotModule::updatePlotRealTime(std::vector<float> y_values)
 BEGIN_JUCER_METADATA
 
 <JUCER_COMPONENT documentType="Component" className="PlotModule" componentName=""
-                 parentClasses="public juce::Component" constructorParams="" variableInitialisers="m_plot{cmp::Plot}"
+                 parentClasses="public juce::Component" constructorParams="" variableInitialisers="m_plot{cmp::Plot()}"
                  snapPixels="8" snapActive="1" snapShown="1" overlayOpacity="0.330"
-                 fixedSize="0" initialWidth="600" initialHeight="400">
+                 fixedSize="0" initialWidth="1000" initialHeight="1000">
   <BACKGROUND backgroundColour="ff505050"/>
 </JUCER_COMPONENT>
 

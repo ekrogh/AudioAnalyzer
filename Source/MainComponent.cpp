@@ -132,7 +132,7 @@ MainComponent::MainComponent ()
 	);
 	juce__tabbedComponent->addTab
 	(
-		TRANS("Freq. Control")
+		TRANS("Sound Processing Control")
 		, juce::Colours::lightgrey
 		, module_SoundProcessor.get()
 		, false
@@ -144,7 +144,7 @@ MainComponent::MainComponent ()
 		, module_AudioSettings.get()
 		, false
 	);
-	//juce__tabbedComponent->setCurrentTabIndex(1);
+	juce__tabbedComponent->setCurrentTabIndex(1);
     //[/UserPreSize]
 
     setSize (600, 700);

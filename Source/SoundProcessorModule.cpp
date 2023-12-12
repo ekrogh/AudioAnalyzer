@@ -204,13 +204,13 @@ SoundProcessorModule::SoundProcessorModule (std::shared_ptr<PlotModule> ptr_modu
                 currentFrequencyHz = 0;
 
                 updateFrequencyAndAngleDelta();
-           
+
                 pause__toggleButton->setEnabled(false);
             }
 
             pause__toggleButton->setToggleState(false, dontSendNotification);
         };
-    
+
     pause__toggleButton->setEnabled(false);
     pause__toggleButton->onClick =
         [this]
