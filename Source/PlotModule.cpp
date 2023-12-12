@@ -87,13 +87,15 @@ void PlotModule::resized()
 
 
 //[MiscUserCode] You can add your own definitions of your custom methods or any other code here...
-void PlotModule::doPlot(std::vector<double> x_values, std::vector<double> y_values)
+void PlotModule::updatePlot(std::vector<float> x_values, std::vector<float> y_values)
 {
+    const MessageManagerLock mml;
+    m_plot.plot({ y_values }, { x_values });
 }
 
-void PlotModule::doPlotRealTime(std::vector<double> y_values)
+void PlotModule::updatePlotRealTime(std::vector<float> y_values)
 {
-
+    m_plot.realTimePlot({ y_values });
 }
 //[/MiscUserCode]
 

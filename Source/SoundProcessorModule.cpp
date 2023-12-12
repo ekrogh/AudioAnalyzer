@@ -89,8 +89,6 @@ SoundProcessorModule::SoundProcessorModule (std::shared_ptr<PlotModule> ptr_modu
     timeToRun__label->setColour (juce::TextEditor::textColourId, juce::Colours::black);
     timeToRun__label->setColour (juce::TextEditor::backgroundColourId, juce::Colour (0x00000000));
 
-    timeToRun__label->setBounds (16, 379, 180, 24);
-
     timeToRunValue__label.reset (new juce::Label ("Time To Run Value  label",
                                                   TRANS ("Time To Run Value")));
     addAndMakeVisible (timeToRunValue__label.get());
@@ -100,7 +98,7 @@ SoundProcessorModule::SoundProcessorModule (std::shared_ptr<PlotModule> ptr_modu
     timeToRunValue__label->setColour (juce::TextEditor::textColourId, juce::Colours::black);
     timeToRunValue__label->setColour (juce::TextEditor::backgroundColourId, juce::Colour (0x00000000));
 
-    timeToRunValue__label->setBounds (16, 409, 150, 24);
+    timeToRunValue__label->setBounds (216, 336, 150, 24);
 
     juce__label4.reset (new juce::Label ("new label",
                                          TRANS ("Current frequency [Hz]:")));
@@ -154,8 +152,6 @@ SoundProcessorModule::SoundProcessorModule (std::shared_ptr<PlotModule> ptr_modu
     juce__label6->setColour (juce::TextEditor::textColourId, juce::Colours::black);
     juce__label6->setColour (juce::TextEditor::backgroundColourId, juce::Colour (0x00000000));
 
-    juce__label6->setBounds (16, 304, 191, 24);
-
     timeToRunTotally__label.reset (new juce::Label ("Time To Run Totally  label",
                                                     TRANS ("Time To Run Totally")));
     addAndMakeVisible (timeToRunTotally__label.get());
@@ -165,7 +161,11 @@ SoundProcessorModule::SoundProcessorModule (std::shared_ptr<PlotModule> ptr_modu
     timeToRunTotally__label->setColour (juce::TextEditor::textColourId, juce::Colours::black);
     timeToRunTotally__label->setColour (juce::TextEditor::backgroundColourId, juce::Colour (0x00000000));
 
-    timeToRunTotally__label->setBounds (16, 336, 286, 24);
+    pause__toggleButton.reset (new juce::ToggleButton ("pause toggle button"));
+    addAndMakeVisible (pause__toggleButton.get());
+    pause__toggleButton->setButtonText (TRANS ("Pause"));
+
+    pause__toggleButton->setBounds (120, 408, 150, 24);
 
 
     //[UserPreSize]
@@ -203,6 +203,28 @@ SoundProcessorModule::SoundProcessorModule (std::shared_ptr<PlotModule> ptr_modu
                 updateFrequencyAndAngleDelta();
             }
 		};
+
+    pause__toggleButton->onClick =
+        [this]
+        {
+            if (pause__toggleButton->getToggleState())
+            {
+                signalThreadShouldExit();
+                notify(); // So thread exits
+
+                shutdownAudio();
+
+                updateFrequencyAndAngleDelta();
+            }
+            else
+            {
+                updateFrequencyAndAngleDelta();
+
+                setAudioChannels(1, 1); // One input, one output
+
+                startThread(Priority::low);
+            }
+        };
 
     minFreq__slider->setValue(minFrequencyHz, dontSendNotification);
     minFreq__slider->onValueChange =
@@ -246,6 +268,10 @@ SoundProcessorModule::SoundProcessorModule (std::shared_ptr<PlotModule> ptr_modu
 			updateFrequencyAndAngleDelta();
 		};
 
+    module_Plot->setTitle("Frequency responce [RMS]");
+    module_Plot->setXLabel("[Hz]");
+    module_Plot->setYLabel("[RMS]");
+
 	updateFrequencyAndAngleDelta();
     //[/Constructor]
 }
@@ -273,6 +299,7 @@ SoundProcessorModule::~SoundProcessorModule()
     juce__label = nullptr;
     juce__label6 = nullptr;
     timeToRunTotally__label = nullptr;
+    pause__toggleButton = nullptr;
 
 
     //[Destructor]. You can add your own custom destruction code here..
@@ -297,16 +324,19 @@ void SoundProcessorModule::resized()
     //[/UserPreResize]
 
     maxFrequency__Slider->setBounds (16 + 0, 112, (getWidth() - 40) - 0, 24);
-    run__toggleButton->setBounds ((((16 + 0) + 0) + 0) + 0, 555, 88, 24);
+    run__toggleButton->setBounds ((((16 + 0) + 0) + 0) + 0, 408, 88, 24);
     deltaTime__slider->setBounds (((16 + 0) + 0) + 0, 256, (((getWidth() - 40) - 0) - 0) - 0, 24);
     juce__label2->setBounds ((((16 + 0) + 0) + 0) + 0, 224, getWidth() - 446, 24);
     juce__label3->setBounds (((16 + 0) + 0) + 0, 152, 176, 24);
     deltaFreq__slider->setBounds ((16 + 0) + 0, 184, ((getWidth() - 40) - 0) - 0, 24);
-    juce__label4->setBounds ((((16 + 0) + 0) + 0) + 0, 448, 176, 24);
-    currentFrequency__label->setBounds ((((16 + 0) + 0) + 0) + 0, 480, 150, 24);
+    timeToRun__label->setBounds (112 - (192 / 2), 336, 192, 24);
+    juce__label4->setBounds ((((16 + 0) + 0) + 0) + 96 - (192 / 2), 370, 192, 24);
+    currentFrequency__label->setBounds ((((16 + 0) + 0) + 0) + 200, 370, 150, 24);
     juce__label5->setBounds (16 + 0, 16, getWidth() - 352, 24);
     minFreq__slider->setBounds (16, 48, getWidth() - 40, 24);
     juce__label->setBounds ((16 + 0) + 0, 88, 150, 24);
+    juce__label6->setBounds (112 - (192 / 2), 304, 192, 24);
+    timeToRunTotally__label->setBounds (292 - (152 / 2), 304, 152, 24);
     //[UserResized] Add your own custom resize handling here..
     //[/UserResized]
 }
@@ -413,21 +443,22 @@ void SoundProcessorModule::run()
             { // ScopedLock sl scope begin
                 const ScopedLock sl(rmsLock);
 
-                copyAudioSamplesSquareSum = audioSamplesSquareSum;
+                copyOfAudioSamplesSquareSum = audioSamplesSquareSum;
                 audioSamplesSquareSum = 0.0f;
 
-                copyNoSamplesInAudioSamplesSquareSum = noSamplesInAudioSamplesSquareSum;
+                copyOfNoSamplesInAudioSamplesSquareSum = noSamplesInAudioSamplesSquareSum;
                 noSamplesInAudioSamplesSquareSum = 0;
 
-                copyCurrentFrequencyHz = currentFrequencyHz;
+                copyOfCurrentFrequencyHz = currentFrequencyHz;
                 currentFrequencyHz += deltaFrequencyHz;
             }  // ScopedLock sl scope end
 
-            frequencyValues.push_back(copyCurrentFrequencyHz);
+            frequencyValues.push_back(copyOfCurrentFrequencyHz);
 
-            auto curRMS = std::sqrt(copyAudioSamplesSquareSum / copyNoSamplesInAudioSamplesSquareSum);
+            auto curRMS = std::sqrt(copyOfAudioSamplesSquareSum / copyOfNoSamplesInAudioSamplesSquareSum);
             rmsValues.push_back(curRMS);
 
+            module_Plot->updatePlot(frequencyValues, rmsValues);
 		}
 	}
 
@@ -478,7 +509,7 @@ BEGIN_JUCER_METADATA
           textBoxEditable="1" textBoxWidth="80" textBoxHeight="20" skewFactor="1.0"
           needsCallback="0"/>
   <TOGGLEBUTTON name="run toggle button" id="3e0da1935c285e8f" memberName="run__toggleButton"
-                virtualName="" explicitFocusOrder="0" pos="0 555 88 24" posRelativeX="3f78bae238bae958"
+                virtualName="" explicitFocusOrder="0" pos="0 408 88 24" posRelativeX="3f78bae238bae958"
                 buttonText="Run" connectedEdges="0" needsCallback="0" radioGroupId="0"
                 state="0"/>
   <SLIDER name="delta time slider" id="3f78bae238bae958" memberName="deltaTime__slider"
@@ -506,23 +537,24 @@ BEGIN_JUCER_METADATA
           textBoxEditable="1" textBoxWidth="80" textBoxHeight="20" skewFactor="1.0"
           needsCallback="0"/>
   <LABEL name="time To Run label" id="88f16d9da9e68c20" memberName="timeToRun__label"
-         virtualName="" explicitFocusOrder="0" pos="16 379 180 24" edTextCol="ff000000"
-         edBkgCol="0" labelText="Time remaining to run [Min]:" editableSingleClick="0"
-         editableDoubleClick="0" focusDiscardsChanges="0" fontname="Default font"
-         fontsize="15.0" kerning="0.0" bold="0" italic="0" justification="33"/>
+         virtualName="" explicitFocusOrder="0" pos="112c 336 192 24" posRelativeW="93293acbba06ebfc"
+         edTextCol="ff000000" edBkgCol="0" labelText="Time remaining to run [Min]:"
+         editableSingleClick="0" editableDoubleClick="0" focusDiscardsChanges="0"
+         fontname="Default font" fontsize="15.0" kerning="0.0" bold="0"
+         italic="0" justification="33"/>
   <LABEL name="Time To Run Value  label" id="37068ae926a0a595" memberName="timeToRunValue__label"
-         virtualName="" explicitFocusOrder="0" pos="16 409 150 24" edTextCol="ff000000"
+         virtualName="" explicitFocusOrder="0" pos="216 336 150 24" edTextCol="ff000000"
          edBkgCol="0" labelText="Time To Run Value" editableSingleClick="0"
          editableDoubleClick="0" focusDiscardsChanges="0" fontname="Default font"
          fontsize="15.0" kerning="0.0" bold="0" italic="0" justification="33"/>
   <LABEL name="new label" id="7a68dc774966fe8" memberName="juce__label4"
-         virtualName="" explicitFocusOrder="0" pos="0 448 176 24" posRelativeX="3f78bae238bae958"
+         virtualName="" explicitFocusOrder="0" pos="96c 370 192 24" posRelativeX="3f78bae238bae958"
          edTextCol="ff000000" edBkgCol="0" labelText="Current frequency [Hz]:"
          editableSingleClick="0" editableDoubleClick="0" focusDiscardsChanges="0"
          fontname="Default font" fontsize="15.0" kerning="0.0" bold="0"
          italic="0" justification="33"/>
   <LABEL name="Current Frequency  label" id="fb908497d89dec02" memberName="currentFrequency__label"
-         virtualName="" explicitFocusOrder="0" pos="0 480 150 24" posRelativeX="3f78bae238bae958"
+         virtualName="" explicitFocusOrder="0" pos="200 370 150 24" posRelativeX="3f78bae238bae958"
          edTextCol="ff000000" edBkgCol="0" labelText="Current Frequency"
          editableSingleClick="0" editableDoubleClick="0" focusDiscardsChanges="0"
          fontname="Default font" fontsize="15.0" kerning="0.0" bold="0"
@@ -545,15 +577,18 @@ BEGIN_JUCER_METADATA
          fontname="Default font" fontsize="15.0" kerning="0.0" bold="0"
          italic="0" justification="33"/>
   <LABEL name="new label" id="93293acbba06ebfc" memberName="juce__label6"
-         virtualName="" explicitFocusOrder="0" pos="16 304 191 24" edTextCol="ff000000"
+         virtualName="" explicitFocusOrder="0" pos="112c 304 192 24" edTextCol="ff000000"
          edBkgCol="0" labelText="Time to run totally [Min]:" editableSingleClick="0"
          editableDoubleClick="0" focusDiscardsChanges="0" fontname="Default font"
          fontsize="15.0" kerning="0.0" bold="0" italic="0" justification="33"/>
   <LABEL name="Time To Run Totally  label" id="e16bd418eeb7240e" memberName="timeToRunTotally__label"
-         virtualName="" explicitFocusOrder="0" pos="16 336 286 24" edTextCol="ff000000"
+         virtualName="" explicitFocusOrder="0" pos="292c 304 152 24" edTextCol="ff000000"
          edBkgCol="0" labelText="Time To Run Totally" editableSingleClick="0"
          editableDoubleClick="0" focusDiscardsChanges="0" fontname="Default font"
          fontsize="15.0" kerning="0.0" bold="0" italic="0" justification="33"/>
+  <TOGGLEBUTTON name="pause toggle button" id="880f5cc9c6966415" memberName="pause__toggleButton"
+                virtualName="" explicitFocusOrder="0" pos="120 408 150 24" buttonText="Pause"
+                connectedEdges="0" needsCallback="0" radioGroupId="0" state="0"/>
 </JUCER_COMPONENT>
 
 END_JUCER_METADATA

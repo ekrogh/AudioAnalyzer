@@ -71,14 +71,14 @@ private:
     double deltaTimeS = 1.0f;  // 1 sec
     double currentTimeToRunS =
         deltaTimeS * (maxFrequencyHz - currentFrequencyHz) / deltaFrequencyHz;
-    double audioSamplesSquareSum = 0.0f;
-    unsigned int noSamplesInAudioSamplesSquareSum = 0;
+    long double audioSamplesSquareSum = 0.0f;
+    unsigned long long noSamplesInAudioSamplesSquareSum = 0;
 
-    double copyCurrentFrequencyHz = 0.0f;
-    double copyAudioSamplesSquareSum = 0.0f;
-    unsigned int copyNoSamplesInAudioSamplesSquareSum = 0;
-    std::vector<double> frequencyValues;
-    std::vector<double> rmsValues;
+    double copyOfCurrentFrequencyHz = 0.0f;
+    long double copyOfAudioSamplesSquareSum = 0.0f;
+    unsigned long long copyOfNoSamplesInAudioSamplesSquareSum = 0;
+    std::vector<float> frequencyValues;
+    std::vector<float> rmsValues;
     //[/UserVariables]
 
     //==============================================================================
@@ -97,6 +97,7 @@ private:
     std::unique_ptr<juce::Label> juce__label;
     std::unique_ptr<juce::Label> juce__label6;
     std::unique_ptr<juce::Label> timeToRunTotally__label;
+    std::unique_ptr<juce::ToggleButton> pause__toggleButton;
 
 
     //==============================================================================
