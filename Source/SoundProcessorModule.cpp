@@ -278,11 +278,7 @@ SoundProcessorModule::~SoundProcessorModule()
 {
 	//[Destructor_pre]. You can add your own custom destruction code here..
 	eksShutdownAudio();
-	while (isThreadRunning())
-	{
-		signalThreadShouldExit();
-		notify();
-	}
+	stopThread(10);
 	//[/Destructor_pre]
 
 	maxFrequency__Slider = nullptr;
