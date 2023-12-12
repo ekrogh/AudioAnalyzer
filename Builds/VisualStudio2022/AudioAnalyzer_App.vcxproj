@@ -151,6 +151,7 @@
     <ClCompile Include="..\..\Source\cmp_lookandfeel.cpp"/>
     <ClCompile Include="..\..\Source\cmp_plot.cpp"/>
     <ClCompile Include="..\..\Source\cmp_trace.cpp"/>
+    <ClCompile Include="..\..\Source\AudioSettingsModule.cpp"/>
     <ClCompile Include="..\..\Source\Main.cpp"/>
     <ClCompile Include="..\..\Source\MainComponent.cpp"/>
     <ClCompile Include="..\..\Source\PlotModule.cpp"/>

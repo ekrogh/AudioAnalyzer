@@ -19,7 +19,7 @@
 
 #pragma once
 
-#include <cmp_datamodels.h>
+#include "cmp_datamodels.h"
 
 namespace cmp {
 

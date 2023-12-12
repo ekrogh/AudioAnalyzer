@@ -31,7 +31,7 @@ extern AudioDeviceManager& getSharedAudioDeviceManager(int numInputChannels = 1,
 SoundProcessorModule::SoundProcessorModule (std::shared_ptr<PlotModule> ptr_module_Plot)
     : AudioAppComponent(getSharedAudioDeviceManager()),
       Thread("Freq. shifter"),
-      module_Plot{ ptr_module_Plot }
+      module_Plot(ptr_module_Plot)
 {
     //[Constructor_pre] You can add your own custom stuff here..
     //[/Constructor_pre]

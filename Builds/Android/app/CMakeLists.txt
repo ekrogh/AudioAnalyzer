@@ -61,6 +61,7 @@ add_library( ${BINARY_NAME}
     "../../../Source/cmp_version.h"
     "../../../Source/example_utils.h"
     "../../../Source/package.h"
+    "../../../Source/AudioSettingsModule.cpp"
     "../../../Source/AudioSettingsModule.h"
     "../../../Source/Main.cpp"
     "../../../Source/MainComponent.cpp"

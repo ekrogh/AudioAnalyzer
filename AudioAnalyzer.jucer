@@ -41,7 +41,9 @@
         <FILE id="efaUfY" name="example_utils.h" compile="0" resource="0" file="Source/example_utils.h"/>
         <FILE id="qovazA" name="package.h" compile="0" resource="0" file="Source/package.h"/>
       </GROUP>
-      <FILE id="hAXUBZ" name="AudioSettingsModule.h" compile="0" resource="0"
+      <FILE id="zfGUUp" name="AudioSettingsModule.cpp" compile="1" resource="0"
+            file="Source/AudioSettingsModule.cpp"/>
+      <FILE id="dJMzzu" name="AudioSettingsModule.h" compile="0" resource="0"
             file="Source/AudioSettingsModule.h"/>
       <FILE id="jffCtx" name="Main.cpp" compile="1" resource="0" file="Source/Main.cpp"/>
       <FILE id="R8zn7a" name="MainComponent.cpp" compile="1" resource="0"

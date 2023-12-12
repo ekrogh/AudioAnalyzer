@@ -622,6 +622,9 @@
     <ClCompile Include="..\..\Source\cmp_trace.cpp">
       <Filter>AudioAnalyzer\Source\cmp_plot_source</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\Source\AudioSettingsModule.cpp">
+      <Filter>AudioAnalyzer\Source</Filter>
+    </ClCompile>
     <ClCompile Include="..\..\Source\Main.cpp">
       <Filter>AudioAnalyzer\Source</Filter>
     </ClCompile>

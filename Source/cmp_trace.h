@@ -19,7 +19,7 @@
 
 #pragma once
 
-#include <cmp_datamodels.h>
+#include "cmp_datamodels.h"
 #include <juce_gui_basics/juce_gui_basics.h>
 
 #include <iterator>

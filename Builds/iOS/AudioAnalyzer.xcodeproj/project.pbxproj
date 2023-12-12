@@ -35,6 +35,7 @@
 		700B86B609C5EAA527BD7ED1 /* include_juce_audio_basics.mm */ = {isa = PBXBuildFile; fileRef = 257DF5B0F588E291BBED20C8; };
 		744331A6CD820F7EAB6A58D1 /* CoreText.framework */ = {isa = PBXBuildFile; fileRef = D16530F8F2EB343C32109081; };
 		7E4C7FC0959FC9E2CB745D42 /* cmp_graph_line.cpp */ = {isa = PBXBuildFile; fileRef = E32743BCB0246A7284C1A3BB; };
+		800E67DACCB66CCE6F033EFB /* AudioSettingsModule.cpp */ = {isa = PBXBuildFile; fileRef = 495AE307CE4B5CEC5EF59768; };
 		84E851A40E2809A47EB0FA86 /* Main.cpp */ = {isa = PBXBuildFile; fileRef = 50D3B2DBEBC4D762C444DE4B; };
 		86F57AA972C12D6164FC6916 /* include_juce_audio_processors_ara.cpp */ = {isa = PBXBuildFile; fileRef = 349032DBD43C28F182DE277D; };
 		8720688F2E02628131AEA619 /* include_juce_audio_utils.mm */ = {isa = PBXBuildFile; fileRef = 781AEA24558CB50582053A51; };
@@ -86,6 +87,7 @@
 		4563594DD7973E62C6A8699D /* WebKit.framework */ /* WebKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = WebKit.framework; path = System/Library/Frameworks/WebKit.framework; sourceTree = SDKROOT; };
 		4740477F31C83594E4A4FD26 /* cmp_datamodels.h */ /* cmp_datamodels.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = cmp_datamodels.h; path = ../../Source/cmp_datamodels.h; sourceTree = SOURCE_ROOT; };
 		4757770FE3CBAD750DAB7C4A /* include_juce_audio_devices.mm */ /* include_juce_audio_devices.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; name = include_juce_audio_devices.mm; path = ../../JuceLibraryCode/include_juce_audio_devices.mm; sourceTree = SOURCE_ROOT; };
+		495AE307CE4B5CEC5EF59768 /* AudioSettingsModule.cpp */ /* AudioSettingsModule.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = AudioSettingsModule.cpp; path = ../../Source/AudioSettingsModule.cpp; sourceTree = SOURCE_ROOT; };
 		50D3B2DBEBC4D762C444DE4B /* Main.cpp */ /* Main.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = Main.cpp; path = ../../Source/Main.cpp; sourceTree = SOURCE_ROOT; };
 		5156AFE0E879A53483250765 /* Accelerate.framework */ /* Accelerate.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Accelerate.framework; path = System/Library/Frameworks/Accelerate.framework; sourceTree = SDKROOT; };
 		5E9F55A6DB07575E238DC68E /* MainComponent.cpp */ /* MainComponent.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = MainComponent.cpp; path = ../../Source/MainComponent.cpp; sourceTree = SOURCE_ROOT; };
@@ -216,6 +218,7 @@
 			isa = PBXGroup;
 			children = (
 				7E98CA2D0B49140AD7673203,
+				495AE307CE4B5CEC5EF59768,
 				97A65C4B592B3BE7610E23D1,
 				50D3B2DBEBC4D762C444DE4B,
 				5E9F55A6DB07575E238DC68E,
@@ -415,6 +418,7 @@
 				FAF9BA379F5945CAB81C1D34,
 				57DB922143FF08F3239DE63A,
 				A9CB5547AE07FD5090D4F978,
+				800E67DACCB66CCE6F033EFB,
 				84E851A40E2809A47EB0FA86,
 				3215A3A74BF043330C9646A0,
 				C0598ACC9C3CCA966C5B1226,

@@ -82,6 +82,7 @@ OBJECTS_APP := \
   $(JUCE_OBJDIR)/cmp_lookandfeel_2e192d06.o \
   $(JUCE_OBJDIR)/cmp_plot_4aead9a3.o \
   $(JUCE_OBJDIR)/cmp_trace_d41e488d.o \
+  $(JUCE_OBJDIR)/AudioSettingsModule_a2de15c6.o \
   $(JUCE_OBJDIR)/Main_90ebc5c2.o \
   $(JUCE_OBJDIR)/MainComponent_a6ffb4a5.o \
   $(JUCE_OBJDIR)/PlotModule_3779a9b6.o \
@@ -161,6 +162,11 @@ $(JUCE_OBJDIR)/cmp_plot_4aead9a3.o: ../../Source/cmp_plot.cpp
 $(JUCE_OBJDIR)/cmp_trace_d41e488d.o: ../../Source/cmp_trace.cpp
 	-$(V_AT)mkdir -p $(@D)
 	@echo "Compiling cmp_trace.cpp"
+	$(V_AT)$(CXX) $(JUCE_CXXFLAGS) $(JUCE_CPPFLAGS_APP) $(JUCE_CFLAGS_APP) -o "$@" -c "$<"
+
+$(JUCE_OBJDIR)/AudioSettingsModule_a2de15c6.o: ../../Source/AudioSettingsModule.cpp
+	-$(V_AT)mkdir -p $(@D)
+	@echo "Compiling AudioSettingsModule.cpp"
 	$(V_AT)$(CXX) $(JUCE_CXXFLAGS) $(JUCE_CPPFLAGS_APP) $(JUCE_CFLAGS_APP) -o "$@" -c "$<"
 
 $(JUCE_OBJDIR)/Main_90ebc5c2.o: ../../Source/Main.cpp
