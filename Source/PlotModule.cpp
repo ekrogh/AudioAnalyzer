@@ -76,8 +76,10 @@ void PlotModule::paint (juce::Graphics& g)
 void PlotModule::resized()
 {
     //[UserPreResize] Add your own custom resize code here..
-                // Set the bounds of the plot to fill the whole window.
-    m_plot.setBounds(getBounds());
+    // Set the bounds of the plot to fill the whole window.
+    juce::Rectangle curBounds = getBounds();
+    curBounds.setHeight(curBounds.getHeight() - 10);
+    m_plot.setBounds(curBounds);
     //[/UserPreResize]
 
     //[UserResized] Add your own custom resize handling here..

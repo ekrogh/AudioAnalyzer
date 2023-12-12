@@ -190,6 +190,9 @@ SoundProcessorModule::SoundProcessorModule (std::shared_ptr<PlotModule> ptr_modu
                 setAudioChannels(1, 1); // One input, one output
 
 				startThread(Priority::low);
+
+                pause__toggleButton->setEnabled(true);
+
 			}
 			else
 			{
@@ -201,28 +204,40 @@ SoundProcessorModule::SoundProcessorModule (std::shared_ptr<PlotModule> ptr_modu
                 currentFrequencyHz = 0;
 
                 updateFrequencyAndAngleDelta();
+           
+                pause__toggleButton->setEnabled(false);
             }
-		};
 
+            pause__toggleButton->setToggleState(false, dontSendNotification);
+        };
+    
+    pause__toggleButton->setEnabled(false);
     pause__toggleButton->onClick =
         [this]
         {
-            if (pause__toggleButton->getToggleState())
+            if (run__toggleButton->getToggleState())
             {
-                signalThreadShouldExit();
-                notify(); // So thread exits
+                if (pause__toggleButton->getToggleState())
+                {
+                    signalThreadShouldExit();
+                    notify(); // So thread exits
 
-                shutdownAudio();
+                    shutdownAudio();
 
-                updateFrequencyAndAngleDelta();
+                    updateFrequencyAndAngleDelta();
+                }
+                else
+                {
+                    updateFrequencyAndAngleDelta();
+
+                    setAudioChannels(1, 1); // One input, one output
+
+                    startThread(Priority::low);
+                }
             }
             else
             {
-                updateFrequencyAndAngleDelta();
-
-                setAudioChannels(1, 1); // One input, one output
-
-                startThread(Priority::low);
+                pause__toggleButton->setToggleState(false, dontSendNotification);
             }
         };
 
@@ -279,9 +294,12 @@ SoundProcessorModule::SoundProcessorModule (std::shared_ptr<PlotModule> ptr_modu
 SoundProcessorModule::~SoundProcessorModule()
 {
     //[Destructor_pre]. You can add your own custom destruction code here..
-	signalThreadShouldExit();
-	notify();
-	eksShutdownAudio();
+    eksShutdownAudio();
+    while (isThreadRunning())
+    {
+        signalThreadShouldExit();
+        notify();
+    }
     //[/Destructor_pre]
 
     maxFrequency__Slider = nullptr;
@@ -461,11 +479,6 @@ void SoundProcessorModule::run()
             module_Plot->updatePlot(frequencyValues, rmsValues);
 		}
 	}
-
-    {
-        const MessageManagerLock mml;
-        run__toggleButton->setToggleState(false, sendNotification);
-    }
 
 }
 
