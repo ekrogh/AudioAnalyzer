@@ -41,21 +41,7 @@ AudioSettingsModule::AudioSettingsModule ()
 		});
     //[/Constructor_pre]
 
-    juce__component.reset
-    (
-        new AudioDeviceSelectorComponent
-        (
-            getSharedAudioDeviceManager()
-            , 1
-            , 1
-            , 1
-            , 2
-            , false
-            , false
-            , false
-            , false
-        )
-    );
+    juce__component.reset (new AudioDeviceSelectorComponent (getSharedAudioDeviceManager(), 1, 1, 1, 2, false, false, false, false));
     addAndMakeVisible (juce__component.get());
     juce__component->setName ("new component");
 
@@ -65,39 +51,28 @@ AudioSettingsModule::AudioSettingsModule ()
 
 
     //[UserPreSize]
-	deviceSupportsDisableAudioPreprocessing =
-		getSharedAudioDeviceManager().getCurrentAudioDevice()->setAudioPreprocessingEnabled(true);
-		if (deviceSupportsDisableAudioPreprocessing)
-		{
-			Disable_OS_audio_preprocesstogglebutton->onClick =
-				[this]
-				{
-					//if (Disable_OS_audio_preprocesstogglebutton->getToggleState())
-					if (deviceSupportsDisableAudioPreprocessing)
-					{
-						getSharedAudioDeviceManager().getCurrentAudioDevice()->
-                        setAudioPreprocessingEnabled
-                        (
-                            !(Disable_OS_audio_preprocesstogglebutton->
-                                    getToggleState())
-                         );
-					}
-				};
+    Disable_OS_audio_preprocesstogglebutton->onClick =
+        [this]
+        {
+            //if (Disable_OS_audio_preprocesstogglebutton->getToggleState())
+            if (deviceSupportsDisableAudioPreprocessing)
+            {
+                getSharedAudioDeviceManager().getCurrentAudioDevice()->
+                    setAudioPreprocessingEnabled
+                    (
+                        !(Disable_OS_audio_preprocesstogglebutton->getToggleState())
+                    );
+            }
+        };
 
-			Disable_OS_audio_preprocesstogglebutton->setEnabled(true);
-			Disable_OS_audio_preprocesstogglebutton->setVisible(true);
-		}
-		else
-		{
-			Disable_OS_audio_preprocesstogglebutton->setEnabled(false);
-			Disable_OS_audio_preprocesstogglebutton->setVisible(false);
-		}
+    enableDisableDisable_OS_audio_preprocesstogglebutton();
     //[/UserPreSize]
 
     setSize (600, 700);
 
 
     //[Constructor] You can add your own custom stuff here..
+    getSharedAudioDeviceManager().addChangeListener(this);
     //[/Constructor]
 }
 
@@ -111,6 +86,7 @@ AudioSettingsModule::~AudioSettingsModule()
 
 
     //[Destructor]. You can add your own custom destruction code here..
+    getSharedAudioDeviceManager().removeChangeListener(this);
     //[/Destructor]
 }
 
@@ -131,8 +107,8 @@ void AudioSettingsModule::resized()
     //[UserPreResize] Add your own custom resize code here..
     //[/UserPreResize]
 
-    juce__component->setBounds (8, 8, proportionOfWidth (0.9421f), getHeight() - 260);
-    Disable_OS_audio_preprocesstogglebutton->setBounds (16, 8 + (getHeight() - 260) - -4, proportionOfWidth (0.4073f), proportionOfHeight (0.0385f));
+    juce__component->setBounds (8, 8, proportionOfWidth (0.9781f), proportionOfHeight (0.5099f));
+    Disable_OS_audio_preprocesstogglebutton->setBounds (8 + 0, 8 + proportionOfHeight (0.5099f) - -12, proportionOfWidth (0.3361f), proportionOfHeight (0.0384f));
     //[UserResized] Add your own custom resize handling here..
     //[/UserResized]
 }
@@ -140,6 +116,32 @@ void AudioSettingsModule::resized()
 
 
 //[MiscUserCode] You can add your own definitions of your custom methods or any other code here...
+void AudioSettingsModule::enableDisableDisable_OS_audio_preprocesstogglebutton()
+{
+    deviceSupportsDisableAudioPreprocessing =
+        getSharedAudioDeviceManager().getCurrentAudioDevice()->
+        setAudioPreprocessingEnabled
+        (
+            !(Disable_OS_audio_preprocesstogglebutton->getToggleState())
+        );
+
+    if (deviceSupportsDisableAudioPreprocessing)
+    {
+
+        Disable_OS_audio_preprocesstogglebutton->setEnabled(true);
+        Disable_OS_audio_preprocesstogglebutton->setVisible(true);
+    }
+    else
+    {
+        Disable_OS_audio_preprocesstogglebutton->setEnabled(false);
+        Disable_OS_audio_preprocesstogglebutton->setVisible(false);
+    }
+}
+
+void AudioSettingsModule::changeListenerCallback(ChangeBroadcaster*)
+{
+    enableDisableDisable_OS_audio_preprocesstogglebutton();
+}
 //[/MiscUserCode]
 
 
@@ -153,18 +155,19 @@ void AudioSettingsModule::resized()
 BEGIN_JUCER_METADATA
 
 <JUCER_COMPONENT documentType="Component" className="AudioSettingsModule" componentName=""
-                 parentClasses="public juce::Component" constructorParams="" variableInitialisers=""
-                 snapPixels="8" snapActive="1" snapShown="1" overlayOpacity="0.330"
-                 fixedSize="0" initialWidth="600" initialHeight="700">
+                 parentClasses="public juce::Component, private ChangeListener"
+                 constructorParams="" variableInitialisers="" snapPixels="8" snapActive="1"
+                 snapShown="1" overlayOpacity="0.330" fixedSize="0" initialWidth="600"
+                 initialHeight="700">
   <BACKGROUND backgroundColour="ff505050"/>
   <GENERICCOMPONENT name="new component" id="bfa59ed472623a36" memberName="juce__component"
-                    virtualName="" explicitFocusOrder="0" pos="8 8 94.208% 260M"
+                    virtualName="" explicitFocusOrder="0" pos="8 8 97.814% 50.99%"
                     class="AudioDeviceSelectorComponent" params="getSharedAudioDeviceManager(), 1, 1, 1, 2, false, false, false, false"/>
   <TOGGLEBUTTON name="Disable OS audio preprocesstoggle button" id="3a7e5ff79aea0286"
                 memberName="Disable_OS_audio_preprocesstogglebutton" virtualName=""
-                explicitFocusOrder="0" pos="16 -4R 40.734% 3.846%" posRelativeY="bfa59ed472623a36"
-                buttonText="Disable OS audio preprocessing" connectedEdges="0"
-                needsCallback="0" radioGroupId="0" state="0"/>
+                explicitFocusOrder="0" pos="0 -12R 33.607% 3.837%" posRelativeX="bfa59ed472623a36"
+                posRelativeY="bfa59ed472623a36" buttonText="Disable OS audio preprocessing"
+                connectedEdges="0" needsCallback="0" radioGroupId="0" state="0"/>
 </JUCER_COMPONENT>
 
 END_JUCER_METADATA

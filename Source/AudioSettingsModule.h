@@ -33,7 +33,8 @@
     Describe your class and how it works here!
                                                                     //[/Comments]
 */
-class AudioSettingsModule  : public juce::Component
+class AudioSettingsModule  : public juce::Component,
+                             private ChangeListener
 {
 public:
     //==============================================================================
@@ -42,6 +43,8 @@ public:
 
     //==============================================================================
     //[UserMethods]     -- You can add your own custom methods in this section.
+    void enableDisableDisable_OS_audio_preprocesstogglebutton();
+    void changeListenerCallback(ChangeBroadcaster*) override;
     //[/UserMethods]
 
     void paint (juce::Graphics& g) override;
