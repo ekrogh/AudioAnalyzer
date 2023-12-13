@@ -112,8 +112,8 @@ void AudioSettingsModule::resized()
     //[UserPreResize] Add your own custom resize code here..
     //[/UserPreResize]
 
-    juce__component->setBounds (8, 8, getWidth() - 243, getHeight() - 260);
-    Disable_OS_audio_preprocesstogglebutton->setBounds (8 + 0, 8 + (getHeight() - 260) - -16, getWidth() - 484, getHeight() - 844);
+    juce__component->setBounds (8, 8, proportionOfWidth (0.9416f), getHeight() - 260);
+    Disable_OS_audio_preprocesstogglebutton->setBounds (16, 8 + (getHeight() - 260) - -4, proportionOfWidth (0.4069f), proportionOfHeight (0.0385f));
     //[UserResized] Add your own custom resize handling here..
     //[/UserResized]
 }
@@ -139,13 +139,13 @@ BEGIN_JUCER_METADATA
                  fixedSize="0" initialWidth="600" initialHeight="700">
   <BACKGROUND backgroundColour="ff505050"/>
   <GENERICCOMPONENT name="new component" id="bfa59ed472623a36" memberName="juce__component"
-                    virtualName="" explicitFocusOrder="0" pos="8 8 243M 260M" class="AudioDeviceSelectorComponent"
-                    params="getSharedAudioDeviceManager(), 1, 1, 1, 2, false, false, false, false"/>
+                    virtualName="" explicitFocusOrder="0" pos="8 8 94.156% 260M"
+                    class="AudioDeviceSelectorComponent" params="getSharedAudioDeviceManager(), 1, 1, 1, 2, false, false, false, false"/>
   <TOGGLEBUTTON name="Disable OS audio preprocesstoggle button" id="3a7e5ff79aea0286"
                 memberName="Disable_OS_audio_preprocesstogglebutton" virtualName=""
-                explicitFocusOrder="0" pos="0 -16R 484M 844M" posRelativeX="bfa59ed472623a36"
-                posRelativeY="bfa59ed472623a36" buttonText="Disable OS audio preprocessing"
-                connectedEdges="0" needsCallback="0" radioGroupId="0" state="0"/>
+                explicitFocusOrder="0" pos="16 -4R 40.693% 3.846%" posRelativeY="bfa59ed472623a36"
+                buttonText="Disable OS audio preprocessing" connectedEdges="0"
+                needsCallback="0" radioGroupId="0" state="0"/>
 </JUCER_COMPONENT>
 
 END_JUCER_METADATA
