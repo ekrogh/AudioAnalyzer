@@ -41,7 +41,21 @@ AudioSettingsModule::AudioSettingsModule ()
 		});
     //[/Constructor_pre]
 
-    juce__component.reset (new AudioDeviceSelectorComponent (getSharedAudioDeviceManager(), 1, 1, 1, 2, false, false, false, false));
+    juce__component.reset
+    (
+        new AudioDeviceSelectorComponent
+        (
+            getSharedAudioDeviceManager()
+            , 1
+            , 1
+            , 1
+            , 2
+            , false
+            , false
+            , false
+            , false
+        )
+    );
     addAndMakeVisible (juce__component.get());
     juce__component->setName ("new component");
 
