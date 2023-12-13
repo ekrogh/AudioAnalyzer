@@ -61,7 +61,12 @@ AudioSettingsModule::AudioSettingsModule ()
 					//if (Disable_OS_audio_preprocesstogglebutton->getToggleState())
 					if (deviceSupportsDisableAudioPreprocessing)
 					{
-						getSharedAudioDeviceManager().getCurrentAudioDevice()->setAudioPreprocessingEnabled(Disable_OS_audio_preprocesstogglebutton->getToggleState());
+						getSharedAudioDeviceManager().getCurrentAudioDevice()->
+                        setAudioPreprocessingEnabled
+                        (
+                            !(Disable_OS_audio_preprocesstogglebutton->
+                                    getToggleState())
+                         );
 					}
 				};
 
