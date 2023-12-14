@@ -23,28 +23,49 @@
 #include "cmp_plot.h"
 #include "PlotModule.h"
 #include <JuceHeader.h>
+
+
+// For microphone permissions checks =================
+#if (JUCE_IOS || JUCE_MAC || JUCE_LINUX)
+    #define JUCE_IOS_or_JUCE_MAC_or_JUCE_LINUX
+#else
+    #undef JUCE_IOS_or_JUCE_MAC_or_JUCE_LINUX
+#endif
+
+#if (JUCE_MAC)
+    #define ON_JUCE_MAC
+#else
+    #undef ON_JUCE_MAC
+#endif
+
+//// For debug/edit in visual studio
+//#define JUCE_IOS_or_JUCE_MAC_or_JUCE_LINUX
+//#define ON_JUCE_MAC
+//================================================
+
 //[/Headers]
 
 
 
 //==============================================================================
 /**
-																	//[Comments]
+                                                                    //[Comments]
 	An auto-generated component, created by the Projucer.
 
 	Describe your class and how it works here!
-																	//[/Comments]
+                                                                    //[/Comments]
 */
-class SoundProcessorModule : public juce::AudioAppComponent,
-	private juce::Thread
+class SoundProcessorModule  : public juce::AudioAppComponent,
+                              private juce::Thread,
+                              private Timer
 {
 public:
-	//==============================================================================
-	SoundProcessorModule(std::shared_ptr<PlotModule> ptr_module_Plot);
-	~SoundProcessorModule() override;
+    //==============================================================================
+    SoundProcessorModule (std::shared_ptr<PlotModule> ptr_module_Plot);
+    ~SoundProcessorModule() override;
 
-	//==============================================================================
-	//[UserMethods]     -- You can add your own custom methods in this section.
+    //==============================================================================
+    //[UserMethods]     -- You can add your own custom methods in this section.
 	void startAudio();
 	void stopAudio();
 	void updateAngleDelta();
@@ -54,16 +75,20 @@ public:
 	void getNextAudioBlock(const juce::AudioSourceChannelInfo& bufferToFill) override;
 	void run() override; // Called from Thread
 	void updateCurrentFrequencyLabel();
-	//[/UserMethods]
+    //[/UserMethods]
 
-	void paint(juce::Graphics& g) override;
-	void resized() override;
+    void paint (juce::Graphics& g) override;
+    void resized() override;
 
 
 
 private:
-	//[UserVariables]   -- You can add your own custom variables in this section.
-	std::shared_ptr<PlotModule> module_Plot;
+    //[UserVariables]   -- You can add your own custom variables in this section.
+//#ifdef JUCE_IOS_or_JUCE_MAC_or_JUCE_LINUX
+    void timerCallback() override;
+//#endif // #ifdef JUCE_IOS_or_JUCE_MAC_or_JUCE_LINUX
+
+    std::shared_ptr<PlotModule> module_Plot;
 	CriticalSection rmsLock;
 	double currentSampleRate = 0.0, currentPhase = 0.0, phaseDeltaPerSample = 0.0;
 	double minFrequencyHz = 1.0f;
@@ -81,29 +106,29 @@ private:
 	unsigned long long copyOfNoSamplesInAudioSamplesSquareSum = 0;
 	std::vector<float> frequencyValues;
 	std::vector<float> rmsValues;
-	//[/UserVariables]
+    //[/UserVariables]
 
-	//==============================================================================
-	std::unique_ptr<juce::Slider> maxFrequency__Slider;
-	std::unique_ptr<juce::ToggleButton> run__toggleButton;
-	std::unique_ptr<juce::Slider> deltaTime__slider;
-	std::unique_ptr<juce::Label> juce__label2;
-	std::unique_ptr<juce::Label> juce__label3;
-	std::unique_ptr<juce::Slider> deltaFreq__slider;
-	std::unique_ptr<juce::Label> timeToRun__label;
-	std::unique_ptr<juce::Label> timeToRunValue__label;
-	std::unique_ptr<juce::Label> juce__label4;
-	std::unique_ptr<juce::Label> currentFrequency__label;
-	std::unique_ptr<juce::Label> juce__label5;
-	std::unique_ptr<juce::Slider> minFreq__slider;
-	std::unique_ptr<juce::Label> juce__label;
-	std::unique_ptr<juce::Label> juce__label6;
-	std::unique_ptr<juce::Label> timeToRunTotally__label;
-	std::unique_ptr<juce::ToggleButton> pause__toggleButton;
+    //==============================================================================
+    std::unique_ptr<juce::Slider> maxFrequency__Slider;
+    std::unique_ptr<juce::ToggleButton> run__toggleButton;
+    std::unique_ptr<juce::Slider> deltaTime__slider;
+    std::unique_ptr<juce::Label> juce__label2;
+    std::unique_ptr<juce::Label> juce__label3;
+    std::unique_ptr<juce::Slider> deltaFreq__slider;
+    std::unique_ptr<juce::Label> timeToRun__label;
+    std::unique_ptr<juce::Label> timeToRunValue__label;
+    std::unique_ptr<juce::Label> juce__label4;
+    std::unique_ptr<juce::Label> currentFrequency__label;
+    std::unique_ptr<juce::Label> juce__label5;
+    std::unique_ptr<juce::Slider> minFreq__slider;
+    std::unique_ptr<juce::Label> juce__label;
+    std::unique_ptr<juce::Label> juce__label6;
+    std::unique_ptr<juce::Label> timeToRunTotally__label;
+    std::unique_ptr<juce::ToggleButton> pause__toggleButton;
 
 
-	//==============================================================================
-	JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(SoundProcessorModule)
+    //==============================================================================
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (SoundProcessorModule)
 };
 
 //[EndFile] You can add extra defines here...
