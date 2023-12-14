@@ -193,7 +193,7 @@ SoundProcessorModule::SoundProcessorModule (std::shared_ptr<PlotModule> ptr_modu
 			}
 			else
 			{
-				stopThread(10);
+				stopThread(100);
 
 				stopAudio();
 			}
@@ -209,7 +209,7 @@ SoundProcessorModule::SoundProcessorModule (std::shared_ptr<PlotModule> ptr_modu
 			{
 				if (pause__toggleButton->getToggleState())
 				{
-					stopThread(10);
+					stopThread(100);
 
 					shutdownAudio();
 
@@ -284,7 +284,7 @@ SoundProcessorModule::~SoundProcessorModule()
 {
     //[Destructor_pre]. You can add your own custom destruction code here..
 	eksShutdownAudio();
-	stopThread(10);
+	stopThread(100);
     //[/Destructor_pre]
 
     maxFrequency__Slider = nullptr;
