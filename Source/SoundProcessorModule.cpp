@@ -457,6 +457,45 @@ void SoundProcessorModule::getNextAudioBlock(const juce::AudioSourceChannelInfo&
 // the thread
 void SoundProcessorModule::run()
 {
+	// First som permissions requesting
+#if (JUCE_IOS || JUCE_MAC || JUCE_LINUX)
+#if (JUCE_MAC || JUCE_LINUX)
+	//    if (SystemStats::getOperatingSystemType() >= SystemStats::MacOSX_10_14)
+	if (!(SystemStats::getOperatingSystemType() < SystemStats::MacOSX_10_14))
+	{
+#endif
+		AudioIODevice* CurrentAudioDevice = sharedAudioDeviceManager->getCurrentAudioDevice();
+		if (CurrentAudioDevice != nullptr)
+		{
+			switch (CurrentAudioDevice->checkAudioInputAccessPermissions())
+			{
+			case eksAVAuthorizationStatusDenied:
+			{
+				startTimer(1000);
+				break;
+			}
+			case eksAVAuthorizationStatusRestricted:
+			case eksAVAuthorizationStatusAuthorized:
+			{
+				break;
+			}
+			case eksAVAuthorizationStatusNotDetermined:
+			{
+				startTimer(1000);
+				break;
+			}
+			default:
+			{
+				break;
+			}
+			}
+		}
+#if (JUCE_MAC || JUCE_LINUX)
+	}
+#endif
+#endif // #if (JUCE_IOS || JUCE_MAC || JUCE_LINUX)
+
+	// Then go on
 	while ((!threadShouldExit()) && (currentFrequencyHz <= maxFrequencyHz))
 	{
 		{
