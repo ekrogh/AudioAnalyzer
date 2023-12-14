@@ -41,6 +41,8 @@
         <FILE id="efaUfY" name="example_utils.h" compile="0" resource="0" file="Source/example_utils.h"/>
         <FILE id="qovazA" name="package.h" compile="0" resource="0" file="Source/package.h"/>
       </GROUP>
+      <FILE id="CftdSj" name="AudioAnalyzerGlobalEnums.h" compile="0" resource="0"
+            file="Source/AudioAnalyzerGlobalEnums.h"/>
       <FILE id="zfGUUp" name="AudioSettingsModule.cpp" compile="1" resource="0"
             file="Source/AudioSettingsModule.cpp"/>
       <FILE id="dJMzzu" name="AudioSettingsModule.h" compile="0" resource="0"

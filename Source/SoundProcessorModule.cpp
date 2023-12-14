@@ -18,13 +18,19 @@
 */
 
 //[Headers] You can add your own extra header files here...
+#include "AudioAnalyzerGlobalEnums.h"
 //[/Headers]
 
 #include "SoundProcessorModule.h"
 
 
 //[MiscUserDefs] You can add your own user definitions and misc code here...
-extern AudioDeviceManager& getSharedAudioDeviceManager(int numInputChannels = 1, int numOutputChannels = 1);
+extern AudioDeviceManager& getSharedAudioDeviceManager
+(
+	int numInputChannels = numInAndOutputs::defaultNumInputChannels
+	,
+	int numOutputChannels = numInAndOutputs::defaultNumOutputChannels
+);
 //[/MiscUserDefs]
 
 //==============================================================================
