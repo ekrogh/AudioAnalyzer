@@ -44,14 +44,14 @@ SoundProcessorModule::SoundProcessorModule (std::shared_ptr<PlotModule> ptr_modu
     maxFrequency__Slider->setSliderStyle (juce::Slider::LinearHorizontal);
     maxFrequency__Slider->setTextBoxStyle (juce::Slider::TextBoxLeft, false, 80, 20);
 
-    run__toggleButton.reset (new juce::ToggleButton ("run toggle button"));
-    addAndMakeVisible (run__toggleButton.get());
-    run__toggleButton->setButtonText (TRANS ("Run"));
+    runNewMeasurement__toggleButton.reset (new juce::ToggleButton ("run New Measurement toggle button"));
+    addAndMakeVisible (runNewMeasurement__toggleButton.get());
+    runNewMeasurement__toggleButton->setButtonText (TRANS ("Run new measurement"));
 
     deltaTime__slider.reset (new juce::Slider ("delta time slider"));
     addAndMakeVisible (deltaTime__slider.get());
     deltaTime__slider->setTooltip (TRANS ("Delta Time [Sec]"));
-    deltaTime__slider->setRange (1, 60, 1);
+    deltaTime__slider->setRange (1, 60, 0.1);
     deltaTime__slider->setSliderStyle (juce::Slider::LinearHorizontal);
     deltaTime__slider->setTextBoxStyle (juce::Slider::TextBoxLeft, false, 80, 20);
 
@@ -165,7 +165,9 @@ SoundProcessorModule::SoundProcessorModule (std::shared_ptr<PlotModule> ptr_modu
     addAndMakeVisible (pause__toggleButton.get());
     pause__toggleButton->setButtonText (TRANS ("Pause"));
 
-    pause__toggleButton->setBounds (120, 408, 150, 24);
+    Deleteoldmeasurements__textButton.reset (new juce::TextButton ("Deleteoldmeasurements__textButton"));
+    addAndMakeVisible (Deleteoldmeasurements__textButton.get());
+    Deleteoldmeasurements__textButton->setButtonText (TRANS ("Delete old measurements"));
 
 
     //[UserPreSize]
@@ -175,15 +177,42 @@ SoundProcessorModule::SoundProcessorModule (std::shared_ptr<PlotModule> ptr_modu
 
 
     //[Constructor] You can add your own custom stuff here..
-	run__toggleButton->onClick =
+    Deleteoldmeasurements__textButton->onClick =
+        [this]
+        {
+            { // ScopedLock sl scope begin
+                const ScopedLock sl(clearOldMeasuredLock);
+
+                frequencyValues.clear();
+                frequencyValues.reserve(0);
+                rmsValues.clear();
+                rmsValues.reserve(0);
+                if (runNewMeasurement__toggleButton->getToggleState())
+                {
+                    frequencyValues.insert(frequencyValues.begin(), forInsertFrequencyVector);
+                    rmsValues.insert(rmsValues.begin(), forInsetRMSVector);
+                }
+            }// ScopedLock sl scope END
+        };
+
+	runNewMeasurement__toggleButton->onClick =
 		[this]
 		{
-			if (run__toggleButton->getToggleState())
+			if (runNewMeasurement__toggleButton->getToggleState())
 			{
-				startAudio();
+                currentFrequencyHz = minFrequencyHz;
+
+                updateFrequencyAndAngleDelta();
+
+                //frequencyValues.clear();
+                frequencyValues.insert(frequencyValues.begin(), forInsertFrequencyVector);
+                rmsValues.insert(rmsValues.begin(), forInsetRMSVector);
+
+                setAudioChannels(1, 1); // One input, one output
+
+                pause__toggleButton->setEnabled(true);
 
 				startThread(Priority::low);
-
 			}
 			else
 			{
@@ -199,7 +228,7 @@ SoundProcessorModule::SoundProcessorModule (std::shared_ptr<PlotModule> ptr_modu
 	pause__toggleButton->onClick =
 		[this]
 		{
-			if (run__toggleButton->getToggleState())
+			if (runNewMeasurement__toggleButton->getToggleState())
 			{
 				if (pause__toggleButton->getToggleState())
 				{
@@ -282,7 +311,7 @@ SoundProcessorModule::~SoundProcessorModule()
     //[/Destructor_pre]
 
     maxFrequency__Slider = nullptr;
-    run__toggleButton = nullptr;
+    runNewMeasurement__toggleButton = nullptr;
     deltaTime__slider = nullptr;
     juce__label2 = nullptr;
     juce__label3 = nullptr;
@@ -297,6 +326,7 @@ SoundProcessorModule::~SoundProcessorModule()
     juce__label6 = nullptr;
     timeToRunTotally__label = nullptr;
     pause__toggleButton = nullptr;
+    Deleteoldmeasurements__textButton = nullptr;
 
 
     //[Destructor]. You can add your own custom destruction code here..
@@ -321,7 +351,7 @@ void SoundProcessorModule::resized()
     //[/UserPreResize]
 
     maxFrequency__Slider->setBounds (16 + 0, 112, (getWidth() - 40) - 0, 24);
-    run__toggleButton->setBounds ((((16 + 0) + 0) + 0) + 0, 408, 88, 24);
+    runNewMeasurement__toggleButton->setBounds ((((16 + 0) + 0) + 0) + 92 - (184 / 2), 408, 184, 24);
     deltaTime__slider->setBounds (((16 + 0) + 0) + 0, 256, (((getWidth() - 40) - 0) - 0) - 0, 24);
     juce__label2->setBounds ((((16 + 0) + 0) + 0) + 0, 224, getWidth() - 446, 24);
     juce__label3->setBounds (((16 + 0) + 0) + 0, 152, 176, 24);
@@ -334,6 +364,8 @@ void SoundProcessorModule::resized()
     juce__label->setBounds ((16 + 0) + 0, 88, 150, 24);
     juce__label6->setBounds (112 - (192 / 2), 304, 192, 24);
     timeToRunTotally__label->setBounds (292 - (152 / 2), 304, 152, 24);
+    pause__toggleButton->setBounds (256 - (80 / 2), 408, 80, 24);
+    Deleteoldmeasurements__textButton->setBounds (412 - (200 / 2), 408, 200, 24);
     //[UserResized] Add your own custom resize handling here..
     //[/UserResized]
 }
@@ -341,20 +373,6 @@ void SoundProcessorModule::resized()
 
 
 //[MiscUserCode] You can add your own definitions of your custom methods or any other code here...
-void SoundProcessorModule::startAudio()
-{
-	currentFrequencyHz = minFrequencyHz;
-
-	updateFrequencyAndAngleDelta();
-
-	frequencyValues.clear();
-	rmsValues.clear();
-
-	setAudioChannels(1, 1); // One input, one output
-
-	pause__toggleButton->setEnabled(true);
-}
-
 void SoundProcessorModule::stopAudio()
 {
 	shutdownAudio();
@@ -475,12 +493,16 @@ void SoundProcessorModule::run()
 				currentFrequencyHz += deltaFrequencyHz;
 			}  // ScopedLock sl scope end
 
-			frequencyValues.push_back(copyOfCurrentFrequencyHz);
+            { // ScopedLock sl scope begin
+                const ScopedLock sl(clearOldMeasuredLock);
+ 
+                frequencyValues[0].push_back(copyOfCurrentFrequencyHz);
 
-			auto curRMS = std::sqrt(copyOfAudioSamplesSquareSum / copyOfNoSamplesInAudioSamplesSquareSum);
-			rmsValues.push_back(curRMS);
+                auto curRMS = std::sqrt(copyOfAudioSamplesSquareSum / copyOfNoSamplesInAudioSamplesSquareSum);
+                rmsValues[0].push_back(curRMS);
 
-			module_Plot->updatePlot(frequencyValues, rmsValues);
+                module_Plot->updatePlot(frequencyValues, rmsValues);
+            }
 		}
 	}
 
@@ -488,7 +510,7 @@ void SoundProcessorModule::run()
 	{
 		const MessageManagerLock mml;
 		stopAudio();
-		run__toggleButton->setToggleState(false, dontSendNotification);
+		runNewMeasurement__toggleButton->setToggleState(false, dontSendNotification);
 	}
 
 }
@@ -522,7 +544,7 @@ BEGIN_JUCER_METADATA
 <JUCER_COMPONENT documentType="Component" className="SoundProcessorModule" componentName="Sound Synth And Analyze Module"
                  parentClasses="public juce::AudioAppComponent, private juce::Thread"
                  constructorParams="std::shared_ptr&lt;PlotModule&gt; ptr_module_Plot, std::shared_ptr&lt;AudioDeviceManager&gt; SADM"
-                 variableInitialisers="module_Plot(ptr_module_Plot)&#10;AudioAppComponent(SADM.get())&#10;Thread(&quot;Freq. shifter&quot;)&#10;"
+                 variableInitialisers="module_Plot(ptr_module_Plot)&#10;AudioAppComponent(*SADM)&#10;Thread(&quot;Freq. shifter&quot;)&#10;"
                  snapPixels="8" snapActive="1" snapShown="1" overlayOpacity="0.330"
                  fixedSize="0" initialWidth="600" initialHeight="600">
   <BACKGROUND backgroundColour="ff505050"/>
@@ -532,14 +554,14 @@ BEGIN_JUCER_METADATA
           max="15000.0" int="1.0" style="LinearHorizontal" textBoxPos="TextBoxLeft"
           textBoxEditable="1" textBoxWidth="80" textBoxHeight="20" skewFactor="1.0"
           needsCallback="0"/>
-  <TOGGLEBUTTON name="run toggle button" id="3e0da1935c285e8f" memberName="run__toggleButton"
-                virtualName="" explicitFocusOrder="0" pos="0 408 88 24" posRelativeX="3f78bae238bae958"
-                buttonText="Run" connectedEdges="0" needsCallback="0" radioGroupId="0"
-                state="0"/>
+  <TOGGLEBUTTON name="run New Measurement toggle button" id="3e0da1935c285e8f"
+                memberName="runNewMeasurement__toggleButton" virtualName="" explicitFocusOrder="0"
+                pos="92c 408 184 24" posRelativeX="3f78bae238bae958" buttonText="Run new measurement"
+                connectedEdges="0" needsCallback="0" radioGroupId="0" state="0"/>
   <SLIDER name="delta time slider" id="3f78bae238bae958" memberName="deltaTime__slider"
           virtualName="" explicitFocusOrder="0" pos="0 256 0M 24" posRelativeX="27e8662d217379e4"
           posRelativeW="27e8662d217379e4" tooltip="Delta Time [Sec]" min="1.0"
-          max="60.0" int="1.0" style="LinearHorizontal" textBoxPos="TextBoxLeft"
+          max="60.0" int="0.1" style="LinearHorizontal" textBoxPos="TextBoxLeft"
           textBoxEditable="1" textBoxWidth="80" textBoxHeight="20" skewFactor="1.0"
           needsCallback="0"/>
   <LABEL name="new label" id="69170c72758aeb9e" memberName="juce__label2"
@@ -611,8 +633,12 @@ BEGIN_JUCER_METADATA
          editableDoubleClick="0" focusDiscardsChanges="0" fontname="Default font"
          fontsize="15.0" kerning="0.0" bold="0" italic="0" justification="33"/>
   <TOGGLEBUTTON name="pause toggle button" id="880f5cc9c6966415" memberName="pause__toggleButton"
-                virtualName="" explicitFocusOrder="0" pos="120 408 150 24" buttonText="Pause"
+                virtualName="" explicitFocusOrder="0" pos="256c 408 80 24" buttonText="Pause"
                 connectedEdges="0" needsCallback="0" radioGroupId="0" state="0"/>
+  <TEXTBUTTON name="Deleteoldmeasurements__textButton" id="737540671aa3e4af"
+              memberName="Deleteoldmeasurements__textButton" virtualName=""
+              explicitFocusOrder="0" pos="412c 408 200 24" buttonText="Delete old measurements"
+              connectedEdges="0" needsCallback="0" radioGroupId="0"/>
 </JUCER_COMPONENT>
 
 END_JUCER_METADATA

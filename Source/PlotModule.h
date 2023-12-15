@@ -44,8 +44,13 @@ public:
 
     //==============================================================================
     //[UserMethods]     -- You can add your own custom methods in this section.
-    void updatePlot(std::vector<float> x_values, std::vector<float> y_values);
-    void updatePlotRealTime(std::vector<float> y_values);
+    void updatePlot
+    (
+        std::vector <std::vector<float>> x_values
+        ,
+        std::vector <std::vector<float>> y_values
+    );
+    void updatePlotRealTime(std::vector <std::vector<float>> y_values);
     void setXLabel(const std::string& x_label) { m_plot.setXLabel(x_label); };
     void setYLabel(const std::string& y_label) { m_plot.setYLabel(y_label); };
     void setTitle(const std::string& title) { m_plot.setTitle(title); };
