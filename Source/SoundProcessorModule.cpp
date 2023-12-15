@@ -457,45 +457,6 @@ void SoundProcessorModule::getNextAudioBlock(const juce::AudioSourceChannelInfo&
 // the thread
 void SoundProcessorModule::run()
 {
-	// First som permissions requesting
-#ifdef JUCE_IOS_or_JUCE_MAC_or_JUCE_LINUX
-#ifdef ON_JUCE_MAC
-	if (!(SystemStats::getOperatingSystemType() < SystemStats::MacOSX_10_14))
-	{
-#endif // ON_JUCE_MAC
-		AudioIODevice* CurrentAudioDevice = getSharedAudioDeviceManager().getCurrentAudioDevice();
-		if (CurrentAudioDevice != nullptr)
-		{
-			switch (CurrentAudioDevice->checkAudioInputAccessPermissions())
-			{
-			case eksAVAuthorizationStatusDenied:
-			{
-				startTimer(1000);
-				break;
-			}
-			case eksAVAuthorizationStatusRestricted:
-			case eksAVAuthorizationStatusAuthorized:
-			{
-				break;
-			}
-			case eksAVAuthorizationStatusNotDetermined:
-			{
-				startTimer(1000);
-				break;
-			}
-			default:
-			{
-				break;
-			}
-			}
-		}
-#ifdef ON_JUCE_MAC
-	}
-#endif // #ifdef ON_JUCE_MAC
-#endif // #ifdef JUCE_IOS_or_JUCE_MAC_or_JUCE_LINUX
-
-
-	// Then go on
 	while ((!threadShouldExit()) && (currentFrequencyHz <= maxFrequencyHz))
 	{
 		{
@@ -538,75 +499,6 @@ void SoundProcessorModule::run()
 
 }
 
-#ifndef JUCE_IOS_or_JUCE_MAC_or_JUCE_LINUX
-void SoundProcessorModule::timerCallback()
-{}
-#else
-void SoundProcessorModule::timerCallback()
-{
-#ifdef ON_JUCE_MAC
-	if (SystemStats::getOperatingSystemType() >= SystemStats::MacOSX_10_14)
-	{
-#endif // #ifdef ON_JUCE_MAC
-		AudioIODevice* CurrentAudioDevice = getSharedAudioDeviceManager().getCurrentAudioDevice();
-		if (CurrentAudioDevice != nullptr)
-		{
-			switch (CurrentAudioDevice->checkAudioInputAccessPermissions())
-			{
-			case eksAVAuthorizationStatusDenied:
-			{
-				stopTimer();
-#if JUCE_MODAL_LOOPS_PERMITTED
-				juce::AlertWindow::showMessageBox
-				(
-					juce::AlertWindow::WarningIcon
-					, "Access to audio input device\nNOT granted!"
-#if (JUCE_IOS)
-					, "You might try to\nEnbale guitarFineTune in\nSettings -> Privacy -> Microphone\nOr UNinstall\nand REinstall guitarFineTune"
-#else // JUCE_MAC || JUCE_LINUX
-					, "You might try to\nEnbale guitarFineTune in\nSystem Preferences -> Security & Privacy -> Privacy -> Microphone\nOr UNinstall\nand REinstall guitarFineTune"
-#endif
-					, "Quit"
-				);
-				getSharedAudioDeviceManager().closeAudioDevice();
-				JUCEApplication::getInstance()->systemRequestedQuit();
-#else //#if JUCE_MODAL_LOOPS_PERMITTED
-				juce::AlertWindow::showMessageBoxAsync
-				(
-					juce::AlertWindow::WarningIcon
-					, "Access to audio input device\nNOT granted!"
-#if (JUCE_IOS)
-					, "You might try to\nEnbale guitarFineTune in\nSettings -> Privacy -> Microphone\nOr UNinstall\nand REinstall guitarFineTune"
-#else // JUCE_MAC || JUCE_LINUX
-					, "You might try to\nEnbale guitarFineTune in\nSystem Preferences -> Security & Privacy -> Privacy -> Microphone\nOr UNinstall\nand REinstall guitarFineTune"
-#endif
-				);
-#endif //#if JUCE_MODAL_LOOPS_PERMITTED
-				break;
-			}
-			case eksAVAuthorizationStatusRestricted:
-			case eksAVAuthorizationStatusAuthorized:
-			{
-				stopTimer();
-				break;
-			}
-			case eksAVAuthorizationStatusNotDetermined:
-			{
-				break;
-			}
-			default:
-			{
-				break;
-			}
-			}
-		}
-#ifdef ON_JUCE_MAC
-	}
-#endif // #ifdef ON_JUCE_MAC
-}
-#endif // #ifdef JUCE_IOS_or_JUCE_MAC_or_JUCE_LINUX
-
-
 void SoundProcessorModule::updateCurrentFrequencyLabel()
 {
 	const MessageManagerLock mml;
@@ -634,7 +526,7 @@ void SoundProcessorModule::updateCurrentFrequencyLabel()
 BEGIN_JUCER_METADATA
 
 <JUCER_COMPONENT documentType="Component" className="SoundProcessorModule" componentName="Sound Synth And Analyze Module"
-                 parentClasses="public juce::AudioAppComponent, private juce::Thread, private Timer"
+                 parentClasses="public juce::AudioAppComponent, private juce::Thread"
                  constructorParams="std::shared_ptr&lt;PlotModule&gt; ptr_module_Plot"
                  variableInitialisers="AudioAppComponent(getSharedAudioDeviceManager())&#10;Thread(&quot;Freq. shifter&quot;)&#10;module_Plot(ptr_module_Plot)"
                  snapPixels="8" snapActive="1" snapShown="1" overlayOpacity="0.330"

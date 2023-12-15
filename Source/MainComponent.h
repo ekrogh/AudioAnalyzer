@@ -25,6 +25,26 @@
 #include "PlotModule.h"
 #include "cmp_plot.h"
 #include <JuceHeader.h>
+
+
+// For microphone permissions checks =================
+#if (JUCE_IOS || JUCE_MAC || JUCE_LINUX)
+#define JUCE_IOS_or_JUCE_MAC_or_JUCE_LINUX
+#else
+#undef JUCE_IOS_or_JUCE_MAC_or_JUCE_LINUX
+#endif
+
+#if (JUCE_MAC)
+#define ON_JUCE_MAC
+#else
+#undef ON_JUCE_MAC
+#endif
+
+//// For debug/edit in visual studio
+#define JUCE_IOS_or_JUCE_MAC_or_JUCE_LINUX
+#define ON_JUCE_MAC
+//================================================
+//
 //[/Headers]
 
 
@@ -32,12 +52,14 @@
 //==============================================================================
 /**
                                                                     //[Comments]
-    An auto-generated component, created by the Projucer.
+	An auto-generated component, created by the Projucer.
 
-    Describe your class and how it works here!
+	Describe your class and how it works here!
                                                                     //[/Comments]
 */
-class MainComponent  : public juce::Component
+class MainComponent  : public juce::Component,
+                       private juce::Thread,
+                       private Timer
 {
 public:
     //==============================================================================
@@ -55,12 +77,15 @@ public:
 
 private:
     //[UserVariables]   -- You can add your own custom variables in this section.
-    std::shared_ptr<PlotModule> module_Plot =
-        std::make_shared<PlotModule>();
-    std::unique_ptr<SoundProcessorModule> module_SoundProcessor =
-        std::make_unique<SoundProcessorModule>(module_Plot);
-    std::unique_ptr<AudioSettingsModule> module_AudioSettings =
-        std::make_unique<AudioSettingsModule>();
+	void run() override; // Called from Thread
+	void timerCallback() override;
+
+	std::shared_ptr<PlotModule> module_Plot =
+		std::make_shared<PlotModule>();
+	std::unique_ptr<SoundProcessorModule> module_SoundProcessor =
+		std::make_unique<SoundProcessorModule>(module_Plot);
+	std::unique_ptr<AudioSettingsModule> module_AudioSettings =
+		std::make_unique<AudioSettingsModule>();
     //[/UserVariables]
 
     //==============================================================================

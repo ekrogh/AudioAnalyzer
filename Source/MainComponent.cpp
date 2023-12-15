@@ -18,6 +18,7 @@
 */
 
 //[Headers] You can add your own extra header files here...
+#include "AudioAnalyzerGlobalEnums.h"
 //[/Headers]
 
 #include "MainComponent.h"
@@ -40,7 +41,12 @@ static String getCurrentDefaultAudioDeviceName(AudioDeviceManager& deviceManager
 
 // (returns a shared AudioDeviceManager object that all the demos can use)
 std::unique_ptr<AudioDeviceManager> sharedAudioDeviceManager;
-AudioDeviceManager& getSharedAudioDeviceManager(int numInputChannels, int numOutputChannels)
+AudioDeviceManager& getSharedAudioDeviceManager
+(
+	int numInputChannels = defaultNumInputChannels
+	,
+	int numOutputChannels = defaultNumOutputChannels
+)
 {
 	if (sharedAudioDeviceManager == nullptr)
 		sharedAudioDeviceManager.reset(new AudioDeviceManager());
@@ -112,8 +118,10 @@ AudioDeviceManager& getSharedAudioDeviceManager(int numInputChannels, int numOut
 
 //==============================================================================
 MainComponent::MainComponent ()
+    : Thread("Microphone permission checker")
 {
     //[Constructor_pre] You can add your own custom stuff here..
+	startThread(Priority::high); // Check microphone permission
     //[/Constructor_pre]
 
     juce__tabbedComponent.reset (new juce::TabbedComponent (juce::TabbedButtonBar::TabsAtTop));
@@ -185,7 +193,7 @@ void MainComponent::resized()
     //[UserPreResize] Add your own custom resize code here..
     //[/UserPreResize]
 
-    juce__tabbedComponent->setBounds (0, 0, proportionOfWidth (0.9908f), proportionOfHeight (0.9919f));
+    juce__tabbedComponent->setBounds (0, 0, proportionOfWidth (0.9904f), proportionOfHeight (0.9913f));
     //[UserResized] Add your own custom resize handling here..
     //[/UserResized]
 }
@@ -193,6 +201,125 @@ void MainComponent::resized()
 
 
 //[MiscUserCode] You can add your own definitions of your custom methods or any other code here...
+void MainComponent::run()
+{
+	// First som permissions requesting
+#ifdef JUCE_IOS_or_JUCE_MAC_or_JUCE_LINUX
+#ifdef ON_JUCE_MAC
+	if (!(SystemStats::getOperatingSystemType() < SystemStats::MacOSX_10_14))
+	{
+#endif // ON_JUCE_MAC
+		AudioIODevice* CurrentAudioDevice = getSharedAudioDeviceManager().getCurrentAudioDevice();
+		if (CurrentAudioDevice != nullptr)
+		{
+			switch (CurrentAudioDevice->checkAudioInputAccessPermissions())
+			{
+			case eksAVAuthorizationStatusDenied:
+			{
+				startTimer(1000);
+				break;
+			}
+			case eksAVAuthorizationStatusRestricted:
+			case eksAVAuthorizationStatusAuthorized:
+			{
+				break;
+			}
+			case eksAVAuthorizationStatusNotDetermined:
+			{
+				startTimer(1000);
+				break;
+			}
+			default:
+			{
+				break;
+			}
+			}
+		}
+#ifdef ON_JUCE_MAC
+}
+#endif // #ifdef ON_JUCE_MAC
+#endif // #ifdef JUCE_IOS_or_JUCE_MAC_or_JUCE_LINUX
+}
+
+#ifndef JUCE_IOS_or_JUCE_MAC_or_JUCE_LINUX
+void MainComponent::timerCallback()
+{}
+#else
+void MainComponent::timerCallback()
+{
+#ifdef ON_JUCE_MAC
+	if (SystemStats::getOperatingSystemType() >= SystemStats::MacOSX_10_14)
+	{
+#endif // #ifdef ON_JUCE_MAC
+		AudioIODevice* CurrentAudioDevice = getSharedAudioDeviceManager().getCurrentAudioDevice();
+		if (CurrentAudioDevice != nullptr)
+		{
+			switch (CurrentAudioDevice->checkAudioInputAccessPermissions())
+			{
+			case eksAVAuthorizationStatusDenied:
+			{
+				stopTimer();
+#if JUCE_MODAL_LOOPS_PERMITTED
+				juce::AlertWindow::showMessageBox
+				(
+					juce::AlertWindow::WarningIcon
+					, "Access to audio input device\nNOT granted!"
+#if (JUCE_IOS)
+					, "You might try to\nEnbale guitarFineTune in\nSettings -> Privacy -> Microphone\nOr UNinstall\nand REinstall guitarFineTune"
+#else // JUCE_MAC || JUCE_LINUX
+					, "You might try to\nEnbale guitarFineTune in\nSystem Preferences -> Security & Privacy -> Privacy -> Microphone\nOr UNinstall\nand REinstall guitarFineTune"
+#endif
+					, "Quit"
+				);
+				getSharedAudioDeviceManager().closeAudioDevice();
+				JUCEApplication::getInstance()->systemRequestedQuit();
+#else //#if JUCE_MODAL_LOOPS_PERMITTED
+				juce::AlertWindow::showMessageBoxAsync
+				(
+					juce::AlertWindow::WarningIcon
+					, "Access to audio input device\nNOT granted!"
+#if (JUCE_IOS)
+					, "You might try to\nEnbale guitarFineTune in\nSettings -> Privacy -> Microphone\nOr UNinstall\nand REinstall guitarFineTune"
+#else // JUCE_MAC || JUCE_LINUX
+					, "You might try to\nEnbale guitarFineTune in\nSystem Preferences -> Security & Privacy -> Privacy -> Microphone\nOr UNinstall\nand REinstall guitarFineTune"
+#endif
+					,
+					"Quit"
+					,
+					nullptr
+					,
+					juce::ModalCallbackFunction::create
+					(
+						[](int)
+						{
+							JUCEApplicationBase::quit();
+						}
+					)
+				);
+#endif //#if JUCE_MODAL_LOOPS_PERMITTED
+				break;
+		}
+			case eksAVAuthorizationStatusRestricted:
+			case eksAVAuthorizationStatusAuthorized:
+			{
+				stopTimer();
+				break;
+			}
+			case eksAVAuthorizationStatusNotDetermined:
+			{
+				break;
+			}
+			default:
+			{
+				break;
+			}
+			}
+	}
+#ifdef ON_JUCE_MAC
+}
+#endif // #ifdef ON_JUCE_MAC
+}
+#endif // #ifdef JUCE_IOS_or_JUCE_MAC_or_JUCE_LINUX
 //[/MiscUserCode]
 
 
@@ -206,12 +333,13 @@ void MainComponent::resized()
 BEGIN_JUCER_METADATA
 
 <JUCER_COMPONENT documentType="Component" className="MainComponent" componentName=""
-                 parentClasses="public juce::Component" constructorParams="" variableInitialisers=""
+                 parentClasses="public juce::Component, private juce::Thread, private Timer"
+                 constructorParams="" variableInitialisers="Thread(&quot;Microphone permission checker&quot;),&#10;"
                  snapPixels="8" snapActive="1" snapShown="1" overlayOpacity="0.330"
                  fixedSize="0" initialWidth="600" initialHeight="700">
   <BACKGROUND backgroundColour="ff505050"/>
   <TABBEDCOMPONENT name="new tabbed component" id="b42ee76ffd12e39c" memberName="juce__tabbedComponent"
-                   virtualName="" explicitFocusOrder="0" pos="0 0 99.077% 99.194%"
+                   virtualName="" explicitFocusOrder="0" pos="0 0 99.044% 99.134%"
                    orientation="top" tabBarDepth="30" initialTab="-1"/>
 </JUCER_COMPONENT>
 

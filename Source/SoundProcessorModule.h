@@ -23,26 +23,6 @@
 #include "cmp_plot.h"
 #include "PlotModule.h"
 #include <JuceHeader.h>
-
-
-// For microphone permissions checks =================
-#if (JUCE_IOS || JUCE_MAC || JUCE_LINUX)
-    #define JUCE_IOS_or_JUCE_MAC_or_JUCE_LINUX
-#else
-    #undef JUCE_IOS_or_JUCE_MAC_or_JUCE_LINUX
-#endif
-
-#if (JUCE_MAC)
-    #define ON_JUCE_MAC
-#else
-    #undef ON_JUCE_MAC
-#endif
-
-//// For debug/edit in visual studio
-//#define JUCE_IOS_or_JUCE_MAC_or_JUCE_LINUX
-//#define ON_JUCE_MAC
-//================================================
-
 //[/Headers]
 
 
@@ -56,8 +36,7 @@
                                                                     //[/Comments]
 */
 class SoundProcessorModule  : public juce::AudioAppComponent,
-                              private juce::Thread,
-                              private Timer
+                              private juce::Thread
 {
 public:
     //==============================================================================
@@ -84,10 +63,6 @@ public:
 
 private:
     //[UserVariables]   -- You can add your own custom variables in this section.
-//#ifdef JUCE_IOS_or_JUCE_MAC_or_JUCE_LINUX
-    void timerCallback() override;
-//#endif // #ifdef JUCE_IOS_or_JUCE_MAC_or_JUCE_LINUX
-
     std::shared_ptr<PlotModule> module_Plot;
 	CriticalSection rmsLock;
 	double currentSampleRate = 0.0, currentPhase = 0.0, phaseDeltaPerSample = 0.0;
