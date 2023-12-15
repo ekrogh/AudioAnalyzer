@@ -25,19 +25,13 @@
 
 
 //[MiscUserDefs] You can add your own user definitions and misc code here...
-extern AudioDeviceManager& getSharedAudioDeviceManager
-(
-	int numInputChannels = numInAndOutputs::defaultNumInputChannels
-	,
-	int numOutputChannels = numInAndOutputs::defaultNumOutputChannels
-);
 //[/MiscUserDefs]
 
 //==============================================================================
-SoundProcessorModule::SoundProcessorModule (std::shared_ptr<PlotModule> ptr_module_Plot)
-    : AudioAppComponent(getSharedAudioDeviceManager()),
-      Thread("Freq. shifter"),
-      module_Plot(ptr_module_Plot)
+SoundProcessorModule::SoundProcessorModule (std::shared_ptr<PlotModule> ptr_module_Plot, std::shared_ptr<AudioDeviceManager> SADM)
+    : module_Plot(ptr_module_Plot),
+      AudioAppComponent(*SADM),
+      Thread("Freq. shifter")
 {
     //[Constructor_pre] You can add your own custom stuff here..
     //[/Constructor_pre]
@@ -527,8 +521,8 @@ BEGIN_JUCER_METADATA
 
 <JUCER_COMPONENT documentType="Component" className="SoundProcessorModule" componentName="Sound Synth And Analyze Module"
                  parentClasses="public juce::AudioAppComponent, private juce::Thread"
-                 constructorParams="std::shared_ptr&lt;PlotModule&gt; ptr_module_Plot"
-                 variableInitialisers="AudioAppComponent(getSharedAudioDeviceManager())&#10;Thread(&quot;Freq. shifter&quot;)&#10;module_Plot(ptr_module_Plot)"
+                 constructorParams="std::shared_ptr&lt;PlotModule&gt; ptr_module_Plot, std::shared_ptr&lt;AudioDeviceManager&gt; SADM"
+                 variableInitialisers="module_Plot(ptr_module_Plot)&#10;AudioAppComponent(SADM.get())&#10;Thread(&quot;Freq. shifter&quot;)&#10;"
                  snapPixels="8" snapActive="1" snapShown="1" overlayOpacity="0.330"
                  fixedSize="0" initialWidth="600" initialHeight="600">
   <BACKGROUND backgroundColour="ff505050"/>

@@ -18,102 +18,12 @@
 */
 
 //[Headers] You can add your own extra header files here...
-#include "AudioAnalyzerGlobalEnums.h"
 //[/Headers]
 
 #include "MainComponent.h"
 
 
 //[MiscUserDefs] You can add your own user definitions and misc code here...
-static String getCurrentDefaultAudioDeviceName(AudioDeviceManager& deviceManager, bool isInput)
-{
-	auto* deviceType = deviceManager.getCurrentDeviceTypeObject();
-	jassert(deviceType != nullptr);
-
-	if (deviceType != nullptr)
-	{
-		auto deviceNames = deviceType->getDeviceNames();
-		return deviceNames[deviceType->getDefaultDeviceIndex(isInput)];
-	}
-
-	return {};
-}
-
-// (returns a shared AudioDeviceManager object that all the demos can use)
-std::unique_ptr<AudioDeviceManager> sharedAudioDeviceManager;
-AudioDeviceManager& getSharedAudioDeviceManager
-(
-	int numInputChannels = defaultNumInputChannels
-	,
-	int numOutputChannels = defaultNumOutputChannels
-)
-{
-	if (sharedAudioDeviceManager == nullptr)
-		sharedAudioDeviceManager.reset(new AudioDeviceManager());
-
-	auto* currentDevice = sharedAudioDeviceManager->getCurrentAudioDevice();
-
-	if (numInputChannels < 0)
-		numInputChannels = (currentDevice != nullptr ? currentDevice->getActiveInputChannels().countNumberOfSetBits() : 1);
-
-	if (numOutputChannels < 0)
-		numOutputChannels = (currentDevice != nullptr ? currentDevice->getActiveOutputChannels().countNumberOfSetBits() : 2);
-
-	if (numInputChannels > 0 && !RuntimePermissions::isGranted(RuntimePermissions::recordAudio))
-	{
-		RuntimePermissions::request(RuntimePermissions::recordAudio,
-			[numInputChannels, numOutputChannels](bool granted)
-			{
-				if (granted)
-					getSharedAudioDeviceManager(numInputChannels, numOutputChannels);
-			});
-
-		numInputChannels = 0;
-	}
-
-	if (sharedAudioDeviceManager->getCurrentAudioDevice() != nullptr)
-	{
-		auto setup = sharedAudioDeviceManager->getAudioDeviceSetup();
-
-		auto numInputs = jmax(numInputChannels, setup.inputChannels.countNumberOfSetBits());
-		auto numOutputs = jmax(numOutputChannels, setup.outputChannels.countNumberOfSetBits());
-
-		auto oldInputs = setup.inputChannels.countNumberOfSetBits();
-		auto oldOutputs = setup.outputChannels.countNumberOfSetBits();
-
-		if (oldInputs != numInputs || oldOutputs != numOutputs)
-		{
-			if (oldInputs == 0 && oldOutputs == 0)
-			{
-				sharedAudioDeviceManager->initialise(numInputChannels, numOutputChannels, nullptr, true, {}, nullptr);
-			}
-			else
-			{
-				setup.useDefaultInputChannels = setup.useDefaultOutputChannels = false;
-
-				setup.inputChannels.clear();
-				setup.outputChannels.clear();
-
-				setup.inputChannels.setRange(0, numInputs, true);
-				setup.outputChannels.setRange(0, numOutputs, true);
-
-				if (oldInputs == 0 && numInputs > 0 && setup.inputDeviceName.isEmpty())
-					setup.inputDeviceName = getCurrentDefaultAudioDeviceName(*sharedAudioDeviceManager, true);
-
-				if (oldOutputs == 0 && numOutputs > 0 && setup.outputDeviceName.isEmpty())
-					setup.outputDeviceName = getCurrentDefaultAudioDeviceName(*sharedAudioDeviceManager, false);
-
-				sharedAudioDeviceManager->setAudioDeviceSetup(setup, false);
-			}
-		}
-	}
-	else
-	{
-		sharedAudioDeviceManager->initialise(numInputChannels, numOutputChannels, nullptr, true, {}, nullptr);
-	}
-
-	return *sharedAudioDeviceManager;
-}
 //[/MiscUserDefs]
 
 //==============================================================================
@@ -121,6 +31,13 @@ MainComponent::MainComponent ()
     : Thread("Microphone permission checker")
 {
     //[Constructor_pre] You can add your own custom stuff here..
+	AudioDeviceManager& refSharedAudioDeviceManager = getSharedAudioDeviceManager();
+
+	module_SoundProcessor =
+		std::make_unique<SoundProcessorModule>(module_Plot, sharedAudioDeviceManager);
+	module_AudioSettings =
+		std::make_unique<AudioSettingsModule>(sharedAudioDeviceManager);
+
 	startThread(Priority::high); // Check microphone permission
     //[/Constructor_pre]
 
@@ -321,6 +238,96 @@ void MainComponent::timerCallback()
 #endif // #ifdef ON_JUCE_MAC
 }
 #endif // #ifdef JUCE_IOS_or_JUCE_MAC_or_JUCE_LINUX
+
+String MainComponent::getCurrentDefaultAudioDeviceName(AudioDeviceManager& deviceManager, bool isInput)
+{
+	auto* deviceType = deviceManager.getCurrentDeviceTypeObject();
+	jassert(deviceType != nullptr);
+
+	if (deviceType != nullptr)
+	{
+		auto deviceNames = deviceType->getDeviceNames();
+		return deviceNames[deviceType->getDefaultDeviceIndex(isInput)];
+	}
+
+	return {};
+}
+
+
+// (returns a shared AudioDeviceManager object that all the demos can use)
+AudioDeviceManager& MainComponent::getSharedAudioDeviceManager
+(
+	int numInputChannels
+	,
+	int numOutputChannels
+)
+{
+	if (sharedAudioDeviceManager == nullptr)
+		sharedAudioDeviceManager.reset(new AudioDeviceManager());
+
+	auto* currentDevice = sharedAudioDeviceManager->getCurrentAudioDevice();
+
+	if (numInputChannels < 0)
+		numInputChannels = (currentDevice != nullptr ? currentDevice->getActiveInputChannels().countNumberOfSetBits() : 1);
+
+	if (numOutputChannels < 0)
+		numOutputChannels = (currentDevice != nullptr ? currentDevice->getActiveOutputChannels().countNumberOfSetBits() : 2);
+
+	if (numInputChannels > 0 && !RuntimePermissions::isGranted(RuntimePermissions::recordAudio))
+	{
+		RuntimePermissions::request(RuntimePermissions::recordAudio,
+			[this, numInputChannels, numOutputChannels](bool granted)
+			{
+				if (granted)
+					getSharedAudioDeviceManager(numInputChannels, numOutputChannels);
+			});
+
+		numInputChannels = 0;
+	}
+
+	if (sharedAudioDeviceManager->getCurrentAudioDevice() != nullptr)
+	{
+		auto setup = sharedAudioDeviceManager->getAudioDeviceSetup();
+
+		auto numInputs = jmax(numInputChannels, setup.inputChannels.countNumberOfSetBits());
+		auto numOutputs = jmax(numOutputChannels, setup.outputChannels.countNumberOfSetBits());
+
+		auto oldInputs = setup.inputChannels.countNumberOfSetBits();
+		auto oldOutputs = setup.outputChannels.countNumberOfSetBits();
+
+		if (oldInputs != numInputs || oldOutputs != numOutputs)
+		{
+			if (oldInputs == 0 && oldOutputs == 0)
+			{
+				sharedAudioDeviceManager->initialise(numInputChannels, numOutputChannels, nullptr, true, {}, nullptr);
+			}
+			else
+			{
+				setup.useDefaultInputChannels = setup.useDefaultOutputChannels = false;
+
+				setup.inputChannels.clear();
+				setup.outputChannels.clear();
+
+				setup.inputChannels.setRange(0, numInputs, true);
+				setup.outputChannels.setRange(0, numOutputs, true);
+
+				if (oldInputs == 0 && numInputs > 0 && setup.inputDeviceName.isEmpty())
+					setup.inputDeviceName = getCurrentDefaultAudioDeviceName(*sharedAudioDeviceManager, true);
+
+				if (oldOutputs == 0 && numOutputs > 0 && setup.outputDeviceName.isEmpty())
+					setup.outputDeviceName = getCurrentDefaultAudioDeviceName(*sharedAudioDeviceManager, false);
+
+				sharedAudioDeviceManager->setAudioDeviceSetup(setup, false);
+			}
+		}
+	}
+	else
+	{
+		sharedAudioDeviceManager->initialise(numInputChannels, numOutputChannels, nullptr, true, {}, nullptr);
+	}
+
+	return *sharedAudioDeviceManager;
+}
 //[/MiscUserCode]
 
 

@@ -38,7 +38,7 @@ class AudioSettingsModule  : public juce::Component,
 {
 public:
     //==============================================================================
-    AudioSettingsModule ();
+    AudioSettingsModule (std::shared_ptr<AudioDeviceManager> SADM);
     ~AudioSettingsModule() override;
 
     //==============================================================================
@@ -54,6 +54,7 @@ public:
 
 private:
     //[UserVariables]   -- You can add your own custom variables in this section.
+    std::shared_ptr<AudioDeviceManager> sharedAudioDeviceManager;
     bool deviceSupportsDisableAudioPreprocessing = false;
     //[/UserVariables]
 

@@ -40,7 +40,7 @@ class SoundProcessorModule  : public juce::AudioAppComponent,
 {
 public:
     //==============================================================================
-    SoundProcessorModule (std::shared_ptr<PlotModule> ptr_module_Plot);
+    SoundProcessorModule (std::shared_ptr<PlotModule> ptr_module_Plot, std::shared_ptr<AudioDeviceManager> SADM);
     ~SoundProcessorModule() override;
 
     //==============================================================================

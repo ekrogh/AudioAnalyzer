@@ -20,6 +20,7 @@
 #pragma once
 
 //[Headers]     -- You can add your own extra header files here --
+#include "AudioAnalyzerGlobalEnums.h"
 #include "AudioSettingsModule.h"
 #include "SoundProcessorModule.h"
 #include "PlotModule.h"
@@ -77,15 +78,23 @@ public:
 
 private:
     //[UserVariables]   -- You can add your own custom variables in this section.
+    static String getCurrentDefaultAudioDeviceName(AudioDeviceManager& deviceManager, bool isInput);
+
+    AudioDeviceManager& getSharedAudioDeviceManager
+    (
+        int numInputChannels = defaultNumInputChannels
+        ,
+        int numOutputChannels = defaultNumOutputChannels
+    );
+
 	void run() override; // Called from Thread
 	void timerCallback() override;
-
+    
+    std::shared_ptr<AudioDeviceManager> sharedAudioDeviceManager;
 	std::shared_ptr<PlotModule> module_Plot =
 		std::make_shared<PlotModule>();
-	std::unique_ptr<SoundProcessorModule> module_SoundProcessor =
-		std::make_unique<SoundProcessorModule>(module_Plot);
-	std::unique_ptr<AudioSettingsModule> module_AudioSettings =
-		std::make_unique<AudioSettingsModule>();
+    std::unique_ptr<SoundProcessorModule> module_SoundProcessor;
+    std::unique_ptr<AudioSettingsModule> module_AudioSettings;
     //[/UserVariables]
 
     //==============================================================================
