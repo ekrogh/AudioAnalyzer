@@ -91,13 +91,15 @@ void PlotModule::resized()
 //[MiscUserCode] You can add your own definitions of your custom methods or any other code here...
 void PlotModule::updatePlot
 (
+    std::vector <std::vector<float>> y_values
+    ,
     std::vector <std::vector<float>> x_values
     ,
-    std::vector <std::vector<float>> y_values
+    cmp::GraphAttributeList graph_attributes
 )
 {
     const MessageManagerLock mml;
-    m_plot.plot(y_values, x_values);
+    m_plot.plot(y_values, x_values, graph_attributes);
 }
 
 void PlotModule::updatePlotRealTime(std::vector <std::vector<float>> y_values)

@@ -46,9 +46,11 @@ public:
     //[UserMethods]     -- You can add your own custom methods in this section.
     void updatePlot
     (
+        std::vector <std::vector<float>> y_values
+        ,
         std::vector <std::vector<float>> x_values
         ,
-        std::vector <std::vector<float>> y_values
+        cmp::GraphAttributeList
     );
     void updatePlotRealTime(std::vector <std::vector<float>> y_values);
     void setXLabel(const std::string& x_label) { m_plot.setXLabel(x_label); };

@@ -187,10 +187,22 @@ SoundProcessorModule::SoundProcessorModule (std::shared_ptr<PlotModule> ptr_modu
                 frequencyValues.reserve(0);
                 rmsValues.clear();
                 rmsValues.reserve(0);
+                graph_attributes.clear();
+                graph_attributes.reserve(0);
                 if (runNewMeasurement__toggleButton->getToggleState())
                 {
                     frequencyValues.insert(frequencyValues.begin(), forInsertFrequencyVector);
                     rmsValues.insert(rmsValues.begin(), forInsetRMSVector);
+                    cmp::GraphAttribute colourForLine;
+                    colourForLine.graph_colour = juce::Colour
+                    (
+                        randomRGB.nextInt(256)
+                        ,
+                        randomRGB.nextInt(256)
+                        ,
+                        randomRGB.nextInt(256)
+                    );
+                    graph_attributes.insert(graph_attributes.begin(), colourForLine);
                 }
             }// ScopedLock sl scope END
         };
@@ -205,8 +217,20 @@ SoundProcessorModule::SoundProcessorModule (std::shared_ptr<PlotModule> ptr_modu
                 updateFrequencyAndAngleDelta();
 
                 //frequencyValues.clear();
+                //frequencyValues.reserve(0);
                 frequencyValues.insert(frequencyValues.begin(), forInsertFrequencyVector);
                 rmsValues.insert(rmsValues.begin(), forInsetRMSVector);
+                cmp::GraphAttribute colourForLine;
+                colourForLine.graph_colour = juce::Colour
+                (
+                    randomRGB.nextInt(juce::Range(100, 255))
+                    ,
+                    randomRGB.nextInt(juce::Range(100, 255))
+                    ,
+                    //200
+                    randomRGB.nextInt(juce::Range(100, 255))
+                );
+                graph_attributes.insert(graph_attributes.begin(), colourForLine);
 
                 setAudioChannels(1, 1); // One input, one output
 
@@ -501,7 +525,7 @@ void SoundProcessorModule::run()
                 auto curRMS = std::sqrt(copyOfAudioSamplesSquareSum / copyOfNoSamplesInAudioSamplesSquareSum);
                 rmsValues[0].push_back(curRMS);
 
-                module_Plot->updatePlot(frequencyValues, rmsValues);
+                module_Plot->updatePlot(rmsValues, frequencyValues, graph_attributes);
             }
 		}
 	}
