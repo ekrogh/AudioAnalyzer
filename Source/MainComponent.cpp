@@ -292,7 +292,8 @@ void MainComponent::timerCallback()
 					(
 						[](int)
 						{
-							JUCEApplicationBase::quit();
+							sharedAudioDeviceManager->closeAudioDevice();
+							JUCEApplication::getInstance()->systemRequestedQuit();
 						}
 					)
 				);
