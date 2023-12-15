@@ -113,8 +113,8 @@ void AudioSettingsModule::resized()
     //[UserPreResize] Add your own custom resize code here..
     //[/UserPreResize]
 
-    juce__component->setBounds (8, 8, proportionOfWidth (0.9781f), proportionOfHeight (0.5099f));
-    Disable_OS_audio_preprocesstogglebutton->setBounds (8 + 0, 8 + proportionOfHeight (0.5099f) - -12, proportionOfWidth (0.3361f), proportionOfHeight (0.0384f));
+    juce__component->setBounds (8, 8, proportionOfWidth (0.9769f), proportionOfHeight (0.5099f));
+    Disable_OS_audio_preprocesstogglebutton->setBounds (8 + 0, 8 + proportionOfHeight (0.5099f) - -12, proportionOfWidth (0.3359f), proportionOfHeight (0.0375f));
     //[UserResized] Add your own custom resize handling here..
     //[/UserResized]
 }
