@@ -133,7 +133,8 @@ void MainComponent::run()
 			{
 			case eksAVAuthorizationStatusDenied:
 			{
-				startTimer(1000);
+				timerCallback();
+				//startTimer(1000);
 				break;
 			}
 			case eksAVAuthorizationStatusRestricted:
@@ -143,7 +144,8 @@ void MainComponent::run()
 			}
 			case eksAVAuthorizationStatusNotDetermined:
 			{
-				startTimer(1000);
+				timerCallback();
+				//startTimer(1000);
 				break;
 			}
 			default:

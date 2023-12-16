@@ -42,7 +42,7 @@
 #endif
 
 //// For debug/edit in visual studio
-// #define JUCE_IOS_or_JUCE_MAC_or_JUCE_LINUX
+ //#define JUCE_IOS_or_JUCE_MAC_or_JUCE_LINUX
 // #define ON_JUCE_MAC
 //================================================
 //
