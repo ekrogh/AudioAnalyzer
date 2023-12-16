@@ -31,7 +31,7 @@ MainComponent::MainComponent ()
     : Thread("Microphone permission checker")
 {
     //[Constructor_pre] You can add your own custom stuff here..
-	AudioDeviceManager& refSharedAudioDeviceManager = getSharedAudioDeviceManager();
+	getSharedAudioDeviceManager();
 
 	module_SoundProcessor =
 		std::make_unique<SoundProcessorModule>(module_Plot, sharedAudioDeviceManager);
@@ -126,7 +126,7 @@ void MainComponent::run()
 	if (!(SystemStats::getOperatingSystemType() < SystemStats::MacOSX_10_14))
 	{
 #endif // ON_JUCE_MAC
-		AudioIODevice* CurrentAudioDevice = getSharedAudioDeviceManager().getCurrentAudioDevice();
+		AudioIODevice* CurrentAudioDevice = sharedAudioDeviceManager->getCurrentAudioDevice();
 		if (CurrentAudioDevice != nullptr)
 		{
 			switch (CurrentAudioDevice->checkAudioInputAccessPermissions())
@@ -209,11 +209,15 @@ void MainComponent::timerCallback()
 					(
 						[this](int)
 						{
-							sharedAudioDeviceManager->closeAudioDevice();
-							JUCEApplication::getInstance()->systemRequestedQuit();
+                            sharedAudioDeviceManager->closeAudioDevice();
+                            JUCEApplication::getInstance()->shutdown();
+//                            JUCEApplicationBase::quit();
+                            JUCEApplication::getInstance()->systemRequestedQuit();
 						}
 					)
 				);
+//                JUCEApplication::getInstance()->systemRequestedQuit();
+                
 #endif //#if JUCE_MODAL_LOOPS_PERMITTED
 				break;
 		}

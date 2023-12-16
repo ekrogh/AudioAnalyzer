@@ -34,12 +34,12 @@ AudioSettingsModule::AudioSettingsModule (std::shared_ptr<AudioDeviceManager> SA
     //[Constructor_pre] You can add your own custom stuff here..
 	setOpaque(true);
 
-	RuntimePermissions::request(RuntimePermissions::recordAudio,
-		[this](bool granted)
-		{
-			int numInputChannels = granted ? 1 : 0;
-			sharedAudioDeviceManager->initialise(numInputChannels, 1, nullptr, true, {}, nullptr);
-		});
+//	RuntimePermissions::request(RuntimePermissions::recordAudio,
+//		[this](bool granted)
+//		{
+//			int numInputChannels = granted ? 1 : 0;
+//			sharedAudioDeviceManager->initialise(numInputChannels, 1, nullptr, true, {}, nullptr);
+//		});
     //[/Constructor_pre]
 
     juce__component.reset (new AudioDeviceSelectorComponent (*sharedAudioDeviceManager, 1, 1, 1, 2, false, false, false, false));
