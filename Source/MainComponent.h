@@ -77,7 +77,7 @@ public:
 
 private:
     //[UserVariables]   -- You can add your own custom variables in this section.
-    static String getCurrentDefaultAudioDeviceName(AudioDeviceManager& deviceManager, bool isInput);
+    String getCurrentDefaultAudioDeviceName(AudioDeviceManager& deviceManager, bool isInput);
 
     AudioDeviceManager& getSharedAudioDeviceManager
     (
@@ -85,8 +85,7 @@ private:
         ,
         int numOutputChannels = defaultNumOutputChannels
     );
-
-	bool checkMicrophoneAccessPermission(); // Called from Thread
+    bool checkMicrophoneAccessPermission();
 
     std::shared_ptr<AudioDeviceManager> sharedAudioDeviceManager;
 	std::shared_ptr<PlotModule> module_Plot =

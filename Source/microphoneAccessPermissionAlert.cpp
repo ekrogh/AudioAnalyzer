@@ -41,8 +41,6 @@ microphoneAccessPermissionAlert::microphoneAccessPermissionAlert ()
     juce__label->setColour (juce::TextEditor::textColourId, juce::Colours::black);
     juce__label->setColour (juce::TextEditor::backgroundColourId, juce::Colour (0x00000000));
 
-    juce__label->setBounds (8, 8, 468, 48);
-
     juce__label2.reset (new juce::Label ("new label",
                                          TRANS ("You might try to\\\\nEnbale AudioAnalyzer in\\\\nSettings -> Privacy -> Microphone\\\\nOr UNinstall\\\\nand REinstall AudioAnalyzer")));
     addAndMakeVisible (juce__label2.get());
@@ -52,13 +50,9 @@ microphoneAccessPermissionAlert::microphoneAccessPermissionAlert ()
     juce__label2->setColour (juce::TextEditor::textColourId, juce::Colours::black);
     juce__label2->setColour (juce::TextEditor::backgroundColourId, juce::Colour (0x00000000));
 
-    juce__label2->setBounds (8, 72, 553, 96);
-
     juce__textButton.reset (new juce::TextButton ("new button"));
     addAndMakeVisible (juce__textButton.get());
     juce__textButton->setButtonText (TRANS ("Quit"));
-
-    juce__textButton->setBounds (16, 192, 118, 32);
 
 
     //[UserPreSize]
@@ -87,7 +81,10 @@ microphoneAccessPermissionAlert::microphoneAccessPermissionAlert ()
 	juce__textButton->onClick =
 		[this]
 		{
-			JUCEApplicationBase::quit();
+//            std::exit (0);
+            JUCEApplication::getInstance()->systemRequestedQuit();
+
+//			JUCEApplicationBase::quit();
 		};
     //[/UserPreSize]
 
@@ -129,6 +126,9 @@ void microphoneAccessPermissionAlert::resized()
     //[UserPreResize] Add your own custom resize code here..
     //[/UserPreResize]
 
+    juce__label->setBounds ((getWidth() / 2) + -195, (getHeight() / 2) + -156, 468, 48);
+    juce__label2->setBounds ((getWidth() / 2) + -195, (getHeight() / 2) + -92, 553, 96);
+    juce__textButton->setBounds ((getWidth() / 2) + -187, (getHeight() / 2) + 28, 118, 32);
     //[UserResized] Add your own custom resize handling here..
     //[/UserResized]
 }
@@ -154,20 +154,20 @@ BEGIN_JUCER_METADATA
                  overlayOpacity="0.330" fixedSize="0" initialWidth="500" initialHeight="400">
   <BACKGROUND backgroundColour="ff505050"/>
   <LABEL name="new label" id="ca182622363d7a28" memberName="juce__label"
-         virtualName="" explicitFocusOrder="0" pos="8 8 468 48" edTextCol="ff000000"
-         edBkgCol="0" labelText="Access to audio input device \\n NOT granted!"
+         virtualName="" explicitFocusOrder="0" pos="-195C -156C 468 48"
+         edTextCol="ff000000" edBkgCol="0" labelText="Access to audio input device \\n NOT granted!"
          editableSingleClick="0" editableDoubleClick="0" focusDiscardsChanges="0"
          fontname="Default font" fontsize="15.0" kerning="0.0" bold="0"
          italic="0" justification="9"/>
   <LABEL name="new label" id="800ff60470088085" memberName="juce__label2"
-         virtualName="" explicitFocusOrder="0" pos="8 72 553 96" edTextCol="ff000000"
-         edBkgCol="0" labelText="You might try to\\nEnbale AudioAnalyzer in\\nSettings -&gt; Privacy -&gt; Microphone\\nOr UNinstall\\nand REinstall AudioAnalyzer"
+         virtualName="" explicitFocusOrder="0" pos="-195C -92C 553 96"
+         edTextCol="ff000000" edBkgCol="0" labelText="You might try to\\nEnbale AudioAnalyzer in\\nSettings -&gt; Privacy -&gt; Microphone\\nOr UNinstall\\nand REinstall AudioAnalyzer"
          editableSingleClick="0" editableDoubleClick="0" focusDiscardsChanges="0"
          fontname="Default font" fontsize="15.0" kerning="0.0" bold="0"
          italic="0" justification="9"/>
   <TEXTBUTTON name="new button" id="8fc86f2beaf0fb0f" memberName="juce__textButton"
-              virtualName="" explicitFocusOrder="0" pos="16 192 118 32" buttonText="Quit"
-              connectedEdges="0" needsCallback="0" radioGroupId="0"/>
+              virtualName="" explicitFocusOrder="0" pos="-187C 28C 118 32"
+              buttonText="Quit" connectedEdges="0" needsCallback="0" radioGroupId="0"/>
 </JUCER_COMPONENT>
 
 END_JUCER_METADATA
