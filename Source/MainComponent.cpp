@@ -28,18 +28,17 @@
 
 //==============================================================================
 MainComponent::MainComponent ()
-    : Thread("Microphone permission checker")
 {
     //[Constructor_pre] You can add your own custom stuff here..
 	getSharedAudioDeviceManager();
+	checkMicrophoneAccessPermission();
 
 	module_SoundProcessor =
 		std::make_unique<SoundProcessorModule>(module_Plot, sharedAudioDeviceManager);
 	module_AudioSettings =
 		std::make_unique<AudioSettingsModule>(sharedAudioDeviceManager);
 
-	startThread(Priority::high); // Check microphone permission
-    //[/Constructor_pre]
+	//[/Constructor_pre]
 
     juce__tabbedComponent.reset (new juce::TabbedComponent (juce::TabbedButtonBar::TabsAtTop));
     addAndMakeVisible (juce__tabbedComponent.get());
@@ -118,7 +117,7 @@ void MainComponent::resized()
 
 
 //[MiscUserCode] You can add your own definitions of your custom methods or any other code here...
-void MainComponent::run()
+void MainComponent::checkMicrophoneAccessPermission()
 {
 	// First som permissions requesting
 #ifdef JUCE_IOS_or_JUCE_MAC_or_JUCE_LINUX
@@ -133,7 +132,7 @@ void MainComponent::run()
 			{
 			case eksAVAuthorizationStatusDenied:
 			{
-				timerCallback();
+				showMicAccessPermissionNotGranted();
 				//startTimer(1000);
 				break;
 			}
@@ -144,7 +143,7 @@ void MainComponent::run()
 			}
 			case eksAVAuthorizationStatusNotDetermined:
 			{
-				timerCallback();
+				showMicAccessPermissionNotGranted();
 				//startTimer(1000);
 				break;
 			}
@@ -161,7 +160,7 @@ void MainComponent::run()
 }
 
 #ifndef JUCE_IOS_or_JUCE_MAC_or_JUCE_LINUX
-void MainComponent::timerCallback()
+void MainComponent::showMicAccessPermissionNotGranted()
 {}
 #else
 void MainComponent::timerCallback()
@@ -170,14 +169,14 @@ void MainComponent::timerCallback()
 	if (SystemStats::getOperatingSystemType() >= SystemStats::MacOSX_10_14)
 	{
 #endif // #ifdef ON_JUCE_MAC
-		AudioIODevice* CurrentAudioDevice = getSharedAudioDeviceManager().getCurrentAudioDevice();
+		AudioIODevice* CurrentAudioDevice = sharedAudioDeviceManager->getCurrentAudioDevice();
 		if (CurrentAudioDevice != nullptr)
 		{
 			switch (CurrentAudioDevice->checkAudioInputAccessPermissions())
 			{
 			case eksAVAuthorizationStatusDenied:
 			{
-				stopTimer();
+				//stopTimer();
 #if JUCE_MODAL_LOOPS_PERMITTED
 				juce::AlertWindow::showMessageBox
 				(
@@ -219,14 +218,14 @@ void MainComponent::timerCallback()
 					)
 				);
 //                JUCEApplication::getInstance()->systemRequestedQuit();
-                
+
 #endif //#if JUCE_MODAL_LOOPS_PERMITTED
 				break;
 		}
 			case eksAVAuthorizationStatusRestricted:
 			case eksAVAuthorizationStatusAuthorized:
 			{
-				stopTimer();
+				//stopTimer();
 				break;
 			}
 			case eksAVAuthorizationStatusNotDetermined:
@@ -347,8 +346,7 @@ AudioDeviceManager& MainComponent::getSharedAudioDeviceManager
 BEGIN_JUCER_METADATA
 
 <JUCER_COMPONENT documentType="Component" className="MainComponent" componentName=""
-                 parentClasses="public juce::Component, private juce::Thread, private Timer"
-                 constructorParams="" variableInitialisers="Thread(&quot;Microphone permission checker&quot;),&#10;"
+                 parentClasses="public juce::Component" constructorParams="" variableInitialisers=""
                  snapPixels="8" snapActive="1" snapShown="1" overlayOpacity="0.330"
                  fixedSize="0" initialWidth="600" initialHeight="700">
   <BACKGROUND backgroundColour="ff505050"/>

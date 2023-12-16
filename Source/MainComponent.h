@@ -58,9 +58,7 @@
 	Describe your class and how it works here!
                                                                     //[/Comments]
 */
-class MainComponent  : public juce::Component,
-                       private juce::Thread,
-                       private Timer
+class MainComponent  : public juce::Component
 {
 public:
     //==============================================================================
@@ -87,9 +85,9 @@ private:
         int numOutputChannels = defaultNumOutputChannels
     );
 
-	void run() override; // Called from Thread
-	void timerCallback() override;
-    
+	void checkMicrophoneAccessPermission(); // Called from Thread
+	void showMicAccessPermissionNotGranted();
+
     std::shared_ptr<AudioDeviceManager> sharedAudioDeviceManager;
 	std::shared_ptr<PlotModule> module_Plot =
 		std::make_shared<PlotModule>();
