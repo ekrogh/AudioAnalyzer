@@ -207,7 +207,7 @@ void MainComponent::timerCallback()
 					,
 					juce::ModalCallbackFunction::create
 					(
-						[](int)
+						[this](int)
 						{
 							sharedAudioDeviceManager->closeAudioDevice();
 							JUCEApplication::getInstance()->systemRequestedQuit();

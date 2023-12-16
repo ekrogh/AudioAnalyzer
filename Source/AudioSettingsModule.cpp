@@ -163,11 +163,11 @@ BEGIN_JUCER_METADATA
                  initialWidth="600" initialHeight="700">
   <BACKGROUND backgroundColour="ff505050"/>
   <GENERICCOMPONENT name="new component" id="bfa59ed472623a36" memberName="juce__component"
-                    virtualName="" explicitFocusOrder="0" pos="8 8 97.678% 50.99%"
+                    virtualName="" explicitFocusOrder="0" pos="8 8 97.692% 50.993%"
                     class="AudioDeviceSelectorComponent" params="*sharedAudioDeviceManager, 1, 1, 1, 2, false, false, false, false"/>
   <TOGGLEBUTTON name="Disable OS audio preprocesstoggle button" id="3a7e5ff79aea0286"
                 memberName="Disable_OS_audio_preprocesstogglebutton" virtualName=""
-                explicitFocusOrder="0" pos="0 -12R 33.607% 3.713%" posRelativeX="bfa59ed472623a36"
+                explicitFocusOrder="0" pos="0 -12R 33.59% 3.753%" posRelativeX="bfa59ed472623a36"
                 posRelativeY="bfa59ed472623a36" buttonText="Disable OS audio preprocessing"
                 connectedEdges="0" needsCallback="0" radioGroupId="0" state="0"/>
 </JUCER_COMPONENT>
