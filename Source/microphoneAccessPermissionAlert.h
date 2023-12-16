@@ -20,33 +20,7 @@
 #pragma once
 
 //[Headers]     -- You can add your own extra header files here --
-#include "microphoneAccessPermissionAlert.h"
-#include "AudioAnalyzerGlobalEnums.h"
-#include "AudioSettingsModule.h"
-#include "SoundProcessorModule.h"
-#include "PlotModule.h"
-#include "cmp_plot.h"
 #include <JuceHeader.h>
-
-
-// For microphone permissions checks =================
-#if (JUCE_IOS || JUCE_MAC || JUCE_LINUX)
-#define JUCE_IOS_or_JUCE_MAC_or_JUCE_LINUX
-#else
-#undef JUCE_IOS_or_JUCE_MAC_or_JUCE_LINUX
-#endif
-
-#if (JUCE_MAC)
-#define ON_JUCE_MAC
-#else
-#undef ON_JUCE_MAC
-#endif
-
-//// For debug/edit in visual studio
- //#define JUCE_IOS_or_JUCE_MAC_or_JUCE_LINUX
-// #define ON_JUCE_MAC
-//================================================
-//
 //[/Headers]
 
 
@@ -54,17 +28,17 @@
 //==============================================================================
 /**
                                                                     //[Comments]
-	An auto-generated component, created by the Projucer.
+    An auto-generated component, created by the Projucer.
 
-	Describe your class and how it works here!
+    Describe your class and how it works here!
                                                                     //[/Comments]
 */
-class MainComponent  : public juce::Component
+class microphoneAccessPermissionAlert  : public juce::Component
 {
 public:
     //==============================================================================
-    MainComponent ();
-    ~MainComponent() override;
+    microphoneAccessPermissionAlert ();
+    ~microphoneAccessPermissionAlert() override;
 
     //==============================================================================
     //[UserMethods]     -- You can add your own custom methods in this section.
@@ -77,32 +51,16 @@ public:
 
 private:
     //[UserVariables]   -- You can add your own custom variables in this section.
-    static String getCurrentDefaultAudioDeviceName(AudioDeviceManager& deviceManager, bool isInput);
-
-    AudioDeviceManager& getSharedAudioDeviceManager
-    (
-        int numInputChannels = defaultNumInputChannels
-        ,
-        int numOutputChannels = defaultNumOutputChannels
-    );
-
-	bool checkMicrophoneAccessPermission(); // Called from Thread
-
-    std::shared_ptr<AudioDeviceManager> sharedAudioDeviceManager;
-	std::shared_ptr<PlotModule> module_Plot =
-		std::make_shared<PlotModule>();
-    std::unique_ptr<SoundProcessorModule> module_SoundProcessor;
-    std::unique_ptr<AudioSettingsModule> module_AudioSettings;
-    std::unique_ptr<microphoneAccessPermissionAlert> module_microphoneAccessPermissionAlert;
-
     //[/UserVariables]
 
     //==============================================================================
-    std::unique_ptr<juce::TabbedComponent> juce__tabbedComponent;
+    std::unique_ptr<juce::Label> juce__label;
+    std::unique_ptr<juce::Label> juce__label2;
+    std::unique_ptr<juce::TextButton> juce__textButton;
 
 
     //==============================================================================
-    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (MainComponent)
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (microphoneAccessPermissionAlert)
 };
 
 //[EndFile] You can add extra defines here...
