@@ -100,23 +100,23 @@ SoundProcessorModule::SoundProcessorModule (std::shared_ptr<PlotModule> ptr_modu
 
     timeToRunValue__label->setBounds (216, 336, 150, 24);
 
-    juce__label4.reset (new juce::Label ("new label",
-                                         TRANS ("Current frequency [Hz]:")));
-    addAndMakeVisible (juce__label4.get());
-    juce__label4->setFont (juce::Font (15.00f, juce::Font::plain).withTypefaceStyle ("Regular"));
-    juce__label4->setJustificationType (juce::Justification::centredLeft);
-    juce__label4->setEditable (false, false, false);
-    juce__label4->setColour (juce::TextEditor::textColourId, juce::Colours::black);
-    juce__label4->setColour (juce::TextEditor::backgroundColourId, juce::Colour (0x00000000));
+    qurFreq__label.reset (new juce::Label ("cur. freq. label",
+                                           TRANS ("Current frequency [Hz]:")));
+    addAndMakeVisible (qurFreq__label.get());
+    qurFreq__label->setFont (juce::Font (15.00f, juce::Font::plain).withTypefaceStyle ("Regular"));
+    qurFreq__label->setJustificationType (juce::Justification::centredLeft);
+    qurFreq__label->setEditable (false, false, false);
+    qurFreq__label->setColour (juce::TextEditor::textColourId, juce::Colours::black);
+    qurFreq__label->setColour (juce::TextEditor::backgroundColourId, juce::Colour (0x00000000));
 
-    currentFrequency__label.reset (new juce::Label ("Current Frequency  label",
-                                                    TRANS ("Current Frequency")));
-    addAndMakeVisible (currentFrequency__label.get());
-    currentFrequency__label->setFont (juce::Font (15.00f, juce::Font::plain).withTypefaceStyle ("Regular"));
-    currentFrequency__label->setJustificationType (juce::Justification::centredLeft);
-    currentFrequency__label->setEditable (false, false, false);
-    currentFrequency__label->setColour (juce::TextEditor::textColourId, juce::Colours::black);
-    currentFrequency__label->setColour (juce::TextEditor::backgroundColourId, juce::Colour (0x00000000));
+    currentFrequencyValue__label.reset (new juce::Label ("Current Frequency Value label",
+                                                         TRANS ("Current Frequency")));
+    addAndMakeVisible (currentFrequencyValue__label.get());
+    currentFrequencyValue__label->setFont (juce::Font (15.00f, juce::Font::plain).withTypefaceStyle ("Regular"));
+    currentFrequencyValue__label->setJustificationType (juce::Justification::centredLeft);
+    currentFrequencyValue__label->setEditable (false, false, false);
+    currentFrequencyValue__label->setColour (juce::TextEditor::textColourId, juce::Colours::black);
+    currentFrequencyValue__label->setColour (juce::TextEditor::backgroundColourId, juce::Colour (0x00000000));
 
     juce__label5.reset (new juce::Label ("new label",
                                          TRANS ("Min. frequency [Hz]")));
@@ -342,8 +342,8 @@ SoundProcessorModule::~SoundProcessorModule()
     deltaFreq__slider = nullptr;
     timeToRun__label = nullptr;
     timeToRunValue__label = nullptr;
-    juce__label4 = nullptr;
-    currentFrequency__label = nullptr;
+    qurFreq__label = nullptr;
+    currentFrequencyValue__label = nullptr;
     juce__label5 = nullptr;
     minFreq__slider = nullptr;
     juce__label = nullptr;
@@ -375,15 +375,15 @@ void SoundProcessorModule::resized()
     //[/UserPreResize]
 
     maxFrequency__Slider->setBounds (16 + 0, 112, (getWidth() - 40) - 0, 24);
-    runNewMeasurement__toggleButton->setBounds ((((16 + 0) + 0) + 0) + 92 - (184 / 2), 408, 184, 24);
+    runNewMeasurement__toggleButton->setBounds ((((16 + 0) + 0) + 0) + 92 - (184 / 2), 370 + 24 - -14, 184, 24);
     deltaTime__slider->setBounds (((16 + 0) + 0) + 0, 256, (((getWidth() - 40) - 0) - 0) - 0, 24);
-    juce__label2->setBounds ((((16 + 0) + 0) + 0) + 0, 224, getWidth() - 446, 24);
+    juce__label2->setBounds ((((16 + 0) + 0) + 0) + -8, 224, getWidth() - 438, 24);
     juce__label3->setBounds (((16 + 0) + 0) + 0, 152, 176, 24);
     deltaFreq__slider->setBounds ((16 + 0) + 0, 184, ((getWidth() - 40) - 0) - 0, 24);
     timeToRun__label->setBounds (112 - (192 / 2), 336, 192, 24);
-    juce__label4->setBounds ((((16 + 0) + 0) + 0) + 96 - (192 / 2), 370, 192, 24);
-    currentFrequency__label->setBounds ((((16 + 0) + 0) + 0) + 200, 370, 150, 24);
-    juce__label5->setBounds (16 + 0, 16, getWidth() - 352, 24);
+    qurFreq__label->setBounds ((((16 + 0) + 0) + 0) + 96 - (192 / 2), 370, 192, 24);
+    currentFrequencyValue__label->setBounds ((((16 + 0) + 0) + 0) + 200, 370 + 0, 150, 24);
+    juce__label5->setBounds (16 + -4, 8, getWidth() - 456, 32);
     minFreq__slider->setBounds (16, 48, getWidth() - 40, 24);
     juce__label->setBounds ((16 + 0) + 0, 88, 150, 24);
     juce__label6->setBounds (112 - (192 / 2), 304, 192, 24);
@@ -447,7 +447,7 @@ void SoundProcessorModule::updateFrequencyAndAngleDelta()
 		);
 	}
 
-	currentFrequency__label->setText
+    currentFrequencyValue__label->setText
 	(
 		std::to_string
 		(
@@ -542,7 +542,7 @@ void SoundProcessorModule::run()
 void SoundProcessorModule::updateCurrentFrequencyLabel()
 {
 	const MessageManagerLock mml;
-	currentFrequency__label->setText
+    currentFrequencyValue__label->setText
 	(
 		std::to_string
 		(
@@ -580,8 +580,9 @@ BEGIN_JUCER_METADATA
           needsCallback="0"/>
   <TOGGLEBUTTON name="run New Measurement toggle button" id="3e0da1935c285e8f"
                 memberName="runNewMeasurement__toggleButton" virtualName="" explicitFocusOrder="0"
-                pos="92c 408 184 24" posRelativeX="3f78bae238bae958" buttonText="Run new measurement"
-                connectedEdges="0" needsCallback="0" radioGroupId="0" state="0"/>
+                pos="92c -14R 184 24" posRelativeX="3f78bae238bae958" posRelativeY="7a68dc774966fe8"
+                buttonText="Run new measurement" connectedEdges="0" needsCallback="0"
+                radioGroupId="0" state="0"/>
   <SLIDER name="delta time slider" id="3f78bae238bae958" memberName="deltaTime__slider"
           virtualName="" explicitFocusOrder="0" pos="0 256 0M 24" posRelativeX="27e8662d217379e4"
           posRelativeW="27e8662d217379e4" tooltip="Delta Time [Sec]" min="1.0"
@@ -589,7 +590,7 @@ BEGIN_JUCER_METADATA
           textBoxEditable="1" textBoxWidth="80" textBoxHeight="20" skewFactor="1.0"
           needsCallback="0"/>
   <LABEL name="new label" id="69170c72758aeb9e" memberName="juce__label2"
-         virtualName="" explicitFocusOrder="0" pos="0 224 446M 24" posRelativeX="3f78bae238bae958"
+         virtualName="" explicitFocusOrder="0" pos="-8 224 438M 24" posRelativeX="3f78bae238bae958"
          edTextCol="ff000000" edBkgCol="0" labelText="Delta Time [Sec]"
          editableSingleClick="0" editableDoubleClick="0" focusDiscardsChanges="0"
          fontname="Default font" fontsize="15.0" kerning="0.0" bold="0"
@@ -617,20 +618,20 @@ BEGIN_JUCER_METADATA
          edBkgCol="0" labelText="Time To Run Value" editableSingleClick="0"
          editableDoubleClick="0" focusDiscardsChanges="0" fontname="Default font"
          fontsize="15.0" kerning="0.0" bold="0" italic="0" justification="33"/>
-  <LABEL name="new label" id="7a68dc774966fe8" memberName="juce__label4"
+  <LABEL name="cur. freq. label" id="7a68dc774966fe8" memberName="qurFreq__label"
          virtualName="" explicitFocusOrder="0" pos="96c 370 192 24" posRelativeX="3f78bae238bae958"
          edTextCol="ff000000" edBkgCol="0" labelText="Current frequency [Hz]:"
          editableSingleClick="0" editableDoubleClick="0" focusDiscardsChanges="0"
          fontname="Default font" fontsize="15.0" kerning="0.0" bold="0"
          italic="0" justification="33"/>
-  <LABEL name="Current Frequency  label" id="fb908497d89dec02" memberName="currentFrequency__label"
-         virtualName="" explicitFocusOrder="0" pos="200 370 150 24" posRelativeX="3f78bae238bae958"
-         edTextCol="ff000000" edBkgCol="0" labelText="Current Frequency"
-         editableSingleClick="0" editableDoubleClick="0" focusDiscardsChanges="0"
-         fontname="Default font" fontsize="15.0" kerning="0.0" bold="0"
-         italic="0" justification="33"/>
+  <LABEL name="Current Frequency Value label" id="fb908497d89dec02" memberName="currentFrequencyValue__label"
+         virtualName="" explicitFocusOrder="0" pos="200 0 150 24" posRelativeX="3f78bae238bae958"
+         posRelativeY="7a68dc774966fe8" edTextCol="ff000000" edBkgCol="0"
+         labelText="Current Frequency" editableSingleClick="0" editableDoubleClick="0"
+         focusDiscardsChanges="0" fontname="Default font" fontsize="15.0"
+         kerning="0.0" bold="0" italic="0" justification="33"/>
   <LABEL name="new label" id="d890f1fd96613a14" memberName="juce__label5"
-         virtualName="" explicitFocusOrder="0" pos="0 16 352M 24" posRelativeX="887447af4b675ddb"
+         virtualName="" explicitFocusOrder="0" pos="-4 8 456M 32" posRelativeX="887447af4b675ddb"
          edTextCol="ff000000" edBkgCol="0" labelText="Min. frequency [Hz]"
          editableSingleClick="0" editableDoubleClick="0" focusDiscardsChanges="0"
          fontname="Default font" fontsize="15.0" kerning="0.0" bold="0"

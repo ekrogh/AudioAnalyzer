@@ -96,8 +96,8 @@ private:
     std::unique_ptr<juce::Slider> deltaFreq__slider;
     std::unique_ptr<juce::Label> timeToRun__label;
     std::unique_ptr<juce::Label> timeToRunValue__label;
-    std::unique_ptr<juce::Label> juce__label4;
-    std::unique_ptr<juce::Label> currentFrequency__label;
+    std::unique_ptr<juce::Label> qurFreq__label;
+    std::unique_ptr<juce::Label> currentFrequencyValue__label;
     std::unique_ptr<juce::Label> juce__label5;
     std::unique_ptr<juce::Slider> minFreq__slider;
     std::unique_ptr<juce::Label> juce__label;
