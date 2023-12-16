@@ -190,7 +190,7 @@ void MainComponent::timerCallback()
 #endif
 					, "Quit"
 				);
-				getSharedAudioDeviceManager().closeAudioDevice();
+				sharedAudioDeviceManager->closeAudioDevice();
 				JUCEApplication::getInstance()->systemRequestedQuit();
 #else //#if JUCE_MODAL_LOOPS_PERMITTED
 				juce::AlertWindow::showMessageBoxAsync
@@ -214,7 +214,7 @@ void MainComponent::timerCallback()
                             sharedAudioDeviceManager->closeAudioDevice();
                             JUCEApplication::getInstance()->shutdown();
 //                            JUCEApplicationBase::quit();
-                            JUCEApplication::getInstance()->systemRequestedQuit();
+//                            JUCEApplication::getInstance()->systemRequestedQuit();
 						}
 					)
 				);
