@@ -519,7 +519,7 @@ void SoundProcessorModule::run()
 
             { // ScopedLock sl scope begin
                 const ScopedLock sl(clearOldMeasuredLock);
- 
+
                 frequencyValues[0].push_back(copyOfCurrentFrequencyHz);
 
                 auto curRMS = std::sqrt(copyOfAudioSamplesSquareSum / copyOfNoSamplesInAudioSamplesSquareSum);

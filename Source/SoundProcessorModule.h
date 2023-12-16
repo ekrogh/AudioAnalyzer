@@ -29,22 +29,22 @@
 
 //==============================================================================
 /**
-																	//[Comments]
+                                                                    //[Comments]
 	An auto-generated component, created by the Projucer.
 
 	Describe your class and how it works here!
-																	//[/Comments]
+                                                                    //[/Comments]
 */
-class SoundProcessorModule : public juce::AudioAppComponent,
-	private juce::Thread
+class SoundProcessorModule  : public juce::AudioAppComponent,
+                              private juce::Thread
 {
 public:
-	//==============================================================================
-	SoundProcessorModule(std::shared_ptr<PlotModule> ptr_module_Plot, std::shared_ptr<AudioDeviceManager> SADM);
-	~SoundProcessorModule() override;
+    //==============================================================================
+    SoundProcessorModule (std::shared_ptr<PlotModule> ptr_module_Plot, std::shared_ptr<AudioDeviceManager> SADM);
+    ~SoundProcessorModule() override;
 
-	//==============================================================================
-	//[UserMethods]     -- You can add your own custom methods in this section.
+    //==============================================================================
+    //[UserMethods]     -- You can add your own custom methods in this section.
 	void stopAudio();
 	void updateAngleDelta();
 	void updateFrequencyAndAngleDelta();
@@ -53,15 +53,15 @@ public:
 	void getNextAudioBlock(const juce::AudioSourceChannelInfo& bufferToFill) override;
 	void run() override; // Called from Thread
 	void updateCurrentFrequencyLabel();
-	//[/UserMethods]
+    //[/UserMethods]
 
-	void paint(juce::Graphics& g) override;
-	void resized() override;
+    void paint (juce::Graphics& g) override;
+    void resized() override;
 
 
 
 private:
-	//[UserVariables]   -- You can add your own custom variables in this section.
+    //[UserVariables]   -- You can add your own custom variables in this section.
 	std::shared_ptr<PlotModule> module_Plot;
 	CriticalSection rmsLock;
 	CriticalSection clearOldMeasuredLock;
@@ -85,30 +85,30 @@ private:
 	std::vector<float> forInsetRMSVector; // To be used for insert to rmsValues
 	cmp::GraphAttributeList graph_attributes;
 	juce::Random randomRGB = juce::Random::getSystemRandom();
-	//[/UserVariables]
+    //[/UserVariables]
 
-	//==============================================================================
-	std::unique_ptr<juce::Slider> maxFrequency__Slider;
-	std::unique_ptr<juce::ToggleButton> runNewMeasurement__toggleButton;
-	std::unique_ptr<juce::Slider> deltaTime__slider;
-	std::unique_ptr<juce::Label> juce__label2;
-	std::unique_ptr<juce::Label> juce__label3;
-	std::unique_ptr<juce::Slider> deltaFreq__slider;
-	std::unique_ptr<juce::Label> timeToRun__label;
-	std::unique_ptr<juce::Label> timeToRunValue__label;
-	std::unique_ptr<juce::Label> juce__label4;
-	std::unique_ptr<juce::Label> currentFrequency__label;
-	std::unique_ptr<juce::Label> juce__label5;
-	std::unique_ptr<juce::Slider> minFreq__slider;
-	std::unique_ptr<juce::Label> juce__label;
-	std::unique_ptr<juce::Label> juce__label6;
-	std::unique_ptr<juce::Label> timeToRunTotally__label;
-	std::unique_ptr<juce::ToggleButton> pause__toggleButton;
-	std::unique_ptr<juce::TextButton> Deleteoldmeasurements__textButton;
+    //==============================================================================
+    std::unique_ptr<juce::Slider> maxFrequency__Slider;
+    std::unique_ptr<juce::ToggleButton> runNewMeasurement__toggleButton;
+    std::unique_ptr<juce::Slider> deltaTime__slider;
+    std::unique_ptr<juce::Label> juce__label2;
+    std::unique_ptr<juce::Label> juce__label3;
+    std::unique_ptr<juce::Slider> deltaFreq__slider;
+    std::unique_ptr<juce::Label> timeToRun__label;
+    std::unique_ptr<juce::Label> timeToRunValue__label;
+    std::unique_ptr<juce::Label> juce__label4;
+    std::unique_ptr<juce::Label> currentFrequency__label;
+    std::unique_ptr<juce::Label> juce__label5;
+    std::unique_ptr<juce::Slider> minFreq__slider;
+    std::unique_ptr<juce::Label> juce__label;
+    std::unique_ptr<juce::Label> juce__label6;
+    std::unique_ptr<juce::Label> timeToRunTotally__label;
+    std::unique_ptr<juce::ToggleButton> pause__toggleButton;
+    std::unique_ptr<juce::TextButton> Deleteoldmeasurements__textButton;
 
 
-	//==============================================================================
-	JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(SoundProcessorModule)
+    //==============================================================================
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (SoundProcessorModule)
 };
 
 //[EndFile] You can add extra defines here...
