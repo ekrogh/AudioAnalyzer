@@ -47,12 +47,20 @@ MainComponent::MainComponent()
 			std::make_unique<SoundProcessorModule>(module_Plot, sharedAudioDeviceManager);
 		module_AudioSettings =
 			std::make_unique<AudioSettingsModule>(sharedAudioDeviceManager);
-
+		module_AudioRecording =
+			std::make_unique<AudioRecorderModule>(sharedAudioDeviceManager);
 		juce__tabbedComponent->addTab
 		(
 			TRANS("Plot")
 			, juce::Colours::lightgrey
 			, module_Plot.get()
+			, false
+		);
+		juce__tabbedComponent->addTab
+		(
+			TRANS("Audio Recorder")
+			, juce::Colours::lightgrey
+			, module_AudioRecording.get()
 			, false
 		);
 		juce__tabbedComponent->addTab
@@ -104,6 +112,7 @@ MainComponent::~MainComponent()
     module_SoundProcessor = nullptr;
     module_AudioSettings = nullptr;
     module_microphoneAccessPermissionAlert = nullptr;
+	module_AudioRecording = nullptr;
 	//[/Destructor_pre]
 
 	juce__tabbedComponent = nullptr;

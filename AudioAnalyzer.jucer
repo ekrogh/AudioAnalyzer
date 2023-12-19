@@ -43,6 +43,10 @@
       </GROUP>
       <FILE id="CftdSj" name="AudioAnalyzerGlobalEnums.h" compile="0" resource="0"
             file="Source/AudioAnalyzerGlobalEnums.h"/>
+      <FILE id="R2HSGk" name="AudioLiveScrollingDisplay.h" compile="0" resource="0"
+            file="Source/AudioLiveScrollingDisplay.h"/>
+      <FILE id="TUR8Jv" name="AudioRecorderModule.h" compile="0" resource="0"
+            file="Source/AudioRecorderModule.h"/>
       <FILE id="zfGUUp" name="AudioSettingsModule.cpp" compile="1" resource="0"
             file="Source/AudioSettingsModule.cpp"/>
       <FILE id="dJMzzu" name="AudioSettingsModule.h" compile="0" resource="0"
@@ -79,7 +83,8 @@
   </MODULES>
   <JUCEOPTIONS JUCE_STRICT_REFCOUNTEDPOINTER="1"/>
   <EXPORTFORMATS>
-    <ANDROIDSTUDIO targetFolder="Builds/Android" microphonePermissionNeeded="1">
+    <ANDROIDSTUDIO targetFolder="Builds/Android" microphonePermissionNeeded="1"
+                   gradleVersion="8.2" gradleWrapperVersion="8.2.0" androidEnableContentSharing="1">
       <CONFIGURATIONS>
         <CONFIGURATION isDebug="1" name="Debug" targetName="AudioAnalyzer"/>
         <CONFIGURATION isDebug="0" name="Release" targetName="AudioAnalyzer"/>
@@ -158,7 +163,8 @@
     <XCODE_IPHONE targetFolder="Builds/iOS" microphonePermissionNeeded="1" iosScreenOrientation="UIInterfaceOrientationLandscapeLeft,UIInterfaceOrientationLandscapeRight,UIInterfaceOrientationPortrait,UIInterfaceOrientationPortraitUpsideDown"
                   iPadScreenOrientation="UIInterfaceOrientationLandscapeLeft,UIInterfaceOrientationLandscapeRight,UIInterfaceOrientationPortrait,UIInterfaceOrientationPortraitUpsideDown"
                   UIFileSharingEnabled="1" extraDefs="JUCE_SILENCE_XCODE_15_LINKER_WARNING=1"
-                  extraLinkerFlags="-Wl,-weak_reference_mismatches,weak&#10;" iosDevelopmentTeamID="4657Q2Y6NH">
+                  extraLinkerFlags="-Wl,-weak_reference_mismatches,weak&#10;" iosDevelopmentTeamID="4657Q2Y6NH"
+                  UIStatusBarHidden="1">
       <CONFIGURATIONS>
         <CONFIGURATION isDebug="1" name="Debug" targetName="AudioAnalyzer"/>
         <CONFIGURATION isDebug="0" name="Release" targetName="AudioAnalyzer"/>

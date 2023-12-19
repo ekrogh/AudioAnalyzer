@@ -119,12 +119,33 @@ void AudioSettingsModule::resized()
 //[MiscUserCode] You can add your own definitions of your custom methods or any other code here...
 void AudioSettingsModule::enableDisableDisable_OS_audio_preprocesstogglebutton()
 {
-	deviceSupportsDisableAudioPreprocessing =
-		sharedAudioDeviceManager->getCurrentAudioDevice()->
-		setAudioPreprocessingEnabled
-		(
-			!(Disable_OS_audio_preprocesstogglebutton->getToggleState())
-		);
+    AudioIODevice* curAudioDev;
+    bool errorGetCurrentAudioDevice = false;
+    try
+    {
+        curAudioDev = sharedAudioDeviceManager->getCurrentAudioDevice();
+    }
+    catch (const std::exception&)
+    {
+        deviceSupportsDisableAudioPreprocessing = false;
+        errorGetCurrentAudioDevice = true;
+    }
+
+    if (curAudioDev == nullptr)
+    {
+        deviceSupportsDisableAudioPreprocessing = false;
+        errorGetCurrentAudioDevice = true;
+    }
+    
+    if (!errorGetCurrentAudioDevice)
+    {
+        deviceSupportsDisableAudioPreprocessing =
+            curAudioDev->
+            setAudioPreprocessingEnabled
+            (
+                !(Disable_OS_audio_preprocesstogglebutton->getToggleState())
+            );
+    }
 
 	if (deviceSupportsDisableAudioPreprocessing)
 	{
