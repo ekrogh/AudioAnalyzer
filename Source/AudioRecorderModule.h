@@ -313,7 +313,17 @@ private:
 							 "After you are done with your recording you can choose where to save it." };
 	TextButton recordButton{ "Record" };
 	File lastRecording;
-	FileChooser chooser{ "Output file...", File::getCurrentWorkingDirectory().getChildFile("recording.wav"), "*.wav" };
+	FileChooser chooser
+	{
+		"Output file..."
+		,
+		File::getSpecialLocation
+		(
+			juce::File::SpecialLocationType::userDocumentsDirectory
+		)
+		.getChildFile("recording.wav"), "*.wav"
+	};
+	//FileChooser chooser{ "Output file...", File::getCurrentWorkingDirectory().getChildFile("recording.wav"), "*.wav" };
 
 	void startRecording()
 	{
@@ -355,12 +365,10 @@ private:
 			{
 				if (FileInputStream inputStream(lastRecording); inputStream.openedOk())
 				{
-					if (c.getResult().exists())
-					{
-						c.getResult().deleteFile();
-					}
 					if (const auto outputStream = makeOutputStream(c.getURLResult()))
 					{
+						outputStream->setPosition(0);
+
 						outputStream->writeFromInputStream(inputStream, -1);
 						outputStream->flush();
 					}
