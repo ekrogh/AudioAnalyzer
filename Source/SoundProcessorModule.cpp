@@ -275,7 +275,7 @@ SoundProcessorModule::SoundProcessorModule(std::shared_ptr<PlotModule> ptr_modul
 			{
 				currentFrequencyHz = minFrequencyHz;
 
-				updateFrequencyAndAngleDelta();
+				updateAngleDelta();
 
 				//frequencyValues.clear();
 				//frequencyValues.reserve(0);
@@ -321,11 +321,11 @@ SoundProcessorModule::SoundProcessorModule(std::shared_ptr<PlotModule> ptr_modul
 
 					shutdownAudio();
 
-					updateFrequencyAndAngleDelta();
+					updateAngleDelta();
 				}
 				else
 				{
-					updateFrequencyAndAngleDelta();
+					updateAngleDelta();
 
 					setAudioChannels(1, 1); // One input, one output
 
@@ -351,7 +351,7 @@ SoundProcessorModule::SoundProcessorModule(std::shared_ptr<PlotModule> ptr_modul
 				maxFreq__textEditor->setText(std::to_string(minFrequencyHz), false);
 				maxFrequencyHz = minFrequencyHz;
 			}
-			updateFrequencyAndAngleDelta();
+			updateAngleDelta();
 		};
 	minFreq__textEditor->onFocusLost =
 		[this]
@@ -362,7 +362,7 @@ SoundProcessorModule::SoundProcessorModule(std::shared_ptr<PlotModule> ptr_modul
 				maxFreq__textEditor->setText(std::to_string(minFrequencyHz), false);
 				maxFrequencyHz = minFrequencyHz;
 			}
-			updateFrequencyAndAngleDelta();
+			updateAngleDelta();
 		};
 
 	maxFreq__textEditor->setInputRestrictions(10, "1234567890");
@@ -378,7 +378,7 @@ SoundProcessorModule::SoundProcessorModule(std::shared_ptr<PlotModule> ptr_modul
 				minFreq__textEditor->setText(juce::String(maxFrequencyHz), false);
 				minFrequencyHz = maxFrequencyHz;
 			}
-			updateFrequencyAndAngleDelta();
+			updateAngleDelta();
 		};
 	maxFreq__textEditor->onFocusLost =
 		[this]
@@ -389,7 +389,7 @@ SoundProcessorModule::SoundProcessorModule(std::shared_ptr<PlotModule> ptr_modul
 				minFreq__textEditor->setText(std::to_string(maxFrequencyHz), false);
 				minFrequencyHz = maxFrequencyHz;
 			}
-			updateFrequencyAndAngleDelta();
+			updateAngleDelta();
 		};
 
 	deltaTime__textEditor->setInputRestrictions(10, "1234567890");
@@ -403,13 +403,13 @@ SoundProcessorModule::SoundProcessorModule(std::shared_ptr<PlotModule> ptr_modul
 		[this]
 		{
 			deltaTimeS = deltaTime__textEditor->getText().getDoubleValue();
-			updateFrequencyAndAngleDelta();
+			updateAngleDelta();
 		};
 	deltaTime__textEditor->onFocusLost =
 		[this]
 		{
 			deltaTimeS = deltaTime__textEditor->getText().getDoubleValue();
-			updateFrequencyAndAngleDelta();
+			updateAngleDelta();
 		};
 
 	deltaFreq__textEditor->setInputRestrictions(10, "1234567890");
@@ -423,7 +423,7 @@ SoundProcessorModule::SoundProcessorModule(std::shared_ptr<PlotModule> ptr_modul
 		[this]
 		{
 			deltaFrequencyHz = deltaFreq__textEditor->getText().getDoubleValue();
-			updateFrequencyAndAngleDelta();
+			updateAngleDelta();
 		};
 
 	save__textButton->onClick =
@@ -467,7 +467,7 @@ SoundProcessorModule::SoundProcessorModule(std::shared_ptr<PlotModule> ptr_modul
 						(
 							const auto inputStream =
 							makeInputSource(c.getURLResult())->createInputStream()
-						)
+							)
 					{
 						rmsValues.clear();
 						rmsValues.reserve(0);
@@ -492,7 +492,7 @@ SoundProcessorModule::SoundProcessorModule(std::shared_ptr<PlotModule> ptr_modul
 	module_Plot->setXLabel("[Hz]");
 	module_Plot->setYLabel("[RMS]");
 
-	updateFrequencyAndAngleDelta();
+	updateAngleDelta();
 	//[/Constructor]
 }
 
@@ -586,7 +586,7 @@ void SoundProcessorModule::stopAudio()
 
 	currentFrequencyHz = 0;
 
-	updateFrequencyAndAngleDelta();
+	updateAngleDelta();
 
 	pause__toggleButton->setEnabled(false);
 }
@@ -601,10 +601,8 @@ void SoundProcessorModule::updateAngleDelta()
 
 }
 
-void SoundProcessorModule::updateFrequencyAndAngleDelta()
+void SoundProcessorModule::updateInfoTextEditors()
 {
-	updateAngleDelta();
-
 	if (deltaFrequencyHz > 0.0f)
 	{
 		auto totalTimeToRunS = deltaTimeS * (maxFrequencyHz - minFrequencyHz) / deltaFrequencyHz;
@@ -638,13 +636,12 @@ void SoundProcessorModule::updateFrequencyAndAngleDelta()
 		)
 		, false
 	);
-
 }
 
 void SoundProcessorModule::prepareToPlay(int, double sampleRate)
 {
 	currentSampleRate = sampleRate;
-	updateFrequencyAndAngleDelta();
+	updateAngleDelta();
 }
 
 void SoundProcessorModule::getNextAudioBlock(const juce::AudioSourceChannelInfo& bufferToFill)
@@ -677,10 +674,8 @@ void SoundProcessorModule::run()
 {
 	while ((!threadShouldExit()) && (currentFrequencyHz <= maxFrequencyHz))
 	{
-		{
-			const MessageManagerLock mml;
-			updateFrequencyAndAngleDelta();
-		}
+		updateAngleDelta();
+		MessageManager::callAsync([this]() { updateInfoTextEditors(); });
 
 		wait((int)(1000.0f * deltaTimeS)); // sleep ms
 

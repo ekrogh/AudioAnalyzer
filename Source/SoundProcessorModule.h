@@ -49,7 +49,7 @@ public:
     //[UserMethods]     -- You can add your own custom methods in this section.
 	void stopAudio();
 	void updateAngleDelta();
-	void updateFrequencyAndAngleDelta();
+	void updateInfoTextEditors();
 	void prepareToPlay(int, double sampleRate) override;
 	void releaseResources() override {};
 	void getNextAudioBlock(const juce::AudioSourceChannelInfo& bufferToFill) override;
