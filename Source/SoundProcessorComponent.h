@@ -36,8 +36,7 @@
                                                                     //[/Comments]
 */
 class SoundProcessorModule  : public juce::AudioAppComponent,
-                              private juce::Thread,
-                              public juce::Button::Listener
+                              private juce::Thread
 {
 public:
     //==============================================================================
@@ -58,7 +57,6 @@ public:
 
     void paint (juce::Graphics& g) override;
     void resized() override;
-    void buttonClicked (juce::Button* buttonThatWasClicked) override;
 
 
 
@@ -90,25 +88,23 @@ private:
     //[/UserVariables]
 
     //==============================================================================
+    std::unique_ptr<juce::Slider> maxFrequency__Slider;
     std::unique_ptr<juce::ToggleButton> runNewMeasurement__toggleButton;
+    std::unique_ptr<juce::Slider> deltaTime__slider;
     std::unique_ptr<juce::Label> juce__label2;
     std::unique_ptr<juce::Label> juce__label3;
+    std::unique_ptr<juce::Slider> deltaFreq__slider;
     std::unique_ptr<juce::Label> timeToRun__label;
+    std::unique_ptr<juce::Label> timeToRunValue__label;
     std::unique_ptr<juce::Label> qurFreq__label;
+    std::unique_ptr<juce::Label> currentFrequencyValue__label;
     std::unique_ptr<juce::Label> juce__label5;
+    std::unique_ptr<juce::Slider> minFreq__slider;
     std::unique_ptr<juce::Label> juce__label;
     std::unique_ptr<juce::Label> juce__label6;
+    std::unique_ptr<juce::Label> timeToRunTotally__label;
     std::unique_ptr<juce::ToggleButton> pause__toggleButton;
     std::unique_ptr<juce::TextButton> Deleteoldmeasurements__textButton;
-    std::unique_ptr<juce::TextEditor> minFreq__textEditor;
-    std::unique_ptr<juce::TextEditor> maxFreq__textEditor;
-    std::unique_ptr<juce::TextEditor> deltaFreq__textEditor;
-    std::unique_ptr<juce::TextEditor> deltaTime__textEditor;
-    std::unique_ptr<juce::TextButton> save__textButton;
-    std::unique_ptr<juce::TextButton> read__textButton;
-    std::unique_ptr<juce::TextEditor> timeToRunTotally__textEditor;
-    std::unique_ptr<juce::TextEditor> timeToRunValue__textEditor;
-    std::unique_ptr<juce::TextEditor> currentFrequencyValue__textEditor2;
 
 
     //==============================================================================
