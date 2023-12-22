@@ -22,6 +22,7 @@
 //[Headers]     -- You can add your own extra header files here --
 #include "cmp_plot.h"
 #include "PlotModule.h"
+#include "Utilities.h"
 #include <JuceHeader.h>
 //[/Headers]
 
@@ -87,6 +88,17 @@ private:
 	std::vector<float> forInsetRMSVector; // To be used for insert to rmsValues
 	cmp::GraphAttributeList graph_attributes;
 	juce::Random randomRGB = juce::Random::getSystemRandom();
+	FileChooser chooser
+	{
+		"File..."
+		,
+		File::getSpecialLocation
+		(
+			juce::File::SpecialLocationType::userDocumentsDirectory
+		)
+		.getChildFile("measurements.aua"), "*.aua"
+	};
+
     //[/UserVariables]
 
     //==============================================================================

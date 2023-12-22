@@ -426,6 +426,68 @@ SoundProcessorModule::SoundProcessorModule(std::shared_ptr<PlotModule> ptr_modul
 			updateFrequencyAndAngleDelta();
 		};
 
+	save__textButton->onClick =
+		[this]
+		{
+			chooser.launchAsync(FileBrowserComponent::saveMode
+				| FileBrowserComponent::canSelectFiles
+				| FileBrowserComponent::warnAboutOverwriting,
+				[this](const FileChooser& c)
+				{
+					if (const auto outputStream = makeOutputStream(c.getURLResult()))
+					{
+						outputStream->setPosition(0);
+
+						for (auto vec : rmsValues)
+						{
+							outputStream->writeInt(vec.size());
+							for (auto fltVal : vec)
+							{
+								outputStream->writeFloat(fltVal);
+							}
+						}
+
+						outputStream->flush();
+					}
+				});
+
+		};
+
+	read__textButton->onClick =
+		[this]
+		{
+			chooser.launchAsync
+			(
+				FileBrowserComponent::openMode
+				| FileBrowserComponent::canSelectFiles
+				| FileBrowserComponent::warnAboutOverwriting,
+				[this](const FileChooser& c)
+				{
+					if
+						(
+							const auto inputStream =
+							makeInputSource(c.getURLResult())->createInputStream()
+						)
+					{
+						rmsValues.clear();
+						rmsValues.reserve(0);
+
+						inputStream->setPosition(0);
+
+						while (inputStream->getNumBytesRemaining() > sizeof(int))
+						{
+							auto curVectorSize = inputStream->readInt();
+							std::vector<float> tmp(curVectorSize);
+
+							inputStream->read(tmp.data(), curVectorSize * sizeof(float));
+
+							rmsValues.push_back(tmp);
+						}
+					}
+				});
+
+		};
+
 	module_Plot->setTitle("Frequency responce [RMS]");
 	module_Plot->setXLabel("[Hz]");
 	module_Plot->setYLabel("[RMS]");
