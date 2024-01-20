@@ -253,10 +253,10 @@ SoundProcessorModule::SoundProcessorModule(std::shared_ptr<PlotModule> ptr_modul
 				plotLegend.clear();
 				if (runNewMeasurement__toggleButton->getToggleState())
 				{
-					frequencyValues.insert(frequencyValues.begin(), forInsertFrequencyVector);
-					rmsValues.insert(rmsValues.begin(), forInsetRMSVector);
+					frequencyValues.push_back(forPush_BackFrequencyVector);
+					rmsValues.push_back(forPush_BackRMSVector);
 					makeGraphAttributes();
-					plotLegend.insert(plotLegend.begin(), "plot " + std::to_string(plotLegend.size()));
+					plotLegend.push_back("plot " + std::to_string(plotLegend.size()));
 				}
 				module_Plot->clearTracePoints();
 
@@ -274,10 +274,10 @@ SoundProcessorModule::SoundProcessorModule(std::shared_ptr<PlotModule> ptr_modul
 
 				//frequencyValues.clear();
 				//frequencyValues.reserve(0);
-				frequencyValues.insert(frequencyValues.begin(), forInsertFrequencyVector);
-				rmsValues.insert(rmsValues.begin(), forInsetRMSVector);
+				frequencyValues.push_back(forPush_BackFrequencyVector);
+				rmsValues.push_back(forPush_BackRMSVector);
 				makeGraphAttributes();
-				plotLegend.insert(plotLegend.begin(), "plot " + std::to_string(plotLegend.size()));
+				plotLegend.push_back("plot " + std::to_string(plotLegend.size()));
 
 				setAudioChannels(1, 1); // One input, one output
 
@@ -604,7 +604,7 @@ void SoundProcessorModule::makeGraphAttributes()
 		//200
 		randomRGB.nextInt(juce::Range(100, 255))
 	);
-	graph_attributes.insert(graph_attributes.begin(), colourForLine);
+	graph_attributes.push_back(colourForLine);
 }
 
 void SoundProcessorModule::stopAudio()
@@ -724,10 +724,10 @@ void SoundProcessorModule::run()
 			{ // ScopedLock sl scope begin
 				const ScopedLock sl(clearOldMeasuredLock);
 
-				frequencyValues[0].push_back(copyOfCurrentFrequencyHz);
+				frequencyValues[frequencyValues.size() - 1].push_back(copyOfCurrentFrequencyHz);
 
 				auto curRMS = std::sqrt(copyOfAudioSamplesSquareSum / copyOfNoSamplesInAudioSamplesSquareSum);
-				rmsValues[0].push_back(curRMS);
+				rmsValues[rmsValues.size() - 1].push_back(curRMS);
 
 				module_Plot->updatePlot(rmsValues, frequencyValues, graph_attributes, plotLegend);
 			}

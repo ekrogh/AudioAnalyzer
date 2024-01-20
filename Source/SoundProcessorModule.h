@@ -84,9 +84,9 @@ private:
 	long double copyOfAudioSamplesSquareSum = 0.0f;
 	unsigned long long copyOfNoSamplesInAudioSamplesSquareSum = 0;
 	std::vector <std::vector<float>> frequencyValues;
-	std::vector<float> forInsertFrequencyVector; // To be used for insert to frequencyValues
+	std::vector<float> forPush_BackFrequencyVector; // To be used for insert to frequencyValues
 	std::vector <std::vector<float>> rmsValues;
-	std::vector<float> forInsetRMSVector; // To be used for insert to rmsValues
+	std::vector<float> forPush_BackRMSVector; // To be used for insert to rmsValues
 	cmp::GraphAttributeList graph_attributes;
 	juce::Random randomRGB = juce::Random::getSystemRandom();
 	FileChooser chooser
