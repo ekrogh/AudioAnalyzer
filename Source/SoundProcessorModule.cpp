@@ -256,7 +256,7 @@ SoundProcessorModule::SoundProcessorModule(std::shared_ptr<PlotModule> ptr_modul
 					frequencyValues.push_back(forPush_BackFrequencyVector);
 					rmsValues.push_back(forPush_BackRMSVector);
 					makeGraphAttributes();
-					plotLegend.push_back("plot " + std::to_string(plotLegend.size()));
+					plotLegend.push_back("p " + std::to_string(plotLegend.size() + 1));
 				}
 				module_Plot->clearTracePoints();
 
@@ -277,7 +277,7 @@ SoundProcessorModule::SoundProcessorModule(std::shared_ptr<PlotModule> ptr_modul
 				frequencyValues.push_back(forPush_BackFrequencyVector);
 				rmsValues.push_back(forPush_BackRMSVector);
 				makeGraphAttributes();
-				plotLegend.push_back("plot " + std::to_string(plotLegend.size()));
+				plotLegend.push_back("p " + std::to_string(plotLegend.size() + 1));
 
 				setAudioChannels(1, 1); // One input, one output
 
@@ -489,7 +489,7 @@ SoundProcessorModule::SoundProcessorModule(std::shared_ptr<PlotModule> ptr_modul
 
 							makeGraphAttributes();
 
-							plotLegend.push_back("plot " + std::to_string(plotLegend.size()));
+							plotLegend.push_back("p " + std::to_string(plotLegend.size() + 1));
 
 						}
 
