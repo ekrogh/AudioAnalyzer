@@ -250,11 +250,13 @@ SoundProcessorModule::SoundProcessorModule(std::shared_ptr<PlotModule> ptr_modul
 				rmsValues.reserve(0);
 				graph_attributes.clear();
 				graph_attributes.reserve(0);
+				plotLegend.clear();
 				if (runNewMeasurement__toggleButton->getToggleState())
 				{
 					frequencyValues.insert(frequencyValues.begin(), forInsertFrequencyVector);
 					rmsValues.insert(rmsValues.begin(), forInsetRMSVector);
 					makeGraphAttributes();
+					plotLegend.insert(plotLegend.begin(), "plot " + std::to_string(plotLegend.size()));
 				}
 				module_Plot->clearTracePoints();
 
@@ -275,6 +277,7 @@ SoundProcessorModule::SoundProcessorModule(std::shared_ptr<PlotModule> ptr_modul
 				frequencyValues.insert(frequencyValues.begin(), forInsertFrequencyVector);
 				rmsValues.insert(rmsValues.begin(), forInsetRMSVector);
 				makeGraphAttributes();
+				plotLegend.insert(plotLegend.begin(), "plot " + std::to_string(plotLegend.size()));
 
 				setAudioChannels(1, 1); // One input, one output
 
@@ -485,11 +488,14 @@ SoundProcessorModule::SoundProcessorModule(std::shared_ptr<PlotModule> ptr_modul
 							frequencyValues.push_back(xTmpVec);
 
 							makeGraphAttributes();
+
+							plotLegend.push_back("plot " + std::to_string(plotLegend.size()));
+
 						}
 
 						inputStream->~InputStream();
 
-						module_Plot->updatePlot(rmsValues, frequencyValues, graph_attributes);
+						module_Plot->updatePlot(rmsValues, frequencyValues, graph_attributes, plotLegend);
 					}
 				});
 
@@ -723,7 +729,7 @@ void SoundProcessorModule::run()
 				auto curRMS = std::sqrt(copyOfAudioSamplesSquareSum / copyOfNoSamplesInAudioSamplesSquareSum);
 				rmsValues[0].push_back(curRMS);
 
-				module_Plot->updatePlot(rmsValues, frequencyValues, graph_attributes);
+				module_Plot->updatePlot(rmsValues, frequencyValues, graph_attributes, plotLegend);
 			}
 		}
 	}

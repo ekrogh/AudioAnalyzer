@@ -96,10 +96,13 @@ void PlotModule::updatePlot
     std::vector <std::vector<float>> x_values
     ,
     cmp::GraphAttributeList graph_attributes
+    ,
+    cmp::StringVector& legend
 )
 {
     const MessageManagerLock mml;
     m_plot.plot(y_values, x_values, graph_attributes);
+    m_plot.setLegend(legend);
 }
 
 void PlotModule::updatePlotRealTime(std::vector <std::vector<float>> y_values)

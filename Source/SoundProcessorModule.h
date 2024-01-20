@@ -99,6 +99,7 @@ private:
 		)
 		.getChildFile("measurements.aua"), "*.aua"
 	};
+	cmp::StringVector plotLegend;
 
     //[/UserVariables]
 

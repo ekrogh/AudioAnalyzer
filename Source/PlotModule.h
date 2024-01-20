@@ -29,51 +29,53 @@
 
 //==============================================================================
 /**
-                                                                    //[Comments]
-    An auto-generated component, created by the Projucer.
+																	//[Comments]
+	An auto-generated component, created by the Projucer.
 
-    Describe your class and how it works here!
-                                                                    //[/Comments]
+	Describe your class and how it works here!
+																	//[/Comments]
 */
-class PlotModule  : public juce::Component
+class PlotModule : public juce::Component
 {
 public:
-    //==============================================================================
-    PlotModule ();
-    ~PlotModule() override;
+	//==============================================================================
+	PlotModule();
+	~PlotModule() override;
 
-    //==============================================================================
-    //[UserMethods]     -- You can add your own custom methods in this section.
-    void updatePlot
-    (
-        std::vector <std::vector<float>> y_values
-        ,
-        std::vector <std::vector<float>> x_values
-        ,
-        cmp::GraphAttributeList
-    );
-    void updatePlotRealTime(std::vector <std::vector<float>> y_values);
-    void clearTracePoints();
-    void setXLabel(const std::string& x_label) { m_plot.setXLabel(x_label); };
-    void setYLabel(const std::string& y_label) { m_plot.setYLabel(y_label); };
-    void setTitle(const std::string& title) { m_plot.setTitle(title); };
-    //[/UserMethods]
+	//==============================================================================
+	//[UserMethods]     -- You can add your own custom methods in this section.
+	void updatePlot
+	(
+		std::vector <std::vector<float>> y_values
+		,
+		std::vector <std::vector<float>> x_values
+		,
+		cmp::GraphAttributeList graph_attributes
+		,
+		cmp::StringVector& legend
+	);
+	void updatePlotRealTime(std::vector <std::vector<float>> y_values);
+	void clearTracePoints();
+	void setXLabel(const std::string& x_label) { m_plot.setXLabel(x_label); };
+	void setYLabel(const std::string& y_label) { m_plot.setYLabel(y_label); };
+	void setTitle(const std::string& title) { m_plot.setTitle(title); };
+	//[/UserMethods]
 
-    void paint (juce::Graphics& g) override;
-    void resized() override;
+	void paint(juce::Graphics& g) override;
+	void resized() override;
 
 
 
 private:
-    //[UserVariables]   -- You can add your own custom variables in this section.
-    cmp::Plot m_plot;
-    //[/UserVariables]
+	//[UserVariables]   -- You can add your own custom variables in this section.
+	cmp::Plot m_plot;
+	//[/UserVariables]
 
-    //==============================================================================
+	//==============================================================================
 
 
-    //==============================================================================
-    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (PlotModule)
+	//==============================================================================
+	JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(PlotModule)
 };
 
 //[EndFile] You can add extra defines here...
