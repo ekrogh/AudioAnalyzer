@@ -254,17 +254,10 @@ SoundProcessorModule::SoundProcessorModule(std::shared_ptr<PlotModule> ptr_modul
 				{
 					frequencyValues.insert(frequencyValues.begin(), forInsertFrequencyVector);
 					rmsValues.insert(rmsValues.begin(), forInsetRMSVector);
-					cmp::GraphAttribute colourForLine;
-					colourForLine.graph_colour = juce::Colour
-					(
-						randomRGB.nextInt(256)
-						,
-						randomRGB.nextInt(256)
-						,
-						randomRGB.nextInt(256)
-					);
-					graph_attributes.insert(graph_attributes.begin(), colourForLine);
+					makeGraphAttributes();
 				}
+				module_Plot->clearTracePoints();
+
 			}// ScopedLock sl scope END
 		};
 
@@ -281,17 +274,7 @@ SoundProcessorModule::SoundProcessorModule(std::shared_ptr<PlotModule> ptr_modul
 				//frequencyValues.reserve(0);
 				frequencyValues.insert(frequencyValues.begin(), forInsertFrequencyVector);
 				rmsValues.insert(rmsValues.begin(), forInsetRMSVector);
-				cmp::GraphAttribute colourForLine;
-				colourForLine.graph_colour = juce::Colour
-				(
-					randomRGB.nextInt(juce::Range(100, 255))
-					,
-					randomRGB.nextInt(juce::Range(100, 255))
-					,
-					//200
-					randomRGB.nextInt(juce::Range(100, 255))
-				);
-				graph_attributes.insert(graph_attributes.begin(), colourForLine);
+				makeGraphAttributes();
 
 				setAudioChannels(1, 1); // One input, one output
 
@@ -438,10 +421,20 @@ SoundProcessorModule::SoundProcessorModule(std::shared_ptr<PlotModule> ptr_modul
 					{
 						outputStream->setPosition(0);
 
+						int vecNo = 0;
 						for (auto vec : rmsValues)
 						{
+							// Y values
 							outputStream->writeInt(vec.size());
 							for (auto fltVal : vec)
+							{
+								outputStream->writeFloat(fltVal);
+							}
+
+							// X-values
+							auto xVec = frequencyValues[vecNo++];
+							outputStream->writeInt(xVec.size());
+							for (auto fltVal : xVec)
 							{
 								outputStream->writeFloat(fltVal);
 							}
@@ -459,8 +452,7 @@ SoundProcessorModule::SoundProcessorModule(std::shared_ptr<PlotModule> ptr_modul
 			chooser.launchAsync
 			(
 				FileBrowserComponent::openMode
-				| FileBrowserComponent::canSelectFiles
-				| FileBrowserComponent::warnAboutOverwriting,
+				| FileBrowserComponent::canSelectFiles,
 				[this](const FileChooser& c)
 				{
 					if
@@ -469,20 +461,35 @@ SoundProcessorModule::SoundProcessorModule(std::shared_ptr<PlotModule> ptr_modul
 							makeInputSource(c.getURLResult())->createInputStream()
 							)
 					{
-						rmsValues.clear();
-						rmsValues.reserve(0);
+						//rmsValues.clear();
+						//rmsValues.reserve(0);
 
 						inputStream->setPosition(0);
 
 						while (inputStream->getNumBytesRemaining() > sizeof(int))
 						{
-							auto curVectorSize = inputStream->readInt();
-							std::vector<float> tmp(curVectorSize);
+							// Y values
+							auto yCurVectorSize = inputStream->readInt();
+							std::vector<float> yTmpVec(yCurVectorSize);
 
-							inputStream->read(tmp.data(), curVectorSize * sizeof(float));
+							inputStream->read(yTmpVec.data(), yCurVectorSize * sizeof(float));
 
-							rmsValues.push_back(tmp);
+							rmsValues.push_back(yTmpVec);
+
+							// X values
+							auto xCurVectorSize = inputStream->readInt();
+							std::vector<float> xTmpVec(xCurVectorSize);
+
+							inputStream->read(xTmpVec.data(), xCurVectorSize * sizeof(float));
+
+							frequencyValues.push_back(xTmpVec);
+
+							makeGraphAttributes();
 						}
+
+						inputStream->~InputStream();
+
+						module_Plot->updatePlot(rmsValues, frequencyValues, graph_attributes);
 					}
 				});
 
@@ -522,7 +529,6 @@ SoundProcessorModule::~SoundProcessorModule()
 	timeToRunTotally__textEditor = nullptr;
 	timeToRunValue__textEditor = nullptr;
 	currentFrequencyValue__textEditor2 = nullptr;
-
 
 	//[Destructor]. You can add your own custom destruction code here..
 	//[/Destructor]
@@ -580,6 +586,21 @@ void SoundProcessorModule::buttonClicked(juce::Button* buttonThatWasClicked)
 
 
 //[MiscUserCode] You can add your own definitions of your custom methods or any other code here...
+void SoundProcessorModule::makeGraphAttributes()
+{
+	cmp::GraphAttribute colourForLine;
+	colourForLine.graph_colour = juce::Colour
+	(
+		randomRGB.nextInt(juce::Range(100, 255))
+		,
+		randomRGB.nextInt(juce::Range(100, 255))
+		,
+		//200
+		randomRGB.nextInt(juce::Range(100, 255))
+	);
+	graph_attributes.insert(graph_attributes.begin(), colourForLine);
+}
+
 void SoundProcessorModule::stopAudio()
 {
 	shutdownAudio();

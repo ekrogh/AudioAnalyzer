@@ -47,6 +47,7 @@ public:
 
     //==============================================================================
     //[UserMethods]     -- You can add your own custom methods in this section.
+	void makeGraphAttributes();
 	void stopAudio();
 	void updateAngleDelta();
 	void updateInfoTextEditors();

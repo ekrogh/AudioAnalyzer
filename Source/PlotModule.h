@@ -53,6 +53,7 @@ public:
         cmp::GraphAttributeList
     );
     void updatePlotRealTime(std::vector <std::vector<float>> y_values);
+    void clearTracePoints();
     void setXLabel(const std::string& x_label) { m_plot.setXLabel(x_label); };
     void setYLabel(const std::string& y_label) { m_plot.setYLabel(y_label); };
     void setTitle(const std::string& title) { m_plot.setTitle(title); };

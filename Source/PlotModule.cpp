@@ -106,6 +106,11 @@ void PlotModule::updatePlotRealTime(std::vector <std::vector<float>> y_values)
 {
     m_plot.realTimePlot(y_values);
 }
+
+void PlotModule::clearTracePoints()
+{
+    m_plot.clearTracePoints();
+}
 //[/MiscUserCode]
 
 
