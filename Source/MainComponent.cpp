@@ -49,6 +49,8 @@ MainComponent::MainComponent()
 			std::make_unique<AudioSettingsModule>(sharedAudioDeviceManager);
 		module_AudioRecording =
 			std::make_unique<AudioRecorderModule>(sharedAudioDeviceManager);
+		module_AudioPlayback =
+			std::make_unique<AudioPlaybackModule>(sharedAudioDeviceManager);
 		juce__tabbedComponent->addTab
 		(
 			TRANS("Plot")
@@ -65,6 +67,13 @@ MainComponent::MainComponent()
 		);
 		juce__tabbedComponent->addTab
 		(
+			TRANS("Audio Playback")
+			, juce::Colours::lightgrey
+			, module_AudioPlayback.get()
+			, false
+		);
+		juce__tabbedComponent->addTab
+		(
 			TRANS("Sound Processing Control")
 			, juce::Colours::lightgrey
 			, module_SoundProcessor.get()
@@ -77,7 +86,7 @@ MainComponent::MainComponent()
 			, module_AudioSettings.get()
 			, false
 		);
-		juce__tabbedComponent->setCurrentTabIndex(2);
+		juce__tabbedComponent->setCurrentTabIndex(3);
 	}
 	else
 	{

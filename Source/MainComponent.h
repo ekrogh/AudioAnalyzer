@@ -20,6 +20,7 @@
 #pragma once
 
 //[Headers]     -- You can add your own extra header files here --
+#include "AudioPlaybackModule.h"
 #include "AudioRecorderModule.h"
 #include "microphoneAccessPermissionAlert.h"
 #include "AudioAnalyzerGlobalEnums.h"
@@ -95,6 +96,7 @@ private:
     std::unique_ptr<AudioSettingsModule> module_AudioSettings;
     std::unique_ptr<microphoneAccessPermissionAlert> module_microphoneAccessPermissionAlert;
     std::unique_ptr<AudioRecorderModule> module_AudioRecording;
+    std::unique_ptr<AudioPlaybackModule> module_AudioPlayback;
 
 
     //[/UserVariables]
