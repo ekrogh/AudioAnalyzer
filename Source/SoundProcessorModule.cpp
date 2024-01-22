@@ -28,216 +28,216 @@
 //[/MiscUserDefs]
 
 //==============================================================================
-SoundProcessorModule::SoundProcessorModule(std::shared_ptr<PlotModule> ptr_module_Plot, std::shared_ptr<AudioDeviceManager> SADM)
-	: module_Plot(ptr_module_Plot),
-	AudioAppComponent(*SADM),
-	Thread("Freq. shifter")
+SoundProcessorModule::SoundProcessorModule (std::shared_ptr<PlotModule> ptr_module_Plot, std::shared_ptr<AudioDeviceManager> SADM)
+    : module_Plot(ptr_module_Plot),
+      AudioAppComponent(*SADM),
+      Thread("Freq. shifter")
 {
-	//[Constructor_pre] You can add your own custom stuff here..
-	//[/Constructor_pre]
+    //[Constructor_pre] You can add your own custom stuff here..
+    //[/Constructor_pre]
 
-	setName("Sound Synth And Analyze Module");
-	runNewMeasurement__toggleButton.reset(new juce::ToggleButton("run New Measurement toggle button"));
-	addAndMakeVisible(runNewMeasurement__toggleButton.get());
-	runNewMeasurement__toggleButton->setExplicitFocusOrder(5);
-	runNewMeasurement__toggleButton->setButtonText(TRANS("Run new measurement"));
+    setName ("Sound Synth And Analyze Module");
+    runNewMeasurement__toggleButton.reset (new juce::ToggleButton ("run New Measurement toggle button"));
+    addAndMakeVisible (runNewMeasurement__toggleButton.get());
+    runNewMeasurement__toggleButton->setExplicitFocusOrder (5);
+    runNewMeasurement__toggleButton->setButtonText (TRANS ("Run new measurement"));
 
-	juce__label2.reset(new juce::Label("new label",
-		TRANS("Delta Time [Sec]")));
-	addAndMakeVisible(juce__label2.get());
-	juce__label2->setFont(juce::Font(15.00f, juce::Font::plain).withTypefaceStyle("Regular"));
-	juce__label2->setJustificationType(juce::Justification::centredLeft);
-	juce__label2->setEditable(false, false, false);
-	juce__label2->setColour(juce::TextEditor::textColourId, juce::Colours::black);
-	juce__label2->setColour(juce::TextEditor::backgroundColourId, juce::Colour(0x00000000));
+    juce__label2.reset (new juce::Label ("new label",
+                                         TRANS ("Delta Time [Sec]")));
+    addAndMakeVisible (juce__label2.get());
+    juce__label2->setFont (juce::Font (15.00f, juce::Font::plain).withTypefaceStyle ("Regular"));
+    juce__label2->setJustificationType (juce::Justification::centredLeft);
+    juce__label2->setEditable (false, false, false);
+    juce__label2->setColour (juce::TextEditor::textColourId, juce::Colours::black);
+    juce__label2->setColour (juce::TextEditor::backgroundColourId, juce::Colour (0x00000000));
 
-	juce__label3.reset(new juce::Label("new label",
-		TRANS("Delta freq [Hz]")));
-	addAndMakeVisible(juce__label3.get());
-	juce__label3->setFont(juce::Font(15.00f, juce::Font::plain).withTypefaceStyle("Regular"));
-	juce__label3->setJustificationType(juce::Justification::centredLeft);
-	juce__label3->setEditable(false, false, false);
-	juce__label3->setColour(juce::TextEditor::textColourId, juce::Colours::black);
-	juce__label3->setColour(juce::TextEditor::backgroundColourId, juce::Colour(0x00000000));
+    juce__label3.reset (new juce::Label ("new label",
+                                         TRANS ("Delta freq [Hz]")));
+    addAndMakeVisible (juce__label3.get());
+    juce__label3->setFont (juce::Font (15.00f, juce::Font::plain).withTypefaceStyle ("Regular"));
+    juce__label3->setJustificationType (juce::Justification::centredLeft);
+    juce__label3->setEditable (false, false, false);
+    juce__label3->setColour (juce::TextEditor::textColourId, juce::Colours::black);
+    juce__label3->setColour (juce::TextEditor::backgroundColourId, juce::Colour (0x00000000));
 
-	juce__label3->setBounds(8, 146, 128, 24);
+    juce__label3->setBounds (8, 146, 128, 24);
 
-	timeToRun__label.reset(new juce::Label("time To Run label",
-		TRANS("Time remaining to run [Min]:")));
-	addAndMakeVisible(timeToRun__label.get());
-	timeToRun__label->setFont(juce::Font(15.00f, juce::Font::plain).withTypefaceStyle("Regular"));
-	timeToRun__label->setJustificationType(juce::Justification::centredLeft);
-	timeToRun__label->setEditable(false, false, false);
-	timeToRun__label->setColour(juce::TextEditor::textColourId, juce::Colours::black);
-	timeToRun__label->setColour(juce::TextEditor::backgroundColourId, juce::Colour(0x00000000));
+    timeToRun__label.reset (new juce::Label ("time To Run label",
+                                             TRANS ("Time remaining to run [Min]:")));
+    addAndMakeVisible (timeToRun__label.get());
+    timeToRun__label->setFont (juce::Font (15.00f, juce::Font::plain).withTypefaceStyle ("Regular"));
+    timeToRun__label->setJustificationType (juce::Justification::centredLeft);
+    timeToRun__label->setEditable (false, false, false);
+    timeToRun__label->setColour (juce::TextEditor::textColourId, juce::Colours::black);
+    timeToRun__label->setColour (juce::TextEditor::backgroundColourId, juce::Colour (0x00000000));
 
-	qurFreq__label.reset(new juce::Label("cur. freq. label",
-		TRANS("Current frequency [Hz]:")));
-	addAndMakeVisible(qurFreq__label.get());
-	qurFreq__label->setFont(juce::Font(15.00f, juce::Font::plain).withTypefaceStyle("Regular"));
-	qurFreq__label->setJustificationType(juce::Justification::centredLeft);
-	qurFreq__label->setEditable(false, false, false);
-	qurFreq__label->setColour(juce::TextEditor::textColourId, juce::Colours::black);
-	qurFreq__label->setColour(juce::TextEditor::backgroundColourId, juce::Colour(0x00000000));
+    qurFreq__label.reset (new juce::Label ("cur. freq. label",
+                                           TRANS ("Current frequency [Hz]:")));
+    addAndMakeVisible (qurFreq__label.get());
+    qurFreq__label->setFont (juce::Font (15.00f, juce::Font::plain).withTypefaceStyle ("Regular"));
+    qurFreq__label->setJustificationType (juce::Justification::centredLeft);
+    qurFreq__label->setEditable (false, false, false);
+    qurFreq__label->setColour (juce::TextEditor::textColourId, juce::Colours::black);
+    qurFreq__label->setColour (juce::TextEditor::backgroundColourId, juce::Colour (0x00000000));
 
-	juce__label5.reset(new juce::Label("new label",
-		TRANS("Min. frequency [Hz]")));
-	addAndMakeVisible(juce__label5.get());
-	juce__label5->setFont(juce::Font(15.00f, juce::Font::plain).withTypefaceStyle("Regular"));
-	juce__label5->setJustificationType(juce::Justification::centredLeft);
-	juce__label5->setEditable(false, false, false);
-	juce__label5->setColour(juce::TextEditor::textColourId, juce::Colours::black);
-	juce__label5->setColour(juce::TextEditor::backgroundColourId, juce::Colour(0x00000000));
+    juce__label5.reset (new juce::Label ("new label",
+                                         TRANS ("Min. frequency [Hz]")));
+    addAndMakeVisible (juce__label5.get());
+    juce__label5->setFont (juce::Font (15.00f, juce::Font::plain).withTypefaceStyle ("Regular"));
+    juce__label5->setJustificationType (juce::Justification::centredLeft);
+    juce__label5->setEditable (false, false, false);
+    juce__label5->setColour (juce::TextEditor::textColourId, juce::Colours::black);
+    juce__label5->setColour (juce::TextEditor::backgroundColourId, juce::Colour (0x00000000));
 
-	juce__label.reset(new juce::Label("new label",
-		TRANS("Max. freq. [Hz]")));
-	addAndMakeVisible(juce__label.get());
-	juce__label->setFont(juce::Font(15.00f, juce::Font::plain).withTypefaceStyle("Regular"));
-	juce__label->setJustificationType(juce::Justification::centredLeft);
-	juce__label->setEditable(false, false, false);
-	juce__label->setColour(juce::TextEditor::textColourId, juce::Colours::black);
-	juce__label->setColour(juce::TextEditor::backgroundColourId, juce::Colour(0x00000000));
+    juce__label.reset (new juce::Label ("new label",
+                                        TRANS ("Max. freq. [Hz]")));
+    addAndMakeVisible (juce__label.get());
+    juce__label->setFont (juce::Font (15.00f, juce::Font::plain).withTypefaceStyle ("Regular"));
+    juce__label->setJustificationType (juce::Justification::centredLeft);
+    juce__label->setEditable (false, false, false);
+    juce__label->setColour (juce::TextEditor::textColourId, juce::Colours::black);
+    juce__label->setColour (juce::TextEditor::backgroundColourId, juce::Colour (0x00000000));
 
-	juce__label->setBounds(8, 80, 150, 24);
+    juce__label->setBounds (8, 80, 150, 24);
 
-	juce__label6.reset(new juce::Label("new label",
-		TRANS("Time to run totally [Min]:")));
-	addAndMakeVisible(juce__label6.get());
-	juce__label6->setFont(juce::Font(15.00f, juce::Font::plain).withTypefaceStyle("Regular"));
-	juce__label6->setJustificationType(juce::Justification::centredLeft);
-	juce__label6->setEditable(false, false, false);
-	juce__label6->setColour(juce::TextEditor::textColourId, juce::Colours::black);
-	juce__label6->setColour(juce::TextEditor::backgroundColourId, juce::Colour(0x00000000));
+    juce__label6.reset (new juce::Label ("new label",
+                                         TRANS ("Time to run totally [Min]:")));
+    addAndMakeVisible (juce__label6.get());
+    juce__label6->setFont (juce::Font (15.00f, juce::Font::plain).withTypefaceStyle ("Regular"));
+    juce__label6->setJustificationType (juce::Justification::centredLeft);
+    juce__label6->setEditable (false, false, false);
+    juce__label6->setColour (juce::TextEditor::textColourId, juce::Colours::black);
+    juce__label6->setColour (juce::TextEditor::backgroundColourId, juce::Colour (0x00000000));
 
-	pause__toggleButton.reset(new juce::ToggleButton("pause toggle button"));
-	addAndMakeVisible(pause__toggleButton.get());
-	pause__toggleButton->setExplicitFocusOrder(6);
-	pause__toggleButton->setButtonText(TRANS("Pause"));
+    pause__toggleButton.reset (new juce::ToggleButton ("pause toggle button"));
+    addAndMakeVisible (pause__toggleButton.get());
+    pause__toggleButton->setExplicitFocusOrder (6);
+    pause__toggleButton->setButtonText (TRANS ("Pause"));
 
-	Deleteoldmeasurements__textButton.reset(new juce::TextButton("Deleteoldmeasurements__textButton"));
-	addAndMakeVisible(Deleteoldmeasurements__textButton.get());
-	Deleteoldmeasurements__textButton->setExplicitFocusOrder(7);
-	Deleteoldmeasurements__textButton->setButtonText(TRANS("Delete old measurements"));
+    Deleteoldmeasurements__textButton.reset (new juce::TextButton ("Deleteoldmeasurements__textButton"));
+    addAndMakeVisible (Deleteoldmeasurements__textButton.get());
+    Deleteoldmeasurements__textButton->setExplicitFocusOrder (7);
+    Deleteoldmeasurements__textButton->setButtonText (TRANS ("Delete old measurements"));
 
-	minFreq__textEditor.reset(new juce::TextEditor("min. freq. text editor"));
-	addAndMakeVisible(minFreq__textEditor.get());
-	minFreq__textEditor->setTooltip(TRANS("min. freq."));
-	minFreq__textEditor->setExplicitFocusOrder(1);
-	minFreq__textEditor->setMultiLine(false);
-	minFreq__textEditor->setReturnKeyStartsNewLine(false);
-	minFreq__textEditor->setReadOnly(false);
-	minFreq__textEditor->setScrollbarsShown(false);
-	minFreq__textEditor->setCaretVisible(true);
-	minFreq__textEditor->setPopupMenuEnabled(true);
-	minFreq__textEditor->setText(juce::String());
+    minFreq__textEditor.reset (new juce::TextEditor ("min. freq. text editor"));
+    addAndMakeVisible (minFreq__textEditor.get());
+    minFreq__textEditor->setTooltip (TRANS ("min. freq."));
+    minFreq__textEditor->setExplicitFocusOrder (1);
+    minFreq__textEditor->setMultiLine (false);
+    minFreq__textEditor->setReturnKeyStartsNewLine (false);
+    minFreq__textEditor->setReadOnly (false);
+    minFreq__textEditor->setScrollbarsShown (false);
+    minFreq__textEditor->setCaretVisible (true);
+    minFreq__textEditor->setPopupMenuEnabled (true);
+    minFreq__textEditor->setText (juce::String());
 
-	minFreq__textEditor->setBounds(8, 48, 150, 24);
+    minFreq__textEditor->setBounds (8, 48, 150, 24);
 
-	maxFreq__textEditor.reset(new juce::TextEditor("max freq. text editor"));
-	addAndMakeVisible(maxFreq__textEditor.get());
-	maxFreq__textEditor->setExplicitFocusOrder(2);
-	maxFreq__textEditor->setMultiLine(false);
-	maxFreq__textEditor->setReturnKeyStartsNewLine(false);
-	maxFreq__textEditor->setReadOnly(false);
-	maxFreq__textEditor->setScrollbarsShown(true);
-	maxFreq__textEditor->setCaretVisible(true);
-	maxFreq__textEditor->setPopupMenuEnabled(true);
-	maxFreq__textEditor->setText(juce::String());
+    maxFreq__textEditor.reset (new juce::TextEditor ("max freq. text editor"));
+    addAndMakeVisible (maxFreq__textEditor.get());
+    maxFreq__textEditor->setExplicitFocusOrder (2);
+    maxFreq__textEditor->setMultiLine (false);
+    maxFreq__textEditor->setReturnKeyStartsNewLine (false);
+    maxFreq__textEditor->setReadOnly (false);
+    maxFreq__textEditor->setScrollbarsShown (true);
+    maxFreq__textEditor->setCaretVisible (true);
+    maxFreq__textEditor->setPopupMenuEnabled (true);
+    maxFreq__textEditor->setText (juce::String());
 
-	maxFreq__textEditor->setBounds(8, 112, 150, 24);
+    maxFreq__textEditor->setBounds (8, 112, 150, 24);
 
-	deltaFreq__textEditor.reset(new juce::TextEditor("delta freq. text editor"));
-	addAndMakeVisible(deltaFreq__textEditor.get());
-	deltaFreq__textEditor->setExplicitFocusOrder(3);
-	deltaFreq__textEditor->setMultiLine(false);
-	deltaFreq__textEditor->setReturnKeyStartsNewLine(false);
-	deltaFreq__textEditor->setReadOnly(false);
-	deltaFreq__textEditor->setScrollbarsShown(true);
-	deltaFreq__textEditor->setCaretVisible(true);
-	deltaFreq__textEditor->setPopupMenuEnabled(true);
-	deltaFreq__textEditor->setText(juce::String());
+    deltaFreq__textEditor.reset (new juce::TextEditor ("delta freq. text editor"));
+    addAndMakeVisible (deltaFreq__textEditor.get());
+    deltaFreq__textEditor->setExplicitFocusOrder (3);
+    deltaFreq__textEditor->setMultiLine (false);
+    deltaFreq__textEditor->setReturnKeyStartsNewLine (false);
+    deltaFreq__textEditor->setReadOnly (false);
+    deltaFreq__textEditor->setScrollbarsShown (true);
+    deltaFreq__textEditor->setCaretVisible (true);
+    deltaFreq__textEditor->setPopupMenuEnabled (true);
+    deltaFreq__textEditor->setText (juce::String());
 
-	deltaFreq__textEditor->setBounds(8, 176, 150, 24);
+    deltaFreq__textEditor->setBounds (8, 176, 150, 24);
 
-	deltaTime__textEditor.reset(new juce::TextEditor("delta time text editor"));
-	addAndMakeVisible(deltaTime__textEditor.get());
-	deltaTime__textEditor->setExplicitFocusOrder(4);
-	deltaTime__textEditor->setMultiLine(false);
-	deltaTime__textEditor->setReturnKeyStartsNewLine(false);
-	deltaTime__textEditor->setReadOnly(false);
-	deltaTime__textEditor->setScrollbarsShown(true);
-	deltaTime__textEditor->setCaretVisible(true);
-	deltaTime__textEditor->setPopupMenuEnabled(true);
-	deltaTime__textEditor->setText(juce::String());
+    deltaTime__textEditor.reset (new juce::TextEditor ("delta time text editor"));
+    addAndMakeVisible (deltaTime__textEditor.get());
+    deltaTime__textEditor->setExplicitFocusOrder (4);
+    deltaTime__textEditor->setMultiLine (false);
+    deltaTime__textEditor->setReturnKeyStartsNewLine (false);
+    deltaTime__textEditor->setReadOnly (false);
+    deltaTime__textEditor->setScrollbarsShown (true);
+    deltaTime__textEditor->setCaretVisible (true);
+    deltaTime__textEditor->setPopupMenuEnabled (true);
+    deltaTime__textEditor->setText (juce::String());
 
-	deltaTime__textEditor->setBounds(8, 240, 150, 24);
+    deltaTime__textEditor->setBounds (8, 240, 150, 24);
 
-	save__textButton.reset(new juce::TextButton("save button"));
-	addAndMakeVisible(save__textButton.get());
-	save__textButton->setExplicitFocusOrder(8);
-	save__textButton->setButtonText(TRANS("Save measurements to file"));
-	save__textButton->addListener(this);
+    save__textButton.reset (new juce::TextButton ("save button"));
+    addAndMakeVisible (save__textButton.get());
+    save__textButton->setExplicitFocusOrder (8);
+    save__textButton->setButtonText (TRANS ("Save measurements to file"));
+    save__textButton->addListener (this);
 
-	save__textButton->setBounds(176, 208, 183, 24);
+    save__textButton->setBounds (176, 208, 183, 24);
 
-	read__textButton.reset(new juce::TextButton("read button"));
-	addAndMakeVisible(read__textButton.get());
-	read__textButton->setExplicitFocusOrder(9);
-	read__textButton->setButtonText(TRANS("Read measurements from file"));
-	read__textButton->addListener(this);
+    read__textButton.reset (new juce::TextButton ("read button"));
+    addAndMakeVisible (read__textButton.get());
+    read__textButton->setExplicitFocusOrder (9);
+    read__textButton->setButtonText (TRANS ("Read measurements from file"));
+    read__textButton->addListener (this);
 
-	read__textButton->setBounds(376, 208, 199, 24);
+    read__textButton->setBounds (376, 208, 199, 24);
 
-	timeToRunTotally__textEditor.reset(new juce::TextEditor("time To Run Totally text editor"));
-	addAndMakeVisible(timeToRunTotally__textEditor.get());
-	timeToRunTotally__textEditor->setMultiLine(false);
-	timeToRunTotally__textEditor->setReturnKeyStartsNewLine(false);
-	timeToRunTotally__textEditor->setReadOnly(true);
-	timeToRunTotally__textEditor->setScrollbarsShown(false);
-	timeToRunTotally__textEditor->setCaretVisible(false);
-	timeToRunTotally__textEditor->setPopupMenuEnabled(false);
-	timeToRunTotally__textEditor->setColour(juce::TextEditor::textColourId, juce::Colours::white);
-	timeToRunTotally__textEditor->setColour(juce::TextEditor::backgroundColourId, juce::Colour(0x00000000));
-	timeToRunTotally__textEditor->setText(TRANS("txt here"));
+    timeToRunTotally__textEditor.reset (new juce::TextEditor ("time To Run Totally text editor"));
+    addAndMakeVisible (timeToRunTotally__textEditor.get());
+    timeToRunTotally__textEditor->setMultiLine (false);
+    timeToRunTotally__textEditor->setReturnKeyStartsNewLine (false);
+    timeToRunTotally__textEditor->setReadOnly (true);
+    timeToRunTotally__textEditor->setScrollbarsShown (false);
+    timeToRunTotally__textEditor->setCaretVisible (false);
+    timeToRunTotally__textEditor->setPopupMenuEnabled (false);
+    timeToRunTotally__textEditor->setColour (juce::TextEditor::textColourId, juce::Colours::white);
+    timeToRunTotally__textEditor->setColour (juce::TextEditor::backgroundColourId, juce::Colour (0x00000000));
+    timeToRunTotally__textEditor->setText (TRANS ("txt here"));
 
-	timeToRunTotally__textEditor->setBounds(376, 16, 150, 24);
+    timeToRunTotally__textEditor->setBounds (376, 16, 150, 24);
 
-	timeToRunValue__textEditor.reset(new juce::TextEditor("time To Run Value"));
-	addAndMakeVisible(timeToRunValue__textEditor.get());
-	timeToRunValue__textEditor->setMultiLine(false);
-	timeToRunValue__textEditor->setReturnKeyStartsNewLine(false);
-	timeToRunValue__textEditor->setReadOnly(true);
-	timeToRunValue__textEditor->setScrollbarsShown(false);
-	timeToRunValue__textEditor->setCaretVisible(false);
-	timeToRunValue__textEditor->setPopupMenuEnabled(false);
-	timeToRunValue__textEditor->setColour(juce::TextEditor::textColourId, juce::Colours::white);
-	timeToRunValue__textEditor->setColour(juce::TextEditor::backgroundColourId, juce::Colour(0x00000000));
-	timeToRunValue__textEditor->setText(TRANS("txt here"));
+    timeToRunValue__textEditor.reset (new juce::TextEditor ("time To Run Value"));
+    addAndMakeVisible (timeToRunValue__textEditor.get());
+    timeToRunValue__textEditor->setMultiLine (false);
+    timeToRunValue__textEditor->setReturnKeyStartsNewLine (false);
+    timeToRunValue__textEditor->setReadOnly (true);
+    timeToRunValue__textEditor->setScrollbarsShown (false);
+    timeToRunValue__textEditor->setCaretVisible (false);
+    timeToRunValue__textEditor->setPopupMenuEnabled (false);
+    timeToRunValue__textEditor->setColour (juce::TextEditor::textColourId, juce::Colours::white);
+    timeToRunValue__textEditor->setColour (juce::TextEditor::backgroundColourId, juce::Colour (0x00000000));
+    timeToRunValue__textEditor->setText (TRANS ("txt here"));
 
-	timeToRunValue__textEditor->setBounds(376, 48, 150, 24);
+    timeToRunValue__textEditor->setBounds (376, 48, 150, 24);
 
-	currentFrequencyValue__textEditor2.reset(new juce::TextEditor("current Frequency Value"));
-	addAndMakeVisible(currentFrequencyValue__textEditor2.get());
-	currentFrequencyValue__textEditor2->setMultiLine(false);
-	currentFrequencyValue__textEditor2->setReturnKeyStartsNewLine(false);
-	currentFrequencyValue__textEditor2->setReadOnly(true);
-	currentFrequencyValue__textEditor2->setScrollbarsShown(false);
-	currentFrequencyValue__textEditor2->setCaretVisible(false);
-	currentFrequencyValue__textEditor2->setPopupMenuEnabled(false);
-	currentFrequencyValue__textEditor2->setColour(juce::TextEditor::textColourId, juce::Colours::white);
-	currentFrequencyValue__textEditor2->setColour(juce::TextEditor::backgroundColourId, juce::Colour(0x00000000));
-	currentFrequencyValue__textEditor2->setText(TRANS("txt here"));
+    currentFrequencyValue__textEditor2.reset (new juce::TextEditor ("current Frequency Value"));
+    addAndMakeVisible (currentFrequencyValue__textEditor2.get());
+    currentFrequencyValue__textEditor2->setMultiLine (false);
+    currentFrequencyValue__textEditor2->setReturnKeyStartsNewLine (false);
+    currentFrequencyValue__textEditor2->setReadOnly (true);
+    currentFrequencyValue__textEditor2->setScrollbarsShown (false);
+    currentFrequencyValue__textEditor2->setCaretVisible (false);
+    currentFrequencyValue__textEditor2->setPopupMenuEnabled (false);
+    currentFrequencyValue__textEditor2->setColour (juce::TextEditor::textColourId, juce::Colours::white);
+    currentFrequencyValue__textEditor2->setColour (juce::TextEditor::backgroundColourId, juce::Colour (0x00000000));
+    currentFrequencyValue__textEditor2->setText (TRANS ("txt here"));
 
-	currentFrequencyValue__textEditor2->setBounds(376, 82, 150, 24);
-
-
-	//[UserPreSize]
-	//[/UserPreSize]
-
-	setSize(600, 600);
+    currentFrequencyValue__textEditor2->setBounds (376, 82, 150, 24);
 
 
-	//[Constructor] You can add your own custom stuff here..
+    //[UserPreSize]
+    //[/UserPreSize]
+
+    setSize (600, 600);
+
+
+    //[Constructor] You can add your own custom stuff here..
 	Deleteoldmeasurements__textButton->onClick =
 		[this]
 		{
@@ -506,87 +506,88 @@ SoundProcessorModule::SoundProcessorModule(std::shared_ptr<PlotModule> ptr_modul
 	module_Plot->setYLabel("[RMS]");
 
 	updateAngleDelta();
-	//[/Constructor]
+    //[/Constructor]
 }
 
 SoundProcessorModule::~SoundProcessorModule()
 {
-	//[Destructor_pre]. You can add your own custom destruction code here..
+    //[Destructor_pre]. You can add your own custom destruction code here..
 	eksShutdownAudio();
 	stopThread(100);
-	//[/Destructor_pre]
+    //[/Destructor_pre]
 
-	runNewMeasurement__toggleButton = nullptr;
-	juce__label2 = nullptr;
-	juce__label3 = nullptr;
-	timeToRun__label = nullptr;
-	qurFreq__label = nullptr;
-	juce__label5 = nullptr;
-	juce__label = nullptr;
-	juce__label6 = nullptr;
-	pause__toggleButton = nullptr;
-	Deleteoldmeasurements__textButton = nullptr;
-	minFreq__textEditor = nullptr;
-	maxFreq__textEditor = nullptr;
-	deltaFreq__textEditor = nullptr;
-	deltaTime__textEditor = nullptr;
-	save__textButton = nullptr;
-	read__textButton = nullptr;
-	timeToRunTotally__textEditor = nullptr;
-	timeToRunValue__textEditor = nullptr;
-	currentFrequencyValue__textEditor2 = nullptr;
+    runNewMeasurement__toggleButton = nullptr;
+    juce__label2 = nullptr;
+    juce__label3 = nullptr;
+    timeToRun__label = nullptr;
+    qurFreq__label = nullptr;
+    juce__label5 = nullptr;
+    juce__label = nullptr;
+    juce__label6 = nullptr;
+    pause__toggleButton = nullptr;
+    Deleteoldmeasurements__textButton = nullptr;
+    minFreq__textEditor = nullptr;
+    maxFreq__textEditor = nullptr;
+    deltaFreq__textEditor = nullptr;
+    deltaTime__textEditor = nullptr;
+    save__textButton = nullptr;
+    read__textButton = nullptr;
+    timeToRunTotally__textEditor = nullptr;
+    timeToRunValue__textEditor = nullptr;
+    currentFrequencyValue__textEditor2 = nullptr;
 
-	//[Destructor]. You can add your own custom destruction code here..
-	//[/Destructor]
+
+    //[Destructor]. You can add your own custom destruction code here..
+    //[/Destructor]
 }
 
 //==============================================================================
-void SoundProcessorModule::paint(juce::Graphics& g)
+void SoundProcessorModule::paint (juce::Graphics& g)
 {
-	//[UserPrePaint] Add your own custom painting code here..
-	//[/UserPrePaint]
+    //[UserPrePaint] Add your own custom painting code here..
+    //[/UserPrePaint]
 
-	g.fillAll(juce::Colour(0xff505050));
+    g.fillAll (juce::Colour (0xff505050));
 
-	//[UserPaint] Add your own custom painting code here..
-	//[/UserPaint]
+    //[UserPaint] Add your own custom painting code here..
+    //[/UserPaint]
 }
 
 void SoundProcessorModule::resized()
 {
-	//[UserPreResize] Add your own custom resize code here..
-	//[/UserPreResize]
+    //[UserPreResize] Add your own custom resize code here..
+    //[/UserPreResize]
 
-	runNewMeasurement__toggleButton->setBounds(268 - (184 / 2), 82 + 24 - -14, 184, 24);
-	juce__label2->setBounds(8, 208, getWidth() - 438, 24);
-	timeToRun__label->setBounds(272 - (192 / 2), 48, 192, 24);
-	qurFreq__label->setBounds(272 - (192 / 2), 82, 192, 24);
-	juce__label5->setBounds(8, 16, getWidth() - 432, 24);
-	juce__label6->setBounds(272 - (192 / 2), 16, 192, 24);
-	pause__toggleButton->setBounds(416 - (80 / 2), 120, 80, 24);
-	Deleteoldmeasurements__textButton->setBounds(268 - (184 / 2), 160, 184, 24);
-	//[UserResized] Add your own custom resize handling here..
-	//[/UserResized]
+    runNewMeasurement__toggleButton->setBounds (268 - (184 / 2), 82 + 24 - -14, 184, 24);
+    juce__label2->setBounds (8, 208, getWidth() - 390, 24);
+    timeToRun__label->setBounds (272 - (192 / 2), 48, 192, 24);
+    qurFreq__label->setBounds (272 - (192 / 2), 82, 192, 24);
+    juce__label5->setBounds (8, 16, getWidth() - 390, 24);
+    juce__label6->setBounds (272 - (192 / 2), 16, 192, 24);
+    pause__toggleButton->setBounds (416 - (80 / 2), 120, 80, 24);
+    Deleteoldmeasurements__textButton->setBounds (268 - (184 / 2), 160, 184, 24);
+    //[UserResized] Add your own custom resize handling here..
+    //[/UserResized]
 }
 
-void SoundProcessorModule::buttonClicked(juce::Button* buttonThatWasClicked)
+void SoundProcessorModule::buttonClicked (juce::Button* buttonThatWasClicked)
 {
-	//[UserbuttonClicked_Pre]
-	//[/UserbuttonClicked_Pre]
+    //[UserbuttonClicked_Pre]
+    //[/UserbuttonClicked_Pre]
 
-	if (buttonThatWasClicked == save__textButton.get())
-	{
-		//[UserButtonCode_save__textButton] -- add your button handler code here..
-		//[/UserButtonCode_save__textButton]
-	}
-	else if (buttonThatWasClicked == read__textButton.get())
-	{
-		//[UserButtonCode_read__textButton] -- add your button handler code here..
-		//[/UserButtonCode_read__textButton]
-	}
+    if (buttonThatWasClicked == save__textButton.get())
+    {
+        //[UserButtonCode_save__textButton] -- add your button handler code here..
+        //[/UserButtonCode_save__textButton]
+    }
+    else if (buttonThatWasClicked == read__textButton.get())
+    {
+        //[UserButtonCode_read__textButton] -- add your button handler code here..
+        //[/UserButtonCode_read__textButton]
+    }
 
-	//[UserbuttonClicked_Post]
-	//[/UserbuttonClicked_Post]
+    //[UserbuttonClicked_Post]
+    //[/UserbuttonClicked_Post]
 }
 
 
@@ -764,105 +765,105 @@ void SoundProcessorModule::updateCurrentFrequencyLabel()
 #if 0
 /*  -- Projucer information section --
 
-	This is where the Projucer stores the metadata that describe this GUI layout, so
-	make changes in here at your peril!
+    This is where the Projucer stores the metadata that describe this GUI layout, so
+    make changes in here at your peril!
 
 BEGIN_JUCER_METADATA
 
 <JUCER_COMPONENT documentType="Component" className="SoundProcessorModule" componentName="Sound Synth And Analyze Module"
-				 parentClasses="public juce::AudioAppComponent, private juce::Thread"
-				 constructorParams="std::shared_ptr&lt;PlotModule&gt; ptr_module_Plot, std::shared_ptr&lt;AudioDeviceManager&gt; SADM"
-				 variableInitialisers="module_Plot(ptr_module_Plot)&#10;AudioAppComponent(*SADM)&#10;Thread(&quot;Freq. shifter&quot;)&#10;"
-				 snapPixels="8" snapActive="1" snapShown="1" overlayOpacity="0.330"
-				 fixedSize="0" initialWidth="600" initialHeight="600">
+                 parentClasses="public juce::AudioAppComponent, private juce::Thread"
+                 constructorParams="std::shared_ptr&lt;PlotModule&gt; ptr_module_Plot, std::shared_ptr&lt;AudioDeviceManager&gt; SADM"
+                 variableInitialisers="module_Plot(ptr_module_Plot)&#10;AudioAppComponent(*SADM)&#10;Thread(&quot;Freq. shifter&quot;)&#10;"
+                 snapPixels="8" snapActive="1" snapShown="1" overlayOpacity="0.330"
+                 fixedSize="0" initialWidth="600" initialHeight="600">
   <BACKGROUND backgroundColour="ff505050"/>
   <TOGGLEBUTTON name="run New Measurement toggle button" id="3e0da1935c285e8f"
-				memberName="runNewMeasurement__toggleButton" virtualName="" explicitFocusOrder="5"
-				pos="268c -14R 184 24" posRelativeX="3f78bae238bae958" posRelativeY="7a68dc774966fe8"
-				buttonText="Run new measurement" connectedEdges="0" needsCallback="0"
-				radioGroupId="0" state="0"/>
+                memberName="runNewMeasurement__toggleButton" virtualName="" explicitFocusOrder="5"
+                pos="268c -14R 184 24" posRelativeX="3f78bae238bae958" posRelativeY="7a68dc774966fe8"
+                buttonText="Run new measurement" connectedEdges="0" needsCallback="0"
+                radioGroupId="0" state="0"/>
   <LABEL name="new label" id="69170c72758aeb9e" memberName="juce__label2"
-		 virtualName="" explicitFocusOrder="0" pos="8 208 438M 24" posRelativeX="3f78bae238bae958"
-		 edTextCol="ff000000" edBkgCol="0" labelText="Delta Time [Sec]"
-		 editableSingleClick="0" editableDoubleClick="0" focusDiscardsChanges="0"
-		 fontname="Default font" fontsize="15.0" kerning="0.0" bold="0"
-		 italic="0" justification="33"/>
+         virtualName="" explicitFocusOrder="0" pos="8 208 390M 24" posRelativeX="3f78bae238bae958"
+         edTextCol="ff000000" edBkgCol="0" labelText="Delta Time [Sec]"
+         editableSingleClick="0" editableDoubleClick="0" focusDiscardsChanges="0"
+         fontname="Default font" fontsize="15.0" kerning="0.0" bold="0"
+         italic="0" justification="33"/>
   <LABEL name="new label" id="30871f40ff4c0cbe" memberName="juce__label3"
-		 virtualName="" explicitFocusOrder="0" pos="8 146 128 24" posRelativeX="27e8662d217379e4"
-		 edTextCol="ff000000" edBkgCol="0" labelText="Delta freq [Hz]"
-		 editableSingleClick="0" editableDoubleClick="0" focusDiscardsChanges="0"
-		 fontname="Default font" fontsize="15.0" kerning="0.0" bold="0"
-		 italic="0" justification="33"/>
+         virtualName="" explicitFocusOrder="0" pos="8 146 128 24" posRelativeX="27e8662d217379e4"
+         edTextCol="ff000000" edBkgCol="0" labelText="Delta freq [Hz]"
+         editableSingleClick="0" editableDoubleClick="0" focusDiscardsChanges="0"
+         fontname="Default font" fontsize="15.0" kerning="0.0" bold="0"
+         italic="0" justification="33"/>
   <LABEL name="time To Run label" id="88f16d9da9e68c20" memberName="timeToRun__label"
-		 virtualName="" explicitFocusOrder="0" pos="272c 48 192 24" posRelativeW="93293acbba06ebfc"
-		 edTextCol="ff000000" edBkgCol="0" labelText="Time remaining to run [Min]:"
-		 editableSingleClick="0" editableDoubleClick="0" focusDiscardsChanges="0"
-		 fontname="Default font" fontsize="15.0" kerning="0.0" bold="0"
-		 italic="0" justification="33"/>
+         virtualName="" explicitFocusOrder="0" pos="272c 48 192 24" posRelativeW="93293acbba06ebfc"
+         edTextCol="ff000000" edBkgCol="0" labelText="Time remaining to run [Min]:"
+         editableSingleClick="0" editableDoubleClick="0" focusDiscardsChanges="0"
+         fontname="Default font" fontsize="15.0" kerning="0.0" bold="0"
+         italic="0" justification="33"/>
   <LABEL name="cur. freq. label" id="7a68dc774966fe8" memberName="qurFreq__label"
-		 virtualName="" explicitFocusOrder="0" pos="272c 82 192 24" posRelativeX="3f78bae238bae958"
-		 edTextCol="ff000000" edBkgCol="0" labelText="Current frequency [Hz]:"
-		 editableSingleClick="0" editableDoubleClick="0" focusDiscardsChanges="0"
-		 fontname="Default font" fontsize="15.0" kerning="0.0" bold="0"
-		 italic="0" justification="33"/>
+         virtualName="" explicitFocusOrder="0" pos="272c 82 192 24" posRelativeX="3f78bae238bae958"
+         edTextCol="ff000000" edBkgCol="0" labelText="Current frequency [Hz]:"
+         editableSingleClick="0" editableDoubleClick="0" focusDiscardsChanges="0"
+         fontname="Default font" fontsize="15.0" kerning="0.0" bold="0"
+         italic="0" justification="33"/>
   <LABEL name="new label" id="d890f1fd96613a14" memberName="juce__label5"
-		 virtualName="" explicitFocusOrder="0" pos="8 16 432M 24" posRelativeX="887447af4b675ddb"
-		 edTextCol="ff000000" edBkgCol="0" labelText="Min. frequency [Hz]"
-		 editableSingleClick="0" editableDoubleClick="0" focusDiscardsChanges="0"
-		 fontname="Default font" fontsize="15.0" kerning="0.0" bold="0"
-		 italic="0" justification="33"/>
+         virtualName="" explicitFocusOrder="0" pos="8 16 390M 24" posRelativeX="887447af4b675ddb"
+         edTextCol="ff000000" edBkgCol="0" labelText="Min. frequency [Hz]"
+         editableSingleClick="0" editableDoubleClick="0" focusDiscardsChanges="0"
+         fontname="Default font" fontsize="15.0" kerning="0.0" bold="0"
+         italic="0" justification="33"/>
   <LABEL name="new label" id="b25ba8f932e8325" memberName="juce__label"
-		 virtualName="" explicitFocusOrder="0" pos="8 80 150 24" posRelativeX="3ad3aaa1f69d9a54"
-		 edTextCol="ff000000" edBkgCol="0" labelText="Max. freq. [Hz]"
-		 editableSingleClick="0" editableDoubleClick="0" focusDiscardsChanges="0"
-		 fontname="Default font" fontsize="15.0" kerning="0.0" bold="0"
-		 italic="0" justification="33"/>
+         virtualName="" explicitFocusOrder="0" pos="8 80 150 24" posRelativeX="3ad3aaa1f69d9a54"
+         edTextCol="ff000000" edBkgCol="0" labelText="Max. freq. [Hz]"
+         editableSingleClick="0" editableDoubleClick="0" focusDiscardsChanges="0"
+         fontname="Default font" fontsize="15.0" kerning="0.0" bold="0"
+         italic="0" justification="33"/>
   <LABEL name="new label" id="93293acbba06ebfc" memberName="juce__label6"
-		 virtualName="" explicitFocusOrder="0" pos="272c 16 192 24" edTextCol="ff000000"
-		 edBkgCol="0" labelText="Time to run totally [Min]:" editableSingleClick="0"
-		 editableDoubleClick="0" focusDiscardsChanges="0" fontname="Default font"
-		 fontsize="15.0" kerning="0.0" bold="0" italic="0" justification="33"/>
+         virtualName="" explicitFocusOrder="0" pos="272c 16 192 24" edTextCol="ff000000"
+         edBkgCol="0" labelText="Time to run totally [Min]:" editableSingleClick="0"
+         editableDoubleClick="0" focusDiscardsChanges="0" fontname="Default font"
+         fontsize="15.0" kerning="0.0" bold="0" italic="0" justification="33"/>
   <TOGGLEBUTTON name="pause toggle button" id="880f5cc9c6966415" memberName="pause__toggleButton"
-				virtualName="" explicitFocusOrder="6" pos="416c 120 80 24" buttonText="Pause"
-				connectedEdges="0" needsCallback="0" radioGroupId="0" state="0"/>
+                virtualName="" explicitFocusOrder="6" pos="416c 120 80 24" buttonText="Pause"
+                connectedEdges="0" needsCallback="0" radioGroupId="0" state="0"/>
   <TEXTBUTTON name="Deleteoldmeasurements__textButton" id="737540671aa3e4af"
-			  memberName="Deleteoldmeasurements__textButton" virtualName=""
-			  explicitFocusOrder="7" pos="268c 160 184 24" buttonText="Delete old measurements"
-			  connectedEdges="0" needsCallback="0" radioGroupId="0"/>
+              memberName="Deleteoldmeasurements__textButton" virtualName=""
+              explicitFocusOrder="7" pos="268c 160 184 24" buttonText="Delete old measurements"
+              connectedEdges="0" needsCallback="0" radioGroupId="0"/>
   <TEXTEDITOR name="min. freq. text editor" id="873b782b66348908" memberName="minFreq__textEditor"
-			  virtualName="" explicitFocusOrder="1" pos="8 48 150 24" tooltip="min. freq."
-			  initialText="" multiline="0" retKeyStartsLine="0" readonly="0"
-			  scrollbars="0" caret="1" popupmenu="1"/>
+              virtualName="" explicitFocusOrder="1" pos="8 48 150 24" tooltip="min. freq."
+              initialText="" multiline="0" retKeyStartsLine="0" readonly="0"
+              scrollbars="0" caret="1" popupmenu="1"/>
   <TEXTEDITOR name="max freq. text editor" id="af1a81047b946cdb" memberName="maxFreq__textEditor"
-			  virtualName="" explicitFocusOrder="2" pos="8 112 150 24" initialText=""
-			  multiline="0" retKeyStartsLine="0" readonly="0" scrollbars="1"
-			  caret="1" popupmenu="1"/>
+              virtualName="" explicitFocusOrder="2" pos="8 112 150 24" initialText=""
+              multiline="0" retKeyStartsLine="0" readonly="0" scrollbars="1"
+              caret="1" popupmenu="1"/>
   <TEXTEDITOR name="delta freq. text editor" id="5d300af57711f33c" memberName="deltaFreq__textEditor"
-			  virtualName="" explicitFocusOrder="3" pos="8 176 150 24" initialText=""
-			  multiline="0" retKeyStartsLine="0" readonly="0" scrollbars="1"
-			  caret="1" popupmenu="1"/>
+              virtualName="" explicitFocusOrder="3" pos="8 176 150 24" initialText=""
+              multiline="0" retKeyStartsLine="0" readonly="0" scrollbars="1"
+              caret="1" popupmenu="1"/>
   <TEXTEDITOR name="delta time text editor" id="e8d7367e7e6f54a5" memberName="deltaTime__textEditor"
-			  virtualName="" explicitFocusOrder="4" pos="8 240 150 24" initialText=""
-			  multiline="0" retKeyStartsLine="0" readonly="0" scrollbars="1"
-			  caret="1" popupmenu="1"/>
+              virtualName="" explicitFocusOrder="4" pos="8 240 150 24" initialText=""
+              multiline="0" retKeyStartsLine="0" readonly="0" scrollbars="1"
+              caret="1" popupmenu="1"/>
   <TEXTBUTTON name="save button" id="1684acb62ecea24c" memberName="save__textButton"
-			  virtualName="" explicitFocusOrder="8" pos="176 208 183 24" buttonText="Save measurements to file"
-			  connectedEdges="0" needsCallback="1" radioGroupId="0"/>
+              virtualName="" explicitFocusOrder="8" pos="176 208 183 24" buttonText="Save measurements to file"
+              connectedEdges="0" needsCallback="1" radioGroupId="0"/>
   <TEXTBUTTON name="read button" id="da2707a302e9a9f0" memberName="read__textButton"
-			  virtualName="" explicitFocusOrder="9" pos="376 208 199 24" buttonText="Read measurements from file"
-			  connectedEdges="0" needsCallback="1" radioGroupId="0"/>
+              virtualName="" explicitFocusOrder="9" pos="376 208 199 24" buttonText="Read measurements from file"
+              connectedEdges="0" needsCallback="1" radioGroupId="0"/>
   <TEXTEDITOR name="time To Run Totally text editor" id="b4ebcb1bfdd1d5" memberName="timeToRunTotally__textEditor"
-			  virtualName="" explicitFocusOrder="0" pos="376 16 150 24" textcol="ffffffff"
-			  bkgcol="0" initialText="txt here" multiline="0" retKeyStartsLine="0"
-			  readonly="1" scrollbars="0" caret="0" popupmenu="0"/>
+              virtualName="" explicitFocusOrder="0" pos="376 16 150 24" textcol="ffffffff"
+              bkgcol="0" initialText="txt here" multiline="0" retKeyStartsLine="0"
+              readonly="1" scrollbars="0" caret="0" popupmenu="0"/>
   <TEXTEDITOR name="time To Run Value" id="8979b9eb1ff875e4" memberName="timeToRunValue__textEditor"
-			  virtualName="" explicitFocusOrder="0" pos="376 48 150 24" textcol="ffffffff"
-			  bkgcol="0" initialText="txt here" multiline="0" retKeyStartsLine="0"
-			  readonly="1" scrollbars="0" caret="0" popupmenu="0"/>
+              virtualName="" explicitFocusOrder="0" pos="376 48 150 24" textcol="ffffffff"
+              bkgcol="0" initialText="txt here" multiline="0" retKeyStartsLine="0"
+              readonly="1" scrollbars="0" caret="0" popupmenu="0"/>
   <TEXTEDITOR name="current Frequency Value" id="812a5fde336055f8" memberName="currentFrequencyValue__textEditor2"
-			  virtualName="" explicitFocusOrder="0" pos="376 82 150 24" textcol="ffffffff"
-			  bkgcol="0" initialText="txt here" multiline="0" retKeyStartsLine="0"
-			  readonly="1" scrollbars="0" caret="0" popupmenu="0"/>
+              virtualName="" explicitFocusOrder="0" pos="376 82 150 24" textcol="ffffffff"
+              bkgcol="0" initialText="txt here" multiline="0" retKeyStartsLine="0"
+              readonly="1" scrollbars="0" caret="0" popupmenu="0"/>
 </JUCER_COMPONENT>
 
 END_JUCER_METADATA
