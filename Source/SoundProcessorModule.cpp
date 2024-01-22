@@ -258,7 +258,7 @@ SoundProcessorModule::SoundProcessorModule(std::shared_ptr<PlotModule> ptr_modul
 					makeGraphAttributes();
 					plotLegend.push_back("p " + std::to_string(plotLegend.size() + 1));
 				}
-				module_Plot->clearTracePoints();
+				module_Plot->clearPlot();
 
 			}// ScopedLock sl scope END
 		};
