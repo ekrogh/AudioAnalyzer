@@ -48,7 +48,6 @@
 
 #include "Utilities.h"
 
-#define CHOOSEFILE 1
 
 class ModuleThumbnailComp final : public Component,
 	public ChangeListener,
@@ -254,11 +253,7 @@ private:
 
 //==============================================================================
 class AudioPlaybackModule final : public Component,
-#if (JUCE_ANDROID || JUCE_IOS || CHOOSEFILE)
 	private Button::Listener,
-#else
-	private FileBrowserListener,
-#endif
 	private ChangeListener
 {
 public:
@@ -275,25 +270,8 @@ public:
 		addAndMakeVisible(followTransportButton);
 		followTransportButton.onClick = [this] { updateFollowTransportState(); };
 
-#if (JUCE_ANDROID || JUCE_IOS || CHOOSEFILE)
 		addAndMakeVisible(chooseFileButton);
 		chooseFileButton.addListener(this);
-#else
-		addAndMakeVisible(fileTreeComp);
-
-		directoryList.setDirectory(File::getSpecialLocation(File::userHomeDirectory), true, true);
-
-		fileTreeComp.setTitle("Files");
-		fileTreeComp.setColour(FileTreeComponent::backgroundColourId, Colours::lightgrey.withAlpha(0.6f));
-		fileTreeComp.addListener(this);
-
-		addAndMakeVisible(explanation);
-		explanation.setFont(Font(14.00f, Font::plain));
-		explanation.setJustificationType(Justification::bottomRight);
-		explanation.setEditable(false, false, false);
-		explanation.setColour(TextEditor::textColourId, Colours::black);
-		explanation.setColour(TextEditor::backgroundColourId, Colour(0x00000000));
-#endif
 
 		addAndMakeVisible(zoomSlider);
 		zoomSlider.setRange(0, 1, 0);
@@ -328,11 +306,7 @@ public:
 
 		sharedAudioDeviceManager->removeAudioCallback(&audioSourcePlayer);
 
-#if (JUCE_ANDROID || JUCE_IOS || CHOOSEFILE)
 		chooseFileButton.removeListener(this);
-#else
-		fileTreeComp.removeListener(this);
-#endif
 
 		thumbnail->removeChangeListener(this);
 	}
@@ -350,11 +324,7 @@ public:
 
 		auto controlRightBounds = controls.removeFromRight(controls.getWidth() / 3);
 
-#if (JUCE_ANDROID || JUCE_IOS || CHOOSEFILE)
 		chooseFileButton.setBounds(controlRightBounds.reduced(10));
-#else
-		explanation.setBounds(controlRightBounds);
-#endif
 
 		auto zoom = controls.removeFromTop(25);
 		zoomLabel.setBounds(zoom.removeFromLeft(50));
@@ -365,14 +335,7 @@ public:
 
 		r.removeFromBottom(6);
 
-#if JUCE_ANDROID || JUCE_IOS || CHOOSEFILE
 		thumbnail->setBounds(r);
-#else
-		thumbnail->setBounds(r.removeFromBottom(140));
-		r.removeFromBottom(6);
-
-		fileTreeComp.setBounds(r);
-#endif
 	}
 
 private:
@@ -381,14 +344,8 @@ private:
 	AudioFormatManager formatManager;
 	TimeSliceThread thread{ "audio file preview" };
 
-#if (JUCE_ANDROID || JUCE_IOS || CHOOSEFILE)
 	std::unique_ptr<FileChooser> fileChooser;
 	TextButton chooseFileButton{ "Choose Audio File...", "Choose an audio file for playback" };
-#else
-	DirectoryContentsList directoryList{ nullptr, thread };
-	FileTreeComponent fileTreeComp{ directoryList };
-	Label explanation{ {}, "Select an audio file in the treeview above, and this page will display its waveform, and let you play it.." };
-#endif
 
 	URL currentAudioFile;
 	AudioSourcePlayer audioSourcePlayer;
@@ -467,7 +424,6 @@ private:
 		thumbnail->setFollowsTransport(followTransportButton.getToggleState());
 	}
 
-#if (JUCE_ANDROID || JUCE_IOS || CHOOSEFILE)
 	void buttonClicked(Button* btn) override
 	{
 		if (btn == &chooseFileButton && fileChooser.get() == nullptr)
@@ -486,11 +442,6 @@ private:
 
 			if (FileChooser::isPlatformDialogAvailable())
 			{
-//#if (JUCE_ANDROID || JUCE_IOS)
-//				fileChooser = std::make_unique<FileChooser>("Select an audio file...", File(), "*.wav;*.flac;*.aif");
-//#else
-//				fileChooser = std::make_unique<FileChooser>("Select an audio file...", File(), "*.wav;*.flac;*.aif; *.mp*");
-//#endif
 				fileChooser = std::make_unique<FileChooser>("Select an audio file...", File(), "*.*");
 
 				fileChooser->launchAsync(FileBrowserComponent::openMode | FileBrowserComponent::canSelectFiles,
@@ -518,16 +469,6 @@ private:
 			}
 		}
 	}
-#else
-	void selectionChanged() override
-	{
-		showAudioResource(URL(fileTreeComp.getSelectedFile()));
-	}
-
-	void fileClicked(const File&, const MouseEvent&) override {}
-	void fileDoubleClicked(const File&) override {}
-	void browserRootChanged(const File&) override {}
-#endif
 
 	void changeListenerCallback(ChangeBroadcaster* source) override
 	{
