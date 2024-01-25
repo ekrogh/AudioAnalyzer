@@ -78,11 +78,9 @@ public:
 				.findColour(juce::ResizableWindow::backgroundColourId),
 				DocumentWindow::allButtons)
 		{
-#if JUCE_IOS || JUCE_ANDROID
-			setUsingNativeTitleBar(false);
-			setTitleBarHeight(0);
-#else
 			setUsingNativeTitleBar(true);
+#if JUCE_IOS || JUCE_ANDROID
+			setTitleBarHeight(0);
 #endif
 			setContentOwned(new MainComponent(), true);
 
