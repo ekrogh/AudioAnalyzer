@@ -442,7 +442,7 @@ private:
 
 			if (FileChooser::isPlatformDialogAvailable())
 			{
-				fileChooser = std::make_unique<FileChooser>("Select an audio file...", File(), "*.*");
+                fileChooser = std::make_unique<FileChooser> ("Select an audio file...", File(), "*.wav;*.flac;*.aif");
 
 				fileChooser->launchAsync(FileBrowserComponent::openMode | FileBrowserComponent::canSelectFiles,
 					[this](const FileChooser& fc) mutable
