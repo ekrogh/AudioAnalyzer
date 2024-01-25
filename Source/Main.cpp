@@ -14,7 +14,15 @@ class AudioAnalyzerApplication  : public juce::JUCEApplication
 {
 public:
     //==============================================================================
-    AudioAnalyzerApplication() {}
+    AudioAnalyzerApplication()
+    {
+#if !JUCE_IOS
+#ifndef _DEBUG
+        pSplash = new SplashScreen("Welcome to AudioAnalyzer!", ImageFileFormat::loadFrom(BinaryData::splash_png, (size_t)BinaryData::splash_pngSize), true);
+        //juce::MessageManager::getInstance()->runDispatchLoopUntil(100);
+#endif // _DEBUG
+#endif // !JUCE_IOS
+    }
 
     const juce::String getApplicationName() override       { return ProjectInfo::projectName; }
     const juce::String getApplicationVersion() override    { return ProjectInfo::versionString; }
@@ -26,6 +34,12 @@ public:
         // This method is where you should put your application's initialisation code..
 
         mainWindow.reset (new MainWindow (getApplicationName()));
+
+#if !JUCE_IOS
+#ifndef _DEBUG
+        pSplash->deleteAfterDelay(RelativeTime::milliseconds(1), true);
+#endif // _DEBUG
+#endif // !JUCE_IOS
     }
 
     void shutdown() override
@@ -97,6 +111,9 @@ public:
     };
 
 private:
+#ifndef _DEBUG
+    SplashScreen* pSplash;
+#endif // _DEBUG
     std::unique_ptr<MainWindow> mainWindow;
 };
 

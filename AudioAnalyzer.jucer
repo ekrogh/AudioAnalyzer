@@ -71,7 +71,8 @@
             file="Source/SoundProcessorModule.cpp"/>
       <FILE id="kysDNn" name="SoundProcessorModule.h" compile="0" resource="0"
             file="Source/SoundProcessorModule.h"/>
-      <FILE id="vVsCCR" name="splash.png" compile="0" resource="1" file="Source/splash.png"/>
+      <FILE id="vVsCCR" name="splash.png" compile="0" resource="1" file="Source/splash.png"
+            xcodeResource="1"/>
       <FILE id="cqhsP1" name="Utilities.h" compile="0" resource="0" file="Source/Utilities.h"/>
     </GROUP>
   </MAINGROUP>

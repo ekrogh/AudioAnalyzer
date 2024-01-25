@@ -112,9 +112,7 @@ void PlotModule::updatePlotRealTime(std::vector <std::vector<float>> y_values)
 
 void PlotModule::clearPlot()
 {
-    std::vector <std::vector<float>> y_values = { { 1 } };
-    std::vector <std::vector<float>> x_values = { { 1 } };
-    m_plot.plot(y_values, x_values);
+    m_plot.plot({ { 1 } }, { { 1 } });
 }
 //[/MiscUserCode]
 
