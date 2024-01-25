@@ -57,8 +57,6 @@
             file="Source/AudioSettingsModule.cpp"/>
       <FILE id="dJMzzu" name="AudioSettingsModule.h" compile="0" resource="0"
             file="Source/AudioSettingsModule.h"/>
-      <FILE id="scIHah" name="iOSLaunchScreen.storyboard" compile="0" resource="0"
-            file="Source/iOSLaunchScreen.storyboard" xcodeResource="1"/>
       <FILE id="jffCtx" name="Main.cpp" compile="1" resource="0" file="Source/Main.cpp"/>
       <FILE id="R8zn7a" name="MainComponent.cpp" compile="1" resource="0"
             file="Source/MainComponent.cpp"/>
@@ -175,7 +173,7 @@
                   UIFileSharingEnabled="1" extraDefs="JUCE_SILENCE_XCODE_15_LINKER_WARNING=1"
                   extraLinkerFlags="-Wl,-weak_reference_mismatches,weak&#10;" iosDevelopmentTeamID="4657Q2Y6NH"
                   UIStatusBarHidden="1" iCloudPermissions="1" smallIcon="zrVA6e"
-                  bigIcon="Hd60ks" customLaunchStoryboard="../../Source/iOSLaunchScreen.storyboard"
+                  bigIcon="Hd60ks" customLaunchStoryboard="./iOSLaunchScreen/iOSLaunchScreen.storyboard"
                   customPList="&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;&#10;&#10;&lt;!DOCTYPE plist PUBLIC &quot;-//Apple//DTD PLIST 1.0//EN&quot; &quot;http://www.apple.com/DTDs/PropertyList-1.0.dtd&quot;&gt;&#10;&lt;plist version=&quot;1.0&quot;&gt;&#10;  &lt;dict&gt;&#10;    &lt;key&gt;CFBundleDocumentTypes&lt;/key&gt;&#10;    &lt;array&gt;&#10;      &lt;dict&gt;&#10;        &lt;key&gt;CFBundleTypeName&lt;/key&gt;&#10;        &lt;string&gt;dk.eksit.customUTIHandler.aua&lt;/string&gt;&#10;        &lt;key&gt;LSHandlerRank&lt;/key&gt;&#10;        &lt;string&gt;Owner&lt;/string&gt;&#10;      &lt;/dict&gt;&#10;    &lt;/array&gt;&#10;    &lt;key&gt;UTExportedTypeDeclarations&lt;/key&gt;&#10;    &lt;array&gt;&#10;      &lt;dict&gt;&#10;        &lt;key&gt;UTTypeConformsTo&lt;/key&gt;&#10;        &lt;array&gt;&#10;          &lt;string&gt;public.data&lt;/string&gt;&#10;        &lt;/array&gt;&#10;        &lt;key&gt;UTTypeIdentifier&lt;/key&gt;&#10;        &lt;string&gt;dk.eksit.customUTIHandler.aua&lt;/string&gt;&#10;        &lt;key&gt;UTTypeTagSpecification&lt;/key&gt;&#10;        &lt;dict&gt;&#10;          &lt;key&gt;public.filename-extension&lt;/key&gt;&#10;          &lt;array&gt;&#10;            &lt;string&gt;aua&lt;/string&gt;&#10;          &lt;/array&gt;&#10;        &lt;/dict&gt;&#10;      &lt;/dict&gt;&#10;    &lt;/array&gt;&#10;  &lt;/dict&gt;&#10;&lt;/plist&gt;&#10;">
       <CONFIGURATIONS>
         <CONFIGURATION isDebug="1" name="Debug" targetName="AudioAnalyzer"/>
