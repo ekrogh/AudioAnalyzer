@@ -198,7 +198,7 @@ SoundProcessorModule::SoundProcessorModule (std::shared_ptr<PlotModule> ptr_modu
     timeToRunTotally__textEditor->setPopupMenuEnabled (false);
     timeToRunTotally__textEditor->setColour (juce::TextEditor::textColourId, juce::Colours::white);
     timeToRunTotally__textEditor->setColour (juce::TextEditor::backgroundColourId, juce::Colour (0x00000000));
-    timeToRunTotally__textEditor->setText (TRANS ("txt here"));
+    timeToRunTotally__textEditor->setText (TRANS ("-"));
 
     timeToRunTotally__textEditor->setBounds (376, 16, 150, 24);
 
@@ -212,7 +212,7 @@ SoundProcessorModule::SoundProcessorModule (std::shared_ptr<PlotModule> ptr_modu
     timeToRunValue__textEditor->setPopupMenuEnabled (false);
     timeToRunValue__textEditor->setColour (juce::TextEditor::textColourId, juce::Colours::white);
     timeToRunValue__textEditor->setColour (juce::TextEditor::backgroundColourId, juce::Colour (0x00000000));
-    timeToRunValue__textEditor->setText (TRANS ("txt here"));
+    timeToRunValue__textEditor->setText (TRANS ("-"));
 
     timeToRunValue__textEditor->setBounds (376, 48, 150, 24);
 
@@ -226,7 +226,7 @@ SoundProcessorModule::SoundProcessorModule (std::shared_ptr<PlotModule> ptr_modu
     currentFrequencyValue__textEditor2->setPopupMenuEnabled (false);
     currentFrequencyValue__textEditor2->setColour (juce::TextEditor::textColourId, juce::Colours::white);
     currentFrequencyValue__textEditor2->setColour (juce::TextEditor::backgroundColourId, juce::Colour (0x00000000));
-    currentFrequencyValue__textEditor2->setText (TRANS ("txt here"));
+    currentFrequencyValue__textEditor2->setText (TRANS ("-"));
 
     currentFrequencyValue__textEditor2->setBounds (376, 82, 150, 24);
 
@@ -420,9 +420,16 @@ SoundProcessorModule::SoundProcessorModule (std::shared_ptr<PlotModule> ptr_modu
 				| FileBrowserComponent::warnAboutOverwriting,
 				[this](const FileChooser& c)
 				{
+					if (juce::File(c.getResult()).exists())
+					{
+						juce::File(c.getResult()).deleteFile();
+					}
+
 					if (const auto outputStream = makeOutputStream(c.getURLResult()))
 					{
+
 						outputStream->setPosition(0);
+						//outputStream->truncate();
 
 						int vecNo = 0;
 						for (auto vec : rmsValues)
@@ -854,15 +861,15 @@ BEGIN_JUCER_METADATA
               connectedEdges="0" needsCallback="1" radioGroupId="0"/>
   <TEXTEDITOR name="time To Run Totally text editor" id="b4ebcb1bfdd1d5" memberName="timeToRunTotally__textEditor"
               virtualName="" explicitFocusOrder="0" pos="376 16 150 24" textcol="ffffffff"
-              bkgcol="0" initialText="txt here" multiline="0" retKeyStartsLine="0"
+              bkgcol="0" initialText="-" multiline="0" retKeyStartsLine="0"
               readonly="1" scrollbars="0" caret="0" popupmenu="0"/>
   <TEXTEDITOR name="time To Run Value" id="8979b9eb1ff875e4" memberName="timeToRunValue__textEditor"
               virtualName="" explicitFocusOrder="0" pos="376 48 150 24" textcol="ffffffff"
-              bkgcol="0" initialText="txt here" multiline="0" retKeyStartsLine="0"
+              bkgcol="0" initialText="-" multiline="0" retKeyStartsLine="0"
               readonly="1" scrollbars="0" caret="0" popupmenu="0"/>
   <TEXTEDITOR name="current Frequency Value" id="812a5fde336055f8" memberName="currentFrequencyValue__textEditor2"
               virtualName="" explicitFocusOrder="0" pos="376 82 150 24" textcol="ffffffff"
-              bkgcol="0" initialText="txt here" multiline="0" retKeyStartsLine="0"
+              bkgcol="0" initialText="-" multiline="0" retKeyStartsLine="0"
               readonly="1" scrollbars="0" caret="0" popupmenu="0"/>
 </JUCER_COMPONENT>
 
