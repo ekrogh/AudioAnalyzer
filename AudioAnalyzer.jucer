@@ -49,6 +49,8 @@
             file="Source/AudioAnalyzerGlobalEnums.h"/>
       <FILE id="R2HSGk" name="AudioLiveScrollingDisplay.h" compile="0" resource="0"
             file="Source/AudioLiveScrollingDisplay.h"/>
+      <FILE id="eeQTvd" name="AudioPlaybackModule.h" compile="0" resource="0"
+            file="Source/AudioPlaybackModule.h"/>
       <FILE id="TUR8Jv" name="AudioRecorderModule.h" compile="0" resource="0"
             file="Source/AudioRecorderModule.h"/>
       <FILE id="zfGUUp" name="AudioSettingsModule.cpp" compile="1" resource="0"
