@@ -350,7 +350,11 @@ private:
                     ,
                     File()
                     ,
-                    "*.*"
+#if JUCE_ANDROID
+                "*.*"
+#else
+                "*.wav;*.flac;*.aif"
+#endif
             };
 
 	TextButton chooseFileButton{ "Choose Audio File...", "Choose an audio file for playback" };
