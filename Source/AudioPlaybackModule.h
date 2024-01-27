@@ -483,8 +483,6 @@ private:
 
 						//chooser = nullptr;
 					}
-				,
-				nullptr
 				);
 			//}
 			//else
