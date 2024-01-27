@@ -344,17 +344,14 @@ private:
 	AudioFormatManager formatManager;
 	TimeSliceThread thread{ "audio file preview" };
 
-	FileChooser chooser
-	{
-		"File..."
-		,
-		File/*::getSpecialLocation*/
-		(
-			//juce::File::SpecialLocationType::userDocumentsDirectory
-		)
-		,
-		"*.wav;*.flac;*.aif"
-	};
+    FileChooser chooser
+            {
+                    "File..."
+                    ,
+                    File()
+                    ,
+                    "*.*"
+            };
 
 	TextButton chooseFileButton{ "Choose Audio File...", "Choose an audio file for playback" };
 
@@ -439,33 +436,6 @@ private:
 	{
 		if (btn == &chooseFileButton)
 		{
-			//if (!RuntimePermissions::isGranted(RuntimePermissions::readExternalStorage))
-			//{
-			//	SafePointer<AudioPlaybackModule> safeThis(this);
-			//	RuntimePermissions::request(RuntimePermissions::readExternalStorage,
-			//		[safeThis](bool granted) mutable
-			//		{
-			//			if (safeThis != nullptr && granted)
-			//				safeThis->buttonClicked(&safeThis->chooseFileButton);
-			//		});
-			//	return;
-			//}
-			//if (!RuntimePermissions::isGranted(RuntimePermissions::readMediaAudio))
-			//{
-			//	SafePointer<AudioPlaybackModule> safeThis(this);
-			//	RuntimePermissions::request(RuntimePermissions::readMediaAudio,
-			//		[safeThis](bool granted) mutable
-			//		{
-			//			if (safeThis != nullptr && granted)
-			//				safeThis->buttonClicked(&safeThis->chooseFileButton);
-			//		});
-			//	return;
-			//}
-
-			//if (FileChooser::isPlatformDialogAvailable())
-			//{
-   //             chooser = std::make_unique<FileChooser> ("Select an audio file...", File(), "*.wav;*.flac;*.aif");
-
 				chooser.launchAsync
 				(
 					FileBrowserComponent::openMode
@@ -480,21 +450,8 @@ private:
 
 							showAudioResource(std::move(u));
 						}
-
-						//chooser = nullptr;
 					}
 				);
-			//}
-			//else
-			//{
-			//	NativeMessageBox::showAsync(MessageBoxOptions()
-			//		.withIconType(MessageBoxIconType::WarningIcon)
-			//		.withTitle("Enable Code Signing")
-			//		.withMessage("You need to enable code-signing for your iOS project and enable \"iCloud Documents\" "
-			//			"permissions to be able to open audio files on your iDevice. See: "
-			//			"https://forum.juce.com/t/native-ios-android-file-choosers"),
-			//		nullptr);
-			//}
 		}
 	}
 
