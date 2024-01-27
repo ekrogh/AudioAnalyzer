@@ -86,7 +86,7 @@ MainComponent::MainComponent()
 			, module_AudioSettings.get()
 			, false
 		);
-		juce__tabbedComponent->setCurrentTabIndex(3);
+		juce__tabbedComponent->setCurrentTabIndex(4);
 	}
 	else
 	{
