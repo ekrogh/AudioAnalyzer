@@ -204,7 +204,7 @@
         <CONFIGURATION isDebug="1" name="Debug" targetName="AudioAnalyzer" macOSDeploymentTarget="10.14"
                        osxCompatibility="10.14 SDK"/>
         <CONFIGURATION isDebug="0" name="Release" targetName="AudioAnalyzer" macOSDeploymentTarget="10.14"
-                       osxCompatibility="10.14 SDK"/>
+                       osxCompatibility="10.14 SDK" customXcodeFlags="INSTALL_PATH = &quot;/Applications&quot;"/>
       </CONFIGURATIONS>
       <MODULEPATHS>
         <MODULEPATH id="juce_audio_basics" path="..\JUCE\modules"/>
