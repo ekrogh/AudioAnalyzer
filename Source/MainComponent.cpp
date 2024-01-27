@@ -33,9 +33,14 @@ MainComponent::MainComponent()
 		//[/Constructor_pre]
 
 	juce__tabbedComponent.reset(new juce::TabbedComponent(juce::TabbedButtonBar::TabsAtTop));
-	addAndMakeVisible(juce__tabbedComponent.get());
+	//addAndMakeVisible(juce__tabbedComponent.get());
 	juce__tabbedComponent->setTabBarDepth(30);
 	juce__tabbedComponent->setCurrentTabIndex(-1);
+
+    theViewport = std::make_unique<Viewport>("AudioAnalyzer view port");
+    theViewport->setViewedComponent(juce__tabbedComponent.get());
+    theViewport->setScrollBarsShown(true, true, true);
+    addAndMakeVisible(theViewport.get());
 
 
 	//[UserPreSize]
@@ -148,8 +153,9 @@ void MainComponent::resized()
 	//[UserPreResize] Add your own custom resize code here..
 	//[/UserPreResize]
 
-	juce__tabbedComponent->setBounds(0, 0, proportionOfWidth(0.9904f), proportionOfHeight(0.9913f));
+    juce__tabbedComponent->setBounds(0, 0, proportionOfWidth(0.9904f), proportionOfHeight(0.9913f));
 	//[UserResized] Add your own custom resize handling here..
+	theViewport->setBoundsRelative(0.0f, 0.0f, 1.0f, 1.0f);
 	//[/UserResized]
 }
 
