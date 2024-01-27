@@ -462,7 +462,9 @@ SoundProcessorModule::SoundProcessorModule (std::shared_ptr<PlotModule> ptr_modu
 			chooser.launchAsync
 			(
 				FileBrowserComponent::openMode
-				| FileBrowserComponent::canSelectFiles,
+				|
+				FileBrowserComponent::canSelectFiles
+				,
 				[this](const FileChooser& c)
 				{
 					if
@@ -476,7 +478,6 @@ SoundProcessorModule::SoundProcessorModule (std::shared_ptr<PlotModule> ptr_modu
 
 						inputStream->setPosition(0);
 
-//						while (inputStream->getNumBytesRemaining() > (juce::int64)(sizeof(int)))
                         // Y values
                         auto yCurVectorSize = inputStream->readInt();
                         while (!(inputStream->isExhausted()))
@@ -507,7 +508,8 @@ SoundProcessorModule::SoundProcessorModule (std::shared_ptr<PlotModule> ptr_modu
 
 						module_Plot->updatePlot(rmsValues, frequencyValues, graph_attributes, plotLegend);
 					}
-				});
+				}
+			);
 
 		};
 

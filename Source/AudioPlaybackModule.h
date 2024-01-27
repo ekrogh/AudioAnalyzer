@@ -344,7 +344,18 @@ private:
 	AudioFormatManager formatManager;
 	TimeSliceThread thread{ "audio file preview" };
 
-	std::unique_ptr<FileChooser> fileChooser;
+	FileChooser chooser
+	{
+		"File..."
+		,
+		File/*::getSpecialLocation*/
+		(
+			//juce::File::SpecialLocationType::userDocumentsDirectory
+		)
+		,
+		"*.wav;*.flac;*.aif"
+	};
+
 	TextButton chooseFileButton{ "Choose Audio File...", "Choose an audio file for playback" };
 
 	URL currentAudioFile;
@@ -426,37 +437,42 @@ private:
 
 	void buttonClicked(Button* btn) override
 	{
-		if (btn == &chooseFileButton && fileChooser.get() == nullptr)
+		if (btn == &chooseFileButton)
 		{
-			if (!RuntimePermissions::isGranted(RuntimePermissions::readExternalStorage))
-			{
-				SafePointer<AudioPlaybackModule> safeThis(this);
-				RuntimePermissions::request(RuntimePermissions::readExternalStorage,
-					[safeThis](bool granted) mutable
-					{
-						if (safeThis != nullptr && granted)
-							safeThis->buttonClicked(&safeThis->chooseFileButton);
-					});
-				return;
-			}
-			if (!RuntimePermissions::isGranted(RuntimePermissions::readMediaAudio))
-			{
-				SafePointer<AudioPlaybackModule> safeThis(this);
-				RuntimePermissions::request(RuntimePermissions::readMediaAudio,
-					[safeThis](bool granted) mutable
-					{
-						if (safeThis != nullptr && granted)
-							safeThis->buttonClicked(&safeThis->chooseFileButton);
-					});
-				return;
-			}
+			//if (!RuntimePermissions::isGranted(RuntimePermissions::readExternalStorage))
+			//{
+			//	SafePointer<AudioPlaybackModule> safeThis(this);
+			//	RuntimePermissions::request(RuntimePermissions::readExternalStorage,
+			//		[safeThis](bool granted) mutable
+			//		{
+			//			if (safeThis != nullptr && granted)
+			//				safeThis->buttonClicked(&safeThis->chooseFileButton);
+			//		});
+			//	return;
+			//}
+			//if (!RuntimePermissions::isGranted(RuntimePermissions::readMediaAudio))
+			//{
+			//	SafePointer<AudioPlaybackModule> safeThis(this);
+			//	RuntimePermissions::request(RuntimePermissions::readMediaAudio,
+			//		[safeThis](bool granted) mutable
+			//		{
+			//			if (safeThis != nullptr && granted)
+			//				safeThis->buttonClicked(&safeThis->chooseFileButton);
+			//		});
+			//	return;
+			//}
 
-			if (FileChooser::isPlatformDialogAvailable())
-			{
-                fileChooser = std::make_unique<FileChooser> ("Select an audio file...", File(), "*.wav;*.flac;*.aif");
+			//if (FileChooser::isPlatformDialogAvailable())
+			//{
+   //             chooser = std::make_unique<FileChooser> ("Select an audio file...", File(), "*.wav;*.flac;*.aif");
 
-				fileChooser->launchAsync(FileBrowserComponent::openMode | FileBrowserComponent::canSelectFiles,
-					[this](const FileChooser& fc) mutable
+				chooser.launchAsync
+				(
+					FileBrowserComponent::openMode
+					|
+					FileBrowserComponent::canSelectFiles
+					,
+					[this](const FileChooser& fc) /*mutable*/
 					{
 						if (fc.getURLResults().size() > 0)
 						{
@@ -465,19 +481,22 @@ private:
 							showAudioResource(std::move(u));
 						}
 
-						fileChooser = nullptr;
-					}, nullptr);
-			}
-			else
-			{
-				NativeMessageBox::showAsync(MessageBoxOptions()
-					.withIconType(MessageBoxIconType::WarningIcon)
-					.withTitle("Enable Code Signing")
-					.withMessage("You need to enable code-signing for your iOS project and enable \"iCloud Documents\" "
-						"permissions to be able to open audio files on your iDevice. See: "
-						"https://forum.juce.com/t/native-ios-android-file-choosers"),
-					nullptr);
-			}
+						//chooser = nullptr;
+					}
+				,
+				nullptr
+				);
+			//}
+			//else
+			//{
+			//	NativeMessageBox::showAsync(MessageBoxOptions()
+			//		.withIconType(MessageBoxIconType::WarningIcon)
+			//		.withTitle("Enable Code Signing")
+			//		.withMessage("You need to enable code-signing for your iOS project and enable \"iCloud Documents\" "
+			//			"permissions to be able to open audio files on your iDevice. See: "
+			//			"https://forum.juce.com/t/native-ios-android-file-choosers"),
+			//		nullptr);
+			//}
 		}
 	}
 
