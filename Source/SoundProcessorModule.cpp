@@ -466,20 +466,22 @@ SoundProcessorModule::SoundProcessorModule (std::shared_ptr<PlotModule> ptr_modu
 				[this](const FileChooser& c)
 				{
 					if
-						(
-							const auto inputStream =
-							makeInputSource(c.getURLResult())->createInputStream()
-							)
+                    (
+                        const auto inputStream =
+                        makeInputSource(c.getURLResult())->createInputStream()
+                    )
 					{
 						//rmsValues.clear();
 						//rmsValues.reserve(0);
 
 						inputStream->setPosition(0);
 
-						while (inputStream->getNumBytesRemaining() > sizeof(int))
+//						while (inputStream->getNumBytesRemaining() > (juce::int64)(sizeof(int)))
+                        // Y values
+                        auto yCurVectorSize = inputStream->readInt();
+                        while (!(inputStream->isExhausted()))
 						{
 							// Y values
-							auto yCurVectorSize = inputStream->readInt();
 							std::vector<float> yTmpVec(yCurVectorSize);
 
 							inputStream->read(yTmpVec.data(), yCurVectorSize * sizeof(float));
@@ -498,6 +500,7 @@ SoundProcessorModule::SoundProcessorModule (std::shared_ptr<PlotModule> ptr_modu
 
 							plotLegend.push_back("p " + std::to_string(plotLegend.size() + 1));
 
+                            yCurVectorSize = inputStream->readInt();
 						}
 
 						inputStream->~InputStream();
