@@ -439,6 +439,17 @@ private:
 					});
 				return;
 			}
+			if (!RuntimePermissions::isGranted(RuntimePermissions::readMediaAudio))
+			{
+				SafePointer<AudioPlaybackModule> safeThis(this);
+				RuntimePermissions::request(RuntimePermissions::readMediaAudio,
+					[safeThis](bool granted) mutable
+					{
+						if (safeThis != nullptr && granted)
+							safeThis->buttonClicked(&safeThis->chooseFileButton);
+					});
+				return;
+			}
 
 			if (FileChooser::isPlatformDialogAvailable())
 			{
