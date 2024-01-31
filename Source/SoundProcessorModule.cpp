@@ -268,6 +268,7 @@ SoundProcessorModule::SoundProcessorModule (std::shared_ptr<PlotModule> ptr_modu
 		{
 			if (runNewMeasurement__toggleButton->getToggleState())
 			{
+				deltaFrequencyHz = deltaFreq__textEditor->getText().getDoubleValue();
 				currentFrequencyHz = minFrequencyHz;
 
 				updateAngleDelta();
@@ -406,6 +407,12 @@ SoundProcessorModule::SoundProcessorModule (std::shared_ptr<PlotModule> ptr_modu
 	);
 	deltaFreq__textEditor->setText(std::to_string(deltaFrequencyHz), false);
 	deltaFreq__textEditor->onReturnKey =
+		[this]
+		{
+			deltaFrequencyHz = deltaFreq__textEditor->getText().getDoubleValue();
+			updateAngleDelta();
+		};
+	deltaFreq__textEditor->onFocusLost =
 		[this]
 		{
 			deltaFrequencyHz = deltaFreq__textEditor->getText().getDoubleValue();
