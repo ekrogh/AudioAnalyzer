@@ -270,6 +270,15 @@ public:
 		addAndMakeVisible(followTransportButton);
 		followTransportButton.onClick = [this] { updateFollowTransportState(); };
 
+		addAndMakeVisible(gainSlider);
+		gainSlider.setRange(0, 100.0f, 0);
+		gainSlider.onValueChange =
+			[this]
+			{
+				transportSource.setGain(gainSlider.getValue());
+			};
+		gainSlider.setValue(1.0f);
+
 		addAndMakeVisible(chooseFileButton);
 		chooseFileButton.addListener(this);
 
@@ -322,9 +331,12 @@ public:
 
 		auto controls = r.removeFromBottom(90);
 
-		auto controlRightBounds = controls.removeFromRight(controls.getWidth() / 3);
+		auto gainSliderControlRightBounds = controls.removeFromRight(controls.getWidth() / 6);
 
-		chooseFileButton.setBounds(controlRightBounds.reduced(10));
+		gainSlider.setBounds(gainSliderControlRightBounds.reduced(2));
+
+		auto controlRightBounds = controls.removeFromRight(controls.getWidth() / 3);
+		chooseFileButton.setBounds(controlRightBounds.reduced(2));
 
 		auto zoom = controls.removeFromTop(25);
 		zoomLabel.setBounds(zoom.removeFromLeft(50));
@@ -369,6 +381,7 @@ private:
 	Slider zoomSlider{ Slider::LinearHorizontal, Slider::NoTextBox };
 	ToggleButton followTransportButton{ "Follow Transport" };
 	TextButton startStopButton{ "Play/Stop" };
+	Slider gainSlider{ Slider::LinearVertical, Slider::TextBoxAbove };
 
 	//==============================================================================
 	void showAudioResource(URL resource)
