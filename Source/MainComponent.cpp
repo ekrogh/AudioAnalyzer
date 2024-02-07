@@ -51,6 +51,16 @@ MainComponent::MainComponent()
 			std::make_unique<AudioRecorderModule>(sharedAudioDeviceManager);
 		module_AudioPlayback =
 			std::make_unique<AudioPlaybackModule>(sharedAudioDeviceManager);
+		module_FFT =
+			std::make_unique<FFTModule>(sharedAudioDeviceManager);
+
+		juce__tabbedComponent->addTab
+		(
+			TRANS("FFT")
+			, juce::Colours::lightgrey
+			, module_FFT.get()
+			, false
+		);
 		juce__tabbedComponent->addTab
 		(
 			TRANS("Plot")
@@ -86,7 +96,7 @@ MainComponent::MainComponent()
 			, module_AudioSettings.get()
 			, false
 		);
-		juce__tabbedComponent->setCurrentTabIndex(4);
+		juce__tabbedComponent->setCurrentTabIndex(5);
 	}
 	else
 	{
@@ -122,6 +132,7 @@ MainComponent::~MainComponent()
     module_AudioSettings = nullptr;
     module_microphoneAccessPermissionAlert = nullptr;
 	module_AudioRecording = nullptr;
+	module_FFT = nullptr;
 	//[/Destructor_pre]
 
 	juce__tabbedComponent = nullptr;

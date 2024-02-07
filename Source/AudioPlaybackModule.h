@@ -275,6 +275,7 @@ public:
 		gainSlider.onValueChange =
 			[this]
 			{
+				//audioSourcePlayer.setGain(gainSlider.getValue());
 				transportSource.setGain(gainSlider.getValue());
 			};
 		gainSlider.setValue(1.0f);
@@ -356,18 +357,18 @@ private:
 	AudioFormatManager formatManager;
 	TimeSliceThread thread{ "audio file preview" };
 
-    FileChooser chooser
-            {
-                    "File..."
-                    ,
-                    File()
-                    ,
+	FileChooser chooser
+	{
+			"File..."
+			,
+			File()
+			,
 #if JUCE_ANDROID
-                "*.*"
+				"*.*"
 #else
-                "*.wav;*.flac;*.aif"
+				"*.wav;*.flac;*.aif"
 #endif
-            };
+	};
 
 	TextButton chooseFileButton{ "Choose Audio File...", "Choose an audio file for playback" };
 
@@ -453,22 +454,22 @@ private:
 	{
 		if (btn == &chooseFileButton)
 		{
-				chooser.launchAsync
-				(
-					FileBrowserComponent::openMode
-					|
-					FileBrowserComponent::canSelectFiles
-					,
-					[this](const FileChooser& fc) /*mutable*/
+			chooser.launchAsync
+			(
+				FileBrowserComponent::openMode
+				|
+				FileBrowserComponent::canSelectFiles
+				,
+				[this](const FileChooser& fc) /*mutable*/
+				{
+					if (fc.getURLResults().size() > 0)
 					{
-						if (fc.getURLResults().size() > 0)
-						{
-							auto u = fc.getURLResult();
+						auto u = fc.getURLResult();
 
-							showAudioResource(std::move(u));
-						}
+						showAudioResource(std::move(u));
 					}
-				);
+				}
+			);
 		}
 	}
 

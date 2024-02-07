@@ -57,6 +57,7 @@
             file="Source/AudioSettingsModule.cpp"/>
       <FILE id="dJMzzu" name="AudioSettingsModule.h" compile="0" resource="0"
             file="Source/AudioSettingsModule.h"/>
+      <FILE id="iu5vvh" name="FFTModule.h" compile="0" resource="0" file="Source/FFTModule.h"/>
       <FILE id="jffCtx" name="Main.cpp" compile="1" resource="0" file="Source/Main.cpp"/>
       <FILE id="R8zn7a" name="MainComponent.cpp" compile="1" resource="0"
             file="Source/MainComponent.cpp"/>
@@ -84,6 +85,7 @@
     <MODULE id="juce_audio_utils" showAllCode="1" useLocalCopy="0" useGlobalPath="0"/>
     <MODULE id="juce_core" showAllCode="1" useLocalCopy="0" useGlobalPath="0"/>
     <MODULE id="juce_data_structures" showAllCode="1" useLocalCopy="0" useGlobalPath="0"/>
+    <MODULE id="juce_dsp" showAllCode="1" useLocalCopy="0" useGlobalPath="0"/>
     <MODULE id="juce_events" showAllCode="1" useLocalCopy="0" useGlobalPath="0"/>
     <MODULE id="juce_graphics" showAllCode="1" useLocalCopy="0" useGlobalPath="0"/>
     <MODULE id="juce_gui_basics" showAllCode="1" useLocalCopy="0" useGlobalPath="0"/>
@@ -110,6 +112,7 @@
         <MODULEPATH id="juce_graphics" path="..\JUCE\modules"/>
         <MODULEPATH id="juce_gui_basics" path="..\JUCE\modules"/>
         <MODULEPATH id="juce_gui_extra" path="..\JUCE\modules"/>
+        <MODULEPATH id="juce_dsp" path="../JUCE/modules"/>
       </MODULEPATHS>
     </ANDROIDSTUDIO>
     <CODEBLOCKS_LINUX targetFolder="Builds/CodeBlocksLinux" smallIcon="zrVA6e" bigIcon="Hd60ks">
@@ -129,6 +132,7 @@
         <MODULEPATH id="juce_graphics" path="..\JUCE\modules"/>
         <MODULEPATH id="juce_gui_basics" path="..\JUCE\modules"/>
         <MODULEPATH id="juce_gui_extra" path="..\JUCE\modules"/>
+        <MODULEPATH id="juce_dsp" path="../JUCE/modules"/>
       </MODULEPATHS>
     </CODEBLOCKS_LINUX>
     <LINUX_MAKE targetFolder="Builds/LinuxMakefile" smallIcon="zrVA6e" bigIcon="Hd60ks">
@@ -148,6 +152,7 @@
         <MODULEPATH id="juce_graphics" path="..\JUCE\modules"/>
         <MODULEPATH id="juce_gui_basics" path="..\JUCE\modules"/>
         <MODULEPATH id="juce_gui_extra" path="..\JUCE\modules"/>
+        <MODULEPATH id="juce_dsp" path="../JUCE/modules"/>
       </MODULEPATHS>
     </LINUX_MAKE>
     <VS2022 targetFolder="Builds/VisualStudio2022" smallIcon="zrVA6e" bigIcon="Hd60ks">
@@ -167,6 +172,7 @@
         <MODULEPATH id="juce_graphics" path="..\JUCE\modules"/>
         <MODULEPATH id="juce_gui_basics" path="..\JUCE\modules"/>
         <MODULEPATH id="juce_gui_extra" path="..\JUCE\modules"/>
+        <MODULEPATH id="juce_dsp" path="../JUCE/modules"/>
       </MODULEPATHS>
     </VS2022>
     <XCODE_IPHONE targetFolder="Builds/iOS" microphonePermissionNeeded="1" iosScreenOrientation="UIInterfaceOrientationLandscapeLeft,UIInterfaceOrientationLandscapeRight,UIInterfaceOrientationPortrait,UIInterfaceOrientationPortraitUpsideDown"
@@ -192,6 +198,7 @@
         <MODULEPATH id="juce_graphics" path="..\JUCE\modules"/>
         <MODULEPATH id="juce_gui_basics" path="..\JUCE\modules"/>
         <MODULEPATH id="juce_gui_extra" path="..\JUCE\modules"/>
+        <MODULEPATH id="juce_dsp" path="../JUCE/modules"/>
       </MODULEPATHS>
     </XCODE_IPHONE>
     <XCODE_MAC targetFolder="Builds/MacOSX" applicationCategory="public.app-category.utilities"
@@ -218,6 +225,7 @@
         <MODULEPATH id="juce_graphics" path="..\JUCE\modules"/>
         <MODULEPATH id="juce_gui_basics" path="..\JUCE\modules"/>
         <MODULEPATH id="juce_gui_extra" path="..\JUCE\modules"/>
+        <MODULEPATH id="juce_dsp" path="../JUCE/modules"/>
       </MODULEPATHS>
     </XCODE_MAC>
   </EXPORTFORMATS>
