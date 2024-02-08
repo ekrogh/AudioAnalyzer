@@ -74,6 +74,8 @@
             file="Source/SoundProcessorModule.h"/>
       <FILE id="vVsCCR" name="splash.png" compile="0" resource="1" file="Source/splash.png"
             xcodeResource="1"/>
+      <FILE id="AxQVJX" name="FFTCtrl.cpp" compile="1" resource="0" file="Source/FFTCtrl.cpp"/>
+      <FILE id="HhhnxZ" name="FFTCtrl.h" compile="0" resource="0" file="Source/FFTCtrl.h"/>
       <FILE id="cqhsP1" name="Utilities.h" compile="0" resource="0" file="Source/Utilities.h"/>
     </GROUP>
   </MAINGROUP>

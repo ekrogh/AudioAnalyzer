@@ -20,6 +20,7 @@
 #pragma once
 
 //[Headers]     -- You can add your own extra header files here --
+#include "FFTCtrl.h"
 #include "FFTModule.h"
 #include "AudioPlaybackModule.h"
 #include "AudioRecorderModule.h"
@@ -98,7 +99,8 @@ private:
     std::unique_ptr<microphoneAccessPermissionAlert> module_microphoneAccessPermissionAlert;
     std::unique_ptr<AudioRecorderModule> module_AudioRecording;
     std::unique_ptr<AudioPlaybackModule> module_AudioPlayback;
-    std::unique_ptr<FFTModule> module_FFT;
+    std::shared_ptr<FFTModule> module_FFT;
+    std::shared_ptr<FFTCtrl> module_FFTCtrl;
 
 
     //[/UserVariables]

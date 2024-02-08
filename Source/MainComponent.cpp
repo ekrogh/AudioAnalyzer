@@ -52,13 +52,22 @@ MainComponent::MainComponent()
 		module_AudioPlayback =
 			std::make_unique<AudioPlaybackModule>(sharedAudioDeviceManager);
 		module_FFT =
-			std::make_unique<FFTModule>(sharedAudioDeviceManager);
+			std::make_shared<FFTModule>(sharedAudioDeviceManager);
+		module_FFTCtrl =
+			std::make_shared<FFTCtrl>(module_FFT, sharedAudioDeviceManager);
 
 		juce__tabbedComponent->addTab
 		(
 			TRANS("FFT")
 			, juce::Colours::lightgrey
 			, module_FFT.get()
+			, false
+		);
+		juce__tabbedComponent->addTab
+		(
+			TRANS("FFT Ctrl")
+			, juce::Colours::lightgrey
+			, module_FFTCtrl.get()
 			, false
 		);
 		juce__tabbedComponent->addTab
@@ -96,7 +105,7 @@ MainComponent::MainComponent()
 			, module_AudioSettings.get()
 			, false
 		);
-		juce__tabbedComponent->setCurrentTabIndex(5);
+		juce__tabbedComponent->setCurrentTabIndex(6);
 	}
 	else
 	{
@@ -125,12 +134,12 @@ MainComponent::MainComponent()
 MainComponent::~MainComponent()
 {
 	//[Destructor_pre]. You can add your own custom destruction code here..
-    sharedAudioDeviceManager->closeAudioDevice();
-    sharedAudioDeviceManager = nullptr;
-    module_Plot = nullptr;
-    module_SoundProcessor = nullptr;
-    module_AudioSettings = nullptr;
-    module_microphoneAccessPermissionAlert = nullptr;
+	sharedAudioDeviceManager->closeAudioDevice();
+	sharedAudioDeviceManager = nullptr;
+	module_Plot = nullptr;
+	module_SoundProcessor = nullptr;
+	module_AudioSettings = nullptr;
+	module_microphoneAccessPermissionAlert = nullptr;
 	module_AudioRecording = nullptr;
 	module_FFT = nullptr;
 	//[/Destructor_pre]
