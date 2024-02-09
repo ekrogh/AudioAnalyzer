@@ -201,7 +201,7 @@ public:
 			return false;
 
 		bufferLengthInSamples = reader->lengthInSamples;
-		fftOrder = std::log2(bufferLengthInSamples) / std::log2(2);
+		fftOrder = std::log2(bufferLengthInSamples) /*/ std::log2(2)*/;
 		forwardFFT
 			= std::make_unique<dsp::FFT>(fftOrder);
 		fftSize = 1 << fftOrder;
