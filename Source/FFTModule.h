@@ -72,7 +72,8 @@ public:
 	{
 		setOpaque(true);
 
-		setAudioChannels(defaultNumInputChannels, defaultNumOutputChannels);
+		forwardFFT
+			= std::make_unique<dsp::FFT>(fftOrder);
 
 		formatManager.registerBasicFormats();
 
@@ -136,15 +137,22 @@ public:
 		{
 			if (!nextFFTBlockReady)
 			{
-				zeromem(fftData, sizeof(fftData));
-				memcpy(fftData, fifo, sizeof(fifo));
+				fftData = fifo;
+				fftData.resize(2 * fftSize);
+
+				//zeromem(fftData, sizeof(fftData));
+				//memcpy(fftData, fifo, sizeof(fifo));
 				nextFFTBlockReady = true;
 			}
 
+			fifo.clear();
+			fifo.reserve(0);
 			fifoIndex = 0;
 		}
 
-		fifo[fifoIndex++] = sample;
+		fifo.push_back(sample);
+		fifoIndex++;
+		//fifo[fifoIndex++] = sample;
 	}
 
 	void drawNextLineOfSpectrogram()
@@ -156,11 +164,11 @@ public:
 		spectrogramImage.moveImageSection(0, 0, 1, 0, rightHandEdge, imageHeight);
 
 		// then render our FFT data..
-		forwardFFT->performFrequencyOnlyForwardTransform(fftData);
+		forwardFFT->performFrequencyOnlyForwardTransform(fftData.data());
 
 		// find the range of values produced, so we can scale our rendering to
 		// show up the detail clearly
-		auto maxLevel = FloatVectorOperations::findMinAndMax(fftData, (int)fftSize / 2);
+		auto maxLevel = FloatVectorOperations::findMinAndMax(fftData.data(), (int)fftSize / 2);
 
 		for (auto y = 1; y < imageHeight; ++y)
 		{
@@ -207,10 +215,7 @@ public:
 			= std::make_unique<dsp::FFT>(fftOrder);
 		fftSize = 1 << fftOrder;
 
-		fifo = new float[fftSize];
-		fftData = new float[2 * fftSize];
 		fifoIndex = 0;
-		zeromem(fftData, sizeof(fftData));
 
 		theAudioBuffer =
 			std::make_unique<AudioBuffer<float>>
@@ -219,10 +224,15 @@ public:
 				,
 				reader->lengthInSamples
 			);
-		memcpy(fftData, theAudioBuffer->getReadPointer(0), sizeof(fifo));
+		auto endTheAudioBuffer =
+			theAudioBuffer->getReadPointer(0) + sizeof(fifo);
+
+		fftData.assign(theAudioBuffer->getReadPointer(0), endTheAudioBuffer);
+		fftData.resize(2 * fftSize);
+		//memcpy(fftData, theAudioBuffer->getReadPointer(0), );
 
 		// then render our FFT data..
-		forwardFFT->performFrequencyOnlyForwardTransform(fftData, true);
+		forwardFFT->performFrequencyOnlyForwardTransform(fftData.data(), true);
 
 		return true;
 	}
@@ -253,10 +263,10 @@ private:
 	std::unique_ptr<dsp::FFT> forwardFFT;
 	Image spectrogramImage;
 
-	unsigned int fftOrder = 0;
+	unsigned int fftOrder = 10;
 	unsigned int fftSize = 1 << fftOrder;
-	float* fifo = nullptr;
-	float* fftData = nullptr;
+	std::vector<float> fifo;
+	std::vector<float> fftData;
 	int fifoIndex = 0;
 	bool nextFFTBlockReady = false;
 
