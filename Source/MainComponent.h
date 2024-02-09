@@ -20,6 +20,7 @@
 #pragma once
 
 //[Headers]     -- You can add your own extra header files here --
+#include "freqPlotModule.h"
 #include "FFTCtrl.h"
 #include "FFTModule.h"
 #include "AudioPlaybackModule.h"
@@ -101,6 +102,8 @@ private:
     std::unique_ptr<AudioPlaybackModule> module_AudioPlayback;
     std::shared_ptr<FFTModule> module_FFT;
     std::shared_ptr<FFTCtrl> module_FFTCtrl;
+    std::shared_ptr<freqPlotModule> module_freqPlot =
+        std::make_shared<freqPlotModule>();
 
 
     //[/UserVariables]

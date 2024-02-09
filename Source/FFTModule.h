@@ -56,8 +56,17 @@ class FFTModule final : public AudioAppComponent,
 	private Timer
 {
 public:
-	FFTModule(std::shared_ptr<AudioDeviceManager> SADM) :
-		AudioAppComponent(*SADM),
+	FFTModule
+	(
+		std::shared_ptr<AudioDeviceManager> SADM
+		,
+		std::shared_ptr<freqPlotModule> MFP
+	)
+		:
+		module_freqPlot(MFP)
+		,
+		AudioAppComponent(*SADM)
+		,
 		spectrogramImage(Image::RGB, 512, 512, true)
 	{
 		setOpaque(true);
@@ -277,6 +286,8 @@ private:
 	std::unique_ptr<AudioFormatReader> reader;
 	std::unique_ptr<AudioBuffer<float>> theAudioBuffer;
 	juce::int64 bufferLengthInSamples = 0;
+
+	std::shared_ptr<freqPlotModule> module_freqPlot;
 
 	JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(FFTModule)
 };
