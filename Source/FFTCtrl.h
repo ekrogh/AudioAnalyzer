@@ -22,6 +22,7 @@
 //[Headers]     -- You can add your own extra header files here --
 #include <JuceHeader.h>
 #include "FFTModule.h"
+#include "freqPlotModule.h"
 //[/Headers]
 
 
@@ -39,7 +40,7 @@ class FFTCtrl  : public juce::Component,
 {
 public:
     //==============================================================================
-    FFTCtrl (std::shared_ptr<FFTModule> ptr_module_FFT, std::shared_ptr<AudioDeviceManager> SADM);
+    FFTCtrl (std::shared_ptr<FFTModule> ptr_module_FFT, std::shared_ptr<AudioDeviceManager> SADM, std::shared_ptr<freqPlotModule> FPM);
     ~FFTCtrl() override;
 
     //==============================================================================
@@ -56,6 +57,7 @@ private:
     //[UserVariables]   -- You can add your own custom variables in this section.
     std::shared_ptr<AudioDeviceManager> sharedAudioDeviceManager;
     std::shared_ptr<FFTModule> module_FFT;
+    std::shared_ptr<freqPlotModule> module_freqPlot;
     //[/UserVariables]
 
     //==============================================================================

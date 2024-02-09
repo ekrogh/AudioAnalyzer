@@ -52,10 +52,17 @@ MainComponent::MainComponent()
 		module_AudioPlayback =
 			std::make_unique<AudioPlaybackModule>(sharedAudioDeviceManager);
 		module_FFT =
-			std::make_shared<FFTModule>(sharedAudioDeviceManager);
+			std::make_shared<FFTModule>(sharedAudioDeviceManager, module_freqPlot);
 		module_FFTCtrl =
-			std::make_shared<FFTCtrl>(module_FFT, sharedAudioDeviceManager);
+			std::make_shared<FFTCtrl>(module_FFT, sharedAudioDeviceManager, module_freqPlot);
 
+		juce__tabbedComponent->addTab
+		(
+			TRANS("Freq. Plot")
+			, juce::Colours::lightgrey
+			, module_freqPlot.get()
+			, false
+		);
 		juce__tabbedComponent->addTab
 		(
 			TRANS("FFT")
@@ -105,7 +112,7 @@ MainComponent::MainComponent()
 			, module_AudioSettings.get()
 			, false
 		);
-		juce__tabbedComponent->setCurrentTabIndex(6);
+		juce__tabbedComponent->setCurrentTabIndex(7);
 	}
 	else
 	{

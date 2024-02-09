@@ -21,6 +21,7 @@
 //[/Headers]
 
 #include "freqPlotModule.h"
+#include "example_utils.h"
 
 
 //[MiscUserDefs] You can add your own user definitions and misc code here...

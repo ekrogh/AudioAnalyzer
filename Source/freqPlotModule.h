@@ -21,7 +21,6 @@
 
 //[Headers]     -- You can add your own extra header files here --
 #include "cmp_plot.h"
-#include "example_utils.h"
 #include <JuceHeader.h>
 //[/Headers]
 

@@ -48,7 +48,9 @@
 
 #pragma once
 
+#include "AudioAnalyzerGlobalEnums.h"
 #include "Utilities.h"
+#include "freqPlotModule.h"
 
 
 //==============================================================================
@@ -60,10 +62,9 @@ public:
 	(
 		std::shared_ptr<AudioDeviceManager> SADM
 		,
-		std::shared_ptr<freqPlotModule> MFP
-	)
-		:
-		module_freqPlot(MFP)
+		std::shared_ptr<freqPlotModule> FPM
+	) :
+		module_freqPlot(FPM)
 		,
 		AudioAppComponent(*SADM)
 		,
@@ -71,16 +72,7 @@ public:
 	{
 		setOpaque(true);
 
-		//#ifndef JUCE_DEMO_RUNNER
-		// RuntimePermissions::request (RuntimePermissions::recordAudio,
-		//                              [this] (bool granted)
-		//                              {
-		//                                  int numInputChannels = granted ? 2 : 0;
-		//                                  setAudioChannels (numInputChannels, 2);
-		//                              });
-		//#else
-		// setAudioChannels (2, 2);
-		//#endif
+		setAudioChannels(defaultNumInputChannels, defaultNumOutputChannels);
 
 		formatManager.registerBasicFormats();
 
@@ -263,8 +255,8 @@ private:
 
 	unsigned int fftOrder = 0;
 	unsigned int fftSize = 1 << fftOrder;
-	float* fifo;
-	float* fftData;
+	float* fifo = nullptr;
+	float* fftData = nullptr;
 	int fifoIndex = 0;
 	bool nextFFTBlockReady = false;
 

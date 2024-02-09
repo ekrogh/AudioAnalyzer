@@ -27,9 +27,10 @@
 //[/MiscUserDefs]
 
 //==============================================================================
-FFTCtrl::FFTCtrl (std::shared_ptr<FFTModule> ptr_module_FFT, std::shared_ptr<AudioDeviceManager> SADM)
+FFTCtrl::FFTCtrl (std::shared_ptr<FFTModule> ptr_module_FFT, std::shared_ptr<AudioDeviceManager> SADM, std::shared_ptr<freqPlotModule> FPM)
     : sharedAudioDeviceManager(SADM),
-      module_FFT(ptr_module_FFT)
+      module_FFT(ptr_module_FFT),
+      module_freqPlot(FPM)
 {
     //[Constructor_pre] You can add your own custom stuff here..
     //[/Constructor_pre]
@@ -117,8 +118,8 @@ void FFTCtrl::buttonClicked (juce::Button* buttonThatWasClicked)
 BEGIN_JUCER_METADATA
 
 <JUCER_COMPONENT documentType="Component" className="FFTCtrl" componentName=""
-                 parentClasses="public juce::Component" constructorParams="std::shared_ptr&lt;FFTModule&gt; ptr_module_FFT, std::shared_ptr&lt;AudioDeviceManager&gt; SADM"
-                 variableInitialisers="sharedAudioDeviceManager(SADM)&#10;module_FFT(ptr_module_FFT)"
+                 parentClasses="public juce::Component" constructorParams="std::shared_ptr&lt;FFTModule&gt; ptr_module_FFT, std::shared_ptr&lt;AudioDeviceManager&gt; SADM, std::shared_ptr&lt;freqPlotModule&gt; FPM"
+                 variableInitialisers="sharedAudioDeviceManager(SADM)&#10;module_FFT(ptr_module_FFT)&#10;module_freqPlot(FPM)&#10;"
                  snapPixels="8" snapActive="1" snapShown="1" overlayOpacity="0.330"
                  fixedSize="0" initialWidth="600" initialHeight="400">
   <BACKGROUND backgroundColour="ff505050"/>
