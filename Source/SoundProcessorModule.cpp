@@ -520,7 +520,7 @@ SoundProcessorModule::SoundProcessorModule (std::shared_ptr<PlotModule> ptr_modu
 
 		};
 
-	module_Plot->setTitle("Frequency responce [RMS]");
+	module_Plot->setTitle("Frequency response [RMS]");
 	module_Plot->setXLabel("[Hz]");
 	module_Plot->setYLabel("[RMS]");
 
@@ -621,7 +621,6 @@ void SoundProcessorModule::makeGraphAttributes()
 		,
 		randomRGB.nextInt(juce::Range(100, 255))
 		,
-		//200
 		randomRGB.nextInt(juce::Range(100, 255))
 	);
 	graph_attributes.push_back(colourForLine);

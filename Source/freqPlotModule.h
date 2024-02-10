@@ -48,6 +48,12 @@ public:
 		std::vector <std::vector<float>> y_values
 		,
 		std::vector <std::vector<float>> x_values
+	);
+	void updatePlot
+	(
+		std::vector <std::vector<float>> y_values
+		,
+		std::vector <std::vector<float>> x_values
 		,
 		cmp::GraphAttributeList graph_attributes
 		,

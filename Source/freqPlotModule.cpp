@@ -95,6 +95,17 @@ void freqPlotModule::updatePlot
     std::vector <std::vector<float>> y_values
     ,
     std::vector <std::vector<float>> x_values
+)
+{
+    const MessageManagerLock mml;
+    m_plot.plot(y_values, x_values);
+}
+
+void freqPlotModule::updatePlot
+(
+    std::vector <std::vector<float>> y_values
+    ,
+    std::vector <std::vector<float>> x_values
     ,
     cmp::GraphAttributeList graph_attributes
     ,

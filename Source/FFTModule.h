@@ -72,12 +72,14 @@ public:
 	{
 		setOpaque(true);
 
+		shutdownAudio();
+
 		forwardFFT
 			= std::make_unique<dsp::FFT>(fftOrder);
 
 		formatManager.registerBasicFormats();
 
-		startTimerHz(60);
+		//startTimerHz(60);
 		setSize(700, 500);
 	}
 
@@ -225,14 +227,48 @@ public:
 				reader->lengthInSamples
 			);
 		auto endTheAudioBuffer =
-			theAudioBuffer->getReadPointer(0) + sizeof(fifo);
+			theAudioBuffer->getReadPointer(0) + fftSize * sizeof(float);
 
-		fftData.assign(theAudioBuffer->getReadPointer(0), endTheAudioBuffer);
+		//fftData.assign(theAudioBuffer->getReadPointer(0), endTheAudioBuffer);
 		fftData.resize(2 * fftSize);
-		//memcpy(fftData, theAudioBuffer->getReadPointer(0), );
+		memcpy(fftData.data(), theAudioBuffer->getReadPointer(0), fftSize * sizeof(float));
+
+		auto tmpFftData = fftData.data();
 
 		// then render our FFT data..
 		forwardFFT->performFrequencyOnlyForwardTransform(fftData.data(), true);
+
+		tmpFftData = fftData.data();
+
+		auto nbrFFTPts = (forwardFFT->getSize() / 2) /*+ 1*/;
+		fftData.resize(nbrFFTPts);
+
+		plotValues.clear();
+		plotValues.reserve(0);
+		plotValues.push_back(fftData);
+
+		frequencyValues.clear();
+		frequencyValues.reserve(0);
+		auto deltaHz = reader->sampleRate / nbrFFTPts;
+
+		std::vector<float> tmpFreqVctr(0);
+		float freqVal = 0.0f;
+		for (size_t i = 1; i <= nbrFFTPts; i++)
+		{
+			tmpFreqVctr.push_back(freqVal);
+			freqVal += deltaHz;
+		}
+		frequencyValues.push_back(tmpFreqVctr);
+
+		makeGraphAttributes();
+		plotLegend.push_back("p " + std::to_string(plotLegend.size() + 1));
+
+		module_freqPlot->setTitle("Frequency response [FFT]");
+		module_freqPlot->setXLabel("[Hz]");
+		module_freqPlot->setYLabel("[Magnitude]");
+
+		module_freqPlot->updatePlot(plotValues, frequencyValues/*, graph_attributes, plotLegend*/);
+		//module_freqPlot->updatePlot(plotValues, frequencyValues, graph_attributes, plotLegend);
 
 		return true;
 	}
@@ -258,6 +294,19 @@ public:
 		);
 	}
 
+	void makeGraphAttributes()
+	{
+		cmp::GraphAttribute colourForLine;
+		colourForLine.graph_colour = juce::Colour
+		(
+			randomRGB.nextInt(juce::Range(100, 255))
+			,
+			randomRGB.nextInt(juce::Range(100, 255))
+			,
+			randomRGB.nextInt(juce::Range(100, 255))
+		);
+		graph_attributes.push_back(colourForLine);
+	}
 
 private:
 	std::unique_ptr<dsp::FFT> forwardFFT;
@@ -269,6 +318,12 @@ private:
 	std::vector<float> fftData;
 	int fifoIndex = 0;
 	bool nextFFTBlockReady = false;
+
+	std::vector <std::vector<float>> plotValues;
+	std::vector <std::vector<float>> frequencyValues;
+	cmp::GraphAttributeList graph_attributes;
+	cmp::StringVector plotLegend;
+	juce::Random randomRGB = juce::Random::getSystemRandom();
 
 	FileChooser chooser
 	{
