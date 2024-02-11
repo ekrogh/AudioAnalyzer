@@ -262,7 +262,9 @@ public:
 		//forwardFFT->performFrequencyOnlyForwardTransform(fftData);
 		forwardFFT->performFrequencyOnlyForwardTransform(fftData, true);
 
-		auto nbrFFTPts = (forwardFFT->getSize() / 2) /*+ 1*/;
+		auto fftlgth = forwardFFT->getSize();
+		auto nbrFFTPts = fftlgth;
+		//auto nbrFFTPts = (forwardFFT->getSize() / 2) /*+ 1*/;
 		
 		plotValues.clear();
 		plotValues.reserve(0);
@@ -346,7 +348,9 @@ public:
 		// then render our FFT data..
 		forwardFFT->performFrequencyOnlyForwardTransform(fftData, true);
 
-		auto nbrFFTPts = (forwardFFT->getSize() / 2) /*+ 1*/;
+		auto fftlgth = forwardFFT->getSize();
+		auto nbrFFTPts = fftlgth;
+		//auto nbrFFTPts = (forwardFFT->getSize() / 2) /*+ 1*/;
 
 		plotValues.clear();
 		plotValues.reserve(0);
