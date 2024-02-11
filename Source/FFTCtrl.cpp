@@ -42,6 +42,20 @@ FFTCtrl::FFTCtrl (std::shared_ptr<FFTModule> ptr_module_FFT, std::shared_ptr<Aud
 
     selFile__textButton->setBounds (16, 16, 150, 24);
 
+    makeWhiteNoise__textButton.reset (new juce::TextButton ("makeWhiteNoise button"));
+    addAndMakeVisible (makeWhiteNoise__textButton.get());
+    makeWhiteNoise__textButton->setButtonText (TRANS ("Make White Noise"));
+    makeWhiteNoise__textButton->addListener (this);
+
+    makeWhiteNoise__textButton->setBounds (16, 56, 150, 24);
+
+    makeSines__textButton.reset (new juce::TextButton ("makeSines button"));
+    addAndMakeVisible (makeSines__textButton.get());
+    makeSines__textButton->setButtonText (TRANS ("MakeSines"));
+    makeSines__textButton->addListener (this);
+
+    makeSines__textButton->setBounds (16, 99, 150, 24);
+
 
     //[UserPreSize]
     //[/UserPreSize]
@@ -59,6 +73,8 @@ FFTCtrl::~FFTCtrl()
     //[/Destructor_pre]
 
     selFile__textButton = nullptr;
+    makeWhiteNoise__textButton = nullptr;
+    makeSines__textButton = nullptr;
 
 
     //[Destructor]. You can add your own custom destruction code here..
@@ -97,6 +113,18 @@ void FFTCtrl::buttonClicked (juce::Button* buttonThatWasClicked)
         module_FFT->selectFile();
         //[/UserButtonCode_selFile__textButton]
     }
+    else if (buttonThatWasClicked == makeWhiteNoise__textButton.get())
+    {
+        //[UserButtonCode_makeWhiteNoise__textButton] -- add your button handler code here..
+        module_FFT->makeWhiteNoise();
+        //[/UserButtonCode_makeWhiteNoise__textButton]
+    }
+    else if (buttonThatWasClicked == makeSines__textButton.get())
+    {
+        //[UserButtonCode_makeSines__textButton] -- add your button handler code here..
+        module_FFT->makeSines();
+        //[/UserButtonCode_makeSines__textButton]
+    }
 
     //[UserbuttonClicked_Post]
     //[/UserbuttonClicked_Post]
@@ -125,6 +153,12 @@ BEGIN_JUCER_METADATA
   <BACKGROUND backgroundColour="ff505050"/>
   <TEXTBUTTON name="select file button" id="919b4d6b7887d05b" memberName="selFile__textButton"
               virtualName="" explicitFocusOrder="0" pos="16 16 150 24" buttonText="Select Audio File"
+              connectedEdges="0" needsCallback="1" radioGroupId="0"/>
+  <TEXTBUTTON name="makeWhiteNoise button" id="5a27d84fb1070544" memberName="makeWhiteNoise__textButton"
+              virtualName="" explicitFocusOrder="0" pos="16 56 150 24" buttonText="Make White Noise"
+              connectedEdges="0" needsCallback="1" radioGroupId="0"/>
+  <TEXTBUTTON name="makeSines button" id="2c40b1d469aa1ae7" memberName="makeSines__textButton"
+              virtualName="" explicitFocusOrder="0" pos="16 99 150 24" buttonText="MakeSines"
               connectedEdges="0" needsCallback="1" radioGroupId="0"/>
 </JUCER_COMPONENT>
 

@@ -28,10 +28,11 @@
 //[/MiscUserDefs]
 
 //==============================================================================
-SoundProcessorModule::SoundProcessorModule (std::shared_ptr<PlotModule> ptr_module_Plot, std::shared_ptr<AudioDeviceManager> SADM)
+SoundProcessorModule::SoundProcessorModule (std::shared_ptr<PlotModule> ptr_module_Plot, std::shared_ptr<AudioDeviceManager> SADM, std::shared_ptr<AudioRecorderModule> MAR)
     : module_Plot(ptr_module_Plot),
       AudioAppComponent(*SADM),
-      Thread("Freq. shifter")
+      Thread("Freq. shifter"),
+      module_AudioRecording(MAR)
 {
     //[Constructor_pre] You can add your own custom stuff here..
     //[/Constructor_pre]
@@ -230,6 +231,11 @@ SoundProcessorModule::SoundProcessorModule (std::shared_ptr<PlotModule> ptr_modu
 
     currentFrequencyValue__textEditor2->setBounds (376, 82, 150, 24);
 
+    recordAudio__toggleButton.reset (new juce::ToggleButton ("recordAudio toggle button"));
+    addAndMakeVisible (recordAudio__toggleButton.get());
+    recordAudio__toggleButton->setButtonText (TRANS ("Record Audio"));
+    recordAudio__toggleButton->addListener (this);
+
 
     //[UserPreSize]
     //[/UserPreSize]
@@ -284,11 +290,21 @@ SoundProcessorModule::SoundProcessorModule (std::shared_ptr<PlotModule> ptr_modu
 
 				pause__toggleButton->setEnabled(true);
 
+				if (recordAudio__toggleButton->getToggleState())
+				{
+					module_AudioRecording->startStopRecording();
+				}
+
 				startThread(Priority::low);
 			}
 			else
 			{
 				stopThread(100);
+
+				if (recordAudio__toggleButton->getToggleState())
+				{
+					module_AudioRecording->startStopRecording();
+				}
 
 				stopAudio();
 			}
@@ -554,6 +570,7 @@ SoundProcessorModule::~SoundProcessorModule()
     timeToRunTotally__textEditor = nullptr;
     timeToRunValue__textEditor = nullptr;
     currentFrequencyValue__textEditor2 = nullptr;
+    recordAudio__toggleButton = nullptr;
 
 
     //[Destructor]. You can add your own custom destruction code here..
@@ -585,6 +602,7 @@ void SoundProcessorModule::resized()
     juce__label6->setBounds (272 - (192 / 2), 16, 192, 24);
     pause__toggleButton->setBounds (416 - (80 / 2), 120, 80, 24);
     Deleteoldmeasurements__textButton->setBounds (268 - (184 / 2), 160, 184, 24);
+    recordAudio__toggleButton->setBounds (440 - (127 / 2), 160, 127, 24);
     //[UserResized] Add your own custom resize handling here..
     //[/UserResized]
 }
@@ -604,6 +622,11 @@ void SoundProcessorModule::buttonClicked (juce::Button* buttonThatWasClicked)
         //[UserButtonCode_read__textButton] -- add your button handler code here..
         //[/UserButtonCode_read__textButton]
     }
+    else if (buttonThatWasClicked == recordAudio__toggleButton.get())
+    {
+        //[UserButtonCode_recordAudio__toggleButton] -- add your button handler code here..
+        //[/UserButtonCode_recordAudio__toggleButton]
+    }
 
     //[UserbuttonClicked_Post]
     //[/UserbuttonClicked_Post]
@@ -612,6 +635,14 @@ void SoundProcessorModule::buttonClicked (juce::Button* buttonThatWasClicked)
 
 
 //[MiscUserCode] You can add your own definitions of your custom methods or any other code here...
+void SoundProcessorModule::startStopRecording()
+{
+	if (recordAudio__toggleButton->getToggleState())
+	{
+		module_AudioRecording->startStopRecording();
+	}
+}
+
 void SoundProcessorModule::makeGraphAttributes()
 {
 	cmp::GraphAttribute colourForLine;
@@ -755,6 +786,8 @@ void SoundProcessorModule::run()
 
 	if (currentFrequencyHz >= maxFrequencyHz)
 	{
+		MessageManager::callAsync([this]() { startStopRecording(); });
+
 		const MessageManagerLock mml;
 		stopAudio();
 		runNewMeasurement__toggleButton->setToggleState(false, dontSendNotification);
@@ -790,8 +823,8 @@ BEGIN_JUCER_METADATA
 
 <JUCER_COMPONENT documentType="Component" className="SoundProcessorModule" componentName="Sound Synth And Analyze Module"
                  parentClasses="public juce::AudioAppComponent, private juce::Thread"
-                 constructorParams="std::shared_ptr&lt;PlotModule&gt; ptr_module_Plot, std::shared_ptr&lt;AudioDeviceManager&gt; SADM"
-                 variableInitialisers="module_Plot(ptr_module_Plot)&#10;AudioAppComponent(*SADM)&#10;Thread(&quot;Freq. shifter&quot;)&#10;"
+                 constructorParams="std::shared_ptr&lt;PlotModule&gt; ptr_module_Plot, std::shared_ptr&lt;AudioDeviceManager&gt; SADM, std::shared_ptr&lt;AudioRecorderModule&gt; MAR"
+                 variableInitialisers="module_Plot(ptr_module_Plot)&#10;AudioAppComponent(*SADM)&#10;Thread(&quot;Freq. shifter&quot;)&#10;module_AudioRecording(MAR)"
                  snapPixels="8" snapActive="1" snapShown="1" overlayOpacity="0.330"
                  fixedSize="0" initialWidth="600" initialHeight="600">
   <BACKGROUND backgroundColour="ff505050"/>
@@ -882,6 +915,10 @@ BEGIN_JUCER_METADATA
               virtualName="" explicitFocusOrder="0" pos="376 82 150 24" textcol="ffffffff"
               bkgcol="0" initialText="-" multiline="0" retKeyStartsLine="0"
               readonly="1" scrollbars="0" caret="0" popupmenu="0"/>
+  <TOGGLEBUTTON name="recordAudio toggle button" id="2d551d06cdcfaafe" memberName="recordAudio__toggleButton"
+                virtualName="" explicitFocusOrder="0" pos="439.5c 160 127 24"
+                buttonText="Record Audio" connectedEdges="0" needsCallback="1"
+                radioGroupId="0" state="0"/>
 </JUCER_COMPONENT>
 
 END_JUCER_METADATA

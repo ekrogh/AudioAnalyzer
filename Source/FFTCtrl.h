@@ -62,6 +62,8 @@ private:
 
     //==============================================================================
     std::unique_ptr<juce::TextButton> selFile__textButton;
+    std::unique_ptr<juce::TextButton> makeWhiteNoise__textButton;
+    std::unique_ptr<juce::TextButton> makeSines__textButton;
 
 
     //==============================================================================

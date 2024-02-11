@@ -95,11 +95,11 @@ private:
     std::shared_ptr<AudioDeviceManager> sharedAudioDeviceManager;
 	std::shared_ptr<PlotModule> module_Plot =
 		std::make_shared<PlotModule>();
-    std::unique_ptr<SoundProcessorModule> module_SoundProcessor;
-    std::unique_ptr<AudioSettingsModule> module_AudioSettings;
-    std::unique_ptr<microphoneAccessPermissionAlert> module_microphoneAccessPermissionAlert;
-    std::unique_ptr<AudioRecorderModule> module_AudioRecording;
-    std::unique_ptr<AudioPlaybackModule> module_AudioPlayback;
+    std::shared_ptr<SoundProcessorModule> module_SoundProcessor;
+    std::shared_ptr<AudioSettingsModule> module_AudioSettings;
+    std::shared_ptr<microphoneAccessPermissionAlert> module_microphoneAccessPermissionAlert;
+    std::shared_ptr<AudioRecorderModule> module_AudioRecording;
+    std::shared_ptr<AudioPlaybackModule> module_AudioPlayback;
     std::shared_ptr<FFTModule> module_FFT;
     std::shared_ptr<FFTCtrl> module_FFTCtrl;
     std::shared_ptr<freqPlotModule> module_freqPlot =

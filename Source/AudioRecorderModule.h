@@ -258,10 +258,7 @@ public:
 
 		recordButton.onClick = [this]
 			{
-				if (recorder.isRecording())
-					stopRecording();
-				else
-					startRecording();
+				startStopRecording();
 			};
 
 		addAndMakeVisible(recordingThumbnail);
@@ -283,6 +280,14 @@ public:
 	{
 		sharedAudioDeviceManager->removeAudioCallback(&recorder);
 		sharedAudioDeviceManager->removeAudioCallback(&liveAudioScroller);
+	}
+	
+	void startStopRecording()
+	{
+		if (recorder.isRecording())
+			stopRecording();
+		else
+			startRecording();
 	}
 
 	void paint(Graphics& g) override

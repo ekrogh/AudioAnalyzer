@@ -43,14 +43,21 @@ MainComponent::MainComponent()
 	if (checkMicrophoneAccessPermission())
 	{
 
-		module_SoundProcessor =
-			std::make_unique<SoundProcessorModule>(module_Plot, sharedAudioDeviceManager);
-		module_AudioSettings =
-			std::make_unique<AudioSettingsModule>(sharedAudioDeviceManager);
 		module_AudioRecording =
-			std::make_unique<AudioRecorderModule>(sharedAudioDeviceManager);
+			std::make_shared<AudioRecorderModule>(sharedAudioDeviceManager);
+		module_SoundProcessor =
+			std::make_shared<SoundProcessorModule>
+			(
+				module_Plot
+				,
+				sharedAudioDeviceManager
+				,
+				module_AudioRecording
+			);
+		module_AudioSettings =
+			std::make_shared<AudioSettingsModule>(sharedAudioDeviceManager);
 		module_AudioPlayback =
-			std::make_unique<AudioPlaybackModule>(sharedAudioDeviceManager);
+			std::make_shared<AudioPlaybackModule>(sharedAudioDeviceManager);
 		module_FFT =
 			std::make_shared<FFTModule>(sharedAudioDeviceManager, module_freqPlot);
 		module_FFTCtrl =
@@ -117,7 +124,7 @@ MainComponent::MainComponent()
 	else
 	{
 		module_microphoneAccessPermissionAlert =
-			std::make_unique<microphoneAccessPermissionAlert>();
+			std::make_shared<microphoneAccessPermissionAlert>();
 
 		juce__tabbedComponent->addTab
 		(

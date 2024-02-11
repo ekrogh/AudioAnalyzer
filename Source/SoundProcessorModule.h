@@ -20,6 +20,7 @@
 #pragma once
 
 //[Headers]     -- You can add your own extra header files here --
+#include "AudioRecorderModule.h"
 #include "cmp_plot.h"
 #include "PlotModule.h"
 #include "Utilities.h"
@@ -42,11 +43,12 @@ class SoundProcessorModule  : public juce::AudioAppComponent,
 {
 public:
     //==============================================================================
-    SoundProcessorModule (std::shared_ptr<PlotModule> ptr_module_Plot, std::shared_ptr<AudioDeviceManager> SADM);
+    SoundProcessorModule (std::shared_ptr<PlotModule> ptr_module_Plot, std::shared_ptr<AudioDeviceManager> SADM, std::shared_ptr<AudioRecorderModule> MAR);
     ~SoundProcessorModule() override;
 
     //==============================================================================
     //[UserMethods]     -- You can add your own custom methods in this section.
+	void startStopRecording();
 	void makeGraphAttributes();
 	void stopAudio();
 	void updateAngleDelta();
@@ -100,7 +102,7 @@ private:
 		.getChildFile("measurements.aua"), "*.aua"
 	};
 	cmp::StringVector plotLegend;
-
+    std::shared_ptr<AudioRecorderModule> module_AudioRecording;
     //[/UserVariables]
 
     //==============================================================================
@@ -123,6 +125,7 @@ private:
     std::unique_ptr<juce::TextEditor> timeToRunTotally__textEditor;
     std::unique_ptr<juce::TextEditor> timeToRunValue__textEditor;
     std::unique_ptr<juce::TextEditor> currentFrequencyValue__textEditor2;
+    std::unique_ptr<juce::ToggleButton> recordAudio__toggleButton;
 
 
     //==============================================================================

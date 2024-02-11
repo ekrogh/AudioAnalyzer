@@ -150,32 +150,6 @@ public:
 		fifo[fifoIndex++] = sample;
 	}
 
-	//void pushNextSampleIntoFifo(float sample) noexcept
-	//{
-	//	// if the fifo contains enough data, set a flag to say
-	//	// that the next line should now be rendered..
-	//	if (fifoIndex == fftSize)
-	//	{
-	//		if (!nextFFTBlockReady)
-	//		{
-	//			fftData = fifo;
-	//			fftData.resize(2 * fftSize);
-
-	//			//zeromem(fftData, sizeof(fftData));
-	//			//memcpy(fftData, fifo, sizeof(fifo));
-	//			nextFFTBlockReady = true;
-	//		}
-
-	//		fifo.clear();
-	//		fifo.reserve(0);
-	//		fifoIndex = 0;
-	//	}
-
-	//	fifo.push_back(sample);
-	//	fifoIndex++;
-	//	//fifo[fifoIndex++] = sample;
-	//}
-
 	void drawNextLineOfSpectrogram()
 	{
 		auto rightHandEdge = spectrogramImage.getWidth() - 1;
@@ -200,31 +174,6 @@ public:
 			spectrogramImage.setPixelAt(rightHandEdge, y, Colour::fromHSV(level, 1.0f, level, 1.0f));
 		}
 	}
-
-	//void drawNextLineOfSpectrogram()
-	//{
-	//	auto rightHandEdge = spectrogramImage.getWidth() - 1;
-	//	auto imageHeight = spectrogramImage.getHeight();
-
-	//	// first, shuffle our image leftwards by 1 pixel..
-	//	spectrogramImage.moveImageSection(0, 0, 1, 0, rightHandEdge, imageHeight);
-
-	//	// then render our FFT data..
-	//	forwardFFT->performFrequencyOnlyForwardTransform(fftData.data());
-
-	//	// find the range of values produced, so we can scale our rendering to
-	//	// show up the detail clearly
-	//	auto maxLevel = FloatVectorOperations::findMinAndMax(fftData.data(), (int)fftSize / 2);
-
-	//	for (auto y = 1; y < imageHeight; ++y)
-	//	{
-	//		auto skewedProportionY = 1.0f - std::exp(std::log((float)y / (float)imageHeight) * 0.2f);
-	//		auto fftDataIndex = jlimit(0, (int)fftSize / 2, (int)(skewedProportionY * (int)fftSize / 2));
-	//		auto level = jmap(fftData[fftDataIndex], 0.0f, jmax(maxLevel.getEnd(), 1e-5f), 0.0f, 1.0f);
-
-	//		spectrogramImage.setPixelAt(rightHandEdge, y, Colour::fromHSV(level, 1.0f, level, 1.0f));
-	//	}
-	//}
 
 	void handleAudioResource(URL resource)
 	{
@@ -261,11 +210,9 @@ public:
 			= std::make_unique<dsp::FFT>(fftOrder);
 		fftSize = 1 << fftOrder;
 
-		fifo = new float[fftSize];
-		fftData = new float[2 * fftSize];
+		fftData = new float[2 * fftSize] { 0 };
 		fifoIndex = 0;
-		zeromem(fftData, sizeof(fftData));
-		//floatDataBfrs[0] = fftData;
+
 		theAudioBuffer =
 			std::make_unique<AudioBuffer<float>>
 			(
@@ -312,8 +259,8 @@ public:
 		);
 
 		// then render our FFT data..
-		forwardFFT->performFrequencyOnlyForwardTransform(fftData);
-		//forwardFFT->performFrequencyOnlyForwardTransform(fftData, true);
+		//forwardFFT->performFrequencyOnlyForwardTransform(fftData);
+		forwardFFT->performFrequencyOnlyForwardTransform(fftData, true);
 
 		auto nbrFFTPts = (forwardFFT->getSize() / 2) /*+ 1*/;
 		
@@ -347,86 +294,6 @@ public:
 		return true;
 	}
 
-	//bool loadURLIntoFFT(const URL& audioURL)
-	//{
-	//	const auto source = makeInputSource(audioURL);
-
-	//	if (source == nullptr)
-	//		return false;
-
-	//	auto stream = rawToUniquePtr(source->createInputStream());
-
-	//	if (stream == nullptr)
-	//		return false;
-
-	//	reader = rawToUniquePtr(formatManager.createReaderFor(std::move(stream)));
-
-	//	if (reader == nullptr)
-	//		return false;
-
-	//	bufferLengthInSamples = reader->lengthInSamples;
-	//	fftOrder = std::log2(bufferLengthInSamples) /*/ std::log2(2)*/;
-	//	forwardFFT
-	//		= std::make_unique<dsp::FFT>(fftOrder);
-	//	fftSize = 1 << fftOrder;
-
-	//	fifoIndex = 0;
-
-	//	theAudioBuffer =
-	//		std::make_unique<AudioBuffer<float>>
-	//		(
-	//			reader->numChannels
-	//			,
-	//			reader->lengthInSamples
-	//		);
-	//	auto endTheAudioBuffer =
-	//		theAudioBuffer->getReadPointer(0) + fftSize * sizeof(float);
-
-	//	//fftData.assign(theAudioBuffer->getReadPointer(0), endTheAudioBuffer);
-	//	fftData.resize(2 * fftSize);
-	//	memcpy(fftData.data(), theAudioBuffer->getReadPointer(0), fftSize * sizeof(float));
-
-	//	auto tmpFftData = fftData.data();
-
-	//	// then render our FFT data..
-	//	forwardFFT->performFrequencyOnlyForwardTransform(fftData.data(), true);
-
-	//	tmpFftData = fftData.data();
-
-	//	auto nbrFFTPts = (forwardFFT->getSize() / 2) /*+ 1*/;
-	//	fftData.resize(nbrFFTPts);
-
-	//	plotValues.clear();
-	//	plotValues.reserve(0);
-	//	plotValues.push_back(fftData);
-
-	//	frequencyValues.clear();
-	//	frequencyValues.reserve(0);
-	//	auto deltaHz = reader->sampleRate / nbrFFTPts;
-
-	//	std::vector<float> tmpFreqVctr(0);
-	//	float freqVal = 0.0f;
-	//	for (size_t i = 1; i <= nbrFFTPts; i++)
-	//	{
-	//		tmpFreqVctr.push_back(freqVal);
-	//		freqVal += deltaHz;
-	//	}
-	//	frequencyValues.push_back(tmpFreqVctr);
-
-	//	makeGraphAttributes();
-	//	plotLegend.push_back("p " + std::to_string(plotLegend.size() + 1));
-
-	//	module_freqPlot->setTitle("Frequency response [FFT]");
-	//	module_freqPlot->setXLabel("[Hz]");
-	//	module_freqPlot->setYLabel("[Magnitude]");
-
-	//	module_freqPlot->updatePlot(plotValues, frequencyValues/*, graph_attributes, plotLegend*/);
-	//	//module_freqPlot->updatePlot(plotValues, frequencyValues, graph_attributes, plotLegend);
-
-	//	return true;
-	//}
-
-
 	void selectFile()
 	{
 		chooser.launchAsync
@@ -445,6 +312,169 @@ public:
 				}
 			}
 		);
+	}
+
+	bool makeWhiteNoise()
+	{
+		fftOrder = 19;
+		forwardFFT
+			= std::make_unique<dsp::FFT>(fftOrder);
+		fftSize = 1 << fftOrder;
+
+		fftData = new float[2 * fftSize] { 0 };
+		fifoIndex = 0;
+
+		for (size_t i = 0; i < fftSize; i++)
+		{
+			fftData[i] = random.nextFloat() * 0.25f - 0.125f;
+		}
+
+		juce::dsp::WindowingFunction<float> theHannWindow
+		(
+			fftSize
+			,
+			juce::dsp::WindowingFunction<float>::WindowingMethod::hann
+		);
+
+		theHannWindow.multiplyWithWindowingTable
+		(
+			fftData
+			,
+			fftSize
+		);
+
+		// then render our FFT data..
+		forwardFFT->performFrequencyOnlyForwardTransform(fftData, true);
+
+		auto nbrFFTPts = (forwardFFT->getSize() / 2) /*+ 1*/;
+
+		plotValues.clear();
+		plotValues.reserve(0);
+		std::vector<float> tmpPVals(fftData, fftData + nbrFFTPts);
+		plotValues.push_back(tmpPVals);
+
+		frequencyValues.clear();
+		frequencyValues.reserve(0);
+		auto deltaHz = 44100.0f / nbrFFTPts;
+
+		std::vector<float> tmpFreqVctr(0);
+		float freqVal = 0.0f;
+		for (size_t i = 1; i <= nbrFFTPts; i++)
+		{
+			tmpFreqVctr.push_back(freqVal);
+			freqVal += deltaHz;
+		}
+		frequencyValues.push_back(tmpFreqVctr);
+
+		makeGraphAttributes();
+		plotLegend.push_back("p " + std::to_string(plotLegend.size() + 1));
+
+		module_freqPlot->setTitle("Frequency response [FFT]");
+		module_freqPlot->setXLabel("[Hz]");
+		module_freqPlot->setYLabel("[Magnitude]");
+
+		module_freqPlot->updatePlot(plotValues, frequencyValues, graph_attributes, plotLegend);
+
+		return true;
+	}
+
+	bool makeSines()
+	{
+		fftOrder = 10;
+		forwardFFT
+			= std::make_unique<dsp::FFT>(fftOrder);
+		fftSize = 1 << fftOrder;
+
+		fftData = new float[2 * fftSize] { 0 };
+		fifoIndex = 0;
+
+		double currentSampleRate = 44100.0f;
+
+		double currentFrequency1Hz = 500.0f;
+		double currentPhase1 = 0.0f;
+		auto cyclesPerSample = currentFrequency1Hz / currentSampleRate;
+		double phaseDeltaPerSample1 = cyclesPerSample * juce::MathConstants<double>::twoPi;
+
+		double currentFrequency2Hz = 1000.0f;
+		double currentPhase2 = 0.0f;
+		cyclesPerSample = currentFrequency2Hz / currentSampleRate;
+		double phaseDeltaPerSample2 = cyclesPerSample * juce::MathConstants<double>::twoPi;
+
+		double currentFrequency3Hz = 2000.0f;
+		double currentPhase3 = 0.0f;
+		cyclesPerSample = currentFrequency3Hz / currentSampleRate;
+		double phaseDeltaPerSample3 = cyclesPerSample * juce::MathConstants<double>::twoPi;
+
+		double currentFrequency4Hz = 8000.0f;
+		double currentPhase4 = 0.0f;
+		cyclesPerSample = currentFrequency4Hz / currentSampleRate;
+		double phaseDeltaPerSample4 = cyclesPerSample * juce::MathConstants<double>::twoPi;
+
+		for (size_t i = 0; i < fftSize; i++)
+		{
+			fftData[i] += (float)std::sin(currentPhase1);
+			currentPhase1 = std::fmod(currentPhase1 + phaseDeltaPerSample1, juce::MathConstants<double>::twoPi);
+
+			fftData[i] += (float)std::sin(currentPhase2);
+			currentPhase2 = std::fmod(currentPhase2 + phaseDeltaPerSample2, juce::MathConstants<double>::twoPi);
+
+			fftData[i] += (float)std::sin(currentPhase3);
+			currentPhase3 = std::fmod(currentPhase3 + phaseDeltaPerSample3, juce::MathConstants<double>::twoPi);
+
+			fftData[i] += (float)std::sin(currentPhase4);
+			currentPhase4 = std::fmod(currentPhase4 + phaseDeltaPerSample4, juce::MathConstants<double>::twoPi);
+		}
+
+		juce::dsp::WindowingFunction<float> theHannWindow
+		(
+			fftSize
+			,
+			juce::dsp::WindowingFunction<float>::WindowingMethod::hann
+		);
+
+		theHannWindow.multiplyWithWindowingTable
+		(
+			fftData
+			,
+			fftSize
+		);
+
+		// then render our FFT data..
+		//forwardFFT->performFrequencyOnlyForwardTransform(fftData);
+		forwardFFT->performFrequencyOnlyForwardTransform(fftData, true);
+
+		auto fftlgth = forwardFFT->getSize();
+		auto nbrFFTPts = fftlgth;
+		//auto nbrFFTPts = (fftlgth / 2) /*+ 1*/;
+
+		plotValues.clear();
+		plotValues.reserve(0);
+		std::vector<float> tmpPVals(fftData, fftData + nbrFFTPts);
+		plotValues.push_back(tmpPVals);
+
+		frequencyValues.clear();
+		frequencyValues.reserve(0);
+		auto deltaHz = currentSampleRate / nbrFFTPts;
+
+		std::vector<float> tmpFreqVctr(0);
+		float freqVal = 0.0f;
+		for (size_t i = 1; i <= nbrFFTPts; i++)
+		{
+			tmpFreqVctr.push_back(freqVal);
+			freqVal += deltaHz;
+		}
+		frequencyValues.push_back(tmpFreqVctr);
+
+		makeGraphAttributes();
+		plotLegend.push_back("p " + std::to_string(plotLegend.size() + 1));
+
+		module_freqPlot->setTitle("Frequency response [FFT]");
+		module_freqPlot->setXLabel("[Hz]");
+		module_freqPlot->setYLabel("[Magnitude]");
+
+		module_freqPlot->updatePlot(plotValues, frequencyValues, graph_attributes, plotLegend);
+
+		return true;
 	}
 
 	void makeGraphAttributes()
@@ -472,6 +502,8 @@ private:
 	float* const* floatDataBfrs[1]{ 0 };
 	int fifoIndex = 0;
 	bool nextFFTBlockReady = false;
+
+	juce::Random random;
 
 	std::vector <std::vector<float>> plotValues;
 	std::vector <std::vector<float>> frequencyValues;
