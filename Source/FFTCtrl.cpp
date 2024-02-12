@@ -40,21 +40,126 @@ FFTCtrl::FFTCtrl (std::shared_ptr<FFTModule> ptr_module_FFT, std::shared_ptr<Aud
     selFile__textButton->setButtonText (TRANS ("Select Audio File"));
     selFile__textButton->addListener (this);
 
-    selFile__textButton->setBounds (16, 16, 150, 24);
+    selFile__textButton->setBounds (16, 80, 150, 24);
 
     makeWhiteNoise__textButton.reset (new juce::TextButton ("makeWhiteNoise button"));
     addAndMakeVisible (makeWhiteNoise__textButton.get());
     makeWhiteNoise__textButton->setButtonText (TRANS ("Make White Noise"));
     makeWhiteNoise__textButton->addListener (this);
 
-    makeWhiteNoise__textButton->setBounds (16, 56, 150, 24);
+    makeWhiteNoise__textButton->setBounds (16, 281, 150, 24);
 
     makeSines__textButton.reset (new juce::TextButton ("makeSines button"));
     addAndMakeVisible (makeSines__textButton.get());
     makeSines__textButton->setButtonText (TRANS ("MakeSines"));
     makeSines__textButton->addListener (this);
 
-    makeSines__textButton->setBounds (16, 99, 150, 24);
+    makeSines__textButton->setBounds (16, 505, 150, 24);
+
+    freqs__textEditor.reset (new juce::TextEditor ("freqs text editor"));
+    addAndMakeVisible (freqs__textEditor.get());
+    freqs__textEditor->setTooltip (TRANS ("Frequencies"));
+    freqs__textEditor->setMultiLine (true);
+    freqs__textEditor->setReturnKeyStartsNewLine (true);
+    freqs__textEditor->setReadOnly (false);
+    freqs__textEditor->setScrollbarsShown (true);
+    freqs__textEditor->setCaretVisible (true);
+    freqs__textEditor->setPopupMenuEnabled (true);
+    freqs__textEditor->setText (juce::String());
+
+    freqs__textEditor->setBounds (16, 360, 150, 136);
+
+    freqs__label.reset (new juce::Label ("freqs label",
+                                         TRANS ("Frequences\n")));
+    addAndMakeVisible (freqs__label.get());
+    freqs__label->setFont (juce::Font (15.00f, juce::Font::plain).withTypefaceStyle ("Regular"));
+    freqs__label->setJustificationType (juce::Justification::centredLeft);
+    freqs__label->setEditable (false, false, false);
+    freqs__label->setColour (juce::TextEditor::textColourId, juce::Colours::black);
+    freqs__label->setColour (juce::TextEditor::backgroundColourId, juce::Colour (0x00000000));
+
+    freqs__label->setBounds (16, 325, 150, 24);
+
+    max_freq__textEditor.reset (new juce::TextEditor ("max_freq text editor"));
+    addAndMakeVisible (max_freq__textEditor.get());
+    max_freq__textEditor->setTooltip (TRANS ("max_freq"));
+    max_freq__textEditor->setMultiLine (false);
+    max_freq__textEditor->setReturnKeyStartsNewLine (false);
+    max_freq__textEditor->setReadOnly (false);
+    max_freq__textEditor->setScrollbarsShown (true);
+    max_freq__textEditor->setCaretVisible (true);
+    max_freq__textEditor->setPopupMenuEnabled (true);
+    max_freq__textEditor->setText (TRANS ("15000"));
+
+    max_freq__textEditor->setBounds (16, 42, 150, 24);
+
+    max_Freq__label.reset (new juce::Label ("max_Freq label",
+                                            TRANS ("Max. frequency")));
+    addAndMakeVisible (max_Freq__label.get());
+    max_Freq__label->setFont (juce::Font (15.00f, juce::Font::plain).withTypefaceStyle ("Regular"));
+    max_Freq__label->setJustificationType (juce::Justification::centredLeft);
+    max_Freq__label->setEditable (false, false, false);
+    max_Freq__label->setColour (juce::TextEditor::textColourId, juce::Colours::black);
+    max_Freq__label->setColour (juce::TextEditor::backgroundColourId, juce::Colour (0x00000000));
+
+    max_Freq__label->setBounds (16, 13, 150, 24);
+
+    Sample_Freq__label.reset (new juce::Label ("Sample_Freq label",
+                                               TRANS ("Sample Freq")));
+    addAndMakeVisible (Sample_Freq__label.get());
+    Sample_Freq__label->setTooltip (TRANS ("Sample_Freq"));
+    Sample_Freq__label->setFont (juce::Font (15.00f, juce::Font::plain).withTypefaceStyle ("Regular"));
+    Sample_Freq__label->setJustificationType (juce::Justification::centredLeft);
+    Sample_Freq__label->setEditable (false, false, false);
+    Sample_Freq__label->setColour (juce::TextEditor::textColourId, juce::Colours::black);
+    Sample_Freq__label->setColour (juce::TextEditor::backgroundColourId, juce::Colour (0x00000000));
+
+    Sample_Freq__label->setBounds (16, 119, 150, 24);
+
+    Sample_Freq__textEditor.reset (new juce::TextEditor ("Sample_Freq text editor"));
+    addAndMakeVisible (Sample_Freq__textEditor.get());
+    Sample_Freq__textEditor->setTooltip (TRANS ("Sample_Freq"));
+    Sample_Freq__textEditor->setMultiLine (false);
+    Sample_Freq__textEditor->setReturnKeyStartsNewLine (false);
+    Sample_Freq__textEditor->setReadOnly (false);
+    Sample_Freq__textEditor->setScrollbarsShown (true);
+    Sample_Freq__textEditor->setCaretVisible (true);
+    Sample_Freq__textEditor->setPopupMenuEnabled (true);
+    Sample_Freq__textEditor->setText (TRANS ("44100"));
+
+    Sample_Freq__textEditor->setBounds (16, 151, 150, 24);
+
+    Nbr_samples__label.reset (new juce::Label ("Nbr_samples label",
+                                               TRANS ("Nbr samples")));
+    addAndMakeVisible (Nbr_samples__label.get());
+    Nbr_samples__label->setTooltip (TRANS ("Nbr_samples"));
+    Nbr_samples__label->setFont (juce::Font (15.00f, juce::Font::plain).withTypefaceStyle ("Regular"));
+    Nbr_samples__label->setJustificationType (juce::Justification::centredLeft);
+    Nbr_samples__label->setEditable (false, false, false);
+    Nbr_samples__label->setColour (juce::TextEditor::textColourId, juce::Colours::black);
+    Nbr_samples__label->setColour (juce::TextEditor::backgroundColourId, juce::Colour (0x00000000));
+
+    Nbr_samples__label->setBounds (16, 192, 150, 24);
+
+    Nbr_Samples__textEditor.reset (new juce::TextEditor ("Nbr_Samples text editor"));
+    addAndMakeVisible (Nbr_Samples__textEditor.get());
+    Nbr_Samples__textEditor->setTooltip (TRANS ("Nbr_Samples"));
+    Nbr_Samples__textEditor->setMultiLine (false);
+    Nbr_Samples__textEditor->setReturnKeyStartsNewLine (false);
+    Nbr_Samples__textEditor->setReadOnly (false);
+    Nbr_Samples__textEditor->setScrollbarsShown (true);
+    Nbr_Samples__textEditor->setCaretVisible (true);
+    Nbr_Samples__textEditor->setPopupMenuEnabled (true);
+    Nbr_Samples__textEditor->setText (TRANS ("4096"));
+
+    Nbr_Samples__textEditor->setBounds (16, 224, 150, 24);
+
+    clearPlot__textButton.reset (new juce::TextButton ("clearPlot button"));
+    addAndMakeVisible (clearPlot__textButton.get());
+    clearPlot__textButton->setButtonText (TRANS ("Clear Plot"));
+    clearPlot__textButton->addListener (this);
+
+    clearPlot__textButton->setBounds (192, 40, 150, 24);
 
 
     //[UserPreSize]
@@ -75,6 +180,15 @@ FFTCtrl::~FFTCtrl()
     selFile__textButton = nullptr;
     makeWhiteNoise__textButton = nullptr;
     makeSines__textButton = nullptr;
+    freqs__textEditor = nullptr;
+    freqs__label = nullptr;
+    max_freq__textEditor = nullptr;
+    max_Freq__label = nullptr;
+    Sample_Freq__label = nullptr;
+    Sample_Freq__textEditor = nullptr;
+    Nbr_samples__label = nullptr;
+    Nbr_Samples__textEditor = nullptr;
+    clearPlot__textButton = nullptr;
 
 
     //[Destructor]. You can add your own custom destruction code here..
@@ -110,20 +224,53 @@ void FFTCtrl::buttonClicked (juce::Button* buttonThatWasClicked)
     if (buttonThatWasClicked == selFile__textButton.get())
     {
         //[UserButtonCode_selFile__textButton] -- add your button handler code here..
-        module_FFT->selectFile();
+		module_FFT->selectFile
+        (
+            max_freq__textEditor->getText().getIntValue()       //unsigned int maxFreq
+        );
         //[/UserButtonCode_selFile__textButton]
     }
     else if (buttonThatWasClicked == makeWhiteNoise__textButton.get())
     {
         //[UserButtonCode_makeWhiteNoise__textButton] -- add your button handler code here..
-        module_FFT->makeWhiteNoise();
+		module_FFT->makeWhiteNoise
+		(
+			Nbr_Samples__textEditor->getText().getIntValue()    //unsigned int nbrSamples
+			,
+			max_freq__textEditor->getText().getIntValue()       //unsigned int maxFreq
+			,
+			Sample_Freq__textEditor->getText().getIntValue()    //unsigned int sampleRate
+		);
         //[/UserButtonCode_makeWhiteNoise__textButton]
     }
     else if (buttonThatWasClicked == makeSines__textButton.get())
     {
         //[UserButtonCode_makeSines__textButton] -- add your button handler code here..
-        module_FFT->makeSines();
+		StringArray theStrings = StringArray::fromLines(freqs__textEditor->getText());
+
+		std::vector<double> dblFreqs;
+		for (String str : theStrings)
+		{
+			dblFreqs.push_back(str.getDoubleValue());
+		}
+
+		module_FFT->makeSines
+		(
+			Nbr_Samples__textEditor->getText().getIntValue()    //unsigned int nbrSamples
+			,
+			max_freq__textEditor->getText().getIntValue()       //unsigned int maxFreq
+			,
+			Sample_Freq__textEditor->getText().getIntValue()    //unsigned int sampleRate
+			,
+			dblFreqs
+		);
         //[/UserButtonCode_makeSines__textButton]
+    }
+    else if (buttonThatWasClicked == clearPlot__textButton.get())
+    {
+        //[UserButtonCode_clearPlot__textButton] -- add your button handler code here..
+        module_freqPlot->clearPlot();
+        //[/UserButtonCode_clearPlot__textButton]
     }
 
     //[UserbuttonClicked_Post]
@@ -152,13 +299,52 @@ BEGIN_JUCER_METADATA
                  fixedSize="0" initialWidth="600" initialHeight="400">
   <BACKGROUND backgroundColour="ff505050"/>
   <TEXTBUTTON name="select file button" id="919b4d6b7887d05b" memberName="selFile__textButton"
-              virtualName="" explicitFocusOrder="0" pos="16 16 150 24" buttonText="Select Audio File"
+              virtualName="" explicitFocusOrder="0" pos="16 80 150 24" buttonText="Select Audio File"
               connectedEdges="0" needsCallback="1" radioGroupId="0"/>
   <TEXTBUTTON name="makeWhiteNoise button" id="5a27d84fb1070544" memberName="makeWhiteNoise__textButton"
-              virtualName="" explicitFocusOrder="0" pos="16 56 150 24" buttonText="Make White Noise"
+              virtualName="" explicitFocusOrder="0" pos="16 281 150 24" buttonText="Make White Noise"
               connectedEdges="0" needsCallback="1" radioGroupId="0"/>
   <TEXTBUTTON name="makeSines button" id="2c40b1d469aa1ae7" memberName="makeSines__textButton"
-              virtualName="" explicitFocusOrder="0" pos="16 99 150 24" buttonText="MakeSines"
+              virtualName="" explicitFocusOrder="0" pos="16 505 150 24" buttonText="MakeSines"
+              connectedEdges="0" needsCallback="1" radioGroupId="0"/>
+  <TEXTEDITOR name="freqs text editor" id="ced3cc68bea5afad" memberName="freqs__textEditor"
+              virtualName="" explicitFocusOrder="0" pos="16 360 150 136" tooltip="Frequencies"
+              initialText="" multiline="1" retKeyStartsLine="1" readonly="0"
+              scrollbars="1" caret="1" popupmenu="1"/>
+  <LABEL name="freqs label" id="90bb1f07be81f053" memberName="freqs__label"
+         virtualName="" explicitFocusOrder="0" pos="16 325 150 24" edTextCol="ff000000"
+         edBkgCol="0" labelText="Frequences&#10;" editableSingleClick="0"
+         editableDoubleClick="0" focusDiscardsChanges="0" fontname="Default font"
+         fontsize="15.0" kerning="0.0" bold="0" italic="0" justification="33"/>
+  <TEXTEDITOR name="max_freq text editor" id="3d92ad17fbd24469" memberName="max_freq__textEditor"
+              virtualName="" explicitFocusOrder="0" pos="16 42 150 24" tooltip="max_freq"
+              initialText="15000" multiline="0" retKeyStartsLine="0" readonly="0"
+              scrollbars="1" caret="1" popupmenu="1"/>
+  <LABEL name="max_Freq label" id="795ee54aec39c02d" memberName="max_Freq__label"
+         virtualName="" explicitFocusOrder="0" pos="16 13 150 24" edTextCol="ff000000"
+         edBkgCol="0" labelText="Max. frequency" editableSingleClick="0"
+         editableDoubleClick="0" focusDiscardsChanges="0" fontname="Default font"
+         fontsize="15.0" kerning="0.0" bold="0" italic="0" justification="33"/>
+  <LABEL name="Sample_Freq label" id="e27bd8b628d8b373" memberName="Sample_Freq__label"
+         virtualName="" explicitFocusOrder="0" pos="16 119 150 24" tooltip="Sample_Freq"
+         edTextCol="ff000000" edBkgCol="0" labelText="Sample Freq" editableSingleClick="0"
+         editableDoubleClick="0" focusDiscardsChanges="0" fontname="Default font"
+         fontsize="15.0" kerning="0.0" bold="0" italic="0" justification="33"/>
+  <TEXTEDITOR name="Sample_Freq text editor" id="a2ed2cb609099863" memberName="Sample_Freq__textEditor"
+              virtualName="" explicitFocusOrder="0" pos="16 151 150 24" tooltip="Sample_Freq"
+              initialText="44100" multiline="0" retKeyStartsLine="0" readonly="0"
+              scrollbars="1" caret="1" popupmenu="1"/>
+  <LABEL name="Nbr_samples label" id="b4b3deb5d8c534b2" memberName="Nbr_samples__label"
+         virtualName="" explicitFocusOrder="0" pos="16 192 150 24" tooltip="Nbr_samples"
+         edTextCol="ff000000" edBkgCol="0" labelText="Nbr samples" editableSingleClick="0"
+         editableDoubleClick="0" focusDiscardsChanges="0" fontname="Default font"
+         fontsize="15.0" kerning="0.0" bold="0" italic="0" justification="33"/>
+  <TEXTEDITOR name="Nbr_Samples text editor" id="67840ece2249397f" memberName="Nbr_Samples__textEditor"
+              virtualName="" explicitFocusOrder="0" pos="16 224 150 24" tooltip="Nbr_Samples"
+              initialText="4096" multiline="0" retKeyStartsLine="0" readonly="0"
+              scrollbars="1" caret="1" popupmenu="1"/>
+  <TEXTBUTTON name="clearPlot button" id="655c3dd1794570bf" memberName="clearPlot__textButton"
+              virtualName="" explicitFocusOrder="0" pos="192 40 150 24" buttonText="Clear Plot"
               connectedEdges="0" needsCallback="1" radioGroupId="0"/>
 </JUCER_COMPONENT>
 
