@@ -7,7 +7,7 @@
   the "//[xyz]" and "//[/xyz]" sections will be retained when the file is loaded
   and re-saved.
 
-  Created with Projucer version: 7.0.9
+  Created with Projucer version: 7.0.10
 
   ------------------------------------------------------------------------------
 
@@ -99,8 +99,6 @@ SoundProcessorModule::SoundProcessorModule (std::shared_ptr<PlotModule> ptr_modu
     juce__label->setColour (juce::TextEditor::textColourId, juce::Colours::black);
     juce__label->setColour (juce::TextEditor::backgroundColourId, juce::Colour (0x00000000));
 
-    juce__label->setBounds (8, 80, 150, 24);
-
     juce__label6.reset (new juce::Label ("new label",
                                          TRANS ("Time to run totally [Min]:")));
     addAndMakeVisible (juce__label6.get());
@@ -123,7 +121,7 @@ SoundProcessorModule::SoundProcessorModule (std::shared_ptr<PlotModule> ptr_modu
     minFreq__textEditor.reset (new juce::TextEditor ("min. freq. text editor"));
     addAndMakeVisible (minFreq__textEditor.get());
     minFreq__textEditor->setTooltip (TRANS ("min. freq."));
-    minFreq__textEditor->setExplicitFocusOrder (1);
+    minFreq__textEditor->setExplicitFocusOrder (2);
     minFreq__textEditor->setMultiLine (false);
     minFreq__textEditor->setReturnKeyStartsNewLine (false);
     minFreq__textEditor->setReadOnly (false);
@@ -132,11 +130,9 @@ SoundProcessorModule::SoundProcessorModule (std::shared_ptr<PlotModule> ptr_modu
     minFreq__textEditor->setPopupMenuEnabled (true);
     minFreq__textEditor->setText (juce::String());
 
-    minFreq__textEditor->setBounds (8, 48, 150, 24);
-
     maxFreq__textEditor.reset (new juce::TextEditor ("max freq. text editor"));
     addAndMakeVisible (maxFreq__textEditor.get());
-    maxFreq__textEditor->setExplicitFocusOrder (2);
+    maxFreq__textEditor->setExplicitFocusOrder (1);
     maxFreq__textEditor->setMultiLine (false);
     maxFreq__textEditor->setReturnKeyStartsNewLine (false);
     maxFreq__textEditor->setReadOnly (false);
@@ -144,8 +140,6 @@ SoundProcessorModule::SoundProcessorModule (std::shared_ptr<PlotModule> ptr_modu
     maxFreq__textEditor->setCaretVisible (true);
     maxFreq__textEditor->setPopupMenuEnabled (true);
     maxFreq__textEditor->setText (juce::String());
-
-    maxFreq__textEditor->setBounds (8, 112, 150, 24);
 
     deltaFreq__textEditor.reset (new juce::TextEditor ("delta freq. text editor"));
     addAndMakeVisible (deltaFreq__textEditor.get());
@@ -598,10 +592,13 @@ void SoundProcessorModule::resized()
     juce__label2->setBounds (8, 208, getWidth() - 390, 24);
     timeToRun__label->setBounds (272 - (192 / 2), 48, 192, 24);
     qurFreq__label->setBounds (272 - (192 / 2), 82, 192, 24);
-    juce__label5->setBounds (8, 16, getWidth() - 390, 24);
+    juce__label5->setBounds (80 - (144 / 2), 82, 144, 24);
+    juce__label->setBounds (83 - (150 / 2), 16, 150, 24);
     juce__label6->setBounds (272 - (192 / 2), 16, 192, 24);
     pause__toggleButton->setBounds (416 - (80 / 2), 120, 80, 24);
     Deleteoldmeasurements__textButton->setBounds (268 - (184 / 2), 160, 184, 24);
+    minFreq__textEditor->setBounds (83 - (150 / 2), 82 + 24 - -8, 150, 24);
+    maxFreq__textEditor->setBounds (83 - (150 / 2), 48, 150, 24);
     recordAudio__toggleButton->setBounds (440 - (127 / 2), 160, 127, 24);
     //[UserResized] Add your own custom resize handling here..
     //[/UserResized]
@@ -858,17 +855,16 @@ BEGIN_JUCER_METADATA
          fontname="Default font" fontsize="15.0" kerning="0.0" bold="0"
          italic="0" justification="33"/>
   <LABEL name="new label" id="d890f1fd96613a14" memberName="juce__label5"
-         virtualName="" explicitFocusOrder="0" pos="8 16 390M 24" posRelativeX="887447af4b675ddb"
+         virtualName="" explicitFocusOrder="0" pos="80c 82 144 24" posRelativeW="93293acbba06ebfc"
          edTextCol="ff000000" edBkgCol="0" labelText="Min. frequency [Hz]"
          editableSingleClick="0" editableDoubleClick="0" focusDiscardsChanges="0"
          fontname="Default font" fontsize="15.0" kerning="0.0" bold="0"
          italic="0" justification="33"/>
   <LABEL name="new label" id="b25ba8f932e8325" memberName="juce__label"
-         virtualName="" explicitFocusOrder="0" pos="8 80 150 24" posRelativeX="3ad3aaa1f69d9a54"
-         edTextCol="ff000000" edBkgCol="0" labelText="Max. freq. [Hz]"
-         editableSingleClick="0" editableDoubleClick="0" focusDiscardsChanges="0"
-         fontname="Default font" fontsize="15.0" kerning="0.0" bold="0"
-         italic="0" justification="33"/>
+         virtualName="" explicitFocusOrder="0" pos="83c 16 150 24" edTextCol="ff000000"
+         edBkgCol="0" labelText="Max. freq. [Hz]" editableSingleClick="0"
+         editableDoubleClick="0" focusDiscardsChanges="0" fontname="Default font"
+         fontsize="15.0" kerning="0.0" bold="0" italic="0" justification="33"/>
   <LABEL name="new label" id="93293acbba06ebfc" memberName="juce__label6"
          virtualName="" explicitFocusOrder="0" pos="272c 16 192 24" edTextCol="ff000000"
          edBkgCol="0" labelText="Time to run totally [Min]:" editableSingleClick="0"
@@ -882,13 +878,14 @@ BEGIN_JUCER_METADATA
               explicitFocusOrder="7" pos="268c 160 184 24" buttonText="Delete old measurements"
               connectedEdges="0" needsCallback="0" radioGroupId="0"/>
   <TEXTEDITOR name="min. freq. text editor" id="873b782b66348908" memberName="minFreq__textEditor"
-              virtualName="" explicitFocusOrder="1" pos="8 48 150 24" tooltip="min. freq."
-              initialText="" multiline="0" retKeyStartsLine="0" readonly="0"
-              scrollbars="0" caret="1" popupmenu="1"/>
-  <TEXTEDITOR name="max freq. text editor" id="af1a81047b946cdb" memberName="maxFreq__textEditor"
-              virtualName="" explicitFocusOrder="2" pos="8 112 150 24" initialText=""
-              multiline="0" retKeyStartsLine="0" readonly="0" scrollbars="1"
+              virtualName="" explicitFocusOrder="2" pos="83c -8R 150 24" posRelativeX="3f78bae238bae958"
+              posRelativeY="7a68dc774966fe8" tooltip="min. freq." initialText=""
+              multiline="0" retKeyStartsLine="0" readonly="0" scrollbars="0"
               caret="1" popupmenu="1"/>
+  <TEXTEDITOR name="max freq. text editor" id="af1a81047b946cdb" memberName="maxFreq__textEditor"
+              virtualName="" explicitFocusOrder="1" pos="83c 48 150 24" posRelativeW="93293acbba06ebfc"
+              initialText="" multiline="0" retKeyStartsLine="0" readonly="0"
+              scrollbars="1" caret="1" popupmenu="1"/>
   <TEXTEDITOR name="delta freq. text editor" id="5d300af57711f33c" memberName="deltaFreq__textEditor"
               virtualName="" explicitFocusOrder="3" pos="8 176 150 24" initialText=""
               multiline="0" retKeyStartsLine="0" readonly="0" scrollbars="1"

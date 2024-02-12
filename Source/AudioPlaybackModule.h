@@ -361,7 +361,11 @@ private:
 	{
 			"File..."
 			,
-			File()
+			File::getSpecialLocation
+			(
+				juce::File::SpecialLocationType::userDocumentsDirectory
+			)
+			.getChildFile("recording.wav")
 			,
 #if JUCE_ANDROID
 				"*.*"

@@ -97,8 +97,16 @@ void freqPlotModule::updatePlot
     std::vector <std::vector<float>> x_values
 )
 {
-    const MessageManagerLock mml;
-    m_plot.plot(y_values, x_values);
+    local_y_values = y_values;
+    local_x_values = x_values;
+
+    MessageManager::callAsync([this]() { clearPlot(); });
+    MessageManager::callAsync([this]() { doThesimplePlot(); });
+}
+
+void freqPlotModule::doThesimplePlot()
+{
+    m_plot.plot(local_y_values, local_x_values);
 }
 
 void freqPlotModule::updatePlot
@@ -109,12 +117,22 @@ void freqPlotModule::updatePlot
     ,
     cmp::GraphAttributeList graph_attributes
     ,
-    cmp::StringVector& legend
+    cmp::StringVector legend
 )
 {
-    const MessageManagerLock mml;
-    m_plot.plot(y_values, x_values, graph_attributes);
-    m_plot.setLegend(legend);
+    local_y_values = y_values;
+    local_x_values = x_values;
+    local_graph_attributes = graph_attributes;
+    local_legend = legend;
+
+    MessageManager::callAsync([this]() { clearPlot(); });
+    MessageManager::callAsync([this]() { doThePlot(); });
+}
+
+void freqPlotModule::doThePlot()
+{
+    m_plot.plot(local_y_values, local_x_values, local_graph_attributes);
+    m_plot.setLegend(local_legend);
 }
 
 void freqPlotModule::updatePlotRealTime(std::vector <std::vector<float>> y_values)

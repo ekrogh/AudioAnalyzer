@@ -72,14 +72,16 @@ public:
 	{
 		setOpaque(true);
 
-		shutdownAudio();
+		//shutdownAudio();
 
-		//forwardFFT
-		//	= std::make_unique<dsp::FFT>(fftOrder);
+		forwardFFT
+			= std::make_unique<dsp::FFT>(fftOrder);
 
 		formatManager.registerBasicFormats();
 
-		//startTimerHz(60);
+		setAudioChannels(2, 2);
+
+		startTimerHz(60);
 		setSize(700, 500);
 	}
 
@@ -159,7 +161,7 @@ public:
 		spectrogramImage.moveImageSection(0, 0, 1, 0, rightHandEdge, imageHeight);
 
 		// then render our FFT data..
-		forwardFFT->performFrequencyOnlyForwardTransform(fftData);
+		forwardFFT->performFrequencyOnlyForwardTransform(fftData, true);
 
 		// find the range of values produced, so we can scale our rendering to
 		// show up the detail clearly
@@ -187,8 +189,23 @@ public:
 		currentAudioFile = std::move(resource);
 	}
 
+	bool loadURLIntoFFT(unsigned int maxFreq)
+	{
+		if (currentAudioFile != URL())
+		{
+			loadURLIntoFFT(currentAudioFile, maxFreq);
+			return true;
+		}
+		else
+		{
+			return false;
+		}
+	}
+
 	bool loadURLIntoFFT(const URL& audioURL, unsigned int maxFreq)
 	{
+		module_freqPlot->clearPlot();
+
 		const auto source = makeInputSource(audioURL);
 
 		if (source == nullptr)
@@ -206,8 +223,6 @@ public:
 
 		juce::int64 bufferLengthInSamples = reader->lengthInSamples;
 		unsigned int fftOrder = std::log2(bufferLengthInSamples);
-		forwardFFT
-			= std::make_unique<dsp::FFT>(fftOrder);
 		unsigned int fftSize = 1 << fftOrder;
 		const unsigned int fftDataSize = fftSize << 1;
 
@@ -258,6 +273,8 @@ public:
 			fftSize
 		);
 
+		std::unique_ptr<dsp::FFT> forwardFFT =
+			std::make_unique<dsp::FFT>(fftOrder);
 		// then render our FFT data..
 		forwardFFT->performFrequencyOnlyForwardTransform(fftData, true);
 
@@ -265,7 +282,7 @@ public:
 
 		std::vector<float> tmpFreqVctr(0);
 		float freqVal = 0.0f;
-		while(freqVal <= maxFreq)
+		while (freqVal <= maxFreq)
 		{
 			tmpFreqVctr.push_back(freqVal);
 			freqVal += deltaHz;
@@ -277,18 +294,16 @@ public:
 
 		std::vector <std::vector<float>>
 			plotValues{ { fftData, fftData + nbrSamplesInPlot } };
-		
+
 		cmp::GraphAttributeList graph_attributes(0);
 		makeGraphAttributes(graph_attributes);
 
-		cmp::StringVector plotLegend(0);
-		plotLegend.push_back("p " + std::to_string(plotLegend.size() + 1));
+		cmp::StringVector plotLegend{ "p " + std::to_string(plotLegend.size() + 1) };
 
 		module_freqPlot->setTitle("Frequency response [FFT]");
 		module_freqPlot->setXLabel("[Hz]");
 		module_freqPlot->setYLabel("[Magnitude]");
 
-		module_freqPlot->clearPlot();
 		module_freqPlot->updatePlot(plotValues, frequencyValues, graph_attributes, plotLegend);
 
 		return true;
@@ -326,16 +341,13 @@ public:
 		unsigned int sampleRate
 	)
 	{
+		module_freqPlot->clearPlot();
+		
 		unsigned int fftOrder = std::log2(nbrSamples);
-		forwardFFT
-			= std::make_unique<dsp::FFT>(fftOrder);
 		unsigned int fftSize = 1 << fftOrder;
 		const unsigned int fftDataSize = fftSize << 1;
 
 		float* fftData = new float[fftDataSize] { 0 };
-
-		forwardFFT
-			= std::make_unique<dsp::FFT>(fftOrder);
 
 		juce::Random random;
 
@@ -357,6 +369,9 @@ public:
 			,
 			fftSize
 		);
+
+		std::unique_ptr<dsp::FFT> forwardFFT =
+			std::make_unique<dsp::FFT>(fftOrder);
 
 		// then render our FFT data..
 		forwardFFT->performFrequencyOnlyForwardTransform(fftData, true);
@@ -387,7 +402,6 @@ public:
 		module_freqPlot->setXLabel("[Hz]");
 		module_freqPlot->setYLabel("[Magnitude]");
 
-		module_freqPlot->clearPlot();
 		module_freqPlot->updatePlot(plotValues, frequencyValues, graph_attributes, plotLegend);
 
 		return true;
@@ -404,17 +418,13 @@ public:
 		std::vector<double>& frequencies
 	)
 	{
+		module_freqPlot->clearPlot();
+
 		unsigned int fftOrder = std::log2(nbrSamples);
-		forwardFFT
-			= std::make_unique<dsp::FFT>(fftOrder);
 		unsigned int fftSize = 1 << fftOrder;
 		const unsigned int fftDataSize = fftSize << 1;
 
 		float* fftData = new float[fftDataSize] { 0 };
-
-		forwardFFT
-			= std::make_unique<dsp::FFT>(fftOrder);
-
 
 		for (double freq : frequencies)
 		{
@@ -449,6 +459,8 @@ public:
 			fftSize
 		);
 
+		std::unique_ptr<dsp::FFT> forwardFFT =
+			std::make_unique<dsp::FFT>(fftOrder);
 		// then render our FFT data..
 		//forwardFFT->performFrequencyOnlyForwardTransform(fftData);
 		forwardFFT->performFrequencyOnlyForwardTransform(fftData, true);
@@ -479,7 +491,6 @@ public:
 		module_freqPlot->setXLabel("[Hz]");
 		module_freqPlot->setYLabel("[Magnitude]");
 
-		module_freqPlot->clearPlot();
 		module_freqPlot->updatePlot(plotValues, frequencyValues, graph_attributes, plotLegend);
 
 		return true;
@@ -500,14 +511,18 @@ public:
 		ga.push_back(colourForLine);
 	}
 
+	enum
+	{
+		fftOrder = 10,
+		fftSize = 1 << fftOrder
+	};
+
 private:
 	std::unique_ptr<dsp::FFT> forwardFFT;
 	Image spectrogramImage;
 
-	unsigned int fftOrder = 0;
-	unsigned int fftSize = 1 << fftOrder;
-	float* fifo;
-	float* fftData;
+	float fifo[fftSize];
+	float fftData[2 * fftSize];
 	int fifoIndex = 0;
 	bool nextFFTBlockReady = false;
 
@@ -518,7 +533,11 @@ private:
 	{
 			"File..."
 			,
-			File()
+			File::getSpecialLocation
+			(
+				juce::File::SpecialLocationType::userDocumentsDirectory
+			)
+			.getChildFile("recording.wav")
 			,
 #if JUCE_ANDROID
 				"*.*"
@@ -527,7 +546,7 @@ private:
 #endif
 	};
 
-	URL currentAudioFile;
+	URL currentAudioFile = URL();
 	AudioFormatManager formatManager;
 	std::unique_ptr<AudioFormatReader> reader;
 	std::unique_ptr<AudioBuffer<float>> theAudioBuffer;
