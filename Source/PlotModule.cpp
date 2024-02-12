@@ -94,20 +94,49 @@ void PlotModule::updatePlot
     std::vector <std::vector<float>> y_values
     ,
     std::vector <std::vector<float>> x_values
+)
+{
+    local_y_values = y_values;
+    local_x_values = x_values;
+
+    MessageManager::callAsync([this]() { clearPlot(); });
+    MessageManager::callAsync([this]() { doThesimplePlot(); });
+}
+
+void PlotModule::doThesimplePlot()
+{
+    m_plot.plot(local_y_values, local_x_values);
+}
+
+void PlotModule::updatePlot
+(
+    std::vector <std::vector<float>> y_values
+    ,
+    std::vector <std::vector<float>> x_values
     ,
     cmp::GraphAttributeList graph_attributes
     ,
-    cmp::StringVector& legend
+    cmp::StringVector legend
 )
 {
-    const MessageManagerLock mml;
-    m_plot.plot(y_values, x_values, graph_attributes);
-    m_plot.setLegend(legend);
+    local_y_values = y_values;
+    local_x_values = x_values;
+    local_graph_attributes = graph_attributes;
+    local_legend = legend;
+
+    MessageManager::callAsync([this]() { clearPlot(); });
+    MessageManager::callAsync([this]() { doThePlot(); });
+}
+
+void PlotModule::doThePlot()
+{
+    m_plot.plot(local_y_values, local_x_values, local_graph_attributes);
+    m_plot.setLegend(local_legend);
 }
 
 void PlotModule::updatePlotRealTime(std::vector <std::vector<float>> y_values)
 {
-    m_plot.realTimePlot(y_values);
+    MessageManager::callAsync([this, y_values]() { m_plot.realTimePlot(y_values); });
 }
 
 void PlotModule::clearPlot()
