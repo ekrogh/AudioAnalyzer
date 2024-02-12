@@ -72,7 +72,7 @@ MainComponent::MainComponent()
 		);
 		juce__tabbedComponent->addTab
 		(
-			TRANS("FFT")
+			TRANS("Spectrum")
 			, juce::Colours::lightgrey
 			, module_FFT.get()
 			, false
