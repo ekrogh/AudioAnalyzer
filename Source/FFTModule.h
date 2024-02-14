@@ -177,12 +177,19 @@ public:
 		}
 	}
 
-	void handleAudioResource(URL resource)
+	void handleAudioResource(URL resource, unsigned int maxFreq)
 	{
+		if (!loadURLIntoFFT(resource, maxFreq))
+		{
+			// Failed to load the audio file!
+			jassertfalse;
+			return;
+		}
+
 		currentAudioFile = std::move(resource);
 	}
 
-	std::tuple<unsigned int, unsigned int> loadURLIntoFFT(unsigned int maxFreq)
+	bool loadURLIntoFFT(unsigned int maxFreq)
 	{
 		if (currentAudioFile != URL())
 		{
@@ -190,28 +197,28 @@ public:
 		}
 		else
 		{
-			return { 0, 0 };
+			return false;
 		}
 	}
 
-	std::tuple<unsigned int, unsigned int> loadURLIntoFFT(const URL& audioURL, unsigned int maxFreq)
+	bool loadURLIntoFFT(const URL& audioURL, unsigned int maxFreq)
 	{
 		module_freqPlot->clearPlot();
 
 		const auto source = makeInputSource(audioURL);
 
 		if (source == nullptr)
-			return { 0, 0 };
+			return false;
 
 		auto stream = rawToUniquePtr(source->createInputStream());
 
 		if (stream == nullptr)
-			return { 0, 0 };
+			return false;
 
 		reader = rawToUniquePtr(formatManager.createReaderFor(std::move(stream)));
 
 		if (reader == nullptr)
-			return { 0, 0 };
+			return false;
 
 		juce::int64 bufferLengthInSamples = reader->lengthInSamples;
 		unsigned int fftOrder = std::log2(bufferLengthInSamples);
@@ -298,10 +305,13 @@ public:
 
 		module_freqPlot->updatePlot(plotValues, frequencyValues, graph_attributes, plotLegend);
 
-		return { fftOrder, fftSize };
+		return true;
 	}
 
-	void  selectFile()
+	void selectFile
+	(
+		unsigned int maxFreq
+	)
 	{
 		chooser.launchAsync
 		(
@@ -309,13 +319,13 @@ public:
 			|
 			FileBrowserComponent::canSelectFiles
 			,
-			[this](const FileChooser& fc) /*mutable*/
+			[this, maxFreq](const FileChooser& fc) /*mutable*/
 			{
 				if (fc.getURLResults().size() > 0)
 				{
 					auto u = fc.getURLResult();
 
-					handleAudioResource(std::move(u));
+					handleAudioResource(std::move(u), maxFreq);
 				}
 			}
 		);

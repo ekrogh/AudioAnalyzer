@@ -244,16 +244,14 @@ FFTCtrl::FFTCtrl(std::shared_ptr<FFTModule> ptr_module_FFT, std::shared_ptr<Audi
 		{
 			fftOrder = std::log2(Nbr_Samples__textEditor->getText().getIntValue());
 			fftSize = 1 << fftOrder;
-			fftOrder__textEditor->setText(String(fftOrder), false);
-			fftSizeNbr__label->setText(String(fftSize), NotificationType::dontSendNotification);
+			setValues(fftOrder, fftSize);
 		};
 	Nbr_Samples__textEditor->onFocusLost =
 		[this]
 		{
 			fftOrder = std::log2(Nbr_Samples__textEditor->getText().getIntValue());
 			fftSize = 1 << fftOrder;
-			fftOrder__textEditor->setText(String(fftOrder), false);
-			fftSizeNbr__label->setText(String(fftSize), NotificationType::dontSendNotification);
+			setValues(fftOrder, fftSize);
 		};
 
 	fftOrder__textEditor->onReturnKey =
@@ -261,20 +259,19 @@ FFTCtrl::FFTCtrl(std::shared_ptr<FFTModule> ptr_module_FFT, std::shared_ptr<Audi
 		{
 			fftOrder = fftOrder__textEditor->getText().getIntValue();
 			fftSize = 1 << fftOrder;
-			Nbr_Samples__textEditor->setText(String(fftSize), false);
-			fftSizeNbr__label->setText(String(fftSize), NotificationType::dontSendNotification);
+			setValues(fftOrder, fftSize);
 		};
 	fftOrder__textEditor->onFocusLost =
 		[this]
 		{
 			fftOrder = fftOrder__textEditor->getText().getIntValue();
 			fftSize = 1 << fftOrder;
-			Nbr_Samples__textEditor->setText(String(fftSize), false);
-			fftSizeNbr__label->setText(String(fftSize), NotificationType::dontSendNotification);
+			setValues(fftOrder, fftSize);
 		};
 
 	fftOrder = std::log2(Nbr_Samples__textEditor->getText().getIntValue());
 	fftSize = 1 << fftOrder;
+	setValues(fftOrder, fftSize);
 	//[/UserPreSize]
 
 	setSize(600, 400);
@@ -341,8 +338,10 @@ void FFTCtrl::buttonClicked(juce::Button* buttonThatWasClicked)
 	if (buttonThatWasClicked == selFile__textButton.get())
 	{
 		//[UserButtonCode_selFile__textButton] -- add your button handler code here..
-		module_FFT->selectFile();
-		setValues(0, 0);
+		module_FFT->selectFile
+		(
+			max_freq__textEditor->getText().getIntValue()       //unsigned int maxFreq
+		);
 		//[/UserButtonCode_selFile__textButton]
 	}
 	else if (buttonThatWasClicked == makeWhiteNoise__textButton.get())
@@ -394,11 +393,10 @@ void FFTCtrl::buttonClicked(juce::Button* buttonThatWasClicked)
 	else if (buttonThatWasClicked == replot__textButton.get())
 	{
 		//[UserButtonCode_replot__textButton] -- add your button handler code here..
-		auto resVal = module_FFT->loadURLIntoFFT
+		module_FFT->loadURLIntoFFT
 		(
 			max_freq__textEditor->getText().getIntValue()
 		);
-		setValues(std::get<0>(resVal), std::get<1>(resVal));
 		//[/UserButtonCode_replot__textButton]
 	}
 
