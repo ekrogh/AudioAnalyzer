@@ -130,14 +130,14 @@ void freqPlotModule::updatePlot
 	(
 		[
 			this
-				,
-				y_values
-				,
-				x_values
-				,
-				graph_attributes
-				,
-				legend
+			,
+			y_values
+			,
+			x_values
+			,
+			graph_attributes
+			,
+			legend
 		]
 		()
 		{
