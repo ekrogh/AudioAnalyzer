@@ -30,9 +30,9 @@
 //==============================================================================
 /**
                                                                     //[Comments]
-    An auto-generated component, created by the Projucer.
+	An auto-generated component, created by the Projucer.
 
-    Describe your class and how it works here!
+	Describe your class and how it works here!
                                                                     //[/Comments]
 */
 class FFTCtrl  : public juce::Component,
@@ -45,6 +45,7 @@ public:
 
     //==============================================================================
     //[UserMethods]     -- You can add your own custom methods in this section.
+	void setValues(unsigned int fftOrder, unsigned int fftSize);
     //[/UserMethods]
 
     void paint (juce::Graphics& g) override;
@@ -55,9 +56,11 @@ public:
 
 private:
     //[UserVariables]   -- You can add your own custom variables in this section.
-    std::shared_ptr<AudioDeviceManager> sharedAudioDeviceManager;
-    std::shared_ptr<FFTModule> module_FFT;
-    std::shared_ptr<freqPlotModule> module_freqPlot;
+	unsigned int fftOrder = 0;
+	unsigned int fftSize = 0;
+	std::shared_ptr<AudioDeviceManager> sharedAudioDeviceManager;
+	std::shared_ptr<FFTModule> module_FFT;
+	std::shared_ptr<freqPlotModule> module_freqPlot;
     //[/UserVariables]
 
     //==============================================================================
@@ -74,6 +77,10 @@ private:
     std::unique_ptr<juce::TextEditor> Nbr_Samples__textEditor;
     std::unique_ptr<juce::TextButton> clearPlot__textButton;
     std::unique_ptr<juce::TextButton> replot__textButton;
+    std::unique_ptr<juce::TextEditor> fftOrder__textEditor;
+    std::unique_ptr<juce::Label> fftOrder__label;
+    std::unique_ptr<juce::Label> fftSize__label;
+    std::unique_ptr<juce::Label> fftSizeNbr__label;
 
 
     //==============================================================================

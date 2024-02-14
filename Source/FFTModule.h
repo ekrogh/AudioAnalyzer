@@ -177,53 +177,46 @@ public:
 		}
 	}
 
-	void handleAudioResource(URL resource, unsigned int maxFreq)
+	void handleAudioResource(URL resource)
 	{
-		if (!loadURLIntoFFT(resource, maxFreq))
-		{
-			// Failed to load the audio file!
-			jassertfalse;
-			return;
-		}
-
 		currentAudioFile = std::move(resource);
 	}
 
-	bool loadURLIntoFFT(unsigned int maxFreq)
+	std::tuple<unsigned int, unsigned int> loadURLIntoFFT(unsigned int maxFreq)
 	{
 		if (currentAudioFile != URL())
 		{
-			loadURLIntoFFT(currentAudioFile, maxFreq);
-			return true;
+			return loadURLIntoFFT(currentAudioFile, maxFreq);
 		}
 		else
 		{
-			return false;
+			return { 0, 0 };
 		}
 	}
 
-	bool loadURLIntoFFT(const URL& audioURL, unsigned int maxFreq)
+	std::tuple<unsigned int, unsigned int> loadURLIntoFFT(const URL& audioURL, unsigned int maxFreq)
 	{
 		module_freqPlot->clearPlot();
 
 		const auto source = makeInputSource(audioURL);
 
 		if (source == nullptr)
-			return false;
+			return { 0, 0 };
 
 		auto stream = rawToUniquePtr(source->createInputStream());
 
 		if (stream == nullptr)
-			return false;
+			return { 0, 0 };
 
 		reader = rawToUniquePtr(formatManager.createReaderFor(std::move(stream)));
 
 		if (reader == nullptr)
-			return false;
+			return { 0, 0 };
 
 		juce::int64 bufferLengthInSamples = reader->lengthInSamples;
 		unsigned int fftOrder = std::log2(bufferLengthInSamples);
 		unsigned int fftSize = 1 << fftOrder;
+
 		const unsigned int fftDataSize = fftSize << 1;
 
 		float* fftData = new float[fftDataSize] { 0 };
@@ -287,7 +280,6 @@ public:
 			tmpFreqVctr.push_back(freqVal);
 			freqVal += deltaHz;
 		}
-		tmpFreqVctr.push_back(freqVal);
 		std::vector <std::vector<float>> frequencyValues{ tmpFreqVctr };
 
 		auto nbrSamplesInPlot = tmpFreqVctr.size();
@@ -306,13 +298,10 @@ public:
 
 		module_freqPlot->updatePlot(plotValues, frequencyValues, graph_attributes, plotLegend);
 
-		return true;
+		return { fftOrder, fftSize };
 	}
 
-	void selectFile
-	(
-		unsigned int maxFreq
-	)
+	void  selectFile()
 	{
 		chooser.launchAsync
 		(
@@ -320,13 +309,13 @@ public:
 			|
 			FileBrowserComponent::canSelectFiles
 			,
-			[this, maxFreq](const FileChooser& fc) /*mutable*/
+			[this](const FileChooser& fc) /*mutable*/
 			{
 				if (fc.getURLResults().size() > 0)
 				{
 					auto u = fc.getURLResult();
 
-					handleAudioResource(std::move(u), maxFreq);
+					handleAudioResource(std::move(u));
 				}
 			}
 		);
@@ -334,7 +323,9 @@ public:
 
 	bool makeWhiteNoise
 	(
-		unsigned int nbrSamples
+		unsigned int fftOrder
+		,
+		unsigned int fftSize
 		,
 		unsigned int maxFreq
 		,
@@ -343,8 +334,6 @@ public:
 	{
 		module_freqPlot->clearPlot();
 		
-		unsigned int fftOrder = std::log2(nbrSamples);
-		unsigned int fftSize = 1 << fftOrder;
 		const unsigned int fftDataSize = fftSize << 1;
 
 		float* fftData = new float[fftDataSize] { 0 };
@@ -385,7 +374,6 @@ public:
 			tmpFreqVctr.push_back(freqVal);
 			freqVal += deltaHz;
 		}
-		tmpFreqVctr.push_back(freqVal);
 		std::vector <std::vector<float>> frequencyValues{ tmpFreqVctr };
 
 		auto nbrSamplesInPlot = tmpFreqVctr.size();
@@ -409,7 +397,9 @@ public:
 
 	bool makeSines
 	(
-		unsigned int nbrSamples
+		unsigned int fftOrder
+		,
+		unsigned int fftSize
 		,
 		unsigned int maxFreq
 		,
@@ -420,8 +410,6 @@ public:
 	{
 		module_freqPlot->clearPlot();
 
-		unsigned int fftOrder = std::log2(nbrSamples);
-		unsigned int fftSize = 1 << fftOrder;
 		const unsigned int fftDataSize = fftSize << 1;
 
 		float* fftData = new float[fftDataSize] { 0 };
@@ -474,13 +462,12 @@ public:
 			tmpFreqVctr.push_back(freqVal);
 			freqVal += deltaHz;
 		}
-		tmpFreqVctr.push_back(freqVal);
 		std::vector <std::vector<float>> frequencyValues{ tmpFreqVctr };
 
 		auto nbrSamplesInPlot = tmpFreqVctr.size();
 
 		std::vector <std::vector<float>>
-			plotValues{ { fftData, fftData + nbrSamplesInPlot/* + 1*/ } };
+			plotValues{ { fftData, fftData + nbrSamplesInPlot } };
 
 		cmp::GraphAttributeList graph_attributes(0);
 		makeGraphAttributes(graph_attributes);

@@ -59,7 +59,12 @@ MainComponent::MainComponent()
 		module_AudioPlayback =
 			std::make_shared<AudioPlaybackModule>(sharedAudioDeviceManager);
 		module_FFT =
-			std::make_shared<FFTModule>(sharedAudioDeviceManager, module_freqPlot);
+			std::make_shared<FFTModule>
+			(
+				sharedAudioDeviceManager
+				,
+				module_freqPlot
+			);
 		module_FFTCtrl =
 			std::make_shared<FFTCtrl>(module_FFT, sharedAudioDeviceManager, module_freqPlot);
 
