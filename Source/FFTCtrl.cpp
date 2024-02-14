@@ -288,6 +288,9 @@ FFTCtrl::FFTCtrl(std::shared_ptr<FFTModule> ptr_module_FFT, std::shared_ptr<Audi
 FFTCtrl::~FFTCtrl()
 {
 	//[Destructor_pre]. You can add your own custom destruction code here..
+	sp_fftOrder__textEditor = nullptr;
+	sp_Nbr_Samples__textEditor = nullptr;
+	sp_fftSizeNbr__label = nullptr;
 	//[/Destructor_pre]
 
 	selFile__textButton = nullptr;
