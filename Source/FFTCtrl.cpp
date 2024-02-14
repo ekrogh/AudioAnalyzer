@@ -272,6 +272,10 @@ FFTCtrl::FFTCtrl(std::shared_ptr<FFTModule> ptr_module_FFT, std::shared_ptr<Audi
 	fftOrder = std::log2(Nbr_Samples__textEditor->getText().getIntValue());
 	fftSize = 1 << fftOrder;
 	setValues(fftOrder, fftSize);
+
+	sp_fftOrder__textEditor.reset(fftOrder__textEditor.get());
+	sp_Nbr_Samples__textEditor.reset(Nbr_Samples__textEditor.get());
+	sp_fftSizeNbr__label.reset(fftSizeNbr__label.get());
 	//[/UserPreSize]
 
 	setSize(600, 400);
@@ -341,6 +345,12 @@ void FFTCtrl::buttonClicked(juce::Button* buttonThatWasClicked)
 		module_FFT->selectFile
 		(
 			max_freq__textEditor->getText().getIntValue()       //unsigned int maxFreq
+			,
+			sp_fftOrder__textEditor
+			,
+			sp_Nbr_Samples__textEditor
+			,
+			sp_fftSizeNbr__label
 		);
 		//[/UserButtonCode_selFile__textButton]
 	}
@@ -396,6 +406,12 @@ void FFTCtrl::buttonClicked(juce::Button* buttonThatWasClicked)
 		module_FFT->loadURLIntoFFT
 		(
 			max_freq__textEditor->getText().getIntValue()
+			,
+			sp_fftOrder__textEditor
+			,
+			sp_Nbr_Samples__textEditor
+			,
+			sp_fftSizeNbr__label
 		);
 		//[/UserButtonCode_replot__textButton]
 	}

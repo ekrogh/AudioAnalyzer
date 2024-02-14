@@ -56,7 +56,10 @@ public:
 
 private:
     //[UserVariables]   -- You can add your own custom variables in this section.
-	unsigned int fftOrder = 0;
+    std::shared_ptr<juce::TextEditor> sp_fftOrder__textEditor;
+    std::shared_ptr<juce::TextEditor> sp_Nbr_Samples__textEditor;
+    std::shared_ptr<juce::Label> sp_fftSizeNbr__label;
+    unsigned int fftOrder = 0;
 	unsigned int fftSize = 0;
 	std::shared_ptr<AudioDeviceManager> sharedAudioDeviceManager;
 	std::shared_ptr<FFTModule> module_FFT;

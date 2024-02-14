@@ -177,9 +177,34 @@ public:
 		}
 	}
 
-	void handleAudioResource(URL resource, unsigned int maxFreq)
+	void handleAudioResource
+	(
+		URL resource
+		,
+		unsigned int maxFreq
+		,
+		std::shared_ptr<juce::TextEditor> fftOrder__textEditor
+		,
+		std::shared_ptr<juce::TextEditor> Nbr_Samples__textEditor
+		,
+		std::shared_ptr<juce::Label> fftSizeNbr__label
+	)
 	{
-		if (!loadURLIntoFFT(resource, maxFreq))
+		if
+		(
+			!loadURLIntoFFT
+			(
+				resource
+				,
+				maxFreq
+				,
+				fftOrder__textEditor
+				,
+				Nbr_Samples__textEditor
+				,
+				fftSizeNbr__label
+			)
+		)
 		{
 			// Failed to load the audio file!
 			jassertfalse;
@@ -189,11 +214,31 @@ public:
 		currentAudioFile = std::move(resource);
 	}
 
-	bool loadURLIntoFFT(unsigned int maxFreq)
+	bool loadURLIntoFFT
+	(
+		unsigned int maxFreq
+		,
+		std::shared_ptr<juce::TextEditor> fftOrder__textEditor
+		,
+		std::shared_ptr<juce::TextEditor> Nbr_Samples__textEditor
+		,
+		std::shared_ptr<juce::Label> fftSizeNbr__label
+	)
 	{
 		if (currentAudioFile != URL())
 		{
-			return loadURLIntoFFT(currentAudioFile, maxFreq);
+			return loadURLIntoFFT
+					(
+						currentAudioFile
+						,
+						maxFreq
+						,
+						fftOrder__textEditor
+						,
+						Nbr_Samples__textEditor
+						,
+						fftSizeNbr__label
+					);
 		}
 		else
 		{
@@ -201,7 +246,18 @@ public:
 		}
 	}
 
-	bool loadURLIntoFFT(const URL& audioURL, unsigned int maxFreq)
+	bool loadURLIntoFFT
+	(
+		const URL& audioURL
+		,
+		unsigned int maxFreq
+		,
+		std::shared_ptr<juce::TextEditor> fftOrder__textEditor
+		,
+		std::shared_ptr<juce::TextEditor> Nbr_Samples__textEditor
+		,
+		std::shared_ptr<juce::Label> fftSizeNbr__label
+	)
 	{
 		module_freqPlot->clearPlot();
 
@@ -223,6 +279,19 @@ public:
 		juce::int64 bufferLengthInSamples = reader->lengthInSamples;
 		unsigned int fftOrder = std::log2(bufferLengthInSamples);
 		unsigned int fftSize = 1 << fftOrder;
+
+		showValues
+		(
+			fftOrder
+			,
+			fftSize
+			,
+			fftOrder__textEditor
+			,
+			Nbr_Samples__textEditor
+			,
+			fftSizeNbr__label
+		);
 
 		const unsigned int fftDataSize = fftSize << 1;
 
@@ -311,6 +380,12 @@ public:
 	void selectFile
 	(
 		unsigned int maxFreq
+		,
+		std::shared_ptr<juce::TextEditor> fftOrder__textEditor
+		,
+		std::shared_ptr<juce::TextEditor> Nbr_Samples__textEditor
+		,
+		std::shared_ptr<juce::Label> fftSizeNbr__label
 	)
 	{
 		chooser.launchAsync
@@ -319,13 +394,35 @@ public:
 			|
 			FileBrowserComponent::canSelectFiles
 			,
-			[this, maxFreq](const FileChooser& fc) /*mutable*/
+			[
+				this
+					,
+					maxFreq
+					,
+					fftOrder__textEditor
+					,
+					Nbr_Samples__textEditor
+					,
+					fftSizeNbr__label
+			]
+			(const FileChooser& fc) /*mutable*/
 			{
 				if (fc.getURLResults().size() > 0)
 				{
 					auto u = fc.getURLResult();
 
-					handleAudioResource(std::move(u), maxFreq);
+					handleAudioResource
+					(
+						std::move(u)
+						,
+						maxFreq
+						,
+						fftOrder__textEditor
+						,
+						Nbr_Samples__textEditor
+						,
+						fftSizeNbr__label
+					);
 				}
 			}
 		);
@@ -343,7 +440,7 @@ public:
 	)
 	{
 		module_freqPlot->clearPlot();
-		
+
 		const unsigned int fftDataSize = fftSize << 1;
 
 		float* fftData = new float[fftDataSize] { 0 };
@@ -506,6 +603,24 @@ public:
 			randomRGB.nextInt(juce::Range(100, 255))
 		);
 		ga.push_back(colourForLine);
+	}
+
+	void showValues
+	(
+		unsigned int fftOrder
+		,
+		unsigned int fftSize
+		,
+		std::shared_ptr<juce::TextEditor> fftOrder__textEditor
+		,
+		std::shared_ptr<juce::TextEditor> Nbr_Samples__textEditor
+		,
+		std::shared_ptr<juce::Label> fftSizeNbr__label
+	)
+	{
+		fftOrder__textEditor->setText(String(fftOrder), false);
+		Nbr_Samples__textEditor->setText(String(fftSize), false);
+		fftSizeNbr__label->setText(String(fftSize), NotificationType::dontSendNotification);
 	}
 
 	enum
