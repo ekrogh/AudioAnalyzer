@@ -43,18 +43,12 @@ public:
 
 	//==============================================================================
 	//[UserMethods]     -- You can add your own custom methods in this section.
-	std::vector <std::vector<float>> local_y_values;
-	std::vector <std::vector<float>> local_x_values;
-	cmp::GraphAttributeList local_graph_attributes;
-	cmp::StringVector local_legend;
-
 	void updatePlot
 	(
 		std::vector <std::vector<float>> y_values
 		,
 		std::vector <std::vector<float>> x_values
 	);
-	void doThesimplePlot();
 
 	void updatePlot
 	(
@@ -66,7 +60,6 @@ public:
 		,
 		cmp::StringVector legend
 	);
-	void doThePlot();
 
 	void updatePlotRealTime(std::vector <std::vector<float>> y_values);
 	void clearPlot();
