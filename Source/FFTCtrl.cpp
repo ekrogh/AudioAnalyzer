@@ -342,11 +342,7 @@ void FFTCtrl::buttonClicked(juce::Button* buttonThatWasClicked)
 	{
 		//[UserButtonCode_selFile__textButton] -- add your button handler code here..
 		module_FFT->selectFile();
-		auto resVal = module_FFT->loadURLIntoFFT
-		(
-			max_freq__textEditor->getText().getIntValue()
-		);
-		setValues(std::get<0>(resVal), std::get<1>(resVal));
+		setValues(0, 0);
 		//[/UserButtonCode_selFile__textButton]
 	}
 	else if (buttonThatWasClicked == makeWhiteNoise__textButton.get())
