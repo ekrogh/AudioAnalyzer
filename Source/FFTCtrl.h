@@ -59,6 +59,7 @@ private:
     std::shared_ptr<juce::TextEditor> sp_fftOrder__textEditor;
     std::shared_ptr<juce::TextEditor> sp_Nbr_Samples__textEditor;
     std::shared_ptr<juce::Label> sp_fftSizeNbr__label;
+    std::shared_ptr<juce::TextEditor> sp_Sample_Freq__textEditor;
     unsigned int fftOrder = 0;
 	unsigned int fftSize = 0;
 	std::shared_ptr<AudioDeviceManager> sharedAudioDeviceManager;

@@ -253,6 +253,13 @@ FFTCtrl::FFTCtrl(std::shared_ptr<FFTModule> ptr_module_FFT, std::shared_ptr<Audi
 			fftSize = 1 << fftOrder;
 			setValues(fftOrder, fftSize);
 		};
+	Nbr_Samples__textEditor->onTextChange =
+		[this]
+		{
+			fftOrder = std::log2(Nbr_Samples__textEditor->getText().getIntValue());
+			fftSize = 1 << fftOrder;
+			setValues(fftOrder, fftSize);
+		};
 
 	fftOrder__textEditor->onReturnKey =
 		[this]
@@ -268,6 +275,13 @@ FFTCtrl::FFTCtrl(std::shared_ptr<FFTModule> ptr_module_FFT, std::shared_ptr<Audi
 			fftSize = 1 << fftOrder;
 			setValues(fftOrder, fftSize);
 		};
+	fftOrder__textEditor ->onTextChange =
+		[this]
+		{
+			fftOrder = fftOrder__textEditor->getText().getIntValue();
+			fftSize = 1 << fftOrder;
+			setValues(fftOrder, fftSize);
+		};
 
 	fftOrder = std::log2(Nbr_Samples__textEditor->getText().getIntValue());
 	fftSize = 1 << fftOrder;
@@ -276,6 +290,7 @@ FFTCtrl::FFTCtrl(std::shared_ptr<FFTModule> ptr_module_FFT, std::shared_ptr<Audi
 	sp_fftOrder__textEditor.reset(fftOrder__textEditor.get());
 	sp_Nbr_Samples__textEditor.reset(Nbr_Samples__textEditor.get());
 	sp_fftSizeNbr__label.reset(fftSizeNbr__label.get());
+	sp_Sample_Freq__textEditor.reset(Sample_Freq__textEditor.get());
 	//[/UserPreSize]
 
 	setSize(600, 400);
@@ -354,6 +369,8 @@ void FFTCtrl::buttonClicked(juce::Button* buttonThatWasClicked)
 			sp_Nbr_Samples__textEditor
 			,
 			sp_fftSizeNbr__label
+			,
+			sp_Sample_Freq__textEditor
 		);
 		//[/UserButtonCode_selFile__textButton]
 	}
@@ -415,6 +432,8 @@ void FFTCtrl::buttonClicked(juce::Button* buttonThatWasClicked)
 			sp_Nbr_Samples__textEditor
 			,
 			sp_fftSizeNbr__label
+			,
+			sp_Sample_Freq__textEditor
 		);
 		//[/UserButtonCode_replot__textButton]
 	}
@@ -428,8 +447,8 @@ void FFTCtrl::buttonClicked(juce::Button* buttonThatWasClicked)
 //[MiscUserCode] You can add your own definitions of your custom methods or any other code here...
 void FFTCtrl::setValues(unsigned int fftOrder, unsigned int fftSize)
 {
-	fftOrder__textEditor->setText(String(fftOrder), false);
-	Nbr_Samples__textEditor->setText(String(fftSize), false);
+	fftOrder__textEditor->setText(String(fftOrder), true);
+	Nbr_Samples__textEditor->setText(String(fftSize), true);
 	fftSizeNbr__label->setText(String(fftSize), NotificationType::dontSendNotification);
 }
 //[/MiscUserCode]

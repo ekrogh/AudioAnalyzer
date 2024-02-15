@@ -188,6 +188,8 @@ public:
 		std::shared_ptr<juce::TextEditor> Nbr_Samples__textEditor
 		,
 		std::shared_ptr<juce::Label> fftSizeNbr__label
+		,
+		std::shared_ptr<juce::TextEditor> Sample_Freq__textEditor
 	)
 	{
 		if
@@ -203,7 +205,9 @@ public:
 				Nbr_Samples__textEditor
 				,
 				fftSizeNbr__label
-			)
+				,
+				Sample_Freq__textEditor
+		)
 		)
 		{
 			// Failed to load the audio file!
@@ -223,6 +227,8 @@ public:
 		std::shared_ptr<juce::TextEditor> Nbr_Samples__textEditor
 		,
 		std::shared_ptr<juce::Label> fftSizeNbr__label
+		,
+		std::shared_ptr<juce::TextEditor> Sample_Freq__textEditor
 	)
 	{
 		if (currentAudioFile != URL())
@@ -238,7 +244,9 @@ public:
 						Nbr_Samples__textEditor
 						,
 						fftSizeNbr__label
-					);
+						,
+						Sample_Freq__textEditor
+			);
 		}
 		else
 		{
@@ -257,6 +265,8 @@ public:
 		std::shared_ptr<juce::TextEditor> Nbr_Samples__textEditor
 		,
 		std::shared_ptr<juce::Label> fftSizeNbr__label
+		,
+		std::shared_ptr<juce::TextEditor> Sample_Freq__textEditor
 	)
 	{
 		module_freqPlot->clearPlot();
@@ -286,11 +296,15 @@ public:
 			,
 			fftSize
 			,
+			reader->sampleRate
+			,
 			fftOrder__textEditor
 			,
 			Nbr_Samples__textEditor
 			,
 			fftSizeNbr__label
+			,
+			Sample_Freq__textEditor
 		);
 
 		const unsigned int fftDataSize = fftSize << 1;
@@ -386,6 +400,8 @@ public:
 		std::shared_ptr<juce::TextEditor> Nbr_Samples__textEditor
 		,
 		std::shared_ptr<juce::Label> fftSizeNbr__label
+		,
+		std::shared_ptr<juce::TextEditor> Sample_Freq__textEditor
 	)
 	{
 		chooser.launchAsync
@@ -404,6 +420,8 @@ public:
 					Nbr_Samples__textEditor
 					,
 					fftSizeNbr__label
+					,
+					Sample_Freq__textEditor
 			]
 			(const FileChooser& fc) /*mutable*/
 			{
@@ -422,6 +440,8 @@ public:
 						Nbr_Samples__textEditor
 						,
 						fftSizeNbr__label
+						,
+						Sample_Freq__textEditor
 					);
 				}
 			}
@@ -611,16 +631,21 @@ public:
 		,
 		unsigned int fftSize
 		,
+		unsigned int sampleFreq
+		,
 		std::shared_ptr<juce::TextEditor> fftOrder__textEditor
 		,
 		std::shared_ptr<juce::TextEditor> Nbr_Samples__textEditor
 		,
 		std::shared_ptr<juce::Label> fftSizeNbr__label
+		,
+		std::shared_ptr<juce::TextEditor> Sample_Freq__textEditor
 	)
 	{
-		fftOrder__textEditor->setText(String(fftOrder), false);
-		Nbr_Samples__textEditor->setText(String(fftSize), false);
+		fftOrder__textEditor->setText(String(fftOrder), true);
+		Nbr_Samples__textEditor->setText(String(fftSize), true);
 		fftSizeNbr__label->setText(String(fftSize), NotificationType::dontSendNotification);
+		Sample_Freq__textEditor->setText(String(sampleFreq));
 	}
 
 	enum
