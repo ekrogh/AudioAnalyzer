@@ -286,11 +286,6 @@ FFTCtrl::FFTCtrl(std::shared_ptr<FFTModule> ptr_module_FFT, std::shared_ptr<Audi
 	fftOrder = std::log2(Nbr_Samples__textEditor->getText().getIntValue());
 	fftSize = 1 << fftOrder;
 	setValues(fftOrder, fftSize);
-
-	sp_fftOrder__textEditor.reset(fftOrder__textEditor.get());
-	sp_Nbr_Samples__textEditor.reset(Nbr_Samples__textEditor.get());
-	sp_fftSizeNbr__label.reset(fftSizeNbr__label.get());
-	sp_Sample_Freq__textEditor.reset(Sample_Freq__textEditor.get());
 	//[/UserPreSize]
 
 	setSize(600, 400);
@@ -303,9 +298,6 @@ FFTCtrl::FFTCtrl(std::shared_ptr<FFTModule> ptr_module_FFT, std::shared_ptr<Audi
 FFTCtrl::~FFTCtrl()
 {
 	//[Destructor_pre]. You can add your own custom destruction code here..
-	sp_fftOrder__textEditor = nullptr;
-	sp_Nbr_Samples__textEditor = nullptr;
-	sp_fftSizeNbr__label = nullptr;
 	//[/Destructor_pre]
 
 	selFile__textButton = nullptr;
@@ -364,13 +356,13 @@ void FFTCtrl::buttonClicked(juce::Button* buttonThatWasClicked)
 		(
 			max_freq__textEditor->getText().getIntValue()       //unsigned int maxFreq
 			,
-			sp_fftOrder__textEditor
+			fftOrder__textEditor
 			,
-			sp_Nbr_Samples__textEditor
+			Nbr_Samples__textEditor
 			,
-			sp_fftSizeNbr__label
+			fftSizeNbr__label
 			,
-			sp_Sample_Freq__textEditor
+			Sample_Freq__textEditor
 		);
 		//[/UserButtonCode_selFile__textButton]
 	}
@@ -427,13 +419,13 @@ void FFTCtrl::buttonClicked(juce::Button* buttonThatWasClicked)
 		(
 			max_freq__textEditor->getText().getIntValue()
 			,
-			sp_fftOrder__textEditor
+			fftOrder__textEditor
 			,
-			sp_Nbr_Samples__textEditor
+			Nbr_Samples__textEditor
 			,
-			sp_fftSizeNbr__label
+			fftSizeNbr__label
 			,
-			sp_Sample_Freq__textEditor
+			Sample_Freq__textEditor
 		);
 		//[/UserButtonCode_replot__textButton]
 	}

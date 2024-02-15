@@ -154,13 +154,6 @@ MainComponent::~MainComponent()
 {
 	//[Destructor_pre]. You can add your own custom destruction code here..
 	sharedAudioDeviceManager->closeAudioDevice();
-	sharedAudioDeviceManager = nullptr;
-	module_Plot = nullptr;
-	module_SoundProcessor = nullptr;
-	module_AudioSettings = nullptr;
-	module_microphoneAccessPermissionAlert = nullptr;
-	module_AudioRecording = nullptr;
-	module_FFT = nullptr;
 	//[/Destructor_pre]
 
 	juce__tabbedComponent = nullptr;
