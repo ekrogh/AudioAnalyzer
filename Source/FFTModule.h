@@ -183,13 +183,13 @@ public:
 		,
 		unsigned int maxFreq
 		,
-		std::shared_ptr<juce::TextEditor> fftOrder__textEditor
+		juce::TextEditor* fftOrder__textEditor
 		,
-		std::shared_ptr<juce::TextEditor> Nbr_Samples__textEditor
+		juce::TextEditor* Nbr_Samples__textEditor
 		,
-		std::shared_ptr<juce::Label> fftSizeNbr__label
+		juce::Label* fftSizeNbr__label
 		,
-		std::shared_ptr<juce::TextEditor> Sample_Freq__textEditor
+		juce::TextEditor* Sample_Freq__textEditor
 	)
 	{
 		if
@@ -222,13 +222,13 @@ public:
 	(
 		unsigned int maxFreq
 		,
-		std::shared_ptr<juce::TextEditor> fftOrder__textEditor
+		juce::TextEditor* fftOrder__textEditor
 		,
-		std::shared_ptr<juce::TextEditor> Nbr_Samples__textEditor
+		juce::TextEditor* Nbr_Samples__textEditor
 		,
-		std::shared_ptr<juce::Label> fftSizeNbr__label
+		juce::Label* fftSizeNbr__label
 		,
-		std::shared_ptr<juce::TextEditor> Sample_Freq__textEditor
+		juce::TextEditor* Sample_Freq__textEditor
 	)
 	{
 		if (currentAudioFile != URL())
@@ -260,13 +260,13 @@ public:
 		,
 		unsigned int maxFreq
 		,
-		std::shared_ptr<juce::TextEditor> fftOrder__textEditor
+		juce::TextEditor* fftOrder__textEditor
 		,
-		std::shared_ptr<juce::TextEditor> Nbr_Samples__textEditor
+		juce::TextEditor* Nbr_Samples__textEditor
 		,
-		std::shared_ptr<juce::Label> fftSizeNbr__label
+		juce::Label* fftSizeNbr__label
 		,
-		std::shared_ptr<juce::TextEditor> Sample_Freq__textEditor
+		juce::TextEditor* Sample_Freq__textEditor
 	)
 	{
 		module_freqPlot->clearPlot();
@@ -395,13 +395,13 @@ public:
 	(
 		unsigned int maxFreq
 		,
-		std::shared_ptr<juce::TextEditor> fftOrder__textEditor
+		juce::TextEditor* fftOrder__textEditor
 		,
-		std::shared_ptr<juce::TextEditor> Nbr_Samples__textEditor
+		juce::TextEditor* Nbr_Samples__textEditor
 		,
-		std::shared_ptr<juce::Label> fftSizeNbr__label
+		juce::Label* fftSizeNbr__label
 		,
-		std::shared_ptr<juce::TextEditor> Sample_Freq__textEditor
+		juce::TextEditor* Sample_Freq__textEditor
 	)
 	{
 		chooser.launchAsync
@@ -633,13 +633,13 @@ public:
 		,
 		unsigned int sampleFreq
 		,
-		std::shared_ptr<juce::TextEditor> fftOrder__textEditor
+		juce::TextEditor* fftOrder__textEditor
 		,
-		std::shared_ptr<juce::TextEditor> Nbr_Samples__textEditor
+		juce::TextEditor* Nbr_Samples__textEditor
 		,
-		std::shared_ptr<juce::Label> fftSizeNbr__label
+		juce::Label* fftSizeNbr__label
 		,
-		std::shared_ptr<juce::TextEditor> Sample_Freq__textEditor
+		juce::TextEditor* Sample_Freq__textEditor
 	)
 	{
 		fftOrder__textEditor->setText(String(fftOrder), true);

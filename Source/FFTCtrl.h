@@ -64,23 +64,23 @@ private:
     //[/UserVariables]
 
     //==============================================================================
-    std::shared_ptr<juce::TextButton> selFile__textButton;
-    std::shared_ptr<juce::TextButton> makeWhiteNoise__textButton;
-    std::shared_ptr<juce::TextButton> makeSines__textButton;
-    std::shared_ptr<juce::TextEditor> freqs__textEditor;
-    std::shared_ptr<juce::Label> freqs__label;
-    std::shared_ptr<juce::TextEditor> max_freq__textEditor;
-    std::shared_ptr<juce::Label> max_Freq__label;
-    std::shared_ptr<juce::Label> Sample_Freq__label;
-    std::shared_ptr<juce::TextEditor> Sample_Freq__textEditor;
-    std::shared_ptr<juce::Label> Nbr_samples__label;
-    std::shared_ptr<juce::TextEditor> Nbr_Samples__textEditor;
-    std::shared_ptr<juce::TextButton> clearPlot__textButton;
-    std::shared_ptr<juce::TextButton> replot__textButton;
-    std::shared_ptr<juce::TextEditor> fftOrder__textEditor;
-    std::shared_ptr<juce::Label> fftOrder__label;
-    std::shared_ptr<juce::Label> fftSize__label;
-    std::shared_ptr<juce::Label> fftSizeNbr__label;
+    std::unique_ptr<juce::TextButton> selFile__textButton;
+    std::unique_ptr<juce::TextButton> makeWhiteNoise__textButton;
+    std::unique_ptr<juce::TextButton> makeSines__textButton;
+    std::unique_ptr<juce::TextEditor> freqs__textEditor;
+    std::unique_ptr<juce::Label> freqs__label;
+    std::unique_ptr<juce::TextEditor> max_freq__textEditor;
+    std::unique_ptr<juce::Label> max_Freq__label;
+    std::unique_ptr<juce::Label> Sample_Freq__label;
+    std::unique_ptr<juce::TextEditor> Sample_Freq__textEditor;
+    std::unique_ptr<juce::Label> Nbr_samples__label;
+    std::unique_ptr<juce::TextEditor> Nbr_Samples__textEditor;
+    std::unique_ptr<juce::TextButton> clearPlot__textButton;
+    std::unique_ptr<juce::TextButton> replot__textButton;
+    std::unique_ptr<juce::TextEditor> fftOrder__textEditor;
+    std::unique_ptr<juce::Label> fftOrder__label;
+    std::unique_ptr<juce::Label> fftSize__label;
+    std::unique_ptr<juce::Label> fftSizeNbr__label;
 
 
     //==============================================================================
