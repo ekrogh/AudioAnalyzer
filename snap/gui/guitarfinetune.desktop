@@ -1,0 +1,8 @@
+[Desktop Entry]
+Version=1.1.1
+Type=Application
+Terminal=false
+Exec=audioanalyzer
+Name=audioanalyzer
+Comment=Various tools to analyze audio.
+Icon=${SNAP}/meta/gui/audioanalyzer.png
