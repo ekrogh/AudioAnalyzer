@@ -81,6 +81,7 @@ private:
     std::unique_ptr<juce::Label> fftOrder__label;
     std::unique_ptr<juce::Label> fftSize__label;
     std::unique_ptr<juce::Label> fftSizeNbr__label;
+    std::unique_ptr<juce::TextButton> fftWindows__textButton;
 
 
     //==============================================================================

@@ -245,13 +245,6 @@ public:
 		setOpaque(true);
 		addAndMakeVisible(liveAudioScroller);
 
-		addAndMakeVisible(explanationLabel);
-		explanationLabel.setFont(Font(15.0f, Font::plain));
-		explanationLabel.setJustificationType(Justification::topLeft);
-		explanationLabel.setEditable(false, false, false);
-		explanationLabel.setColour(TextEditor::textColourId, Colours::black);
-		explanationLabel.setColour(TextEditor::backgroundColourId, Colour(0x00000000));
-
 		addAndMakeVisible(recordButton);
 		recordButton.setColour(TextButton::buttonColourId, Colour(0xffff5c5c));
 		recordButton.setColour(TextButton::textColourOnId, Colours::black);
@@ -302,7 +295,6 @@ public:
 		liveAudioScroller.setBounds(area.removeFromTop(80).reduced(8));
 		recordingThumbnail.setBounds(area.removeFromTop(80).reduced(8));
 		recordButton.setBounds(area.removeFromTop(36).removeFromLeft(140).reduced(8));
-		explanationLabel.setBounds(area.reduced(8));
 	}
 
 private:
@@ -313,9 +305,6 @@ private:
 	RecordingThumbnail recordingThumbnail;
 	AudioRecorder recorder{ recordingThumbnail.getAudioThumbnail() };
 
-	Label explanationLabel{ {},
-							 "This page demonstrates how to record a wave file from the live audio input.\n\n"
-							 "After you are done with your recording you can choose where to save it." };
 	TextButton recordButton{ "Record" };
 	File lastRecording;
 	FileChooser chooser

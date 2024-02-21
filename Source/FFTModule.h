@@ -181,7 +181,7 @@ public:
 	(
 		URL resource
 		,
-		unsigned int maxFreq
+		double maxFreq
 		,
 		juce::TextEditor* fftOrder__textEditor
 		,
@@ -220,7 +220,7 @@ public:
 
 	bool loadURLIntoFFT
 	(
-		unsigned int maxFreq
+		double maxFreq
 		,
 		juce::TextEditor* fftOrder__textEditor
 		,
@@ -258,7 +258,7 @@ public:
 	(
 		const URL& audioURL
 		,
-		unsigned int maxFreq
+		double maxFreq
 		,
 		juce::TextEditor* fftOrder__textEditor
 		,
@@ -393,7 +393,7 @@ public:
 
 	void selectFile
 	(
-		unsigned int maxFreq
+		double maxFreq
 		,
 		juce::TextEditor* fftOrder__textEditor
 		,
@@ -454,7 +454,7 @@ public:
 		,
 		unsigned int fftSize
 		,
-		unsigned int maxFreq
+		double maxFreq
 		,
 		unsigned int sampleRate
 	)
@@ -528,7 +528,7 @@ public:
 		,
 		unsigned int fftSize
 		,
-		unsigned int maxFreq
+		double maxFreq
 		,
 		unsigned int sampleRate
 		,
@@ -610,9 +610,169 @@ public:
 		return true;
 	}
 
+	bool makeWindows
+	(
+		unsigned int fftOrder
+		,
+		unsigned int fftSize
+		,
+		double maxFreq
+		,
+		unsigned int sampleRate
+	)
+	{
+		module_freqPlot->clearPlot();
+
+		const unsigned int fftDataSize = fftSize << 1;
+
+		// hann window
+		float* fftData = new float[fftDataSize] { 0 };
+
+		juce::dsp::WindowingFunction<float>::fillWindowingTables
+		(
+			fftData
+			,
+			fftSize
+			,
+			juce::dsp::WindowingFunction<float>::hann
+		);
+
+		std::unique_ptr<dsp::FFT> forwardFFT =
+			std::make_unique<dsp::FFT>(fftOrder);
+
+		// then render our FFT data..
+		//forwardFFT->performFrequencyOnlyForwardTransform(fftData);
+		forwardFFT->performFrequencyOnlyForwardTransform(fftData, true);
+
+		auto deltaHz = (double)sampleRate / fftSize;
+
+		std::vector<float> tmpFreqVctr(0);
+		float freqVal = 0.0f;
+		while (freqVal <= maxFreq)
+		{
+			tmpFreqVctr.push_back(freqVal);
+			freqVal += deltaHz;
+		}
+		std::vector <std::vector<float>> frequencyValues{ tmpFreqVctr };
+
+		auto nbrSamplesInPlot = tmpFreqVctr.size();
+
+		std::vector <std::vector<float>>
+			plotValues{ { fftData, fftData + nbrSamplesInPlot } };
+
+		cmp::GraphAttributeList graph_attributes(0);
+		makeGraphAttributes(graph_attributes);
+
+		cmp::StringVector plotLegend{ "hann" };
+
+		// hamming Window
+		fftData = new float[fftDataSize] { 0 };
+
+		juce::dsp::WindowingFunction<float>::fillWindowingTables
+		(
+			fftData
+			,
+			fftSize
+			,
+			juce::dsp::WindowingFunction<float>::hamming
+		);
+
+		// then render our FFT data..
+		forwardFFT->performFrequencyOnlyForwardTransform(fftData, true);
+
+		frequencyValues.push_back( tmpFreqVctr );
+		plotValues.push_back( { fftData, fftData + nbrSamplesInPlot } );
+		makeGraphAttributes(graph_attributes);
+		plotLegend.push_back( "hamming" );
+
+		// blackman Window
+		fftData = new float[fftDataSize] { 0 };
+		juce::dsp::WindowingFunction<float>::fillWindowingTables
+		(
+			fftData
+			,
+			fftSize
+			,
+			juce::dsp::WindowingFunction<float>::blackman
+		);
+
+		// then render our FFT data..
+		forwardFFT->performFrequencyOnlyForwardTransform(fftData, true);
+
+		frequencyValues.push_back(tmpFreqVctr);
+		plotValues.push_back({ fftData, fftData + nbrSamplesInPlot });
+		makeGraphAttributes(graph_attributes);
+		plotLegend.push_back("blackman");
+
+		// blackmanHarris Window
+		fftData = new float[fftDataSize] { 0 };
+		juce::dsp::WindowingFunction<float>::fillWindowingTables
+		(
+			fftData
+			,
+			fftSize
+			,
+			juce::dsp::WindowingFunction<float>::blackmanHarris
+		);
+
+		// then render our FFT data..
+		forwardFFT->performFrequencyOnlyForwardTransform(fftData, true);
+
+		frequencyValues.push_back(tmpFreqVctr);
+		plotValues.push_back({ fftData, fftData + nbrSamplesInPlot });
+		makeGraphAttributes(graph_attributes);
+		plotLegend.push_back("blackmanHarris");
+
+		// flatTop Window
+		fftData = new float[fftDataSize] { 0 };
+		juce::dsp::WindowingFunction<float>::fillWindowingTables
+		(
+			fftData
+			,
+			fftSize
+			,
+			juce::dsp::WindowingFunction<float>::flatTop
+		);
+
+		// then render our FFT data..
+		forwardFFT->performFrequencyOnlyForwardTransform(fftData, true);
+
+		frequencyValues.push_back(tmpFreqVctr);
+		plotValues.push_back({ fftData, fftData + nbrSamplesInPlot });
+		makeGraphAttributes(graph_attributes);
+		plotLegend.push_back("flatTop");
+
+		// kaiser Window
+		fftData = new float[fftDataSize] { 0 };
+		juce::dsp::WindowingFunction<float>::fillWindowingTables
+		(
+			fftData
+			,
+			fftSize
+			,
+			juce::dsp::WindowingFunction<float>::kaiser
+		);
+
+		// then render our FFT data..
+		forwardFFT->performFrequencyOnlyForwardTransform(fftData, true);
+
+		frequencyValues.push_back(tmpFreqVctr);
+		plotValues.push_back({ fftData, fftData + nbrSamplesInPlot });
+		makeGraphAttributes(graph_attributes);
+		plotLegend.push_back("kaiser");
+
+		module_freqPlot->setTitle("Frequency response [FFT]");
+		module_freqPlot->setXLabel("[Hz]");
+		module_freqPlot->setYLabel("[Magnitude]");
+
+		module_freqPlot->updatePlot(plotValues, frequencyValues, graph_attributes, plotLegend);
+
+		return true;
+	}
+
+	Random randomRGB = juce::Random::getSystemRandom();
 	void makeGraphAttributes(cmp::GraphAttributeList& ga)
 	{
-		auto randomRGB = juce::Random::getSystemRandom();
 		cmp::GraphAttribute colourForLine;
 		colourForLine.graph_colour = juce::Colour
 		(

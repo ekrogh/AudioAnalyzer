@@ -2,44 +2,44 @@
 
 <JUCERPROJECT id="SUXWw8" name="AudioAnalyzer" projectType="guiapp" useAppConfig="0"
               displaySplashScreen="1" jucerFormatVersion="1" companyWebsite="www.eksit.dk"
-              bundleIdentifier="dk.eksit.AudioAnalyzer" cppLanguageStandard="latest">
+              bundleIdentifier="dk.eksit.AudioAnalyzer" cppLanguageStandard="20">
   <MAINGROUP id="J330RL" name="AudioAnalyzer">
     <GROUP id="{444701EC-2BDB-E376-CB2D-A176BB8655A4}" name="Source">
-      <GROUP id="{C31C8EA9-2501-019E-0DE3-F48B37C2BDEC}" name="cmp_plot_source">
-        <FILE id="AHvAWB" name="cmp_datamodels.h" compile="0" resource="0"
+      <GROUP id="{C9B21DB8-9C2F-4C12-39F0-876C23D8CFD4}" name="CustomMatPlot">
+        <FILE id="KTz37e" name="cmp_datamodels.h" compile="0" resource="0"
               file="Source/cmp_datamodels.h"/>
-        <FILE id="YqEpyG" name="cmp_downsampler.cpp" compile="1" resource="0"
+        <FILE id="EwA26z" name="cmp_downsampler.cpp" compile="1" resource="0"
               file="Source/cmp_downsampler.cpp"/>
-        <FILE id="iMlvC9" name="cmp_downsampler.h" compile="0" resource="0"
+        <FILE id="rpniPQ" name="cmp_downsampler.h" compile="0" resource="0"
               file="Source/cmp_downsampler.h"/>
-        <FILE id="y1XgOH" name="cmp_frame.cpp" compile="1" resource="0" file="Source/cmp_frame.cpp"/>
-        <FILE id="WERcZP" name="cmp_frame.h" compile="0" resource="0" file="Source/cmp_frame.h"/>
-        <FILE id="jFIXPQ" name="cmp_graph_area.cpp" compile="1" resource="0"
+        <FILE id="q8Kje3" name="cmp_frame.cpp" compile="1" resource="0" file="Source/cmp_frame.cpp"/>
+        <FILE id="t1Lu6H" name="cmp_frame.h" compile="0" resource="0" file="Source/cmp_frame.h"/>
+        <FILE id="NSnm3m" name="cmp_graph_area.cpp" compile="1" resource="0"
               file="Source/cmp_graph_area.cpp"/>
-        <FILE id="KBNEj6" name="cmp_graph_area.h" compile="0" resource="0"
+        <FILE id="Rgrl7x" name="cmp_graph_area.h" compile="0" resource="0"
               file="Source/cmp_graph_area.h"/>
-        <FILE id="V8fzkT" name="cmp_graph_line.cpp" compile="1" resource="0"
+        <FILE id="K518Sz" name="cmp_graph_line.cpp" compile="1" resource="0"
               file="Source/cmp_graph_line.cpp"/>
-        <FILE id="ngq2Ly" name="cmp_graph_line.h" compile="0" resource="0"
+        <FILE id="aOuBlc" name="cmp_graph_line.h" compile="0" resource="0"
               file="Source/cmp_graph_line.h"/>
-        <FILE id="jalaud" name="cmp_grid.cpp" compile="1" resource="0" file="Source/cmp_grid.cpp"/>
-        <FILE id="hXxxOM" name="cmp_grid.h" compile="0" resource="0" file="Source/cmp_grid.h"/>
-        <FILE id="YnUyKI" name="cmp_label.cpp" compile="1" resource="0" file="Source/cmp_label.cpp"/>
-        <FILE id="nFOvHF" name="cmp_label.h" compile="0" resource="0" file="Source/cmp_label.h"/>
-        <FILE id="vEfPAP" name="cmp_legend.cpp" compile="1" resource="0" file="Source/cmp_legend.cpp"/>
-        <FILE id="oi9B85" name="cmp_legend.h" compile="0" resource="0" file="Source/cmp_legend.h"/>
-        <FILE id="N4TjaH" name="cmp_lookandfeel.cpp" compile="1" resource="0"
+        <FILE id="EYVcEi" name="cmp_grid.cpp" compile="1" resource="0" file="Source/cmp_grid.cpp"/>
+        <FILE id="m3vb2q" name="cmp_grid.h" compile="0" resource="0" file="Source/cmp_grid.h"/>
+        <FILE id="oKGwSb" name="cmp_label.cpp" compile="1" resource="0" file="Source/cmp_label.cpp"/>
+        <FILE id="NVz0Oe" name="cmp_label.h" compile="0" resource="0" file="Source/cmp_label.h"/>
+        <FILE id="KN1CEC" name="cmp_legend.cpp" compile="1" resource="0" file="Source/cmp_legend.cpp"/>
+        <FILE id="kGVUXd" name="cmp_legend.h" compile="0" resource="0" file="Source/cmp_legend.h"/>
+        <FILE id="elBiL6" name="cmp_lookandfeel.cpp" compile="1" resource="0"
               file="Source/cmp_lookandfeel.cpp"/>
-        <FILE id="EbjF0q" name="cmp_lookandfeel.h" compile="0" resource="0"
+        <FILE id="llPiX4" name="cmp_lookandfeel.h" compile="0" resource="0"
               file="Source/cmp_lookandfeel.h"/>
-        <FILE id="QUeFPw" name="cmp_plot.cpp" compile="1" resource="0" file="Source/cmp_plot.cpp"/>
-        <FILE id="yrl6Vy" name="cmp_plot.h" compile="0" resource="0" file="Source/cmp_plot.h"/>
-        <FILE id="FsUcmS" name="cmp_trace.cpp" compile="1" resource="0" file="Source/cmp_trace.cpp"/>
-        <FILE id="zd8Ymd" name="cmp_trace.h" compile="0" resource="0" file="Source/cmp_trace.h"/>
-        <FILE id="ahMIlL" name="cmp_utils.h" compile="0" resource="0" file="Source/cmp_utils.h"/>
-        <FILE id="TiuJz6" name="cmp_version.h" compile="0" resource="0" file="Source/cmp_version.h"/>
-        <FILE id="efaUfY" name="example_utils.h" compile="0" resource="0" file="Source/example_utils.h"/>
-        <FILE id="qovazA" name="package.h" compile="0" resource="0" file="Source/package.h"/>
+        <FILE id="ihgaa6" name="cmp_plot.cpp" compile="1" resource="0" file="Source/cmp_plot.cpp"/>
+        <FILE id="pMx16b" name="cmp_plot.h" compile="0" resource="0" file="Source/cmp_plot.h"/>
+        <FILE id="EO1yPN" name="cmp_trace.cpp" compile="1" resource="0" file="Source/cmp_trace.cpp"/>
+        <FILE id="QbmDnF" name="cmp_trace.h" compile="0" resource="0" file="Source/cmp_trace.h"/>
+        <FILE id="h5us7H" name="cmp_utils.h" compile="0" resource="0" file="Source/cmp_utils.h"/>
+        <FILE id="GAIIaq" name="cmp_version.h" compile="0" resource="0" file="Source/cmp_version.h"/>
+        <FILE id="xCj0j1" name="example_utils.h" compile="0" resource="0" file="Source/example_utils.h"/>
+        <FILE id="MHxuPf" name="package.h" compile="0" resource="0" file="Source/package.h"/>
       </GROUP>
       <FILE id="dVzrFQ" name="freqPlotModule.cpp" compile="1" resource="0"
             file="Source/freqPlotModule.cpp"/>

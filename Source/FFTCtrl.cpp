@@ -224,9 +224,16 @@ FFTCtrl::FFTCtrl (std::shared_ptr<FFTModule> ptr_module_FFT, std::shared_ptr<Aud
 
     fftSizeNbr__label->setBounds (192, 284, 150, 24);
 
+    fftWindows__textButton.reset (new juce::TextButton ("fftWindows button"));
+    addAndMakeVisible (fftWindows__textButton.get());
+    fftWindows__textButton->setButtonText (TRANS ("FFT of windows"));
+    fftWindows__textButton->addListener (this);
+
+    fftWindows__textButton->setBounds (192, 119, 150, 24);
+
 
     //[UserPreSize]
-	max_freq__textEditor->setInputRestrictions(10, "1234567890");
+	max_freq__textEditor->setInputRestrictions(10, "1234567890.");
 	max_freq__textEditor->setSelectAllWhenFocused(true);
 	max_freq__textEditor->setKeyboardType(juce::TextInputTarget::VirtualKeyboardType::numericKeyboard);
 	Sample_Freq__textEditor->setInputRestrictions(10, "1234567890");
@@ -317,6 +324,7 @@ FFTCtrl::~FFTCtrl()
     fftOrder__label = nullptr;
     fftSize__label = nullptr;
     fftSizeNbr__label = nullptr;
+    fftWindows__textButton = nullptr;
 
 
     //[Destructor]. You can add your own custom destruction code here..
@@ -417,8 +425,8 @@ void FFTCtrl::buttonClicked (juce::Button* buttonThatWasClicked)
         //[UserButtonCode_replot__textButton] -- add your button handler code here..
 		module_FFT->loadURLIntoFFT
 		(
-			max_freq__textEditor->getText().getIntValue()
-			,
+            max_freq__textEditor->getText().getDoubleValue()    //double maxFreq
+            ,
 			fftOrder__textEditor.get()
 			,
 			Nbr_Samples__textEditor.get()
@@ -428,6 +436,21 @@ void FFTCtrl::buttonClicked (juce::Button* buttonThatWasClicked)
 			Sample_Freq__textEditor.get()
 		);
         //[/UserButtonCode_replot__textButton]
+    }
+    else if (buttonThatWasClicked == fftWindows__textButton.get())
+    {
+        //[UserButtonCode_fftWindows__textButton] -- add your button handler code here..
+        module_FFT->makeWindows
+        (
+            fftOrder                                            //unsigned int fftOrder
+            ,
+            fftSize                                             //unsigned int fftSize
+            ,
+            max_freq__textEditor->getText().getDoubleValue()    //double maxFreq
+            ,
+            Sample_Freq__textEditor->getText().getIntValue()    //unsigned int sampleRate
+        );
+        //[/UserButtonCode_fftWindows__textButton]
     }
 
     //[UserbuttonClicked_Post]
@@ -531,6 +554,9 @@ BEGIN_JUCER_METADATA
          edBkgCol="0" labelText="4096" editableSingleClick="0" editableDoubleClick="0"
          focusDiscardsChanges="0" fontname="Default font" fontsize="15.0"
          kerning="0.0" bold="0" italic="0" justification="33"/>
+  <TEXTBUTTON name="fftWindows button" id="9c0c45ece1379aa3" memberName="fftWindows__textButton"
+              virtualName="" explicitFocusOrder="0" pos="192 119 150 24" buttonText="FFT of windows"
+              connectedEdges="0" needsCallback="1" radioGroupId="0"/>
 </JUCER_COMPONENT>
 
 END_JUCER_METADATA
