@@ -622,9 +622,6 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\Source\freqPlotModule.cpp">
-      <Filter>AudioAnalyzer\Source</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\Source\cmp_downsampler.cpp">
       <Filter>AudioAnalyzer\Source\cmp_plot_source</Filter>
     </ClCompile>
@@ -654,6 +651,9 @@
     </ClCompile>
     <ClCompile Include="..\..\Source\cmp_trace.cpp">
       <Filter>AudioAnalyzer\Source\cmp_plot_source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\freqPlotModule.cpp">
+      <Filter>AudioAnalyzer\Source</Filter>
     </ClCompile>
     <ClCompile Include="..\..\Source\AudioSettingsModule.cpp">
       <Filter>AudioAnalyzer\Source</Filter>
@@ -3249,9 +3249,6 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\..\Source\freqPlotModule.h">
-      <Filter>AudioAnalyzer\Source</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\Source\cmp_datamodels.h">
       <Filter>AudioAnalyzer\Source\cmp_plot_source</Filter>
     </ClInclude>
@@ -3296,6 +3293,9 @@
     </ClInclude>
     <ClInclude Include="..\..\Source\package.h">
       <Filter>AudioAnalyzer\Source\cmp_plot_source</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\freqPlotModule.h">
+      <Filter>AudioAnalyzer\Source</Filter>
     </ClInclude>
     <ClInclude Include="..\..\Source\AudioAnalyzerGlobalEnums.h">
       <Filter>AudioAnalyzer\Source</Filter>

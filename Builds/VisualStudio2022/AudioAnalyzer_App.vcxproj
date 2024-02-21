@@ -141,7 +141,6 @@
     <Lib/>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\Source\freqPlotModule.cpp"/>
     <ClCompile Include="..\..\Source\cmp_downsampler.cpp"/>
     <ClCompile Include="..\..\Source\cmp_frame.cpp"/>
     <ClCompile Include="..\..\Source\cmp_graph_area.cpp"/>
@@ -152,6 +151,7 @@
     <ClCompile Include="..\..\Source\cmp_lookandfeel.cpp"/>
     <ClCompile Include="..\..\Source\cmp_plot.cpp"/>
     <ClCompile Include="..\..\Source\cmp_trace.cpp"/>
+    <ClCompile Include="..\..\Source\freqPlotModule.cpp"/>
     <ClCompile Include="..\..\Source\AudioSettingsModule.cpp"/>
     <ClCompile Include="..\..\Source\Main.cpp"/>
     <ClCompile Include="..\..\Source\MainComponent.cpp"/>
@@ -2561,7 +2561,6 @@
     <ClCompile Include="..\..\JuceLibraryCode\include_juce_gui_extra.cpp"/>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\..\Source\freqPlotModule.h"/>
     <ClInclude Include="..\..\Source\cmp_datamodels.h"/>
     <ClInclude Include="..\..\Source\cmp_downsampler.h"/>
     <ClInclude Include="..\..\Source\cmp_frame.h"/>
@@ -2577,6 +2576,7 @@
     <ClInclude Include="..\..\Source\cmp_version.h"/>
     <ClInclude Include="..\..\Source\example_utils.h"/>
     <ClInclude Include="..\..\Source\package.h"/>
+    <ClInclude Include="..\..\Source\freqPlotModule.h"/>
     <ClInclude Include="..\..\Source\AudioAnalyzerGlobalEnums.h"/>
     <ClInclude Include="..\..\Source\AudioLiveScrollingDisplay.h"/>
     <ClInclude Include="..\..\Source\AudioPlaybackModule.h"/>

@@ -36,8 +36,6 @@ add_library( ${BINARY_NAME}
 
     SHARED
 
-    "../../../Source/freqPlotModule.cpp"
-    "../../../Source/freqPlotModule.h"
     "../../../Source/cmp_datamodels.h"
     "../../../Source/cmp_downsampler.cpp"
     "../../../Source/cmp_downsampler.h"
@@ -63,6 +61,8 @@ add_library( ${BINARY_NAME}
     "../../../Source/cmp_version.h"
     "../../../Source/example_utils.h"
     "../../../Source/package.h"
+    "../../../Source/freqPlotModule.cpp"
+    "../../../Source/freqPlotModule.h"
     "../../../Source/audioAnalyzer_large_icon.png"
     "../../../Source/audioAnalyzer_small_icon.png"
     "../../../Source/AudioAnalyzerGlobalEnums.h"
@@ -1964,7 +1964,6 @@ add_library( ${BINARY_NAME}
 )
 
 set_source_files_properties(
-    "../../../Source/freqPlotModule.h"
     "../../../Source/cmp_datamodels.h"
     "../../../Source/cmp_downsampler.h"
     "../../../Source/cmp_frame.h"
@@ -1980,6 +1979,7 @@ set_source_files_properties(
     "../../../Source/cmp_version.h"
     "../../../Source/example_utils.h"
     "../../../Source/package.h"
+    "../../../Source/freqPlotModule.h"
     "../../../Source/audioAnalyzer_large_icon.png"
     "../../../Source/audioAnalyzer_small_icon.png"
     "../../../Source/AudioAnalyzerGlobalEnums.h"

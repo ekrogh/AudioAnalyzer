@@ -72,7 +72,6 @@ ifeq ($(CONFIG),Release)
 endif
 
 OBJECTS_APP := \
-  $(JUCE_OBJDIR)/freqPlotModule_7fae942e.o \
   $(JUCE_OBJDIR)/cmp_downsampler_b298a5ae.o \
   $(JUCE_OBJDIR)/cmp_frame_c970acb5.o \
   $(JUCE_OBJDIR)/cmp_graph_area_be2b9160.o \
@@ -83,6 +82,7 @@ OBJECTS_APP := \
   $(JUCE_OBJDIR)/cmp_lookandfeel_2e192d06.o \
   $(JUCE_OBJDIR)/cmp_plot_4aead9a3.o \
   $(JUCE_OBJDIR)/cmp_trace_d41e488d.o \
+  $(JUCE_OBJDIR)/freqPlotModule_7fae942e.o \
   $(JUCE_OBJDIR)/AudioSettingsModule_a2de15c6.o \
   $(JUCE_OBJDIR)/Main_90ebc5c2.o \
   $(JUCE_OBJDIR)/MainComponent_a6ffb4a5.o \
@@ -118,11 +118,6 @@ $(JUCE_OUTDIR)/$(JUCE_TARGET_APP) : $(OBJECTS_APP) $(JUCE_OBJDIR)/execinfo.cmd $
 	-$(V_AT)mkdir -p $(JUCE_LIBDIR)
 	-$(V_AT)mkdir -p $(JUCE_OUTDIR)
 	$(V_AT)$(CXX) -o $(JUCE_OUTDIR)/$(JUCE_TARGET_APP) $(OBJECTS_APP) $(JUCE_LDFLAGS) $(shell cat $(JUCE_OBJDIR)/execinfo.cmd) $(JUCE_LDFLAGS_APP) $(RESOURCES) $(TARGET_ARCH)
-
-$(JUCE_OBJDIR)/freqPlotModule_7fae942e.o: ../../Source/freqPlotModule.cpp
-	-$(V_AT)mkdir -p $(@D)
-	@echo "Compiling freqPlotModule.cpp"
-	$(V_AT)$(CXX) $(JUCE_CXXFLAGS) $(JUCE_CPPFLAGS_APP) $(JUCE_CFLAGS_APP) -o "$@" -c "$<"
 
 $(JUCE_OBJDIR)/cmp_downsampler_b298a5ae.o: ../../Source/cmp_downsampler.cpp
 	-$(V_AT)mkdir -p $(@D)
@@ -172,6 +167,11 @@ $(JUCE_OBJDIR)/cmp_plot_4aead9a3.o: ../../Source/cmp_plot.cpp
 $(JUCE_OBJDIR)/cmp_trace_d41e488d.o: ../../Source/cmp_trace.cpp
 	-$(V_AT)mkdir -p $(@D)
 	@echo "Compiling cmp_trace.cpp"
+	$(V_AT)$(CXX) $(JUCE_CXXFLAGS) $(JUCE_CPPFLAGS_APP) $(JUCE_CFLAGS_APP) -o "$@" -c "$<"
+
+$(JUCE_OBJDIR)/freqPlotModule_7fae942e.o: ../../Source/freqPlotModule.cpp
+	-$(V_AT)mkdir -p $(@D)
+	@echo "Compiling freqPlotModule.cpp"
 	$(V_AT)$(CXX) $(JUCE_CXXFLAGS) $(JUCE_CPPFLAGS_APP) $(JUCE_CFLAGS_APP) -o "$@" -c "$<"
 
 $(JUCE_OBJDIR)/AudioSettingsModule_a2de15c6.o: ../../Source/AudioSettingsModule.cpp

@@ -5,10 +5,6 @@
               bundleIdentifier="dk.eksit.AudioAnalyzer" cppLanguageStandard="latest">
   <MAINGROUP id="J330RL" name="AudioAnalyzer">
     <GROUP id="{444701EC-2BDB-E376-CB2D-A176BB8655A4}" name="Source">
-      <FILE id="dVzrFQ" name="freqPlotModule.cpp" compile="1" resource="0"
-            file="Source/freqPlotModule.cpp"/>
-      <FILE id="Ih9JJw" name="freqPlotModule.h" compile="0" resource="0"
-            file="Source/freqPlotModule.h"/>
       <GROUP id="{C31C8EA9-2501-019E-0DE3-F48B37C2BDEC}" name="cmp_plot_source">
         <FILE id="AHvAWB" name="cmp_datamodels.h" compile="0" resource="0"
               file="Source/cmp_datamodels.h"/>
@@ -45,6 +41,10 @@
         <FILE id="efaUfY" name="example_utils.h" compile="0" resource="0" file="Source/example_utils.h"/>
         <FILE id="qovazA" name="package.h" compile="0" resource="0" file="Source/package.h"/>
       </GROUP>
+      <FILE id="dVzrFQ" name="freqPlotModule.cpp" compile="1" resource="0"
+            file="Source/freqPlotModule.cpp"/>
+      <FILE id="Ih9JJw" name="freqPlotModule.h" compile="0" resource="0"
+            file="Source/freqPlotModule.h"/>
       <FILE id="Hd60ks" name="audioAnalyzer_large_icon.png" compile="0" resource="1"
             file="Source/audioAnalyzer_large_icon.png"/>
       <FILE id="zrVA6e" name="audioAnalyzer_small_icon.png" compile="0" resource="1"
