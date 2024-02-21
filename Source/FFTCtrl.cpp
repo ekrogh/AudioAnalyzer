@@ -233,7 +233,7 @@ FFTCtrl::FFTCtrl (std::shared_ptr<FFTModule> ptr_module_FFT, std::shared_ptr<Aud
 
 
     //[UserPreSize]
-	max_freq__textEditor->setInputRestrictions(10, "1234567890.");
+	max_freq__textEditor->setInputRestrictions(10, "1234567890.,");
 	max_freq__textEditor->setSelectAllWhenFocused(true);
 	max_freq__textEditor->setKeyboardType(juce::TextInputTarget::VirtualKeyboardType::numericKeyboard);
 	Sample_Freq__textEditor->setInputRestrictions(10, "1234567890");

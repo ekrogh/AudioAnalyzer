@@ -577,7 +577,6 @@ public:
 		std::unique_ptr<dsp::FFT> forwardFFT =
 			std::make_unique<dsp::FFT>(fftOrder);
 		// then render our FFT data..
-		//forwardFFT->performFrequencyOnlyForwardTransform(fftData);
 		forwardFFT->performFrequencyOnlyForwardTransform(fftData, true);
 
 		auto deltaHz = (float)sampleRate / fftSize;
@@ -776,11 +775,11 @@ public:
 		cmp::GraphAttribute colourForLine;
 		colourForLine.graph_colour = juce::Colour
 		(
-			randomRGB.nextInt(juce::Range(100, 255))
+			randomRGB.nextInt(juce::Range(10, 255))
 			,
-			randomRGB.nextInt(juce::Range(100, 255))
+			randomRGB.nextInt(juce::Range(10, 255))
 			,
-			randomRGB.nextInt(juce::Range(100, 255))
+			randomRGB.nextInt(juce::Range(10, 255))
 		);
 		ga.push_back(colourForLine);
 	}
