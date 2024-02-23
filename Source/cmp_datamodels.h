@@ -22,7 +22,7 @@
 #if (__cpp_impl_three_way_comparison >= 201907L)
 #include <compare>
 
-#if !JUCE_LINUX
+#if !(JUCE_LINUX == 1)
 #define THREE_WAY_COMP true
 #else
 #define THREE_WAY_COMP false
