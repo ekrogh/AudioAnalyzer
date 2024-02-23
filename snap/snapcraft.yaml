@@ -1,5 +1,5 @@
 name: audioanalyzer
-base: core20
+base: core22
 version: "1.1.1"
 summary: audio analyzing tool
 description: |
@@ -193,7 +193,7 @@ layout:
     
 apps:
   audioanalyzer:
-    extensions: [gnome-3-38]
+    extensions: [gnome]
     command-chain: ["snap/command-chain/alsa-launch"]
     command: audioanalyzer
     plugs:
