@@ -142,12 +142,12 @@ void PlotModule::updatePlot
 		{
 			try
 			{
-                m_plot.plot(y_values, x_values, graph_attributes);
-                m_plot.setLegend(legend);
+				m_plot.plot(y_values, x_values, graph_attributes);
+				m_plot.setLegend(legend);
 			}
-			catch(exception ex)
+			catch (const std::exception&)
 			{
-                static int errs = 1;
+				DBG("Error in PlotModule::updatePlot");
 			}
 		}
 	);
