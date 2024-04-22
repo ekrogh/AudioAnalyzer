@@ -54,6 +54,13 @@ public:
 
 private:
     //[UserVariables]   -- You can add your own custom variables in this section.
+#if (JUCE_IOS || JUCE_ANDROID)
+enum
+{
+	, widthOfAboutPage = 300
+	, hightOfAboutPage = 260
+};
+#endif // (JUCE_IOS || JUCE_ANDROID)
     //[/UserVariables]
 
     //==============================================================================
