@@ -155,7 +155,7 @@ apps:
     command-chain: ["snap/command-chain/alsa-launch"]
     command: audioanalyzer
     plugs:
-      - alsa
+      # - alsa
       - audio-record
       - pulseaudio
       - audio-playback
