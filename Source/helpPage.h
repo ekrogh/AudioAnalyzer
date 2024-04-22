@@ -57,7 +57,7 @@ private:
 #if (JUCE_IOS || JUCE_ANDROID)
 enum
 {
-	, widthOfAboutPage = 300
+	  widthOfAboutPage = 300
 	, hightOfAboutPage = 260
 };
 #endif // (JUCE_IOS || JUCE_ANDROID)
