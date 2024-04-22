@@ -114,6 +114,7 @@ apps:
     extensions: [gnome]
     command: audioanalyzer
     plugs:
+      - alsa
       - audio-record
       - pulseaudio
       - audio-playback
