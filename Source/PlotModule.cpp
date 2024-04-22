@@ -140,8 +140,15 @@ void PlotModule::updatePlot
 		]
 		()
 		{
-			m_plot.plot(y_values, x_values, graph_attributes);
-			m_plot.setLegend(legend);
+			try
+			{
+                m_plot.plot(y_values, x_values, graph_attributes);
+                m_plot.setLegend(legend);
+			}
+			catch(exception ex)
+			{
+                static int errs = 1;
+			}
 		}
 	);
 }
