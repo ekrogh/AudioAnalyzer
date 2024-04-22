@@ -362,3 +362,4 @@ MigrationBackup/
 # Fody - auto-generated XML schema
 FodyWeavers.xsd
 *.1.1_amd64.snap
+/Builds/LinuxMakefile/build/
