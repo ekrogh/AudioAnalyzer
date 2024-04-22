@@ -146,6 +146,9 @@ layout:
   /usr/share/alsa:
     bind: $SNAP/usr/share/alsa
    
+environment:
+  ALWAYS_USE_PULSEAUDIO: '1'
+  
 apps:
   audioanalyzer:
     extensions: [gnome]
