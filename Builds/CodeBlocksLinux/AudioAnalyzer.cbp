@@ -190,10 +190,6 @@
       <Option compile="0"/>
       <Option link="0"/>
     </Unit>
-    <Unit filename="../../Source/cmp_label.cpp">
-      <Option target="App | Debug"/>
-      <Option target="App | Release"/>
-    </Unit>
     <Unit filename="../../Source/cmp_label.h">
       <Option target="App | Debug"/>
       <Option target="App | Release"/>
@@ -209,6 +205,10 @@
       <Option target="App | Release"/>
       <Option compile="0"/>
       <Option link="0"/>
+    </Unit>
+    <Unit filename="../../Source/cmp_label.cpp">
+      <Option target="App | Debug"/>
+      <Option target="App | Release"/>
     </Unit>
     <Unit filename="../../Source/cmp_lookandfeel.cpp">
       <Option target="App | Debug"/>
@@ -269,6 +269,16 @@
       <Option target="App | Release"/>
     </Unit>
     <Unit filename="../../Source/freqPlotModule.h">
+      <Option target="App | Debug"/>
+      <Option target="App | Release"/>
+      <Option compile="0"/>
+      <Option link="0"/>
+    </Unit>
+    <Unit filename="../../Source/helpPage.cpp">
+      <Option target="App | Debug"/>
+      <Option target="App | Release"/>
+    </Unit>
+    <Unit filename="../../Source/helpPage.h">
       <Option target="App | Debug"/>
       <Option target="App | Release"/>
       <Option compile="0"/>

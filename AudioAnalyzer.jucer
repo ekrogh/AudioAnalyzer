@@ -25,10 +25,10 @@
               file="Source/cmp_graph_line.h"/>
         <FILE id="EYVcEi" name="cmp_grid.cpp" compile="1" resource="0" file="Source/cmp_grid.cpp"/>
         <FILE id="m3vb2q" name="cmp_grid.h" compile="0" resource="0" file="Source/cmp_grid.h"/>
-        <FILE id="oKGwSb" name="cmp_label.cpp" compile="1" resource="0" file="Source/cmp_label.cpp"/>
         <FILE id="NVz0Oe" name="cmp_label.h" compile="0" resource="0" file="Source/cmp_label.h"/>
         <FILE id="KN1CEC" name="cmp_legend.cpp" compile="1" resource="0" file="Source/cmp_legend.cpp"/>
         <FILE id="kGVUXd" name="cmp_legend.h" compile="0" resource="0" file="Source/cmp_legend.h"/>
+        <FILE id="oKGwSb" name="cmp_label.cpp" compile="1" resource="0" file="Source/cmp_label.cpp"/>
         <FILE id="elBiL6" name="cmp_lookandfeel.cpp" compile="1" resource="0"
               file="Source/cmp_lookandfeel.cpp"/>
         <FILE id="llPiX4" name="cmp_lookandfeel.h" compile="0" resource="0"
@@ -46,6 +46,8 @@
             file="Source/freqPlotModule.cpp"/>
       <FILE id="Ih9JJw" name="freqPlotModule.h" compile="0" resource="0"
             file="Source/freqPlotModule.h"/>
+      <FILE id="m7EzTA" name="helpPage.cpp" compile="1" resource="0" file="Source/helpPage.cpp"/>
+      <FILE id="QjFXyZ" name="helpPage.h" compile="0" resource="0" file="Source/helpPage.h"/>
       <FILE id="Hd60ks" name="audioAnalyzer_large_icon.png" compile="0" resource="1"
             file="Source/audioAnalyzer_large_icon.png"/>
       <FILE id="zrVA6e" name="audioAnalyzer_small_icon.png" compile="0" resource="1"

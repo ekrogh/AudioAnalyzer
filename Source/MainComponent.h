@@ -20,6 +20,7 @@
 #pragma once
 
 //[Headers]     -- You can add your own extra header files here --
+#include "helpPage.h"
 #include "freqPlotModule.h"
 #include "FFTCtrl.h"
 #include "FFTModule.h"
@@ -104,6 +105,7 @@ private:
     std::shared_ptr<FFTCtrl> module_FFTCtrl;
     std::shared_ptr<freqPlotModule> module_freqPlot =
         std::make_shared<freqPlotModule>();
+    std::shared_ptr<aboutPage> pAboutPage = nullptr;
 
 
     //[/UserVariables]

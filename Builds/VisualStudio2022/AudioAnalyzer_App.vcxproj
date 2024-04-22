@@ -146,12 +146,13 @@
     <ClCompile Include="..\..\Source\cmp_graph_area.cpp"/>
     <ClCompile Include="..\..\Source\cmp_graph_line.cpp"/>
     <ClCompile Include="..\..\Source\cmp_grid.cpp"/>
-    <ClCompile Include="..\..\Source\cmp_label.cpp"/>
     <ClCompile Include="..\..\Source\cmp_legend.cpp"/>
+    <ClCompile Include="..\..\Source\cmp_label.cpp"/>
     <ClCompile Include="..\..\Source\cmp_lookandfeel.cpp"/>
     <ClCompile Include="..\..\Source\cmp_plot.cpp"/>
     <ClCompile Include="..\..\Source\cmp_trace.cpp"/>
     <ClCompile Include="..\..\Source\freqPlotModule.cpp"/>
+    <ClCompile Include="..\..\Source\helpPage.cpp"/>
     <ClCompile Include="..\..\Source\AudioSettingsModule.cpp"/>
     <ClCompile Include="..\..\Source\Main.cpp"/>
     <ClCompile Include="..\..\Source\MainComponent.cpp"/>
@@ -2577,6 +2578,7 @@
     <ClInclude Include="..\..\Source\example_utils.h"/>
     <ClInclude Include="..\..\Source\package.h"/>
     <ClInclude Include="..\..\Source\freqPlotModule.h"/>
+    <ClInclude Include="..\..\Source\helpPage.h"/>
     <ClInclude Include="..\..\Source\AudioAnalyzerGlobalEnums.h"/>
     <ClInclude Include="..\..\Source\AudioLiveScrollingDisplay.h"/>
     <ClInclude Include="..\..\Source\AudioPlaybackModule.h"/>

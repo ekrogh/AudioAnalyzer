@@ -98,6 +98,13 @@ MainComponent::MainComponent()
 		);
 		juce__tabbedComponent->addTab
 		(
+			TRANS("Sound Processing Control")
+			, juce::Colours::lightgrey
+			, module_SoundProcessor.get()
+			, false
+		);
+		juce__tabbedComponent->addTab
+		(
 			TRANS("Audio Recorder")
 			, juce::Colours::lightgrey
 			, module_AudioRecording.get()
@@ -112,18 +119,12 @@ MainComponent::MainComponent()
 		);
 		juce__tabbedComponent->addTab
 		(
-			TRANS("Sound Processing Control")
-			, juce::Colours::lightgrey
-			, module_SoundProcessor.get()
-			, false
-		);
-		juce__tabbedComponent->addTab
-		(
 			TRANS("Audio Settings")
 			, juce::Colours::lightgrey
 			, module_AudioSettings.get()
 			, false
 		);
+
 		juce__tabbedComponent->setCurrentTabIndex(7);
 	}
 	else
@@ -136,11 +137,17 @@ MainComponent::MainComponent()
 			TRANS("Error")
 			, juce::Colours::lightgrey
 			, module_microphoneAccessPermissionAlert.get()
-			, true
+			, false
 		);
-
-
 	}
+	pAboutPage = std::make_shared<aboutPage>();
+	juce__tabbedComponent->addTab
+	(
+		TRANS("?")
+		, juce::Colours::lightgrey
+		, pAboutPage.get()
+		, false
+	);
 	//[/UserPreSize]
 
 	setSize(600, 700);
@@ -188,6 +195,8 @@ void MainComponent::resized()
 
 
 //[MiscUserCode] You can add your own definitions of your custom methods or any other code here...
+
+
 bool MainComponent::checkMicrophoneAccessPermission()
 {
 #ifdef JUCE_IOS_or_JUCE_MAC_or_JUCE_LINUX

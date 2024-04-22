@@ -77,12 +77,13 @@ OBJECTS_APP := \
   $(JUCE_OBJDIR)/cmp_graph_area_be2b9160.o \
   $(JUCE_OBJDIR)/cmp_graph_line_68546547.o \
   $(JUCE_OBJDIR)/cmp_grid_d6471d88.o \
-  $(JUCE_OBJDIR)/cmp_label_84b966bc.o \
   $(JUCE_OBJDIR)/cmp_legend_71356b8f.o \
+  $(JUCE_OBJDIR)/cmp_label_84b966bc.o \
   $(JUCE_OBJDIR)/cmp_lookandfeel_2e192d06.o \
   $(JUCE_OBJDIR)/cmp_plot_4aead9a3.o \
   $(JUCE_OBJDIR)/cmp_trace_d41e488d.o \
   $(JUCE_OBJDIR)/freqPlotModule_7fae942e.o \
+  $(JUCE_OBJDIR)/helpPage_811ecbd9.o \
   $(JUCE_OBJDIR)/AudioSettingsModule_a2de15c6.o \
   $(JUCE_OBJDIR)/Main_90ebc5c2.o \
   $(JUCE_OBJDIR)/MainComponent_a6ffb4a5.o \
@@ -144,14 +145,14 @@ $(JUCE_OBJDIR)/cmp_grid_d6471d88.o: ../../Source/cmp_grid.cpp
 	@echo "Compiling cmp_grid.cpp"
 	$(V_AT)$(CXX) $(JUCE_CXXFLAGS) $(JUCE_CPPFLAGS_APP) $(JUCE_CFLAGS_APP) -o "$@" -c "$<"
 
-$(JUCE_OBJDIR)/cmp_label_84b966bc.o: ../../Source/cmp_label.cpp
-	-$(V_AT)mkdir -p $(@D)
-	@echo "Compiling cmp_label.cpp"
-	$(V_AT)$(CXX) $(JUCE_CXXFLAGS) $(JUCE_CPPFLAGS_APP) $(JUCE_CFLAGS_APP) -o "$@" -c "$<"
-
 $(JUCE_OBJDIR)/cmp_legend_71356b8f.o: ../../Source/cmp_legend.cpp
 	-$(V_AT)mkdir -p $(@D)
 	@echo "Compiling cmp_legend.cpp"
+	$(V_AT)$(CXX) $(JUCE_CXXFLAGS) $(JUCE_CPPFLAGS_APP) $(JUCE_CFLAGS_APP) -o "$@" -c "$<"
+
+$(JUCE_OBJDIR)/cmp_label_84b966bc.o: ../../Source/cmp_label.cpp
+	-$(V_AT)mkdir -p $(@D)
+	@echo "Compiling cmp_label.cpp"
 	$(V_AT)$(CXX) $(JUCE_CXXFLAGS) $(JUCE_CPPFLAGS_APP) $(JUCE_CFLAGS_APP) -o "$@" -c "$<"
 
 $(JUCE_OBJDIR)/cmp_lookandfeel_2e192d06.o: ../../Source/cmp_lookandfeel.cpp
@@ -172,6 +173,11 @@ $(JUCE_OBJDIR)/cmp_trace_d41e488d.o: ../../Source/cmp_trace.cpp
 $(JUCE_OBJDIR)/freqPlotModule_7fae942e.o: ../../Source/freqPlotModule.cpp
 	-$(V_AT)mkdir -p $(@D)
 	@echo "Compiling freqPlotModule.cpp"
+	$(V_AT)$(CXX) $(JUCE_CXXFLAGS) $(JUCE_CPPFLAGS_APP) $(JUCE_CFLAGS_APP) -o "$@" -c "$<"
+
+$(JUCE_OBJDIR)/helpPage_811ecbd9.o: ../../Source/helpPage.cpp
+	-$(V_AT)mkdir -p $(@D)
+	@echo "Compiling helpPage.cpp"
 	$(V_AT)$(CXX) $(JUCE_CXXFLAGS) $(JUCE_CPPFLAGS_APP) $(JUCE_CFLAGS_APP) -o "$@" -c "$<"
 
 $(JUCE_OBJDIR)/AudioSettingsModule_a2de15c6.o: ../../Source/AudioSettingsModule.cpp

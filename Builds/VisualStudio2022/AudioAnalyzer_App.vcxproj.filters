@@ -637,10 +637,10 @@
     <ClCompile Include="..\..\Source\cmp_grid.cpp">
       <Filter>AudioAnalyzer\Source\CustomMatPlot</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\Source\cmp_label.cpp">
+    <ClCompile Include="..\..\Source\cmp_legend.cpp">
       <Filter>AudioAnalyzer\Source\CustomMatPlot</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\Source\cmp_legend.cpp">
+    <ClCompile Include="..\..\Source\cmp_label.cpp">
       <Filter>AudioAnalyzer\Source\CustomMatPlot</Filter>
     </ClCompile>
     <ClCompile Include="..\..\Source\cmp_lookandfeel.cpp">
@@ -653,6 +653,9 @@
       <Filter>AudioAnalyzer\Source\CustomMatPlot</Filter>
     </ClCompile>
     <ClCompile Include="..\..\Source\freqPlotModule.cpp">
+      <Filter>AudioAnalyzer\Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\helpPage.cpp">
       <Filter>AudioAnalyzer\Source</Filter>
     </ClCompile>
     <ClCompile Include="..\..\Source\AudioSettingsModule.cpp">
@@ -3295,6 +3298,9 @@
       <Filter>AudioAnalyzer\Source\CustomMatPlot</Filter>
     </ClInclude>
     <ClInclude Include="..\..\Source\freqPlotModule.h">
+      <Filter>AudioAnalyzer\Source</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\helpPage.h">
       <Filter>AudioAnalyzer\Source</Filter>
     </ClInclude>
     <ClInclude Include="..\..\Source\AudioAnalyzerGlobalEnums.h">
