@@ -1,39 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
-<plist version="1.0">
+<plist>
   <dict>
-    <key>LSSupportsOpeningDocumentsInPlace</key>
-    <true/>
-    <key>CFBundleDocumentTypes</key>
-    <array>
-      <dict>
-        <key>CFBundleTypeName</key>
-        <string>dk.eksit.customUTIHandler.aua</string>
-        <key>LSHandlerRank</key>
-        <string>Owner</string>
-      </dict>
-    </array>
-    <key>UTExportedTypeDeclarations</key>
-    <array>
-      <dict>
-        <key>UTTypeConformsTo</key>
-        <array>
-          <string>public.data</string>
-        </array>
-        <key>UTTypeIdentifier</key>
-        <string>dk.eksit.customUTIHandler.aua</string>
-        <key>UTTypeTagSpecification</key>
-        <dict>
-          <key>public.filename-extension</key>
-          <array>
-            <string>aua</string>
-          </array>
-        </dict>
-      </dict>
-    </array>
     <key>NSMicrophoneUsageDescription</key>
     <string>This app requires audio input. If you do not have an audio interface connected it will use the built-in microphone.</string>
+    <key>NSBluetoothAlwaysUsageDescription</key>
+    <string>This app requires access to Bluetooth to function correctly.</string>
+    <key>NSBluetoothPeripheralUsageDescription</key>
+    <string>This app requires access to Bluetooth to function correctly.</string>
     <key>LSRequiresIPhoneOS</key>
     <true/>
     <key>UIViewControllerBasedStatusBarAppearance</key>
@@ -53,9 +28,9 @@
     <key>CFBundleSignature</key>
     <string>????</string>
     <key>CFBundleShortVersionString</key>
-    <string>1.0.0</string>
+    <string>1.1.1</string>
     <key>CFBundleVersion</key>
-    <string>1.0.0</string>
+    <string>1</string>
     <key>NSHumanReadableCopyright</key>
     <string></string>
     <key>NSHighResolutionCapable</key>
@@ -74,6 +49,8 @@
       <string>UIInterfaceOrientationPortraitUpsideDown</string>
     </array>
     <key>UIBackgroundModes</key>
-    <array/>
+    <array>
+      <string>audio</string>
+    </array>
   </dict>
 </plist>

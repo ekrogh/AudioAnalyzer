@@ -2,7 +2,8 @@
 
 <JUCERPROJECT id="SUXWw8" name="AudioAnalyzer" projectType="guiapp" useAppConfig="0"
               displaySplashScreen="1" jucerFormatVersion="1" companyWebsite="www.eksit.dk"
-              bundleIdentifier="dk.eksit.AudioAnalyzer" cppLanguageStandard="20">
+              bundleIdentifier="dk.eksit.AudioAnalyzer" cppLanguageStandard="latest"
+              version="1.1.1">
   <MAINGROUP id="J330RL" name="AudioAnalyzer">
     <GROUP id="{444701EC-2BDB-E376-CB2D-A176BB8655A4}" name="Source">
       <GROUP id="{C9B21DB8-9C2F-4C12-39F0-876C23D8CFD4}" name="CustomMatPlot">
@@ -100,8 +101,11 @@
   <JUCEOPTIONS JUCE_STRICT_REFCOUNTEDPOINTER="1"/>
   <EXPORTFORMATS>
     <ANDROIDSTUDIO targetFolder="Builds/Android" microphonePermissionNeeded="1"
-                   gradleVersion="8.2" gradleWrapperVersion="8.2.0" androidEnableContentSharing="1"
-                   smallIcon="zrVA6e" bigIcon="Hd60ks">
+                   gradleVersion="8.4" gradleWrapperVersion="8.3.2" androidEnableContentSharing="1"
+                   smallIcon="zrVA6e" bigIcon="Hd60ks" extraDefs="ANDROID_VERSION_CODE=1"
+                   androidVersionCode="1" androidMinimumSDK="19" androidInternetNeeded="0"
+                   androidKeyStore="../../../Android_Special/keystore.jks" androidKeyStorePass="6taura"
+                   androidKeyAlias="upload" androidKeyAliasPass="6taura">
       <CONFIGURATIONS>
         <CONFIGURATION isDebug="1" name="Debug" targetName="AudioAnalyzer"/>
         <CONFIGURATION isDebug="0" name="Release" targetName="AudioAnalyzer"/>
@@ -187,7 +191,7 @@
                   extraLinkerFlags="-Wl,-weak_reference_mismatches,weak&#10;" iosDevelopmentTeamID="4657Q2Y6NH"
                   UIStatusBarHidden="1" iCloudPermissions="1" smallIcon="zrVA6e"
                   bigIcon="Hd60ks" customLaunchStoryboard="./iOSLaunchScreen/iOSLaunchScreen.storyboard"
-                  customPList="&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;&#10;&#10;&lt;!DOCTYPE plist PUBLIC &quot;-//Apple//DTD PLIST 1.0//EN&quot; &quot;http://www.apple.com/DTDs/PropertyList-1.0.dtd&quot;&gt;&#10;&lt;plist version=&quot;1.0&quot;&gt;&#10;  &lt;dict&gt;&#10;    &#9;&lt;key&gt;LSSupportsOpeningDocumentsInPlace&lt;/key&gt;&#10;&#9;    &lt;true/&gt;&#10;    &lt;key&gt;CFBundleDocumentTypes&lt;/key&gt;&#10;    &lt;array&gt;&#10;      &lt;dict&gt;&#10;        &lt;key&gt;CFBundleTypeName&lt;/key&gt;&#10;        &lt;string&gt;dk.eksit.customUTIHandler.aua&lt;/string&gt;&#10;        &lt;key&gt;LSHandlerRank&lt;/key&gt;&#10;        &lt;string&gt;Owner&lt;/string&gt;&#10;      &lt;/dict&gt;&#10;    &lt;/array&gt;&#10;    &lt;key&gt;UTExportedTypeDeclarations&lt;/key&gt;&#10;    &lt;array&gt;&#10;      &lt;dict&gt;&#10;        &lt;key&gt;UTTypeConformsTo&lt;/key&gt;&#10;        &lt;array&gt;&#10;          &lt;string&gt;public.data&lt;/string&gt;&#10;        &lt;/array&gt;&#10;        &lt;key&gt;UTTypeIdentifier&lt;/key&gt;&#10;        &lt;string&gt;dk.eksit.customUTIHandler.aua&lt;/string&gt;&#10;        &lt;key&gt;UTTypeTagSpecification&lt;/key&gt;&#10;        &lt;dict&gt;&#10;          &lt;key&gt;public.filename-extension&lt;/key&gt;&#10;          &lt;array&gt;&#10;            &lt;string&gt;aua&lt;/string&gt;&#10;          &lt;/array&gt;&#10;        &lt;/dict&gt;&#10;      &lt;/dict&gt;&#10;    &lt;/array&gt;&#10;  &lt;/dict&gt;&#10;&lt;/plist&gt;&#10;">
+                  buildNumber="1" iosBluetoothPermissionNeeded="1" iosBackgroundAudio="1">
       <CONFIGURATIONS>
         <CONFIGURATION isDebug="1" name="Debug" targetName="AudioAnalyzer"/>
         <CONFIGURATION isDebug="0" name="Release" targetName="AudioAnalyzer"/>
@@ -212,7 +216,8 @@
                hardenedRuntime="1" hardenedRuntimeOptions="com.apple.security.device.audio-input"
                microphonePermissionNeeded="1" extraDefs="JUCE_SILENCE_XCODE_15_LINKER_WARNING=1"
                extraLinkerFlags="-Wl,-weak_reference_mismatches,weak" iosDevelopmentTeamID="4657Q2Y6NH"
-               extraFrameworks="AVFoundation" smallIcon="zrVA6e" bigIcon="Hd60ks">
+               extraFrameworks="AVFoundation" smallIcon="zrVA6e" bigIcon="Hd60ks"
+               buildNumber="1">
       <CONFIGURATIONS>
         <CONFIGURATION isDebug="1" name="Debug" targetName="AudioAnalyzer" macOSDeploymentTarget="10.14"
                        osxCompatibility="10.14 SDK"/>

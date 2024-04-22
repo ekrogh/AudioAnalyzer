@@ -4,5 +4,5 @@ Type=Application
 Terminal=false
 Exec=audioanalyzer
 Name=audioanalyzer
-Comment=Various tools to analyze audio.
+Comment=audio analyzing tool
 Icon=${SNAP}/meta/gui/audioanalyzer.png

@@ -10,26 +10,22 @@ confinement: strict # use 'strict' once you have the right plugs and slots
 # confinement: devmode # use 'strict' once you have the right plugs and slots
 
 architectures:
-  - build-on: arm64
   - build-on: armhf
+    build-for: armhf
+  - build-on: arm64
+    build-for: arm64
   - build-on: amd64
-
-# architectures: [amd64, s390x, arm64, armhf]
-# architectures:
-#   - build-on: amd64
-#     run-on: amd64
-
-#   - build-on: s390x
-#     run-on: s390x
-
-#   - build-on: arm64
-#     run-on: arm64
-
-#   - build-on: armhf
-#     run-on: armhf
-
+    build-for: amd64
 #   - build-on: i386
-#     run-on: i386
+#     build-for: i386
+  # - build-on: powerpc
+  #   build-for: powerpc
+  # - build-on: ppc64el
+  #   build-for: ppc64el
+  # - build-on: riscv64
+  #   build-for: riscv64
+  # - build-on: s390x
+  #   build-for: s390x
 
 parts:
   audioanalyzer:
@@ -40,12 +36,9 @@ parts:
       g++ --version
       cd Builds/LinuxMakefile/
       pwd
-      make clean
       make CONFIG=Release
       cp build/AudioAnalyzer $SNAPCRAFT_PART_INSTALL/audioanalyzer
     build-packages:
-      # - g++
-      # - make
       - git
       - libfreetype6-dev
       - libx11-dev
@@ -60,14 +53,12 @@ parts:
       - libglu1-mesa-dev
       - mesa-common-dev
       - libasound2-dev
-      - libjack-jackd2-dev
       - libcurl4-openssl-dev
       - freeglut3-dev
       - ladspa-sdk
     stage-packages:
       - libxfixes3
       - libmd0
-      - libsqlite3-0
       - libffi7
       - libkeyutils1
       - libtasn1-6
@@ -79,41 +70,21 @@ parts:
       - libgmp10
       - libgnutls30
       - libunistring2
-      - libgssapi-krb5-2
       - libssh-4
       - libidn2-0
-      - libbrotli1
-      - libasn1-8-heimdal
-      - libcurl4
       - libfreetype6
-      - libgssapi3-heimdal
-      - libhcrypto4-heimdal
-      - libheimbase1-heimdal
-      - libheimntlm0-heimdal
-      - libhx509-5-heimdal
-      - libkrb5-26-heimdal
       - libnghttp2-14
       - libpsl5
-      - libroken18-heimdal
       - librtmp1
       - libsasl2-2
-      - libwind0-heimdal
-      - libsdl-sound1.2
-      - libsdl-net1.2
       - libxcursor1
       - libxi6
       - libxinerama1
       - libxrandr2
       - libxrender1
-      - libopenal1
-      - libsndio7.0
-      - libspeex1
-      - libvorbisfile3
       - libwayland-client0
       - libwayland-cursor0
-      - libwayland-egl1-mesa
       - libxkbcommon0
-      - libglu1-mesa
       - libasound2
       - libasyncns0
       - libbsd0
@@ -121,32 +92,22 @@ parts:
       - libflac8
       - libgcc1
       - libgcrypt20
-      - libgl1
-      - libglvnd0
-      - libglx0
       - libgpg-error0
       - liblz4-1
       - liblzma5
-      - libncursesw5
       - libogg0
       - libpng16-16
-      - libpulse0
-      - libsdl1.2debian
-      - libslang2
       - libsndfile1
       - libstdc++6
       - libsystemd0
-      - libtinfo5
       - libvorbis0a
       - libvorbisenc2
-      - libwrap0
       - libx11-6
       - libxau6
       - libxcb1
       - libxdmcp6
       - libxext6
       - zlib1g
-      - freeglut3
     
 apps:
   audioanalyzer:
