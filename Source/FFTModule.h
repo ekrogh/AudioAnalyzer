@@ -287,7 +287,7 @@ public:
 			return false;
 
 		juce::int64 bufferLengthInSamples = reader->lengthInSamples;
-		unsigned int fftOrder = std::log2(bufferLengthInSamples);
+		unsigned int fftOrder = static_cast<unsigned int>(std::log2(bufferLengthInSamples));
 		unsigned int fftSize = 1 << fftOrder;
 
 		showValues
@@ -296,7 +296,7 @@ public:
 			,
 			fftSize
 			,
-			reader->sampleRate
+			static_cast<unsigned int>(reader->sampleRate)
 			,
 			fftOrder__textEditor
 			,
@@ -336,10 +336,6 @@ public:
 
 		auto rdptrs = theAudioBuffer->getArrayOfReadPointers();
 
-		if (rdptrs[0] != theAudioBuffer->getReadPointer(0))
-		{
-			auto err = 1;
-		}
 		memcpy(fftData, rdptrs[0], sizeof(float) * fftSize);
 
 		juce::dsp::WindowingFunction<float> theHannWindow
@@ -361,7 +357,7 @@ public:
 		// then render our FFT data..
 		forwardFFT->performFrequencyOnlyForwardTransform(fftData, true);
 
-		auto deltaHz = reader->sampleRate / fftSize;
+		auto deltaHz = (float)reader->sampleRate / fftSize;
 
 		std::vector<float> tmpFreqVctr(0);
 		float freqVal = 0.0f;
@@ -492,7 +488,7 @@ public:
 		// then render our FFT data..
 		forwardFFT->performFrequencyOnlyForwardTransform(fftData, true);
 
-		auto deltaHz = (double)sampleRate / fftSize;
+		auto deltaHz = (float)sampleRate / fftSize;
 
 		std::vector<float> tmpFreqVctr(0);
 		float freqVal = 0.0f;
@@ -550,7 +546,7 @@ public:
 
 			for (size_t i = 0; i < fftSize; i++)
 			{
-				fftData[i] += (float)std::sin(currentPhase);
+				fftData[i] += static_cast<float>(std::sin(currentPhase));
 				currentPhase = std::fmod
 				(
 					currentPhase + phaseDeltaPerSample
@@ -643,7 +639,7 @@ public:
 		//forwardFFT->performFrequencyOnlyForwardTransform(fftData);
 		forwardFFT->performFrequencyOnlyForwardTransform(fftData, true);
 
-		auto deltaHz = (double)sampleRate / fftSize;
+		auto deltaHz = (float)sampleRate / fftSize;
 
 		std::vector<float> tmpFreqVctr(0);
 		float freqVal = 0.0f;
@@ -775,11 +771,11 @@ public:
 		cmp::GraphAttribute colourForLine;
 		colourForLine.graph_colour = juce::Colour
 		(
-			randomRGB.nextInt(juce::Range(10, 255))
+			static_cast<juce::int8>(randomRGB.nextInt(juce::Range(10, 255)))
 			,
-			randomRGB.nextInt(juce::Range(10, 255))
+			static_cast<juce::int8>(randomRGB.nextInt(juce::Range(10, 255)))
 			,
-			randomRGB.nextInt(juce::Range(10, 255))
+			static_cast<juce::int8>(randomRGB.nextInt(juce::Range(10, 255)))
 		);
 		ga.push_back(colourForLine);
 	}
@@ -818,7 +814,7 @@ private:
 	Image spectrogramImage;
 
 	float fifo[fftSize];
-	float fftData[2 * fftSize];
+	float fftData[2 * fftSize] = { 0 };
 	int fifoIndex = 0;
 	bool nextFFTBlockReady = false;
 

@@ -252,8 +252,8 @@ inline std::unique_ptr<InputSource> makeInputSource(const URL& url)
 	return std::make_unique<URLInputSource>(url);
 }
 
-inline std::unique_ptr<InputStream> makeInputStream(const URL& url)
-{
+//inline std::unique_ptr<InputStream> makeInputStream(const URL& url)
+//{
 //	if (const auto doc = AndroidDocument::fromDocument(url))
 //	{
 //		AndroidDocumentInputSource ADIS(doc);
@@ -278,9 +278,9 @@ inline std::unique_ptr<InputStream> makeInputStream(const URL& url)
 //		(
 //			URLIS.createInputStream()
 //		);
-
-	return nullptr;
-}
+//
+//	return nullptr;
+//}
 
 inline std::unique_ptr<OutputStream> makeOutputStream(const URL& url)
 {

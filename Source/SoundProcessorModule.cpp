@@ -452,7 +452,7 @@ SoundProcessorModule::SoundProcessorModule (std::shared_ptr<PlotModule> ptr_modu
 						for (auto vec : rmsValues)
 						{
 							// Y values
-							outputStream->writeInt(vec.size());
+							outputStream->writeInt(static_cast<int>(vec.size()));
 							for (auto fltVal : vec)
 							{
 								outputStream->writeFloat(fltVal);
@@ -460,7 +460,7 @@ SoundProcessorModule::SoundProcessorModule (std::shared_ptr<PlotModule> ptr_modu
 
 							// X-values
 							auto xVec = frequencyValues[vecNo++];
-							outputStream->writeInt(xVec.size());
+							outputStream->writeInt(static_cast<int>(xVec.size()));
 							for (auto fltVal : xVec)
 							{
 								outputStream->writeFloat(fltVal);
@@ -645,11 +645,11 @@ void SoundProcessorModule::makeGraphAttributes()
 	cmp::GraphAttribute colourForLine;
 	colourForLine.graph_colour = juce::Colour
 	(
-		randomRGB.nextInt(juce::Range(100, 255))
+		static_cast<juce::int8>(randomRGB.nextInt(juce::Range(100, 255)))
 		,
-		randomRGB.nextInt(juce::Range(100, 255))
+		static_cast<juce::int8>(randomRGB.nextInt(juce::Range(100, 255)))
 		,
-		randomRGB.nextInt(juce::Range(100, 255))
+		static_cast<juce::int8>(randomRGB.nextInt(juce::Range(100, 255)))
 	);
 	graph_attributes.push_back(colourForLine);
 }
@@ -771,10 +771,12 @@ void SoundProcessorModule::run()
 			{ // ScopedLock sl scope begin
 				const ScopedLock sl(clearOldMeasuredLock);
 
-				frequencyValues[frequencyValues.size() - 1].push_back(copyOfCurrentFrequencyHz);
+				frequencyValues[frequencyValues.size() - 1]
+					.push_back(static_cast<float>(copyOfCurrentFrequencyHz));
 
 				auto curRMS = std::sqrt(copyOfAudioSamplesSquareSum / copyOfNoSamplesInAudioSamplesSquareSum);
-				rmsValues[rmsValues.size() - 1].push_back(curRMS);
+				rmsValues[rmsValues.size() - 1]
+					.push_back(static_cast<float>(curRMS));
 
 				module_Plot->updatePlot(rmsValues, frequencyValues, graph_attributes, plotLegend);
 			}

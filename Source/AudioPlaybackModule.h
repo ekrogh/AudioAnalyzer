@@ -276,7 +276,7 @@ public:
 			[this]
 			{
 				//audioSourcePlayer.setGain(gainSlider.getValue());
-				transportSource.setGain(gainSlider.getValue());
+				transportSource.setGain(static_cast<float>(gainSlider.getValue()));
 			};
 		gainSlider.setValue(1.0f);
 
