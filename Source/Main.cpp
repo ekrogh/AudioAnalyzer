@@ -18,7 +18,7 @@ public:
 	{
 #if !JUCE_IOS
 #ifndef _DEBUG
-		pSplash = new SplashScreen("Welcome to AudioAnalyzer!", ImageFileFormat::loadFrom(BinaryData::splash_png, (size_t)BinaryData::splash_pngSize), true);
+		pSplash = new SplashScreen("Welcome to AudioAnalyzer!", ImageFileFormat::loadFrom(BinaryData::audioanalyzerfirstimage_png, (size_t)BinaryData::audioanalyzerfirstimage_pngSize), true);
 		//juce::MessageManager::getInstance()->runDispatchLoopUntil(100);
 #endif // _DEBUG
 #endif // !JUCE_IOS

@@ -8,14 +8,14 @@
 
 namespace BinaryData
 {
+    extern const char*   audioanalyzerfirstimage_png;
+    const int            audioanalyzerfirstimage_pngSize = 41775;
+
     extern const char*   audioAnalyzer_large_icon_png;
     const int            audioAnalyzer_large_icon_pngSize = 580718;
 
     extern const char*   audioAnalyzer_small_icon_png;
     const int            audioAnalyzer_small_icon_pngSize = 201747;
-
-    extern const char*   splash_png;
-    const int            splash_pngSize = 41775;
 
     // Number of elements in the namedResourceList and originalFileNames arrays.
     const int namedResourceListSize = 3;

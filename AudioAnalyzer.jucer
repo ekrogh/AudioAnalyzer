@@ -2,10 +2,14 @@
 
 <JUCERPROJECT id="SUXWw8" name="AudioAnalyzer" projectType="guiapp" useAppConfig="0"
               displaySplashScreen="1" jucerFormatVersion="1" companyWebsite="www.eksit.dk"
-              bundleIdentifier="dk.eksit.AudioAnalyzer" cppLanguageStandard="latest"
+              bundleIdentifier="dk.eksit.AudioAnalyzer" cppLanguageStandard="17"
               version="1.1.1">
   <MAINGROUP id="J330RL" name="AudioAnalyzer">
     <GROUP id="{444701EC-2BDB-E376-CB2D-A176BB8655A4}" name="Source">
+      <GROUP id="{E0980DD4-085C-A615-407B-AC22978106DF}" name="Resources">
+        <FILE id="MXXT25" name="audioanalyzerfirstimage.png" compile="0" resource="1"
+              file="Source/audioanalyzerfirstimage.png" xcodeResource="1"/>
+      </GROUP>
       <GROUP id="{C9B21DB8-9C2F-4C12-39F0-876C23D8CFD4}" name="CustomMatPlot">
         <FILE id="KTz37e" name="cmp_datamodels.h" compile="0" resource="0"
               file="Source/cmp_datamodels.h"/>
@@ -79,8 +83,6 @@
             file="Source/SoundProcessorModule.cpp"/>
       <FILE id="kysDNn" name="SoundProcessorModule.h" compile="0" resource="0"
             file="Source/SoundProcessorModule.h"/>
-      <FILE id="vVsCCR" name="splash.png" compile="0" resource="1" file="Source/splash.png"
-            xcodeResource="1"/>
       <FILE id="AxQVJX" name="FFTCtrl.cpp" compile="1" resource="0" file="Source/FFTCtrl.cpp"/>
       <FILE id="HhhnxZ" name="FFTCtrl.h" compile="0" resource="0" file="Source/FFTCtrl.h"/>
       <FILE id="cqhsP1" name="Utilities.h" compile="0" resource="0" file="Source/Utilities.h"/>
@@ -214,7 +216,7 @@
       </MODULEPATHS>
     </XCODE_IPHONE>
     <XCODE_MAC targetFolder="Builds/MacOSX" applicationCategory="public.app-category.utilities"
-               appSandbox="1" appSandboxOptions="com.apple.security.assets.music.read-write,com.apple.security.device.microphone,com.apple.security.files.user-selected.read-write"
+               appSandbox="1" appSandboxOptions="com.apple.security.assets.music.read-write,com.apple.security.device.microphone,com.apple.security.files.downloads.read-write,com.apple.security.files.user-selected.read-write"
                hardenedRuntime="1" hardenedRuntimeOptions="com.apple.security.device.audio-input"
                microphonePermissionNeeded="1" extraDefs="JUCE_SILENCE_XCODE_15_LINKER_WARNING=1"
                extraLinkerFlags="-Wl,-weak_reference_mismatches,weak" iosDevelopmentTeamID="4657Q2Y6NH"

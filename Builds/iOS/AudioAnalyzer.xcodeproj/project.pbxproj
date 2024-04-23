@@ -44,7 +44,6 @@
 		84E851A40E2809A47EB0FA86 /* Main.cpp */ = {isa = PBXBuildFile; fileRef = 50D3B2DBEBC4D762C444DE4B; };
 		86F57AA972C12D6164FC6916 /* include_juce_audio_processors_ara.cpp */ = {isa = PBXBuildFile; fileRef = 349032DBD43C28F182DE277D; };
 		8720688F2E02628131AEA619 /* include_juce_audio_utils.mm */ = {isa = PBXBuildFile; fileRef = 781AEA24558CB50582053A51; };
-		89B4375CF4DB6B798F95B932 /* splash.png */ = {isa = PBXBuildFile; fileRef = CFC8F85530A50F41033EFA8B; };
 		8AB69328F68C9E218D122ED7 /* cmp_graph_area.cpp */ = {isa = PBXBuildFile; fileRef = 36F4F56004E7C096FBC546FE; };
 		8B9DA5D21DF0507ABEAECE6F /* CoreAudio.framework */ = {isa = PBXBuildFile; fileRef = 930BCC4849FBC2E75620E08E; };
 		8EE10015FC39341BFF570359 /* cmp_label.cpp */ = {isa = PBXBuildFile; fileRef = 3777F08B0EF8D4A3C8EF82B0; };
@@ -58,6 +57,7 @@
 		C0598ACC9C3CCA966C5B1226 /* PlotModule.cpp */ = {isa = PBXBuildFile; fileRef = 9DB0A8597631E0CC265AADD2; };
 		C6FADDEDDF82226B1C7B9690 /* FFTCtrl.cpp */ = {isa = PBXBuildFile; fileRef = BA3D298ABB8A39C78A765E5F; };
 		E7E2E63BA3FA401B3A45EE84 /* Foundation.framework */ = {isa = PBXBuildFile; fileRef = E64DB86ECAA9CA472D15217F; };
+		EA4AB435EA212132B32522F0 /* audioanalyzerfirstimage.png */ = {isa = PBXBuildFile; fileRef = 4EC631C748E401C8A059DB3E; };
 		EB3705D17BC2780A23DCE688 /* CoreServices.framework */ = {isa = PBXBuildFile; fileRef = 42C59B3E1ED2106615882898; };
 		F19CE70BE3D638C9A35BA7AA /* freqPlotModule.cpp */ = {isa = PBXBuildFile; fileRef = EA00BB55652FD7C1DD980120; };
 		F261EA35741858AC6AF44648 /* include_juce_gui_basics.mm */ = {isa = PBXBuildFile; fileRef = D20701C1749C4A16F01AB9E6; };
@@ -103,6 +103,7 @@
 		49A570884BA8354B0BFD461A /* freqPlotModule.h */ /* freqPlotModule.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = freqPlotModule.h; path = ../../Source/freqPlotModule.h; sourceTree = SOURCE_ROOT; };
 		4ACDBA4EB46616D6D8802321 /* juce_graphics */ /* juce_graphics */ = {isa = PBXFileReference; lastKnownFileType = folder; name = juce_graphics; path = ../../JuceLibraryCode/modules/juce_graphics; sourceTree = SOURCE_ROOT; };
 		4D62E649CCF127A4FE79C2CA /* audioAnalyzer_large_icon.png */ /* audioAnalyzer_large_icon.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = audioAnalyzer_large_icon.png; path = ../../Source/audioAnalyzer_large_icon.png; sourceTree = SOURCE_ROOT; };
+		4EC631C748E401C8A059DB3E /* audioanalyzerfirstimage.png */ /* audioanalyzerfirstimage.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = audioanalyzerfirstimage.png; path = ../../Source/audioanalyzerfirstimage.png; sourceTree = SOURCE_ROOT; };
 		50D3B2DBEBC4D762C444DE4B /* Main.cpp */ /* Main.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = Main.cpp; path = ../../Source/Main.cpp; sourceTree = SOURCE_ROOT; };
 		5156AFE0E879A53483250765 /* Accelerate.framework */ /* Accelerate.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Accelerate.framework; path = System/Library/Frameworks/Accelerate.framework; sourceTree = SDKROOT; };
 		56287AA57B0A30C40C824E3A /* juce_audio_processors */ /* juce_audio_processors */ = {isa = PBXFileReference; lastKnownFileType = folder; name = juce_audio_processors; path = ../../JuceLibraryCode/modules/juce_audio_processors; sourceTree = SOURCE_ROOT; };
@@ -146,7 +147,6 @@
 		C71F34F736E596C662F3F0F5 /* cmp_trace.h */ /* cmp_trace.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = cmp_trace.h; path = ../../Source/cmp_trace.h; sourceTree = SOURCE_ROOT; };
 		CC799694D2D63BDC183F6745 /* UIKit.framework */ /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = System/Library/Frameworks/UIKit.framework; sourceTree = SDKROOT; };
 		CF9BD0E31CE9CEDF74FC0E25 /* cmp_lookandfeel.cpp */ /* cmp_lookandfeel.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = cmp_lookandfeel.cpp; path = ../../Source/cmp_lookandfeel.cpp; sourceTree = SOURCE_ROOT; };
-		CFC8F85530A50F41033EFA8B /* splash.png */ /* splash.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = splash.png; path = ../../Source/splash.png; sourceTree = SOURCE_ROOT; };
 		D0253668077084F26B53DE97 /* helpPage.h */ /* helpPage.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = helpPage.h; path = ../../Source/helpPage.h; sourceTree = SOURCE_ROOT; };
 		D0D8E0F70D1F4A57B4F0D5CA /* juce_dsp */ /* juce_dsp */ = {isa = PBXFileReference; lastKnownFileType = folder; name = juce_dsp; path = ../../JuceLibraryCode/modules/juce_dsp; sourceTree = SOURCE_ROOT; };
 		D16530F8F2EB343C32109081 /* CoreText.framework */ /* CoreText.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreText.framework; path = System/Library/Frameworks/CoreText.framework; sourceTree = SDKROOT; };
@@ -367,7 +367,7 @@
 				DE9EC28CBFF42EF15ABB9515,
 				99B027D6C4AA831EBED3953B,
 				86F54C1D30F11E70E8038570,
-				CFC8F85530A50F41033EFA8B,
+				4EC631C748E401C8A059DB3E,
 			);
 			name = Resources;
 			sourceTree = "<group>";
@@ -455,7 +455,7 @@
 				2BA852EA5DC1933CC5078C1B,
 				21FCF151AC2484931496270E,
 				5249EB7430D3BB5A4B0114C9,
-				89B4375CF4DB6B798F95B932,
+				EA4AB435EA212132B32522F0,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -612,7 +612,7 @@
 			buildSettings = {
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
-				CLANG_CXX_LANGUAGE_STANDARD = "c++20";
+				CLANG_CXX_LANGUAGE_STANDARD = "c++17";
 				CLANG_CXX_LIBRARY = "libc++";
 				CLANG_LINK_OBJC_RUNTIME = NO;
 				CODE_SIGN_ENTITLEMENTS = "App.entitlements";
@@ -681,7 +681,7 @@
 			buildSettings = {
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
-				CLANG_CXX_LANGUAGE_STANDARD = "c++20";
+				CLANG_CXX_LANGUAGE_STANDARD = "c++17";
 				CLANG_CXX_LIBRARY = "libc++";
 				CLANG_LINK_OBJC_RUNTIME = NO;
 				CODE_SIGN_ENTITLEMENTS = "App.entitlements";
