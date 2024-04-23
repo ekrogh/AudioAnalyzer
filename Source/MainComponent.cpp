@@ -91,7 +91,7 @@ MainComponent::MainComponent()
 		);
 		juce__tabbedComponent->addTab
 		(
-			TRANS("Plot")
+			TRANS("RMS Plot")
 			, juce::Colours::lightgrey
 			, module_Plot.get()
 			, false
