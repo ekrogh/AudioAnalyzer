@@ -7,7 +7,7 @@
   the "//[xyz]" and "//[/xyz]" sections will be retained when the file is loaded
   and re-saved.
 
-  Created with Projucer version: 7.0.9
+  Created with Projucer version: 7.0.12
 
   ------------------------------------------------------------------------------
 
@@ -65,7 +65,9 @@
 	Describe your class and how it works here!
                                                                     //[/Comments]
 */
-class MainComponent  : public juce::Component
+class MainComponent  : public juce::Component,
+                       private Thread,
+                       private Timer
 {
 public:
     //==============================================================================
@@ -83,29 +85,40 @@ public:
 
 private:
     //[UserVariables]   -- You can add your own custom variables in this section.
-    String getCurrentDefaultAudioDeviceName(AudioDeviceManager& deviceManager, bool isInput);
+	std::condition_variable runCondition;
+	std::mutex runMutex;
+	bool runFinished = false;
+	void waitForRunToFinish();
+	void signalRunFinished(bool resultGood);
 
-    AudioDeviceManager& getSharedAudioDeviceManager
-    (
-        int numInputChannels = defaultNumInputChannels
-        ,
-        int numOutputChannels = defaultNumOutputChannels
-    );
-    bool checkMicrophoneAccessPermission();
+	bool micAccessGranted = false;
 
-    std::shared_ptr<AudioDeviceManager> sharedAudioDeviceManager;
+	void run() override; // Called from Thread
+	void timerCallback() override;
+
+	String getCurrentDefaultAudioDeviceName(AudioDeviceManager& deviceManager, bool isInput);
+
+	AudioDeviceManager& getSharedAudioDeviceManager
+	(
+		int numInputChannels = defaultNumInputChannels
+		,
+		int numOutputChannels = defaultNumOutputChannels
+	);
+	void checkMicrophoneAccessPermission();
+
+	std::shared_ptr<AudioDeviceManager> sharedAudioDeviceManager;
 	std::shared_ptr<PlotModule> module_Plot =
 		std::make_shared<PlotModule>();
-    std::shared_ptr<SoundProcessorModule> module_SoundProcessor;
-    std::shared_ptr<AudioSettingsModule> module_AudioSettings;
-    std::shared_ptr<microphoneAccessPermissionAlert> module_microphoneAccessPermissionAlert;
-    std::shared_ptr<AudioRecorderModule> module_AudioRecording;
-    std::shared_ptr<AudioPlaybackModule> module_AudioPlayback;
-    std::shared_ptr<FFTModule> module_FFT;
-    std::shared_ptr<FFTCtrl> module_FFTCtrl;
-    std::shared_ptr<freqPlotModule> module_freqPlot =
-        std::make_shared<freqPlotModule>();
-    std::shared_ptr<aboutPage> pAboutPage = nullptr;
+	std::shared_ptr<SoundProcessorModule> module_SoundProcessor;
+	std::shared_ptr<AudioSettingsModule> module_AudioSettings;
+	std::shared_ptr<microphoneAccessPermissionAlert> module_microphoneAccessPermissionAlert;
+	std::shared_ptr<AudioRecorderModule> module_AudioRecording;
+	std::shared_ptr<AudioPlaybackModule> module_AudioPlayback;
+	std::shared_ptr<FFTModule> module_FFT;
+	std::shared_ptr<FFTCtrl> module_FFTCtrl;
+	std::shared_ptr<freqPlotModule> module_freqPlot =
+		std::make_shared<freqPlotModule>();
+	std::shared_ptr<aboutPage> pAboutPage = nullptr;
 
 
     //[/UserVariables]
