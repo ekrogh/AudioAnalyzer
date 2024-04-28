@@ -291,9 +291,9 @@ void MainComponent::timerCallback()
 					juce::AlertWindow::WarningIcon
 					, "Access to audio input device\nNOT granted!"
 #if (JUCE_IOS)
-					, "You might try to\nEnbale guitarFineTune in\nSettings -> Privacy -> Microphone\nOr UNinstall\nand REinstall guitarFineTune"
+					, "You might try to\nEnbale AudioAnalyzer in\nSettings -> Privacy -> Microphone\nOr UNinstall\nand REinstall AudioAnalyzer"
 #else // JUCE_MAC || JUCE_LINUX
-					, "You might try to\nEnbale guitarFineTune in\nSystem Preferences -> Security & Privacy -> Privacy -> Microphone\nOr UNinstall\nand REinstall guitarFineTune"
+					, "You might try to\nEnbale AudioAnalyzer in\nSystem Preferences -> Security & Privacy -> Privacy -> Microphone\nOr UNinstall\nand REinstall AudioAnalyzer"
 #endif
 					, "Quit"
 				);
@@ -305,9 +305,9 @@ void MainComponent::timerCallback()
 					juce::AlertWindow::WarningIcon
 					, "Access to audio input device\nNOT granted!"
 #if (JUCE_IOS)
-					, "You might try to\nEnbale guitarFineTune in\nSettings -> Privacy -> Microphone\nOr UNinstall\nand REinstall guitarFineTune"
+					, "You might try to\nEnbale AudioAnalyzer in\nSettings -> Privacy -> Microphone\nOr UNinstall\nand REinstall AudioAnalyzer"
 #else // JUCE_MAC || JUCE_LINUX
-					, "You might try to\nEnbale guitarFineTune in\nSystem Preferences -> Security & Privacy -> Privacy -> Microphone\nOr UNinstall\nand REinstall guitarFineTune"
+					, "You might try to\nEnbale AudioAnalyzer in\nSystem Preferences -> Security & Privacy -> Privacy -> Microphone\nOr UNinstall\nand REinstall AudioAnalyzer"
 #endif
 				);
 #endif //#if JUCE_MODAL_LOOPS_PERMITTED
