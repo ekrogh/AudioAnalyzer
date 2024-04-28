@@ -301,6 +301,7 @@ void MainComponent::checkMicrophoneAccessPermission()
 #if (JUCE_MAC || JUCE_LINUX)
 		}
 #endif
+        Thread::sleep(1000);
 }
 #else // #if (JUCE_IOS || JUCE_MAC || JUCE_LINUX)
 	signalRunFinished(true);
