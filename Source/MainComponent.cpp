@@ -282,59 +282,57 @@ void MainComponent::timerCallback()
 		{
 			switch (CurrentAudioDevice->checkAudioInputAccessPermissions())
 			{
-			case eksAVAuthorizationStatusDenied:
-			{
-				stopTimer();
-#if JUCE_MODAL_LOOPS_PERMITTED
-				juce::AlertWindow::showMessageBox
-				(
-					juce::AlertWindow::WarningIcon
-					, "Access to audio input device\nNOT granted!"
-#if (JUCE_IOS)
-					, "You might try to\nEnbale AudioAnalyzer in\nSettings -> Privacy -> Microphone\nOr UNinstall\nand REinstall AudioAnalyzer"
-#else // JUCE_MAC || JUCE_LINUX
-					, "You might try to\nEnbale AudioAnalyzer in\nSystem Preferences -> Security & Privacy -> Privacy -> Microphone\nOr UNinstall\nand REinstall AudioAnalyzer"
-#endif
-					, "Quit"
-				);
-				sharedAudioDeviceManager->closeAudioDevice();
-				JUCEApplication::getInstance()->systemRequestedQuit();
-#else //#if JUCE_MODAL_LOOPS_PERMITTED
-				juce::AlertWindow::showMessageBoxAsync
-				(
-					juce::AlertWindow::WarningIcon
-					, "Access to audio input device\nNOT granted!"
-#if (JUCE_IOS)
-					, "You might try to\nEnbale AudioAnalyzer in\nSettings -> Privacy -> Microphone\nOr UNinstall\nand REinstall AudioAnalyzer"
-#else // JUCE_MAC || JUCE_LINUX
-					, "You might try to\nEnbale AudioAnalyzer in\nSystem Preferences -> Security & Privacy -> Privacy -> Microphone\nOr UNinstall\nand REinstall AudioAnalyzer"
-#endif
-				);
-#endif //#if JUCE_MODAL_LOOPS_PERMITTED
+				case eksAVAuthorizationStatusDenied:
+				{
+					stopTimer();
+	#if JUCE_MODAL_LOOPS_PERMITTED
+					juce::AlertWindow::showMessageBox
+					(
+						juce::AlertWindow::WarningIcon
+						, "Access to audio input device\nNOT granted!"
+	#if (JUCE_IOS)
+						, "You might try to\nEnbale AudioAnalyzer in\nSettings -> Privacy -> Microphone\nOr UNinstall\nand REinstall AudioAnalyzer"
+	#else // JUCE_MAC || JUCE_LINUX
+						, "You might try to\nEnbale AudioAnalyzer in\nSystem Preferences -> Security & Privacy -> Privacy -> Microphone\nOr UNinstall\nand REinstall AudioAnalyzer"
+	#endif
+						, "Quit"
+					);
+					sharedAudioDeviceManager->closeAudioDevice();
+					JUCEApplication::getInstance()->systemRequestedQuit();
+	#else //#if JUCE_MODAL_LOOPS_PERMITTED
+					juce::AlertWindow::showMessageBoxAsync
+					(
+						juce::AlertWindow::WarningIcon
+						, "Access to audio input device\nNOT granted!"
+	#if (JUCE_IOS)
+						, "You might try to\nEnbale AudioAnalyzer in\nSettings -> Privacy -> Microphone\nOr UNinstall\nand REinstall AudioAnalyzer"
+	#else // JUCE_MAC || JUCE_LINUX
+						, "You might try to\nEnbale AudioAnalyzer in\nSystem Preferences -> Security & Privacy -> Privacy -> Microphone\nOr UNinstall\nand REinstall AudioAnalyzer"
+	#endif
+					);
+	#endif //#if JUCE_MODAL_LOOPS_PERMITTED
 
-				signalRunFinished(false);
+					signalRunFinished(false);
 
-				break;
-			}
-			case eksAVAuthorizationStatusRestricted:
-			case eksAVAuthorizationStatusAuthorized:
-			{
-				stopTimer();
+					break;
+				}
+				case eksAVAuthorizationStatusRestricted:
+				case eksAVAuthorizationStatusAuthorized:
+				{
+					stopTimer();
 
-				signalRunFinished(true);
+					signalRunFinished(true);
 
-				break;
-			}
-			case eksAVAuthorizationStatusNotDetermined:
-			{
-				signalRunFinished(true);
-				break;
-			}
-			default:
-			{
-				signalRunFinished(true);
-				break;
-			}
+					break;
+				}
+				case eksAVAuthorizationStatusNotDetermined:
+				{
+					break;
+				}
+				default:
+				{
+					break;
+				}
 			}
 		}
 #if (JUCE_MAC || JUCE_LINUX)
