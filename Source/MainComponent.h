@@ -66,8 +66,7 @@
                                                                     //[/Comments]
 */
 class MainComponent  : public juce::Component,
-                       private Thread,
-                       private Timer
+                       private Thread
 {
 public:
     //==============================================================================
@@ -94,7 +93,6 @@ private:
 	bool micAccessGranted = false;
 
 	void run() override; // Called from Thread
-	void timerCallback() override;
 
 	String getCurrentDefaultAudioDeviceName(AudioDeviceManager& deviceManager, bool isInput);
 

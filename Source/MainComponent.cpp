@@ -27,19 +27,19 @@
 //[/MiscUserDefs]
 
 //==============================================================================
-MainComponent::MainComponent ()
-    : Thread("Microphone Access Permissions Check")
+MainComponent::MainComponent()
+	: Thread("Microphone Access Permissions Check")
 {
-    //[Constructor_pre] You can add your own custom stuff here..
-    //[/Constructor_pre]
+	//[Constructor_pre] You can add your own custom stuff here..
+	//[/Constructor_pre]
 
-    juce__tabbedComponent.reset (new juce::TabbedComponent (juce::TabbedButtonBar::TabsAtTop));
-    addAndMakeVisible (juce__tabbedComponent.get());
-    juce__tabbedComponent->setTabBarDepth (30);
-    juce__tabbedComponent->setCurrentTabIndex (-1);
+	juce__tabbedComponent.reset(new juce::TabbedComponent(juce::TabbedButtonBar::TabsAtTop));
+	addAndMakeVisible(juce__tabbedComponent.get());
+	juce__tabbedComponent->setTabBarDepth(30);
+	juce__tabbedComponent->setCurrentTabIndex(-1);
 
 
-    //[UserPreSize]
+	//[UserPreSize]
 	getSharedAudioDeviceManager();
 
 	startThread();
@@ -48,7 +48,6 @@ MainComponent::MainComponent ()
 
 	if (micAccessGranted)
 	{
-
 		module_AudioRecording =
 			std::make_shared<AudioRecorderModule>(sharedAudioDeviceManager);
 		module_SoundProcessor =
@@ -154,48 +153,48 @@ MainComponent::MainComponent ()
 		, pAboutPage.get()
 		, false
 	);
-    //[/UserPreSize]
+	//[/UserPreSize]
 
-    setSize (600, 700);
+	setSize(600, 700);
 
 
-    //[Constructor] You can add your own custom stuff here..
-    //[/Constructor]
+	//[Constructor] You can add your own custom stuff here..
+	//[/Constructor]
 }
 
 MainComponent::~MainComponent()
 {
-    //[Destructor_pre]. You can add your own custom destruction code here..
+	//[Destructor_pre]. You can add your own custom destruction code here..
 	sharedAudioDeviceManager->closeAudioDevice();
-    //[/Destructor_pre]
+	//[/Destructor_pre]
 
-    juce__tabbedComponent = nullptr;
+	juce__tabbedComponent = nullptr;
 
 
-    //[Destructor]. You can add your own custom destruction code here..
-    //[/Destructor]
+	//[Destructor]. You can add your own custom destruction code here..
+	//[/Destructor]
 }
 
 //==============================================================================
-void MainComponent::paint (juce::Graphics& g)
+void MainComponent::paint(juce::Graphics& g)
 {
-    //[UserPrePaint] Add your own custom painting code here..
-    //[/UserPrePaint]
+	//[UserPrePaint] Add your own custom painting code here..
+	//[/UserPrePaint]
 
-    g.fillAll (juce::Colour (0xff505050));
+	g.fillAll(juce::Colour(0xff505050));
 
-    //[UserPaint] Add your own custom painting code here..
-    //[/UserPaint]
+	//[UserPaint] Add your own custom painting code here..
+	//[/UserPaint]
 }
 
 void MainComponent::resized()
 {
-    //[UserPreResize] Add your own custom resize code here..
-    //[/UserPreResize]
+	//[UserPreResize] Add your own custom resize code here..
+	//[/UserPreResize]
 
-    juce__tabbedComponent->setBounds (0, 0, proportionOfWidth (0.9908f), proportionOfHeight (0.9908f));
-    //[UserResized] Add your own custom resize handling here..
-    //[/UserResized]
+	juce__tabbedComponent->setBounds(0, 0, proportionOfWidth(0.9908f), proportionOfHeight(0.9908f));
+	//[UserResized] Add your own custom resize handling here..
+	//[/UserResized]
 }
 
 
@@ -219,7 +218,7 @@ void MainComponent::signalRunFinished(bool resultGood)
 	// Signal that the run function has finished
 	{
 		std::lock_guard<std::mutex> lock(runMutex);
-		runFinished = resultGood;
+		runFinished = true;
 	}
 	runCondition.notify_one();
 }
@@ -227,121 +226,86 @@ void MainComponent::signalRunFinished(bool resultGood)
 void MainComponent::checkMicrophoneAccessPermission()
 {
 #if (JUCE_IOS || JUCE_MAC || JUCE_LINUX)
-#if (JUCE_MAC || JUCE_LINUX)
-	//    if (SystemStats::getOperatingSystemType() >= SystemStats::MacOSX_10_14)
-	if (!(SystemStats::getOperatingSystemType() < SystemStats::MacOSX_10_14))
+	while (true)
 	{
-#endif
-		AudioIODevice* CurrentAudioDevice = sharedAudioDeviceManager->getCurrentAudioDevice();
-		if (CurrentAudioDevice != nullptr)
-		{
-			switch (CurrentAudioDevice->checkAudioInputAccessPermissions())
-			{
-			case eksAVAuthorizationStatusDenied:
-			{
-				startTimer(1000);
-				break;
-			}
-			case eksAVAuthorizationStatusRestricted:
-			case eksAVAuthorizationStatusAuthorized:
-			{
-				signalRunFinished(true);
-				break;
-			}
-			case eksAVAuthorizationStatusNotDetermined:
-			{
-				startTimer(1000);
-				break;
-			}
-			default:
-			{
-				signalRunFinished(true);
-				break;
-			}
-			}
-		}
 #if (JUCE_MAC || JUCE_LINUX)
-	}
+		if (SystemStats::getOperatingSystemType() >= SystemStats::MacOSX_10_14)
+		{
 #endif
+			AudioIODevice* CurrentAudioDevice = sharedAudioDeviceManager->getCurrentAudioDevice();
+			if (CurrentAudioDevice != nullptr)
+			{
+				switch (CurrentAudioDevice->checkAudioInputAccessPermissions())
+				{
+					case eksAVAuthorizationStatusDenied:
+						{
+							//#if JUCE_MODAL_LOOPS_PERMITTED
+							//							juce::AlertWindow::showMessageBox
+							//							(
+							//								juce::AlertWindow::WarningIcon
+							//								, "Access to audio input device\nNOT granted!"
+							//#if (JUCE_IOS)
+							//								, "You might try to\nEnbale AudioAnalyzer in\nSettings -> Privacy -> Microphone\nOr UNinstall\nand REinstall AudioAnalyzer"
+							//#else // JUCE_MAC || JUCE_LINUX
+							//								, "You might try to\nEnbale AudioAnalyzer in\nSystem Preferences -> Security & Privacy -> Privacy -> Microphone\nOr UNinstall\nand REinstall AudioAnalyzer"
+							//#endif
+							//								, "Quit"
+							//							);
+							//							sharedAudioDeviceManager->closeAudioDevice();
+							//							JUCEApplication::getInstance()->systemRequestedQuit();
+							//							signalRunFinished(false);
+							//#else //#if JUCE_MODAL_LOOPS_PERMITTED
+							//							juce::AlertWindow::showMessageBoxAsync
+							//							(
+							//								juce::AlertWindow::WarningIcon
+							//								, "Access to audio input device\nNOT granted!"
+							//#if (JUCE_IOS)
+							//								, "You might try to\nEnbale AudioAnalyzer in\nSettings -> Privacy -> Microphone\nOr UNinstall\nand REinstall AudioAnalyzer"
+							//#else // JUCE_MAC || JUCE_LINUX
+							//								, "You might try to\nEnbale AudioAnalyzer in\nSystem Preferences -> Security & Privacy -> Privacy -> Microphone\nOr UNinstall\nand REinstall AudioAnalyzer"
+							//#endif
+							//								, "Quit"
+							//								, nullptr
+							//								, ModalCallbackFunction::create(
+							//									[this]
+							//									(int r)
+							//									{
+							//										signalRunFinished(false);
+							//									})
+							//							);
+							//#endif //#if JUCE_MODAL_LOOPS_PERMITTED
 
-#else // #if (JUCE_IOS || JUCE_MAC || JUCE_LINUX)
-	signalRunFinished(true);
-#endif // #if (JUCE_IOS || JUCE_MAC || JUCE_LINUX)
+							signalRunFinished(false); // access NOT granded
 
+							return;
+							break;
+						}
+					case eksAVAuthorizationStatusRestricted:
+					case eksAVAuthorizationStatusAuthorized:
+						{
+							signalRunFinished(true);
+
+							return;
+							break;
+						}
+					case eksAVAuthorizationStatusNotDetermined:
+						{
+							break;
+						}
+					default:
+						{
+							break;
+						}
+				}
+			}
+#if (JUCE_MAC || JUCE_LINUX)
+		}
+#endif
 }
-
-void MainComponent::timerCallback()
-{
-#if (JUCE_IOS || JUCE_MAC || JUCE_LINUX)
-#if (JUCE_MAC || JUCE_LINUX)
-	if (SystemStats::getOperatingSystemType() >= SystemStats::MacOSX_10_14)
-	{
-#endif
-		AudioIODevice* CurrentAudioDevice = sharedAudioDeviceManager->getCurrentAudioDevice();
-		if (CurrentAudioDevice != nullptr)
-		{
-			switch (CurrentAudioDevice->checkAudioInputAccessPermissions())
-			{
-				case eksAVAuthorizationStatusDenied:
-				{
-					stopTimer();
-	#if JUCE_MODAL_LOOPS_PERMITTED
-					juce::AlertWindow::showMessageBox
-					(
-						juce::AlertWindow::WarningIcon
-						, "Access to audio input device\nNOT granted!"
-	#if (JUCE_IOS)
-						, "You might try to\nEnbale AudioAnalyzer in\nSettings -> Privacy -> Microphone\nOr UNinstall\nand REinstall AudioAnalyzer"
-	#else // JUCE_MAC || JUCE_LINUX
-						, "You might try to\nEnbale AudioAnalyzer in\nSystem Preferences -> Security & Privacy -> Privacy -> Microphone\nOr UNinstall\nand REinstall AudioAnalyzer"
-	#endif
-						, "Quit"
-					);
-					sharedAudioDeviceManager->closeAudioDevice();
-					JUCEApplication::getInstance()->systemRequestedQuit();
-	#else //#if JUCE_MODAL_LOOPS_PERMITTED
-					juce::AlertWindow::showMessageBoxAsync
-					(
-						juce::AlertWindow::WarningIcon
-						, "Access to audio input device\nNOT granted!"
-	#if (JUCE_IOS)
-						, "You might try to\nEnbale AudioAnalyzer in\nSettings -> Privacy -> Microphone\nOr UNinstall\nand REinstall AudioAnalyzer"
-	#else // JUCE_MAC || JUCE_LINUX
-						, "You might try to\nEnbale AudioAnalyzer in\nSystem Preferences -> Security & Privacy -> Privacy -> Microphone\nOr UNinstall\nand REinstall AudioAnalyzer"
-	#endif
-					);
-	#endif //#if JUCE_MODAL_LOOPS_PERMITTED
-
-					signalRunFinished(false);
-
-					break;
-				}
-				case eksAVAuthorizationStatusRestricted:
-				case eksAVAuthorizationStatusAuthorized:
-				{
-					stopTimer();
-
-					signalRunFinished(true);
-
-					break;
-				}
-				case eksAVAuthorizationStatusNotDetermined:
-				{
-					break;
-				}
-				default:
-				{
-					break;
-				}
-			}
-		}
-#if (JUCE_MAC || JUCE_LINUX)
-	}
-#endif
-
 #else // #if (JUCE_IOS || JUCE_MAC || JUCE_LINUX)
 	signalRunFinished(true);
 #endif // #if (JUCE_IOS || JUCE_MAC || JUCE_LINUX)
+
 }
 
 String MainComponent::getCurrentDefaultAudioDeviceName(AudioDeviceManager& deviceManager, bool isInput)
@@ -440,20 +404,20 @@ AudioDeviceManager& MainComponent::getSharedAudioDeviceManager
 #if 0
 /*  -- Projucer information section --
 
-    This is where the Projucer stores the metadata that describe this GUI layout, so
-    make changes in here at your peril!
+	This is where the Projucer stores the metadata that describe this GUI layout, so
+	make changes in here at your peril!
 
 BEGIN_JUCER_METADATA
 
 <JUCER_COMPONENT documentType="Component" className="MainComponent" componentName=""
-                 parentClasses="public juce::Component, private Thread, private Timer"
-                 constructorParams="" variableInitialisers="Thread(&quot;Microphone Access Permissions Check&quot;)"
-                 snapPixels="8" snapActive="1" snapShown="1" overlayOpacity="0.330"
-                 fixedSize="0" initialWidth="600" initialHeight="700">
+				 parentClasses="public juce::Component, private Thread" constructorParams=""
+				 variableInitialisers="Thread(&quot;Microphone Access Permissions Check&quot;)"
+				 snapPixels="8" snapActive="1" snapShown="1" overlayOpacity="0.330"
+				 fixedSize="0" initialWidth="600" initialHeight="700">
   <BACKGROUND backgroundColour="ff505050"/>
   <TABBEDCOMPONENT name="new tabbed component" id="b42ee76ffd12e39c" memberName="juce__tabbedComponent"
-                   virtualName="" explicitFocusOrder="0" pos="0 0 99.084% 99.078%"
-                   orientation="top" tabBarDepth="30" initialTab="-1"/>
+				   virtualName="" explicitFocusOrder="0" pos="0 0 99.084% 99.078%"
+				   orientation="top" tabBarDepth="30" initialTab="-1"/>
 </JUCER_COMPONENT>
 
 END_JUCER_METADATA
