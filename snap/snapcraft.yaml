@@ -106,7 +106,6 @@ parts:
       make CONFIG=Release
       cp build/AudioAnalyzer $SNAPCRAFT_PART_INSTALL/audioanalyzer
     build-packages:
-      - git
       - libfreetype6-dev
       - libx11-dev
       - libxcomposite-dev
@@ -116,7 +115,6 @@ parts:
       - libxrender-dev
       - libxcursor-dev
       - libgtk-3-dev
-      - libwebkit2gtk-4.0-dev
       - libglu1-mesa-dev
       - mesa-common-dev
       - libasound2-dev
