@@ -29,7 +29,8 @@ namespace cmp
 		graph_points(_graph_points),
 		graph_point_indices(_graph_point_indices),
 		graph_attribute(_graph_attribute)
-	{}
+	{
+	}
 
 	GraphLineDataView::GraphLineDataView(const GraphLine& graph_line)
 		: x_data(graph_line.getXValues()),
@@ -37,7 +38,8 @@ namespace cmp
 		graph_points(graph_line.getGraphPoints()),
 		graph_point_indices(graph_line.getGraphPointIndices()),
 		graph_attribute(graph_line.getGraphAttribute())
-	{}
+	{
+	}
 
 	const GraphAttribute& GraphLine::getGraphAttribute() const noexcept
 	{
@@ -447,9 +449,9 @@ namespace cmp
 		for (auto& graph_line : getGraphLinesOfType<t_graph_line_type>())
 		{
 			if constexpr (t_graph_line_type == GraphLineType::vertical)
-				graph_line->setYValues({ (float)x_or_y_limit.min, (float)x_or_y_limit.max });
+				graph_line->setYValues({ static_cast<float>(x_or_y_limit.min), static_cast<float>(x_or_y_limit.max) });
 			else if constexpr (t_graph_line_type == GraphLineType::horizontal)
-				graph_line->setXValues({ (float)x_or_y_limit.min, (float)x_or_y_limit.max });
+				graph_line->setXValues({ static_cast<float>(x_or_y_limit.min), static_cast<float>(x_or_y_limit.max) });
 		}
 	}
 
