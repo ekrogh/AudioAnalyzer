@@ -28,7 +28,6 @@
 
 //==============================================================================
 MainComponent::MainComponent()
-	: Thread("Microphone Access Permissions Check")
 {
 	//[Constructor_pre] You can add your own custom stuff here..
 	//[/Constructor_pre]
@@ -42,11 +41,9 @@ MainComponent::MainComponent()
 	//[UserPreSize]
 	getSharedAudioDeviceManager();
 
-	startThread();
 
-	waitForRunToFinish();
-
-	if (micAccessGranted)
+	// Start the coroutine
+	if (checkMicrophoneAccessPermission().get())
 	{
 		module_AudioRecording =
 			std::make_shared<AudioRecorderModule>(sharedAudioDeviceManager);
@@ -197,117 +194,52 @@ void MainComponent::resized()
 	//[/UserResized]
 }
 
-
-
 //[MiscUserCode] You can add your own definitions of your custom methods or any other code here...
-void MainComponent::run()
+std::future<bool> MainComponent::checkMicrophoneAccessPermission()
 {
-	checkMicrophoneAccessPermission();
-}
-
-void MainComponent::waitForRunToFinish()
-{
-	std::unique_lock<std::mutex> lock(runMutex);
-	runCondition.wait(lock, [this] { return runFinished; });
-}
-
-void MainComponent::signalRunFinished(bool resultGood)
-{
-	micAccessGranted = resultGood;
-
-	// Signal that the run function has finished
-	{
-		std::lock_guard<std::mutex> lock(runMutex);
-		runFinished = true;
-	}
-	runCondition.notify_one();
-}
-
-void MainComponent::checkMicrophoneAccessPermission()
-{
-#if (JUCE_IOS || JUCE_MAC || JUCE_LINUX)
-	while (true)
-	{
-#if (JUCE_MAC || JUCE_LINUX)
-		if (SystemStats::getOperatingSystemType() >= SystemStats::MacOSX_10_14)
+	return std::async
+	(
+		std::launch::async
+		, [this]
+		()
 		{
-#endif
-			AudioIODevice* CurrentAudioDevice = sharedAudioDeviceManager->getCurrentAudioDevice();
-			if (CurrentAudioDevice != nullptr)
+#if (JUCE_IOS || JUCE_MAC || JUCE_LINUX)
+			while (true)
 			{
-				switch (CurrentAudioDevice->checkAudioInputAccessPermissions())
-				{
-					case eksAVAuthorizationStatusDenied:
-						{
-							//#if JUCE_MODAL_LOOPS_PERMITTED
-							//							juce::AlertWindow::showMessageBox
-							//							(
-							//								juce::AlertWindow::WarningIcon
-							//								, "Access to audio input device\nNOT granted!"
-							//#if (JUCE_IOS)
-							//								, "You might try to\nEnbale AudioAnalyzer in\nSettings -> Privacy -> Microphone\nOr UNinstall\nand REinstall AudioAnalyzer"
-							//#else // JUCE_MAC || JUCE_LINUX
-							//								, "You might try to\nEnbale AudioAnalyzer in\nSystem Preferences -> Security & Privacy -> Privacy -> Microphone\nOr UNinstall\nand REinstall AudioAnalyzer"
-							//#endif
-							//								, "Quit"
-							//							);
-							//							sharedAudioDeviceManager->closeAudioDevice();
-							//							JUCEApplication::getInstance()->systemRequestedQuit();
-							//							signalRunFinished(false);
-							//#else //#if JUCE_MODAL_LOOPS_PERMITTED
-							//							juce::AlertWindow::showMessageBoxAsync
-							//							(
-							//								juce::AlertWindow::WarningIcon
-							//								, "Access to audio input device\nNOT granted!"
-							//#if (JUCE_IOS)
-							//								, "You might try to\nEnbale AudioAnalyzer in\nSettings -> Privacy -> Microphone\nOr UNinstall\nand REinstall AudioAnalyzer"
-							//#else // JUCE_MAC || JUCE_LINUX
-							//								, "You might try to\nEnbale AudioAnalyzer in\nSystem Preferences -> Security & Privacy -> Privacy -> Microphone\nOr UNinstall\nand REinstall AudioAnalyzer"
-							//#endif
-							//								, "Quit"
-							//								, nullptr
-							//								, ModalCallbackFunction::create(
-							//									[this]
-							//									(int r)
-							//									{
-							//										signalRunFinished(false);
-							//									})
-							//							);
-							//#endif //#if JUCE_MODAL_LOOPS_PERMITTED
-
-							signalRunFinished(false); // access NOT granded
-
-							return;
-							break;
-						}
-					case eksAVAuthorizationStatusRestricted:
-					case eksAVAuthorizationStatusAuthorized:
-						{
-							signalRunFinished(true);
-
-							return;
-							break;
-						}
-					case eksAVAuthorizationStatusNotDetermined:
-						{
-							break;
-						}
-					default:
-						{
-							break;
-						}
-				}
-			}
 #if (JUCE_MAC || JUCE_LINUX)
-		}
+				if (SystemStats::getOperatingSystemType() >= SystemStats::MacOSX_10_14)
+				{
 #endif
-        Thread::sleep(1000);
-}
+					AudioIODevice* CurrentAudioDevice = sharedAudioDeviceManager->getCurrentAudioDevice();
+					if (CurrentAudioDevice != nullptr)
+					{
+						switch (CurrentAudioDevice->checkAudioInputAccessPermissions())
+						{
+						case eksAVAuthorizationStatusDenied:
+							return false; // access NOT granted
+						case eksAVAuthorizationStatusRestricted:
+						case eksAVAuthorizationStatusAuthorized:
+							return true; // access granted
+						case eksAVAuthorizationStatusNotDetermined:
+							break;
+						default:
+							break;
+						}
+					}
+#if (JUCE_MAC || JUCE_LINUX)
+				}
+#endif
+				Thread::sleep(1000);
+			}
 #else // #if (JUCE_IOS || JUCE_MAC || JUCE_LINUX)
-	signalRunFinished(true);
+			return true; // access granted
 #endif // #if (JUCE_IOS || JUCE_MAC || JUCE_LINUX)
-
+		}
+	);
 }
+
+
+
 
 String MainComponent::getCurrentDefaultAudioDeviceName(AudioDeviceManager& deviceManager, bool isInput)
 {

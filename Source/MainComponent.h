@@ -20,6 +20,8 @@
 #pragma once
 
 //[Headers]     -- You can add your own extra header files here --
+#include <coroutine>
+#include <future>
 #include "helpPage.h"
 #include "freqPlotModule.h"
 #include "FFTCtrl.h"
@@ -65,8 +67,7 @@
 	Describe your class and how it works here!
                                                                     //[/Comments]
 */
-class MainComponent  : public juce::Component,
-                       private Thread
+class MainComponent  : public juce::Component
 {
 public:
     //==============================================================================
@@ -75,8 +76,8 @@ public:
 
     //==============================================================================
     //[UserMethods]     -- You can add your own custom methods in this section.
-    //[/UserMethods]
-
+	std::future<bool> checkMicrophoneAccessPermission();
+	//[/UserMethods]
     void paint (juce::Graphics& g) override;
     void resized() override;
 
@@ -84,16 +85,6 @@ public:
 
 private:
     //[UserVariables]   -- You can add your own custom variables in this section.
-	std::condition_variable runCondition;
-	std::mutex runMutex;
-	bool runFinished = false;
-	void waitForRunToFinish();
-	void signalRunFinished(bool resultGood);
-
-	bool micAccessGranted = false;
-
-	void run() override; // Called from Thread
-
 	String getCurrentDefaultAudioDeviceName(AudioDeviceManager& deviceManager, bool isInput);
 
 	AudioDeviceManager& getSharedAudioDeviceManager
@@ -102,7 +93,6 @@ private:
 		,
 		int numOutputChannels = defaultNumOutputChannels
 	);
-	void checkMicrophoneAccessPermission();
 
 	std::shared_ptr<AudioDeviceManager> sharedAudioDeviceManager;
 	std::shared_ptr<PlotModule> module_Plot =
