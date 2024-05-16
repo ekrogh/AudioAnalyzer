@@ -37,8 +37,8 @@
           <Add option="-DJUCE_STRICT_REFCOUNTEDPOINTER=&quot;1&quot;"/>
           <Add option="-DJUCE_STANDALONE_APPLICATION=&quot;1&quot;"/>
           <Add option="-DJUCER_CODEBLOCKS_LINUX_191E0897=&quot;1&quot;"/>
-          <Add option="-DJUCE_APP_VERSION=&quot;1.1.1&quot;"/>
-          <Add option="-DJUCE_APP_VERSION_HEX=&quot;0x10101&quot;"/>
+          <Add option="-DJUCE_APP_VERSION=&quot;1.2.2&quot;"/>
+          <Add option="-DJUCE_APP_VERSION_HEX=&quot;0x10202&quot;"/>
           <Add option="-DJucePlugin_Build_VST=&quot;0&quot;"/>
           <Add option="-DJucePlugin_Build_VST3=&quot;0&quot;"/>
           <Add option="-DJucePlugin_Build_AU=&quot;0&quot;"/>
@@ -96,8 +96,8 @@
           <Add option="-DJUCE_STRICT_REFCOUNTEDPOINTER=&quot;1&quot;"/>
           <Add option="-DJUCE_STANDALONE_APPLICATION=&quot;1&quot;"/>
           <Add option="-DJUCER_CODEBLOCKS_LINUX_191E0897=&quot;1&quot;"/>
-          <Add option="-DJUCE_APP_VERSION=&quot;1.1.1&quot;"/>
-          <Add option="-DJUCE_APP_VERSION_HEX=&quot;0x10101&quot;"/>
+          <Add option="-DJUCE_APP_VERSION=&quot;1.2.2&quot;"/>
+          <Add option="-DJUCE_APP_VERSION_HEX=&quot;0x10202&quot;"/>
           <Add option="-DJucePlugin_Build_VST=&quot;0&quot;"/>
           <Add option="-DJucePlugin_Build_VST3=&quot;0&quot;"/>
           <Add option="-DJucePlugin_Build_AU=&quot;0&quot;"/>
