@@ -365,3 +365,4 @@ FodyWeavers.xsd
 /Builds/LinuxMakefile/build/
 
 /Builds/.DS_Store
+/div/Header1.h
