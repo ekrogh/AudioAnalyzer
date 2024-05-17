@@ -48,6 +48,8 @@
 
 #pragma once
 
+#include <juce_audio_formats/juce_audio_formats.h>
+#include <juce_gui_basics/juce_gui_basics.h>
 #include "AudioAnalyzerGlobalEnums.h"
 #include "Utilities.h"
 #include "freqPlotModule.h"
@@ -78,6 +80,9 @@ public:
 			= std::make_unique<dsp::FFT>(fftOrder);
 
 		formatManager.registerBasicFormats();
+
+		deviceManager.addAudioCallback(&audioSourcePlayer);
+		audioSourcePlayer.setSource(&transportSource);
 
 		setAudioChannels(2, 2);
 
@@ -193,22 +198,22 @@ public:
 	)
 	{
 		if
-		(
-			!loadURLIntoFFT
 			(
-				resource
-				,
-				maxFreq
-				,
-				fftOrder__textEditor
-				,
-				Nbr_Samples__textEditor
-				,
-				fftSizeNbr__label
-				,
-				Sample_Freq__textEditor
-		)
-		)
+				!loadURLIntoFFT
+				(
+					resource
+					,
+					maxFreq
+					,
+					fftOrder__textEditor
+					,
+					Nbr_Samples__textEditor
+					,
+					fftSizeNbr__label
+					,
+					Sample_Freq__textEditor
+				)
+				)
 		{
 			// Failed to load the audio file!
 			jassertfalse;
@@ -234,18 +239,18 @@ public:
 		if (currentAudioFile != URL())
 		{
 			return loadURLIntoFFT
-					(
-						currentAudioFile
-						,
-						maxFreq
-						,
-						fftOrder__textEditor
-						,
-						Nbr_Samples__textEditor
-						,
-						fftSizeNbr__label
-						,
-						Sample_Freq__textEditor
+			(
+				currentAudioFile
+				,
+				maxFreq
+				,
+				fftOrder__textEditor
+				,
+				Nbr_Samples__textEditor
+				,
+				fftSizeNbr__label
+				,
+				Sample_Freq__textEditor
 			);
 		}
 		else
@@ -420,28 +425,75 @@ public:
 					Sample_Freq__textEditor
 			]
 			(const FileChooser& fc) /*mutable*/
+		{
+			if (fc.getURLResults().size() > 0)
+			{
+				auto u = fc.getURLResult();
+
+				handleAudioResource
+				(
+					std::move(u)
+					,
+					maxFreq
+					,
+					fftOrder__textEditor
+					,
+					Nbr_Samples__textEditor
+					,
+					fftSizeNbr__label
+					,
+					Sample_Freq__textEditor
+				);
+			}
+		}
+		);
+	}
+
+	void openAudioFile()
+	{
+		chooser.launchAsync
+		(
+			FileBrowserComponent::openMode
+			|
+			FileBrowserComponent::canSelectFiles
+			,
+			[this]
+			(const FileChooser& fc) /*mutable*/
 			{
 				if (fc.getURLResults().size() > 0)
 				{
-					auto u = fc.getURLResult();
+					juce::URL file = fc.getURLResult();
 
-					handleAudioResource
-					(
-						std::move(u)
-						,
-						maxFreq
-						,
-						fftOrder__textEditor
-						,
-						Nbr_Samples__textEditor
-						,
-						fftSizeNbr__label
-						,
-						Sample_Freq__textEditor
-					);
+					const auto source = makeInputSource(file);
+					auto stream = juce::rawToUniquePtr(source->createInputStream());
+					auto reader =
+						juce::rawToUniquePtr(formatManager.createReaderFor(std::move(stream)));
+
+					if (reader.get() != nullptr)
+					{
+						currentAudioFileSource =
+							std::make_unique<AudioFormatReaderSource>(reader.release(), true);
+						transportSource.setSource
+						(
+							currentAudioFileSource.get()
+							, 0
+							, nullptr
+							, currentAudioFileSource->getAudioFormatReader()->sampleRate
+						);
+						transportSource.start();
+					}
 				}
 			}
 		);
+
+	}
+
+	void switchToMicrophoneInput()
+	{
+		transportSource.stop();
+		transportSource.setSource(nullptr);
+		currentAudioFileSource.reset(nullptr);
+		audioSourcePlayer.setSource(this);
 	}
 
 	bool makeWhiteNoise
@@ -675,10 +727,10 @@ public:
 		// then render our FFT data..
 		forwardFFT->performFrequencyOnlyForwardTransform(fftData, true);
 
-		frequencyValues.push_back( tmpFreqVctr );
-		plotValues.push_back( { fftData, fftData + nbrSamplesInPlot } );
+		frequencyValues.push_back(tmpFreqVctr);
+		plotValues.push_back({ fftData, fftData + nbrSamplesInPlot });
 		makeGraphAttributes(graph_attributes);
-		plotLegend.push_back( "hamming" );
+		plotLegend.push_back("hamming");
 
 		// blackman Window
 		fftData = new float[fftDataSize] { 0 };
@@ -810,6 +862,10 @@ public:
 	};
 
 private:
+	std::unique_ptr<AudioFormatReaderSource> currentAudioFileSource;
+	AudioTransportSource transportSource;
+	AudioSourcePlayer audioSourcePlayer;
+
 	std::unique_ptr<dsp::FFT> forwardFFT;
 	Image spectrogramImage;
 
