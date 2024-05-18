@@ -54,35 +54,43 @@
 #include "Utilities.h"
 #include "freqPlotModule.h"
 
-
 //==============================================================================
 class SpectrogramComponent
-	: juce::Component
+	: public AudioAppComponent
+	, private Timer
 {
 public:
 	SpectrogramComponent
 	(
 		AudioFormatManager& FM
-		, juce::Image JM
+		,
+		std::shared_ptr<AudioDeviceManager> SADM
 	)
-		: spectrogramImage(JM)
-		, formatManager(FM)
+		: formatManager(FM)
+		, AudioAppComponent(*SADM)
+		, spectrogramImage(Image::RGB, 600, 626, true)
 	{
 		setOpaque(true);
 
 		forwardFFT = std::make_unique<juce::dsp::FFT>(fftOrder);
 
-		formatManager.registerBasicFormats();
+		setAudioChannels(1, 2);
 
-		//setAudioChannels(2, 2);
+		startTimerHz(60);
 
-		//startTimerHz(60);
+		setSize(spectrogramImage.getWidth(), spectrogramImage.getHeight());
+
 	}
 
 	bool loadURLIntoSpectrum(const URL& theUrl)
 	{
 		if (!(theUrl.isEmpty()))
 		{
+			shutdownAudio();
+
+			stopTimer();
+
+			spectrogramImage.clear(spectrogramImage.getBounds());
 
 			const auto source = makeInputSource(theUrl);
 
@@ -143,6 +151,8 @@ public:
 				}
 
 				drawNextLineOfSpectrogram();
+
+				repaint();
 			}
 		}
 
@@ -186,20 +196,66 @@ public:
 			auto fftDataIndex = jlimit(0, (int)fftSize / 2, (int)(skewedProportionY * (int)fftSize / 2));
 			auto level = jmap(fftData[fftDataIndex], 0.0f, jmax(maxLevel.getEnd(), 1e-5f), 0.0f, 1.0f);
 
-			spectrogramImage.setPixelAt(rightHandEdge, y, Colour::fromHSV(level, 1.0f, level, 1.0f));
+			spectrogramImage.setPixelAt(rightHandEdge, y, Colour::fromHSV(level, 1.0f, level * 1.5f, 2.0f));
 		}
 	}
 
-	//~SpectrogramComponent()
-	//{
-	//	//transportSource.setSource(nullptr);
-	//	//audioSourcePlayer.setSource(nullptr);
-	//	//setSource(nullptr);
-	//	//deviceManager.removeAudioCallback(&audioSourcePlayer);
-	//	//deviceManager.removeAudioCallback(this);
-	//}
+	void timerCallback() override
+	{
+		if (nextFFTBlockReady)
+		{
+			drawNextLineOfSpectrogram();
+			nextFFTBlockReady = false;
+			repaint();
+		}
+	}
 
-	void paint(juce::Graphics& g)
+	void prepareToPlay(int /*samplesPerBlockExpected*/, double /*newSampleRate*/) override
+	{
+		// (nothing to do here)
+	}
+
+	void releaseResources() override
+	{
+		// (nothing to do here)
+	}
+
+	void getNextAudioBlock(const juce::AudioSourceChannelInfo& bufferToFill) override
+	{
+		auto numChans = bufferToFill.buffer->getNumChannels();
+		auto noSampls = bufferToFill.numSamples;
+
+		if (numChans > 0)
+		{
+			const auto* channelData = bufferToFill.buffer->getReadPointer(0, bufferToFill.startSample);
+
+			for (auto i = 0; i < noSampls; ++i)
+				pushNextSampleIntoFifo(channelData[i]);
+
+			bufferToFill.clearActiveBufferRegion();
+		}
+	}
+
+	void pushNextSampleIntoFifo(float sample) noexcept
+	{
+		// if the fifo contains enough data, set a flag to say
+		// that the next line should now be rendered..
+		if (fifoIndex == fftSize)
+		{
+			if (!nextFFTBlockReady)
+			{
+				zeromem(fftData, sizeof(fftData));
+				memcpy(fftData, fifo, sizeof(fifo));
+				nextFFTBlockReady = true;
+			}
+
+			fifoIndex = 0;
+		}
+
+		fifo[fifoIndex++] = sample;
+	}
+
+	void paint(juce::Graphics& g) override
 	{
 		g.fillAll(juce::Colours::black);
 
@@ -207,8 +263,25 @@ public:
 		g.drawImage(spectrogramImage, getLocalBounds().toFloat());
 	}
 
+
+	void switchToMicrophoneInput()
+	{
+		spectrogramImage.clear(spectrogramImage.getBounds());
+		
+		setAudioChannels(1, 2);
+
+		startTimerHz(60);
+	}
+
+	~SpectrogramComponent() override
+	{
+		shutdownAudio();
+
+		stopTimer();
+	}
+
 private:
-	juce::Image& spectrogramImage;
+	juce::Image spectrogramImage;
 	std::unique_ptr<juce::dsp::FFT> forwardFFT = std::make_unique<dsp::FFT>(fftOrder);
 
 
@@ -238,19 +311,22 @@ public:
 		: module_freqPlot(FPM)
 		, deviceManager(*SADM)
 	{
-		spectrogramCmpnt = std::make_unique<SpectrogramComponent>(formatManager, spe);
+		//setSize(700, 300);
+	
+		formatManager.registerBasicFormats();
 
+		spectrogramCmpnt =
+			std::make_unique<SpectrogramComponent>(formatManager, SADM);
+
+		addAndMakeVisible(spectrogramCmpnt.get());
 		setOpaque(true);
 
 		forwardFFT
 			= std::make_unique<dsp::FFT>(fftOrder);
 
-		formatManager.registerBasicFormats();
-
-		setSize(700, 500);
 	}
 
-	~FFTModule() override
+	~FFTModule()
 	{
 		transportSource.setSource(nullptr);
 		audioSourcePlayer.setSource(nullptr);
@@ -601,6 +677,8 @@ public:
 		transportSource.stop();
 		transportSource.setSource(nullptr);
 		currentAudioFileSource.reset(nullptr);
+
+		spectrogramCmpnt->switchToMicrophoneInput();
 	}
 
 	bool makeWhiteNoise
@@ -1013,89 +1091,35 @@ private:
 
 
 
-//void pushNextSampleIntoFifo(float sample) noexcept
+
+//void audioDeviceIOCallbackWithContext(const float* const* inputChannelData,
+//	int totalNumInputChannels,
+//	float* const* outputChannelData,
+//	int totalNumOutputChannels,
+//	int numSamples,
+//	const juce::AudioIODeviceCallbackContext& context) override
 //{
-//	// if the fifo contains enough data, set a flag to say
-//	// that the next line should now be rendered..
-//	if (fifoIndex == fftSize)
+//	if ((totalNumInputChannels > 0) && (numSamples > 0))
 //	{
-//		if (!nextFFTBlockReady)
+//		for (auto i = 0; i < numSamples; ++i)
 //		{
-//			zeromem(fftData, sizeof(fftData));
-//			memcpy(fftData, fifo, sizeof(fifo));
-//			nextFFTBlockReady = true;
+//			float sum = 0.0f;
+//			for (auto channel = 0; channel < totalNumInputChannels; ++channel)
+//			{
+//				sum += inputChannelData[channel][i];
+//			}
+//			pushNextSampleIntoFifo(sum);
 //		}
-
-//		fifoIndex = 0;
 //	}
-
-//	fifo[fifoIndex++] = sample;
 //}
 
+//void audioDeviceAboutToStart(juce::AudioIODevice* device) override
+//{
+//	auto sampleRate = device->getCurrentSampleRate();
+//}
 
-	//void prepareToPlay(int /*samplesPerBlockExpected*/, double /*newSampleRate*/) override
-	//{
-	//	// (nothing to do here)
-	//}
+//void audioDeviceStopped() override
+//{
+//	// (nothing to do here)
+//}
 
-	//void releaseResources() override
-	//{
-	//	// (nothing to do here)
-	//}
-
-	//void getNextAudioBlock(const juce::AudioSourceChannelInfo& bufferToFill) override
-	//{
-	//	auto numChans = bufferToFill.buffer->getNumChannels();
-	//	auto noSampls = bufferToFill.numSamples;
-
-	//	if (numChans > 0)
-	//	{
-	//		const auto* channelData = bufferToFill.buffer->getReadPointer(0, bufferToFill.startSample);
-
-	//		for (auto i = 0; i < noSampls; ++i)
-	//			pushNextSampleIntoFifo(channelData[i]);
-
-	//		bufferToFill.clearActiveBufferRegion();
-	//	}
-	//}
-
-	//void audioDeviceIOCallbackWithContext(const float* const* inputChannelData,
-	//	int totalNumInputChannels,
-	//	float* const* outputChannelData,
-	//	int totalNumOutputChannels,
-	//	int numSamples,
-	//	const juce::AudioIODeviceCallbackContext& context) override
-	//{
-	//	if ((totalNumInputChannels > 0) && (numSamples > 0))
-	//	{
-	//		for (auto i = 0; i < numSamples; ++i)
-	//		{
-	//			float sum = 0.0f;
-	//			for (auto channel = 0; channel < totalNumInputChannels; ++channel)
-	//			{
-	//				sum += inputChannelData[channel][i];
-	//			}
-	//			pushNextSampleIntoFifo(sum);
-	//		}
-	//	}
-	//}
-
-	//void audioDeviceAboutToStart(juce::AudioIODevice* device) override
-	//{
-	//	auto sampleRate = device->getCurrentSampleRate();
-	//}
-
-	//void audioDeviceStopped() override
-	//{
-	//	// (nothing to do here)
-	//}
-
-	//void timerCallback() override
-	//{
-	//	if (nextFFTBlockReady)
-	//	{
-	//		drawNextLineOfSpectrogram();
-	//		nextFFTBlockReady = false;
-	//		repaint();
-	//	}
-	//}

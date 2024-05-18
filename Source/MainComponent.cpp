@@ -152,7 +152,7 @@ MainComponent::MainComponent()
 	);
 	//[/UserPreSize]
 
-	setSize(600, 700);
+	setSize(610, 663);
 
 
 	//[Constructor] You can add your own custom stuff here..
