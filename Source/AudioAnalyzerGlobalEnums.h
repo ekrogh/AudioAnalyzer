@@ -26,3 +26,9 @@ enum
     , eksAVAuthorizationStatusDenied           = 2
     , eksAVAuthorizationStatusAuthorized       = 3
 };
+
+enum
+{
+	fftOrder = 10,
+	fftSize = 1 << fftOrder
+};

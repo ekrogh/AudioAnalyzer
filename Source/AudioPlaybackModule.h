@@ -363,7 +363,7 @@ private:
 			,
 			File::getSpecialLocation
 			(
-				juce::File::SpecialLocationType::userDocumentsDirectory
+				juce::File::SpecialLocationType::userMusicDirectory
 			)
 			.getChildFile("recording.wav")
 			,
@@ -485,3 +485,4 @@ private:
 
 	JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(AudioPlaybackModule)
 };
+

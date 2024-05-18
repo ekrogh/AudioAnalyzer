@@ -61,6 +61,8 @@ private:
 	std::shared_ptr<AudioDeviceManager> sharedAudioDeviceManager;
 	std::shared_ptr<FFTModule> module_FFT;
 	std::shared_ptr<freqPlotModule> module_freqPlot;
+    bool spectrumOfaudioFileTBState = false;
+    bool makespectrumOfInputTBState = true;
     //[/UserVariables]
 
     //==============================================================================
@@ -82,6 +84,8 @@ private:
     std::unique_ptr<juce::Label> fftSize__label;
     std::unique_ptr<juce::Label> fftSizeNbr__label;
     std::unique_ptr<juce::TextButton> fftWindows__textButton;
+    std::unique_ptr<juce::ToggleButton> spectrumOfaudioFile__toggleButton;
+    std::unique_ptr<juce::ToggleButton> makespectrumOfInput__toggleButton;
 
 
     //==============================================================================
