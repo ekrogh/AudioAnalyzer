@@ -84,12 +84,12 @@ public:
 
 		setSize(spectrogramImage.getWidth(), spectrogramImage.getHeight());
 
-
 		// Add this instance to the TimeSliceThreads
 		dataThread.addTimeSliceClient(this);
 		drawThread.addTimeSliceClient(this);
 
 	}
+
 
 	bool loadURLIntoSpectrum
 	(
@@ -152,6 +152,7 @@ public:
 		return true;
 	}
 
+
 	void switchToMicrophoneInput()
 	{
 		stopTimer();
@@ -177,6 +178,7 @@ public:
 		startTimerHz(60);
 
 	}
+
 
 	void releaseAllSemaphores()
 	{
@@ -204,6 +206,7 @@ public:
 		nextFFTBlockReady = false;
 	}
 
+
 	void timerCallback() override
 	{
 		if (doSwitchToMicrophoneInput)
@@ -225,15 +228,18 @@ public:
 		}
 	}
 
+
 	void prepareToPlay(int /*samplesPerBlockExpected*/, double /*newSampleRate*/) override
 	{
 		// (nothing to do here)
 	}
 
+
 	void releaseResources() override
 	{
 		// (nothing to do here)
 	}
+
 
 	void getNextAudioBlock(const juce::AudioSourceChannelInfo& bufferToFill) override
 	{
@@ -250,6 +256,7 @@ public:
 			bufferToFill.clearActiveBufferRegion();
 		}
 	}
+
 
 	void pushNextSampleIntoFifo(float sample) noexcept
 	{
@@ -269,6 +276,7 @@ public:
 
 		fifo[fifoIndex++] = sample;
 	}
+
 
 	void paint(juce::Graphics& g) override
 	{
@@ -331,6 +339,7 @@ public:
 			spectrogramImage.setPixelAt(rightHandEdge, y, Colour::fromHSV(level, 1.0f, level * 1.5f, 2.0f));
 		}
 	}
+
 
 	template <typename T>
 	struct Generator
@@ -545,6 +554,7 @@ public:
 
 	}
 
+
 private:
 	juce::ToggleButton* spectrumOfaudioFile__toggleButton;
 	juce::ToggleButton* makespectrumOfInput__toggleButton;
@@ -567,7 +577,6 @@ private:
 
 	juce::Image spectrogramImage;
 	std::unique_ptr<juce::dsp::FFT> forwardFFT = std::make_unique<dsp::FFT>(fftOrder);
-
 
 	float fifo[fftSize] = { 0 };
 	float* fftDataDraw = fftDataBuffers[readBufferIndex];
