@@ -204,9 +204,9 @@ public:
 		if (doSwitchToMicrophoneInput)
 		{
 			doSwitchToMicrophoneInput = false;
-			makespectrumOfInput__toggleButton->setToggleState(true, juce::NotificationType::dontSendNotification);
-			spectrumOfaudioFile__toggleButton->setToggleState(false, juce::NotificationType::dontSendNotification);
-			switchToMicrophoneInput();
+			makespectrumOfInput__toggleButton->setToggleState(true, juce::NotificationType::sendNotification);
+			//spectrumOfaudioFile__toggleButton->setToggleState(false, juce::NotificationType::dontSendNotification);
+			//switchToMicrophoneInput();
 		}
 		else if (thisIsAudioFile)
 		{
@@ -342,7 +342,7 @@ public:
 
 		struct promise_type
 		{ // required
-			T value_;
+			T value_ = false;
 			std::exception_ptr exception_;
 
 			Generator get_return_object()
@@ -351,6 +351,8 @@ public:
 			}
 			std::suspend_always initial_suspend() { return {}; }
 			std::suspend_always final_suspend() noexcept { return {}; }
+			void return_void() {}
+			//void return_value(bool) {}
 			void unhandled_exception() { exception_ = std::current_exception(); } // saving
 			// exception
 
@@ -360,7 +362,6 @@ public:
 				value_ = std::forward<From>(from); // caching the result in promise
 				return {};
 			}
-			void return_void() {}
 		};
 
 		handle_type h_;
@@ -411,53 +412,55 @@ public:
 
 	Generator<bool> readerToFftDataCopy()
 	{
-		AudioBuffer<float> theAudioBuffer =
-			AudioBuffer<float>::AudioBuffer
-			(
-				reader->numChannels
-				,
-				fftSize
-			);
-
-		juce::int64 readerLngth = reader->lengthInSamples;
-		juce::int64 readerStartSample = 0;
-
-		for
-			(
-				juce::int64 readerStartSample = 0
-				; readerStartSample < readerLngth
-				; readerStartSample += fftSize
-				)
+		while (true)
 		{
-			reader->read
-			(
-				&theAudioBuffer
-				,
-				0
-				,
-				fftSize
-				,
-				readerStartSample
-				,
-				true
-				,
-				true
-			);
+			AudioBuffer<float> theAudioBuffer =
+				AudioBuffer<float>::AudioBuffer
+				(
+					reader->numChannels
+					,
+					fftSize
+				);
 
+			juce::int64 readerLngth = reader->lengthInSamples;
 
-			for (auto sampleNbr = 0; sampleNbr < theAudioBuffer.getNumSamples(); sampleNbr++)
+			for
+				(
+					juce::int64 readerStartSample = 0
+					; readerStartSample < readerLngth
+					; readerStartSample += fftSize
+					)
 			{
-				fftDataWrite[sampleNbr] = 0.0f;
-				for (auto channelNbr = 0; channelNbr < theAudioBuffer.getNumChannels(); channelNbr++)
+				reader->read
+				(
+					&theAudioBuffer
+					,
+					0
+					,
+					fftSize
+					,
+					readerStartSample
+					,
+					true
+					,
+					true
+				);
+
+
+				for (auto sampleNbr = 0; sampleNbr < theAudioBuffer.getNumSamples(); sampleNbr++)
 				{
-					fftDataWrite[sampleNbr] += theAudioBuffer.getSample(channelNbr, sampleNbr);
+					fftDataWrite[sampleNbr] = 0.0f;
+					for (auto channelNbr = 0; channelNbr < theAudioBuffer.getNumChannels(); channelNbr++)
+					{
+						fftDataWrite[sampleNbr] += theAudioBuffer.getSample(channelNbr, sampleNbr);
+					}
 				}
+
+				co_yield true;
 			}
 
-			co_yield true;
+			co_yield false;
 		}
-
-		co_yield false;
 	}
 
 	int useTimeSlice() override
@@ -476,7 +479,7 @@ public:
 					{
 						return -1;
 					}
-					return 10;
+					return -1;
 				}
 				if (juce::Thread::currentThreadShouldExit())
 				{
@@ -905,8 +908,8 @@ public:
 			,
 			[
 				this
-				, spectrumOfaudioFile__toggleButton
-				, makespectrumOfInput__toggleButton
+					, spectrumOfaudioFile__toggleButton
+					, makespectrumOfInput__toggleButton
 			]
 			(const FileChooser& fc) /*mutable*/
 			{
