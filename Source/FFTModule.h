@@ -107,8 +107,6 @@ public:
 
 			stopTimer();
 
-			spectrogramImage.clear(spectrogramImage.getBounds());
-
 			const auto source = makeInputSource(theUrl);
 
 			if (source == nullptr)
@@ -130,7 +128,14 @@ public:
 			thisIsAudioFile = true;
 			audioFileReadRunning = true;
 
-			startTimerHz(60);
+			auto sRate = reader->sampleRate;
+			auto noSamples = reader->lengthInSamples;
+			auto playTime = noSamples / sRate;
+			auto noFftBuffers = noSamples / fftSize;
+			auto timePerBuffer = playTime / noFftBuffers;
+			auto timerFreq = 1.0 / timePerBuffer;
+
+			startTimerHz(timerFreq);
 
 
 			// Add this instance to the TimeSliceThreads
