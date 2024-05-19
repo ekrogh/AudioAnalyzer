@@ -91,10 +91,18 @@ public:
 
 	}
 
-	bool loadURLIntoSpectrum(const URL& theUrl)
+	bool loadURLIntoSpectrum
+	(
+		const URL& theUrl
+		, juce::ToggleButton* spectrumOfaudioFile__toggleButtonPtr
+		, juce::ToggleButton* makespectrumOfInput__toggleButtonPtr
+	)
 	{
 		if (!(theUrl.isEmpty()))
 		{
+			spectrumOfaudioFile__toggleButton = spectrumOfaudioFile__toggleButtonPtr;
+			makespectrumOfInput__toggleButton = makespectrumOfInput__toggleButtonPtr;
+
 			shutdownAudio();
 
 			stopTimer();
@@ -196,6 +204,8 @@ public:
 		if (doSwitchToMicrophoneInput)
 		{
 			doSwitchToMicrophoneInput = false;
+			makespectrumOfInput__toggleButton->setToggleState(true, juce::NotificationType::dontSendNotification);
+			spectrumOfaudioFile__toggleButton->setToggleState(false, juce::NotificationType::dontSendNotification);
 			switchToMicrophoneInput();
 		}
 		else if (thisIsAudioFile)
@@ -528,6 +538,9 @@ public:
 	}
 
 private:
+	juce::ToggleButton* spectrumOfaudioFile__toggleButton;
+	juce::ToggleButton* makespectrumOfInput__toggleButton;
+
 	juce::TimeSliceThread dataThread{ "Data Thread" };
 	juce::TimeSliceThread drawThread{ "Draw Thread" };
 	std::array<juce::CriticalSection, 2> criticalSections;  // Array of two CriticalSection objects
@@ -878,7 +891,11 @@ public:
 	}
 
 
-	void openAudioFile()
+	void openAudioFile
+	(
+		juce::ToggleButton* spectrumOfaudioFile__toggleButton
+		, juce::ToggleButton* makespectrumOfInput__toggleButton
+	)
 	{
 		chooser.launchAsync
 		(
@@ -886,7 +903,11 @@ public:
 			|
 			FileBrowserComponent::canSelectFiles
 			,
-			[this]
+			[
+				this
+				, spectrumOfaudioFile__toggleButton
+				, makespectrumOfInput__toggleButton
+			]
 			(const FileChooser& fc) /*mutable*/
 			{
 				if (fc.getURLResults().size() > 0)
@@ -894,7 +915,12 @@ public:
 					juce::URL theUrl = fc.getURLResult();
 
 					// Make spectrum plot
-					spectrogramCmpnt->loadURLIntoSpectrum(theUrl);
+					spectrogramCmpnt->loadURLIntoSpectrum
+					(
+						theUrl
+						, spectrumOfaudioFile__toggleButton
+						, makespectrumOfInput__toggleButton
+					);
 
 					const auto source = makeInputSource(theUrl);
 					auto stream = juce::rawToUniquePtr(source->createInputStream());

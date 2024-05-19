@@ -487,7 +487,12 @@ void FFTCtrl::buttonClicked (juce::Button* buttonThatWasClicked)
             !spectrumOfaudioFileTBState
         )
         {
-            module_FFT->openAudioFile();
+            module_FFT->openAudioFile
+            (
+                spectrumOfaudioFile__toggleButton.get()
+                ,
+                makespectrumOfInput__toggleButton.get()
+            );
         }
         spectrumOfaudioFileTBState = spectrumOfaudioFile__toggleButton->getToggleState();
         //[/UserButtonCode_spectrumOfaudioFile__toggleButton]
