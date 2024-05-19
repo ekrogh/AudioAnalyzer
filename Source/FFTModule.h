@@ -53,11 +53,15 @@
 #include "AudioAnalyzerGlobalEnums.h"
 #include "Utilities.h"
 #include "freqPlotModule.h"
+#include <semaphore>
+#include <coroutine>
 
 //==============================================================================
 class SpectrogramComponent
 	: public AudioAppComponent
 	, private Timer
+	, private juce::TimeSliceClient
+
 {
 public:
 	SpectrogramComponent
@@ -79,6 +83,11 @@ public:
 		startTimerHz(60);
 
 		setSize(spectrogramImage.getWidth(), spectrogramImage.getHeight());
+
+
+		// Add this instance to the TimeSliceThreads
+		dataThread.addTimeSliceClient(this);
+		drawThread.addTimeSliceClient(this);
 
 	}
 
@@ -107,102 +116,93 @@ public:
 			if (reader == nullptr)
 				return false;
 
-			AudioBuffer<float> theAudioBuffer =
-				AudioBuffer<float>::AudioBuffer
-				(
-					reader->numChannels
-					,
-					fftSize
-				);
 
-			juce::int64 readerLngth = reader->lengthInSamples;
-			juce::int64 readerStartSample = 0;
+			resetVariables();
 
-			for
-				(
-					juce::int64 readerStartSample = 0
-					; readerStartSample < readerLngth
-					; readerStartSample += fftSize
-					)
-			{
-				reader->read
-				(
-					&theAudioBuffer
-					,
-					0
-					,
-					fftSize
-					,
-					readerStartSample
-					,
-					true
-					,
-					true
-				);
+			thisIsAudioFile = true;
+			audioFileReadRunning = true;
+
+			startTimerHz(60);
 
 
-				for (auto sampleNbr = 0; sampleNbr < theAudioBuffer.getNumSamples(); sampleNbr++)
-				{
-					fftData[sampleNbr] = 0.0f;
-					for (auto channelNbr = 0; channelNbr < theAudioBuffer.getNumChannels(); channelNbr++)
-					{
-						fftData[sampleNbr] += theAudioBuffer.getSample(channelNbr, sampleNbr);
-					}
-				}
+			// Add this instance to the TimeSliceThreads
+			dataThread.addTimeSliceClient(this);
+			drawThread.addTimeSliceClient(this);
 
-				drawNextLineOfSpectrogram();
+			// Start the threads
+			dataThread.startThread();
+			drawThread.startThread();
 
-				repaint();
-			}
+
 		}
 
 		return true;
 	}
 
-
-	void drawNextLineOfSpectrogram()
+	void switchToMicrophoneInput()
 	{
-		auto rightHandEdge = spectrogramImage.getWidth() - 1;
-		auto imageHeight = spectrogramImage.getHeight();
+		stopTimer();
 
-		// first, shuffle our image leftwards by 1 pixel..
-		spectrogramImage.moveImageSection(0, 0, 1, 0, rightHandEdge, imageHeight);
+		// Stop the threads
+		dataThread.signalThreadShouldExit();
+		releaseAllSemaphores();
+		dataThread.stopThread(500);
+		dataThread.removeAllClients();
 
-		// Window the data
-		juce::dsp::WindowingFunction<float> theHannWindow
-		(
-			fftSize
-			,
-			juce::dsp::WindowingFunction<float>::WindowingMethod::hann
-		);
+		drawThread.signalThreadShouldExit();
+		releaseAllSemaphores();
+		drawThread.stopThread(500);
+		drawThread.removeAllClients();
 
-		theHannWindow.multiplyWithWindowingTable
-		(
-			fftData
-			,
-			fftSize
-		);
+		resetVariables();
 
-		// then render our FFT data..
-		forwardFFT->performFrequencyOnlyForwardTransform(fftData, true);
+		setAudioChannels(1, 2);
 
-		// find the range of values produced, so we can scale our rendering to
-		// show up the detail clearly
-		auto maxLevel = FloatVectorOperations::findMinAndMax(fftData, (int)fftSize / 2);
+		thisIsAudioFile = false;
+		audioFileReadRunning = false;
 
-		for (auto y = 1; y < imageHeight; ++y)
-		{
-			auto skewedProportionY = 1.0f - std::exp(std::log((float)y / (float)imageHeight) * 0.2f);
-			auto fftDataIndex = jlimit(0, (int)fftSize / 2, (int)(skewedProportionY * (int)fftSize / 2));
-			auto level = jmap(fftData[fftDataIndex], 0.0f, jmax(maxLevel.getEnd(), 1e-5f), 0.0f, 1.0f);
+		startTimerHz(60);
 
-			spectrogramImage.setPixelAt(rightHandEdge, y, Colour::fromHSV(level, 1.0f, level * 1.5f, 2.0f));
-		}
+	}
+
+	void releaseAllSemaphores()
+	{
+		timerSemaphore.release();
+		readyToReadSemaphore[0].release(); // Set to 1
+		readyToReadSemaphore[1].release(); // Set to 1
+		readyToWriteSemaphore[0].release(); // Set to 1
+		readyToWriteSemaphore[1].release(); // Set to 1
+	}
+
+	void resetVariables()
+	{
+		spectrogramImage.clear(spectrogramImage.getBounds());
+		while (readyToReadSemaphore[0].try_acquire()) {};  // Remove all
+		while (readyToReadSemaphore[1].try_acquire()) {};  // Remove all
+		while (readyToWriteSemaphore[0].try_acquire()) {};  // Remove all
+		while (readyToWriteSemaphore[1].try_acquire()) {};  // Remove all
+		readyToWriteSemaphore[0].release(); // Set to 1
+		readyToWriteSemaphore[1].release(); // Set to 1
+		readBufferIndex = 0;  // Index of the buffer currently being read
+		writeBufferIndex = 1;  // Index of the buffer currently being filled
+		while (timerSemaphore.try_acquire()) {};  // Remove all
+		fftDataDraw = fftDataBuffers[readBufferIndex];
+		fifoIndex = 0;
+		nextFFTBlockReady = false;
 	}
 
 	void timerCallback() override
 	{
-		if (nextFFTBlockReady)
+		if (doSwitchToMicrophoneInput)
+		{
+			doSwitchToMicrophoneInput = false;
+			switchToMicrophoneInput();
+		}
+		else if (thisIsAudioFile)
+		{
+			timerSemaphore.release();  // Release the semaphore
+		}
+		else if (nextFFTBlockReady)
 		{
 			drawNextLineOfSpectrogram();
 			nextFFTBlockReady = false;
@@ -244,8 +244,8 @@ public:
 		{
 			if (!nextFFTBlockReady)
 			{
-				zeromem(fftData, sizeof(fftData));
-				memcpy(fftData, fifo, sizeof(fifo));
+				zeromem(fftDataDraw, sizeof(fftDataDraw));
+				memcpy(fftDataDraw, fifo, sizeof(fifo));
 				nextFFTBlockReady = true;
 			}
 
@@ -264,29 +264,293 @@ public:
 	}
 
 
-	void switchToMicrophoneInput()
-	{
-		spectrogramImage.clear(spectrogramImage.getBounds());
-		
-		setAudioChannels(1, 2);
-
-		startTimerHz(60);
-	}
-
 	~SpectrogramComponent() override
 	{
 		shutdownAudio();
 
 		stopTimer();
+
+		// Stop the threads
+		//dataThread.stopThread(500);
+		//drawThread.stopThread(500);
+
+	}
+
+
+	void drawNextLineOfSpectrogram()
+	{
+		auto rightHandEdge = spectrogramImage.getWidth() - 1;
+		auto imageHeight = spectrogramImage.getHeight();
+
+		// first, shuffle our image leftwards by 1 pixel..
+		spectrogramImage.moveImageSection(0, 0, 1, 0, rightHandEdge, imageHeight);
+
+		// Window the data
+		juce::dsp::WindowingFunction<float> theHannWindow
+		(
+			fftSize
+			,
+			juce::dsp::WindowingFunction<float>::WindowingMethod::hann
+		);
+
+		theHannWindow.multiplyWithWindowingTable
+		(
+			fftDataDraw
+			,
+			fftSize
+		);
+
+		// then render our FFT data..
+		forwardFFT->performFrequencyOnlyForwardTransform(fftDataDraw, true);
+
+		// find the range of values produced, so we can scale our rendering to
+		// show up the detail clearly
+		auto maxLevel = FloatVectorOperations::findMinAndMax(fftDataDraw, (int)fftSize / 2);
+
+		for (auto y = 1; y < imageHeight; ++y)
+		{
+			auto skewedProportionY = 1.0f - std::exp(std::log((float)y / (float)imageHeight) * 0.2f);
+			auto fftDataIndex = jlimit(0, (int)fftSize / 2, (int)(skewedProportionY * (int)fftSize / 2));
+			auto level = jmap(fftDataDraw[fftDataIndex], 0.0f, jmax(maxLevel.getEnd(), 1e-5f), 0.0f, 1.0f);
+
+			spectrogramImage.setPixelAt(rightHandEdge, y, Colour::fromHSV(level, 1.0f, level * 1.5f, 2.0f));
+		}
+	}
+
+	template <typename T>
+	struct Generator
+	{
+		// The class name 'Generator' is our choice and it is not required for coroutine
+		// magic. Compiler recognizes coroutine by the presence of 'co_yield' keyword.
+		// You can use name 'MyGenerator' (or any other name) instead as long as you include
+		// nested struct promise_type with 'MyGenerator get_return_object()' method.
+		// Note: You need to adjust class constructor/destructor names too when choosing to
+		// rename class.
+
+		struct promise_type;
+		using handle_type = std::coroutine_handle<promise_type>;
+
+		struct promise_type
+		{ // required
+			T value_;
+			std::exception_ptr exception_;
+
+			Generator get_return_object()
+			{
+				return Generator(handle_type::from_promise(*this));
+			}
+			std::suspend_always initial_suspend() { return {}; }
+			std::suspend_always final_suspend() noexcept { return {}; }
+			void unhandled_exception() { exception_ = std::current_exception(); } // saving
+			// exception
+
+			template <std::convertible_to<T> From> // C++20 concept
+			std::suspend_always yield_value(From&& from)
+			{
+				value_ = std::forward<From>(from); // caching the result in promise
+				return {};
+			}
+			void return_void() {}
+		};
+
+		handle_type h_;
+
+		Generator(handle_type h)
+			: h_(h)
+		{
+		}
+		~Generator() { h_.destroy(); }
+		explicit operator bool()
+		{
+			fill(); // The only way to reliably find out whether or not we finished coroutine,
+			// whether or not there is going to be a next value generated (co_yield)
+			// in coroutine via C++ getter (operator () below) is to execute/resume
+			// coroutine until the next co_yield point (or let it fall off end).
+			// Then we store/cache result in promise to allow getter (operator() below
+			// to grab it without executing coroutine).
+			return !h_.done();
+		}
+		T operator()()
+		{
+			fill();
+			full_ = false; // we are going to move out previously cached
+			// result to make promise empty again
+			return std::move(h_.promise().value_);
+		}
+
+	private:
+
+		bool full_ = false;
+
+		void fill()
+		{
+			if (!full_)
+			{
+				h_();
+				if (h_.promise().exception_)
+					std::rethrow_exception(h_.promise().exception_);
+				// propagate coroutine exception in called context
+
+				full_ = true;
+			}
+		}
+
+		JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(Generator)
+	};
+	Generator<bool> gen = readerToFftDataCopy();
+
+	Generator<bool> readerToFftDataCopy()
+	{
+		AudioBuffer<float> theAudioBuffer =
+			AudioBuffer<float>::AudioBuffer
+			(
+				reader->numChannels
+				,
+				fftSize
+			);
+
+		juce::int64 readerLngth = reader->lengthInSamples;
+		juce::int64 readerStartSample = 0;
+
+		for
+			(
+				juce::int64 readerStartSample = 0
+				; readerStartSample < readerLngth
+				; readerStartSample += fftSize
+				)
+		{
+			reader->read
+			(
+				&theAudioBuffer
+				,
+				0
+				,
+				fftSize
+				,
+				readerStartSample
+				,
+				true
+				,
+				true
+			);
+
+
+			for (auto sampleNbr = 0; sampleNbr < theAudioBuffer.getNumSamples(); sampleNbr++)
+			{
+				fftDataWrite[sampleNbr] = 0.0f;
+				for (auto channelNbr = 0; channelNbr < theAudioBuffer.getNumChannels(); channelNbr++)
+				{
+					fftDataWrite[sampleNbr] += theAudioBuffer.getSample(channelNbr, sampleNbr);
+				}
+			}
+
+			co_yield true;
+		}
+
+		co_yield false;
+	}
+
+	int useTimeSlice() override
+	{
+		auto currentThreadId = juce::Thread::getCurrentThreadId();
+
+		if ((currentThreadId == dataThread.getThreadId()))
+		{
+			if (audioFileReadRunning)
+			{
+				// This is the data thread
+				if (!(readyToWriteSemaphore[writeBufferIndex]
+					.try_acquire_for(std::chrono::milliseconds(200))))
+				{
+					if (juce::Thread::currentThreadShouldExit())
+					{
+						return -1;
+					}
+					return 10;
+				}
+				if (juce::Thread::currentThreadShouldExit())
+				{
+					return -1;
+				}
+
+				//const juce::ScopedLock lock(criticalSections[writeBufferIndex]);  // Lock the critical section for the write buffer
+
+				audioFileReadRunning = gen();
+
+				readyToReadSemaphore[writeBufferIndex].release();  // Signal the draw thread that data is ready
+
+				// switch the write buffer
+				writeBufferIndex ^= 1;  // Toggle the write buffer index
+				fftDataWrite = fftDataBuffers[writeBufferIndex];
+
+				return 0;
+			}
+			else
+			{
+				return 0; // "Stop" thread
+			}
+		}
+		else if (currentThreadId == drawThread.getThreadId())
+		{
+			if (timerSemaphore.try_acquire())  // Try to acquire the semaphore
+			{
+				// This is the draw thread
+				if (!(readyToReadSemaphore[readBufferIndex]
+					.try_acquire_for(std::chrono::milliseconds(200))))
+				{
+					if (juce::Thread::currentThreadShouldExit())
+					{
+						return -1;
+					}
+					doSwitchToMicrophoneInput = true;
+					return -1;
+				}
+				if (juce::Thread::currentThreadShouldExit())
+				{
+					return -1;
+				}
+
+				//const juce::ScopedLock lock(criticalSections[readBufferIndex]);  // Lock the critical section for the read buffer
+
+				drawNextLineOfSpectrogram();
+
+				MessageManager::callAsync([this]() { repaint(); });
+
+				readyToWriteSemaphore[readBufferIndex].release();  // Signal the data thread that it can start writing
+
+				// switch the read buffer
+				readBufferIndex ^= 1;  // Toggle the read buffer index
+				fftDataDraw = fftDataBuffers[readBufferIndex];
+			}
+			return 0;
+		}
+
 	}
 
 private:
+	juce::TimeSliceThread dataThread{ "Data Thread" };
+	juce::TimeSliceThread drawThread{ "Draw Thread" };
+	std::array<juce::CriticalSection, 2> criticalSections;  // Array of two CriticalSection objects
+	std::array<float[2 * fftSize], 2> fftDataBuffers;  // Array of two fftData buffers
+	std::array<std::binary_semaphore, 2> readyToReadSemaphore =
+	{ std::binary_semaphore{0}, std::binary_semaphore{0} };  // Semaphores to signal when data is ready to be read
+	std::array<std::binary_semaphore, 2> readyToWriteSemaphore =
+	{ std::binary_semaphore{1}, std::binary_semaphore{1} };  // Semaphores to signal when data is ready to be written
+	std::int_fast8_t readBufferIndex = 0;  // Index of the buffer currently being read
+	std::int_fast8_t writeBufferIndex = 1;  // Index of the buffer currently being filled
+	std::binary_semaphore timerSemaphore{ 0 };  // Add this line to declare the semaphore
+
+	bool thisIsAudioFile = false;
+	bool audioFileReadRunning = false;
+	bool doSwitchToMicrophoneInput = false;
+
 	juce::Image spectrogramImage;
 	std::unique_ptr<juce::dsp::FFT> forwardFFT = std::make_unique<dsp::FFT>(fftOrder);
 
 
-	float fifo[fftSize];
-	float fftData[2 * fftSize] = { 0 };
+	float fifo[fftSize] = { 0 };
+	float* fftDataDraw = fftDataBuffers[readBufferIndex];
+	float* fftDataWrite = fftDataBuffers[writeBufferIndex];
 	int fifoIndex = 0;
 	bool nextFFTBlockReady = false;
 
@@ -312,7 +576,7 @@ public:
 		, deviceManager(*SADM)
 	{
 		//setSize(700, 300);
-	
+
 		formatManager.registerBasicFormats();
 
 		spectrogramCmpnt =
@@ -1087,39 +1351,3 @@ private:
 
 	JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(FFTModule)
 };
-
-
-
-
-
-//void audioDeviceIOCallbackWithContext(const float* const* inputChannelData,
-//	int totalNumInputChannels,
-//	float* const* outputChannelData,
-//	int totalNumOutputChannels,
-//	int numSamples,
-//	const juce::AudioIODeviceCallbackContext& context) override
-//{
-//	if ((totalNumInputChannels > 0) && (numSamples > 0))
-//	{
-//		for (auto i = 0; i < numSamples; ++i)
-//		{
-//			float sum = 0.0f;
-//			for (auto channel = 0; channel < totalNumInputChannels; ++channel)
-//			{
-//				sum += inputChannelData[channel][i];
-//			}
-//			pushNextSampleIntoFifo(sum);
-//		}
-//	}
-//}
-
-//void audioDeviceAboutToStart(juce::AudioIODevice* device) override
-//{
-//	auto sampleRate = device->getCurrentSampleRate();
-//}
-
-//void audioDeviceStopped() override
-//{
-//	// (nothing to do here)
-//}
-
