@@ -661,6 +661,12 @@
     <ClCompile Include="..\..\Source\AudioSettingsModule.cpp">
       <Filter>AudioAnalyzer\Source</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\Source\FFTCtrl.cpp">
+      <Filter>AudioAnalyzer\Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\FFTModule.cpp">
+      <Filter>AudioAnalyzer\Source</Filter>
+    </ClCompile>
     <ClCompile Include="..\..\Source\Main.cpp">
       <Filter>AudioAnalyzer\Source</Filter>
     </ClCompile>
@@ -676,7 +682,7 @@
     <ClCompile Include="..\..\Source\SoundProcessorModule.cpp">
       <Filter>AudioAnalyzer\Source</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\Source\FFTCtrl.cpp">
+    <ClCompile Include="..\..\Source\SpectrogramComponent.cpp">
       <Filter>AudioAnalyzer\Source</Filter>
     </ClCompile>
     <ClCompile Include="..\..\JuceLibraryCode\modules\juce_audio_basics\audio_play_head\juce_AudioPlayHead.cpp">
@@ -3318,6 +3324,9 @@
     <ClInclude Include="..\..\Source\AudioSettingsModule.h">
       <Filter>AudioAnalyzer\Source</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\Source\FFTCtrl.h">
+      <Filter>AudioAnalyzer\Source</Filter>
+    </ClInclude>
     <ClInclude Include="..\..\Source\FFTModule.h">
       <Filter>AudioAnalyzer\Source</Filter>
     </ClInclude>
@@ -3333,7 +3342,7 @@
     <ClInclude Include="..\..\Source\SoundProcessorModule.h">
       <Filter>AudioAnalyzer\Source</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\Source\FFTCtrl.h">
+    <ClInclude Include="..\..\Source\SpectrogramComponent.h">
       <Filter>AudioAnalyzer\Source</Filter>
     </ClInclude>
     <ClInclude Include="..\..\Source\Utilities.h">

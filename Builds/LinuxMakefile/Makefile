@@ -85,12 +85,14 @@ OBJECTS_APP := \
   $(JUCE_OBJDIR)/freqPlotModule_7fae942e.o \
   $(JUCE_OBJDIR)/helpPage_811ecbd9.o \
   $(JUCE_OBJDIR)/AudioSettingsModule_a2de15c6.o \
+  $(JUCE_OBJDIR)/FFTCtrl_bae2dd20.o \
+  $(JUCE_OBJDIR)/FFTModule_caba78a1.o \
   $(JUCE_OBJDIR)/Main_90ebc5c2.o \
   $(JUCE_OBJDIR)/MainComponent_a6ffb4a5.o \
   $(JUCE_OBJDIR)/microphoneAccessPermissionAlert_85402cc0.o \
   $(JUCE_OBJDIR)/PlotModule_3779a9b6.o \
   $(JUCE_OBJDIR)/SoundProcessorModule_7ab0b598.o \
-  $(JUCE_OBJDIR)/FFTCtrl_bae2dd20.o \
+  $(JUCE_OBJDIR)/SpectrogramComponent_d8406099.o \
   $(JUCE_OBJDIR)/BinaryData_ce4232d4.o \
   $(JUCE_OBJDIR)/include_juce_audio_basics_8a4e984a.o \
   $(JUCE_OBJDIR)/include_juce_audio_devices_63111d02.o \
@@ -185,6 +187,16 @@ $(JUCE_OBJDIR)/AudioSettingsModule_a2de15c6.o: ../../Source/AudioSettingsModule.
 	@echo "Compiling AudioSettingsModule.cpp"
 	$(V_AT)$(CXX) $(JUCE_CXXFLAGS) $(JUCE_CPPFLAGS_APP) $(JUCE_CFLAGS_APP) -o "$@" -c "$<"
 
+$(JUCE_OBJDIR)/FFTCtrl_bae2dd20.o: ../../Source/FFTCtrl.cpp
+	-$(V_AT)mkdir -p $(@D)
+	@echo "Compiling FFTCtrl.cpp"
+	$(V_AT)$(CXX) $(JUCE_CXXFLAGS) $(JUCE_CPPFLAGS_APP) $(JUCE_CFLAGS_APP) -o "$@" -c "$<"
+
+$(JUCE_OBJDIR)/FFTModule_caba78a1.o: ../../Source/FFTModule.cpp
+	-$(V_AT)mkdir -p $(@D)
+	@echo "Compiling FFTModule.cpp"
+	$(V_AT)$(CXX) $(JUCE_CXXFLAGS) $(JUCE_CPPFLAGS_APP) $(JUCE_CFLAGS_APP) -o "$@" -c "$<"
+
 $(JUCE_OBJDIR)/Main_90ebc5c2.o: ../../Source/Main.cpp
 	-$(V_AT)mkdir -p $(@D)
 	@echo "Compiling Main.cpp"
@@ -210,9 +222,9 @@ $(JUCE_OBJDIR)/SoundProcessorModule_7ab0b598.o: ../../Source/SoundProcessorModul
 	@echo "Compiling SoundProcessorModule.cpp"
 	$(V_AT)$(CXX) $(JUCE_CXXFLAGS) $(JUCE_CPPFLAGS_APP) $(JUCE_CFLAGS_APP) -o "$@" -c "$<"
 
-$(JUCE_OBJDIR)/FFTCtrl_bae2dd20.o: ../../Source/FFTCtrl.cpp
+$(JUCE_OBJDIR)/SpectrogramComponent_d8406099.o: ../../Source/SpectrogramComponent.cpp
 	-$(V_AT)mkdir -p $(@D)
-	@echo "Compiling FFTCtrl.cpp"
+	@echo "Compiling SpectrogramComponent.cpp"
 	$(V_AT)$(CXX) $(JUCE_CXXFLAGS) $(JUCE_CPPFLAGS_APP) $(JUCE_CFLAGS_APP) -o "$@" -c "$<"
 
 $(JUCE_OBJDIR)/BinaryData_ce4232d4.o: ../../JuceLibraryCode/BinaryData.cpp

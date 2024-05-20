@@ -154,12 +154,14 @@
     <ClCompile Include="..\..\Source\freqPlotModule.cpp"/>
     <ClCompile Include="..\..\Source\helpPage.cpp"/>
     <ClCompile Include="..\..\Source\AudioSettingsModule.cpp"/>
+    <ClCompile Include="..\..\Source\FFTCtrl.cpp"/>
+    <ClCompile Include="..\..\Source\FFTModule.cpp"/>
     <ClCompile Include="..\..\Source\Main.cpp"/>
     <ClCompile Include="..\..\Source\MainComponent.cpp"/>
     <ClCompile Include="..\..\Source\microphoneAccessPermissionAlert.cpp"/>
     <ClCompile Include="..\..\Source\PlotModule.cpp"/>
     <ClCompile Include="..\..\Source\SoundProcessorModule.cpp"/>
-    <ClCompile Include="..\..\Source\FFTCtrl.cpp"/>
+    <ClCompile Include="..\..\Source\SpectrogramComponent.cpp"/>
     <ClCompile Include="..\..\JuceLibraryCode\modules\juce_audio_basics\audio_play_head\juce_AudioPlayHead.cpp">
       <ExcludedFromBuild>true</ExcludedFromBuild>
     </ClCompile>
@@ -2584,12 +2586,13 @@
     <ClInclude Include="..\..\Source\AudioPlaybackModule.h"/>
     <ClInclude Include="..\..\Source\AudioRecorderModule.h"/>
     <ClInclude Include="..\..\Source\AudioSettingsModule.h"/>
+    <ClInclude Include="..\..\Source\FFTCtrl.h"/>
     <ClInclude Include="..\..\Source\FFTModule.h"/>
     <ClInclude Include="..\..\Source\MainComponent.h"/>
     <ClInclude Include="..\..\Source\microphoneAccessPermissionAlert.h"/>
     <ClInclude Include="..\..\Source\PlotModule.h"/>
     <ClInclude Include="..\..\Source\SoundProcessorModule.h"/>
-    <ClInclude Include="..\..\Source\FFTCtrl.h"/>
+    <ClInclude Include="..\..\Source\SpectrogramComponent.h"/>
     <ClInclude Include="..\..\Source\Utilities.h"/>
     <ClInclude Include="..\..\JuceLibraryCode\modules\juce_audio_basics\audio_play_head\juce_AudioPlayHead.h"/>
     <ClInclude Include="..\..\JuceLibraryCode\modules\juce_audio_basics\buffers\juce_AudioChannelSet.h"/>

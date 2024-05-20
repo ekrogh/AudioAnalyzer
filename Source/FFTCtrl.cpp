@@ -250,6 +250,13 @@ FFTCtrl::FFTCtrl (std::shared_ptr<FFTModule> ptr_module_FFT, std::shared_ptr<Aud
 
     makespectrumOfInput__toggleButton->setBounds (192, 325, 150, 24);
 
+    autoSwitchToInput__toggleButton.reset (new juce::ToggleButton ("autoSwitchToInput toggle button"));
+    addAndMakeVisible (autoSwitchToInput__toggleButton.get());
+    autoSwitchToInput__toggleButton->setButtonText (TRANS ("Auto switch to input"));
+    autoSwitchToInput__toggleButton->addListener (this);
+
+    autoSwitchToInput__toggleButton->setBounds (192, 399, 150, 24);
+
 
     //[UserPreSize]
 	max_freq__textEditor->setInputRestrictions(10, "1234567890.,");
@@ -350,6 +357,7 @@ FFTCtrl::~FFTCtrl()
     fftWindows__textButton = nullptr;
     spectrumOfaudioFile__toggleButton = nullptr;
     makespectrumOfInput__toggleButton = nullptr;
+    autoSwitchToInput__toggleButton = nullptr;
 
 
     //[Destructor]. You can add your own custom destruction code here..
@@ -512,6 +520,12 @@ void FFTCtrl::buttonClicked (juce::Button* buttonThatWasClicked)
         makespectrumOfInputTBState = makespectrumOfInput__toggleButton->getToggleState();
         //[/UserButtonCode_makespectrumOfInput__toggleButton]
     }
+    else if (buttonThatWasClicked == autoSwitchToInput__toggleButton.get())
+    {
+        //[UserButtonCode_autoSwitchToInput__toggleButton] -- add your button handler code here..
+        module_FFT->setAutoSwitchToInput(autoSwitchToInput__toggleButton->getToggleState());
+        //[/UserButtonCode_autoSwitchToInput__toggleButton]
+    }
 
     //[UserbuttonClicked_Post]
     //[/UserbuttonClicked_Post]
@@ -625,6 +639,10 @@ BEGIN_JUCER_METADATA
                 memberName="makespectrumOfInput__toggleButton" virtualName=""
                 explicitFocusOrder="0" pos="192 325 150 24" buttonText="Make spectrum of input"
                 connectedEdges="8" needsCallback="1" radioGroupId="1" state="1"/>
+  <TOGGLEBUTTON name="autoSwitchToInput toggle button" id="f79b3224172a8f2d"
+                memberName="autoSwitchToInput__toggleButton" virtualName="" explicitFocusOrder="0"
+                pos="192 399 150 24" buttonText="Auto switch to input" connectedEdges="0"
+                needsCallback="1" radioGroupId="0" state="0"/>
 </JUCER_COMPONENT>
 
 END_JUCER_METADATA

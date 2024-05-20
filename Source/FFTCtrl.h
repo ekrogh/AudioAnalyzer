@@ -86,6 +86,7 @@ private:
     std::unique_ptr<juce::TextButton> fftWindows__textButton;
     std::unique_ptr<juce::ToggleButton> spectrumOfaudioFile__toggleButton;
     std::unique_ptr<juce::ToggleButton> makespectrumOfInput__toggleButton;
+    std::unique_ptr<juce::ToggleButton> autoSwitchToInput__toggleButton;
 
 
     //==============================================================================

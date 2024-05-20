@@ -68,7 +68,10 @@
             file="Source/AudioSettingsModule.cpp"/>
       <FILE id="dJMzzu" name="AudioSettingsModule.h" compile="0" resource="0"
             file="Source/AudioSettingsModule.h"/>
-      <FILE id="iu5vvh" name="FFTModule.h" compile="0" resource="0" file="Source/FFTModule.h"/>
+      <FILE id="AxQVJX" name="FFTCtrl.cpp" compile="1" resource="0" file="Source/FFTCtrl.cpp"/>
+      <FILE id="HhhnxZ" name="FFTCtrl.h" compile="0" resource="0" file="Source/FFTCtrl.h"/>
+      <FILE id="kETeAf" name="FFTModule.cpp" compile="1" resource="0" file="Source/FFTModule.cpp"/>
+      <FILE id="vHR9P8" name="FFTModule.h" compile="0" resource="0" file="Source/FFTModule.h"/>
       <FILE id="jffCtx" name="Main.cpp" compile="1" resource="0" file="Source/Main.cpp"/>
       <FILE id="R8zn7a" name="MainComponent.cpp" compile="1" resource="0"
             file="Source/MainComponent.cpp"/>
@@ -83,8 +86,10 @@
             file="Source/SoundProcessorModule.cpp"/>
       <FILE id="kysDNn" name="SoundProcessorModule.h" compile="0" resource="0"
             file="Source/SoundProcessorModule.h"/>
-      <FILE id="AxQVJX" name="FFTCtrl.cpp" compile="1" resource="0" file="Source/FFTCtrl.cpp"/>
-      <FILE id="HhhnxZ" name="FFTCtrl.h" compile="0" resource="0" file="Source/FFTCtrl.h"/>
+      <FILE id="QdQ3FY" name="SpectrogramComponent.cpp" compile="1" resource="0"
+            file="Source/SpectrogramComponent.cpp"/>
+      <FILE id="v2iVqQ" name="SpectrogramComponent.h" compile="0" resource="0"
+            file="Source/SpectrogramComponent.h"/>
       <FILE id="cqhsP1" name="Utilities.h" compile="0" resource="0" file="Source/Utilities.h"/>
     </GROUP>
   </MAINGROUP>
