@@ -439,11 +439,11 @@ public:
 			juce::int64 readerLngth = reader->lengthInSamples;
 
 			for
-				(
-					juce::int64 readerStartSample = 0
-					; readerStartSample < readerLngth
-					; readerStartSample += fftSize
-					)
+			(
+				juce::int64 readerStartSample = 0
+				; readerStartSample < readerLngth
+				; readerStartSample += fftSize
+			)
 			{
 				reader->read
 				(
@@ -460,14 +460,15 @@ public:
 					true
 				);
 
-
+				float theSum = 0.0f;
 				for (auto sampleNbr = 0; sampleNbr < theAudioBuffer.getNumSamples(); sampleNbr++)
 				{
-					fftDataWrite[sampleNbr] = 0.0f;
+					theSum = 0.0f;
 					for (auto channelNbr = 0; channelNbr < theAudioBuffer.getNumChannels(); channelNbr++)
 					{
-						fftDataWrite[sampleNbr] += theAudioBuffer.getSample(channelNbr, sampleNbr);
+						theSum += theAudioBuffer.getSample(channelNbr, sampleNbr);
 					}
+					fftDataWrite[sampleNbr] = theSum;
 				}
 
 				co_yield true;
