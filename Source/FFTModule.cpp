@@ -8,6 +8,7 @@
   ==============================================================================
 */
 
+#include "SpectrogramComponent.h"
 #include "FFTModule.h"
 
 FFTModule::FFTModule
@@ -24,7 +25,7 @@ FFTModule::FFTModule
 	formatManager.registerBasicFormats();
 
 	spectrogramCmpnt =
-		std::make_unique<SpectrogramComponent>(formatManager, SADM);
+		std::make_unique<SpectrogramComponent>(formatManager, SADM, this, FPM);
 
 	addAndMakeVisible(spectrogramCmpnt.get());
 	setOpaque(true);
@@ -764,4 +765,9 @@ void FFTModule::showValues
 void FFTModule::setAutoSwitchToInput(bool autoSwitch)
 {
 	spectrogramCmpnt->setAutoSwitchToInput(autoSwitch);
+}
+
+void FFTModule::setFilterToUse(filterTypes theFilterType)
+{
+	spectrogramCmpnt->setFilterToUse(theFilterType);
 }

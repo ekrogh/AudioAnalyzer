@@ -62,6 +62,12 @@ public:
 	);
 
 	void updatePlotRealTime(std::vector <std::vector<float>> y_values);
+	void updatePlotRealTime
+	(
+		std::vector <std::vector<float>> y_values
+		,
+		std::vector <std::vector<float>> x_values
+	);
 	void clearPlot();
 	void setXLabel(const std::string& x_label) { m_plot.setXLabel(x_label); };
 	void setYLabel(const std::string& y_label) { m_plot.setYLabel(y_label); };

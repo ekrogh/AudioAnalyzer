@@ -159,6 +159,7 @@
     <ClCompile Include="..\..\Source\Main.cpp"/>
     <ClCompile Include="..\..\Source\MainComponent.cpp"/>
     <ClCompile Include="..\..\Source\microphoneAccessPermissionAlert.cpp"/>
+    <ClCompile Include="..\..\Source\NotchFilter.cpp"/>
     <ClCompile Include="..\..\Source\PlotModule.cpp"/>
     <ClCompile Include="..\..\Source\SoundProcessorModule.cpp"/>
     <ClCompile Include="..\..\Source\SpectrogramComponent.cpp"/>
@@ -2590,6 +2591,7 @@
     <ClInclude Include="..\..\Source\FFTModule.h"/>
     <ClInclude Include="..\..\Source\MainComponent.h"/>
     <ClInclude Include="..\..\Source\microphoneAccessPermissionAlert.h"/>
+    <ClInclude Include="..\..\Source\NotchFilter.h"/>
     <ClInclude Include="..\..\Source\PlotModule.h"/>
     <ClInclude Include="..\..\Source\SoundProcessorModule.h"/>
     <ClInclude Include="..\..\Source\SpectrogramComponent.h"/>

@@ -80,6 +80,8 @@
             resource="0" file="Source/microphoneAccessPermissionAlert.cpp"/>
       <FILE id="hBE5Tv" name="microphoneAccessPermissionAlert.h" compile="0"
             resource="0" file="Source/microphoneAccessPermissionAlert.h"/>
+      <FILE id="pEPoNe" name="NotchFilter.cpp" compile="1" resource="0" file="Source/NotchFilter.cpp"/>
+      <FILE id="rlg337" name="NotchFilter.h" compile="0" resource="0" file="Source/NotchFilter.h"/>
       <FILE id="ezQVuB" name="PlotModule.cpp" compile="1" resource="0" file="Source/PlotModule.cpp"/>
       <FILE id="rMdbof" name="PlotModule.h" compile="0" resource="0" file="Source/PlotModule.h"/>
       <FILE id="iY4WPw" name="SoundProcessorModule.cpp" compile="1" resource="0"

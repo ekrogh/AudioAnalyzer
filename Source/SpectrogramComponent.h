@@ -17,6 +17,9 @@
 #include "freqPlotModule.h"
 #include <semaphore>
 #include <coroutine>
+#include "NotchFilter.h"
+
+class FFTModule;
 
 //==============================================================================
 class SpectrogramComponent
@@ -31,6 +34,10 @@ public:
 		AudioFormatManager& FM
 		,
 		std::shared_ptr<AudioDeviceManager> SADM
+		,
+		FFTModule* FFTMP
+		,
+		std::shared_ptr<freqPlotModule> FPM
 	);
 
 	~SpectrogramComponent() override;
@@ -153,7 +160,24 @@ public:
 
 	void setAutoSwitchToInput(bool autoSwitch);
 
+	void setFilterToUse(filterTypes theFilterType);
+
 private:
+	std::shared_ptr<freqPlotModule> module_freqPlot;
+	std::vector <std::vector<float>> frequencyValues{ { 1 }, { 1 } };
+	std::vector <std::vector<float>> plotValues{ { 1 }, { 1 } };
+	cmp::GraphAttributeList graph_attributes;
+	cmp::StringVector plotLegend{ "1", "2" };
+	bool doRealTimeChartPlot = false;
+
+	FFTModule& theFftModule;
+
+	filterTypes filterToUse = noFilter;
+	bool filterToUseChanged = false;
+
+	std::unique_ptr<NotchFilter> theNotchFilter;
+	AudioBuffer<float> theAudioBuffer;
+
 	bool autoSwitchToInput = false;
 
 	juce::ToggleButton* spectrumOfaudioFile__toggleButton;
@@ -169,7 +193,7 @@ private:
 	{ std::binary_semaphore{1}, std::binary_semaphore{1} };  // Semaphores to signal when data is ready to be written
 	std::int_fast8_t readBufferIndex = 0;  // Index of the buffer currently being read
 	std::int_fast8_t writeBufferIndex = 1;  // Index of the buffer currently being filled
-	std::binary_semaphore timerSemaphore{ 0 };  // Add this line to declare the semaphore
+	std::binary_semaphore timerSemaphore{ 1 };  // Add this line to declare the semaphore
 
 	bool thisIsAudioFile = false;
 	bool audioFileReadRunning = false;

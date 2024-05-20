@@ -90,6 +90,7 @@ OBJECTS_APP := \
   $(JUCE_OBJDIR)/Main_90ebc5c2.o \
   $(JUCE_OBJDIR)/MainComponent_a6ffb4a5.o \
   $(JUCE_OBJDIR)/microphoneAccessPermissionAlert_85402cc0.o \
+  $(JUCE_OBJDIR)/NotchFilter_4d005e71.o \
   $(JUCE_OBJDIR)/PlotModule_3779a9b6.o \
   $(JUCE_OBJDIR)/SoundProcessorModule_7ab0b598.o \
   $(JUCE_OBJDIR)/SpectrogramComponent_d8406099.o \
@@ -210,6 +211,11 @@ $(JUCE_OBJDIR)/MainComponent_a6ffb4a5.o: ../../Source/MainComponent.cpp
 $(JUCE_OBJDIR)/microphoneAccessPermissionAlert_85402cc0.o: ../../Source/microphoneAccessPermissionAlert.cpp
 	-$(V_AT)mkdir -p $(@D)
 	@echo "Compiling microphoneAccessPermissionAlert.cpp"
+	$(V_AT)$(CXX) $(JUCE_CXXFLAGS) $(JUCE_CPPFLAGS_APP) $(JUCE_CFLAGS_APP) -o "$@" -c "$<"
+
+$(JUCE_OBJDIR)/NotchFilter_4d005e71.o: ../../Source/NotchFilter.cpp
+	-$(V_AT)mkdir -p $(@D)
+	@echo "Compiling NotchFilter.cpp"
 	$(V_AT)$(CXX) $(JUCE_CXXFLAGS) $(JUCE_CPPFLAGS_APP) $(JUCE_CFLAGS_APP) -o "$@" -c "$<"
 
 $(JUCE_OBJDIR)/PlotModule_3779a9b6.o: ../../Source/PlotModule.cpp

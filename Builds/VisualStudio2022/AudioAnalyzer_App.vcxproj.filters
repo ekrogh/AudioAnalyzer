@@ -676,6 +676,9 @@
     <ClCompile Include="..\..\Source\microphoneAccessPermissionAlert.cpp">
       <Filter>AudioAnalyzer\Source</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\Source\NotchFilter.cpp">
+      <Filter>AudioAnalyzer\Source</Filter>
+    </ClCompile>
     <ClCompile Include="..\..\Source\PlotModule.cpp">
       <Filter>AudioAnalyzer\Source</Filter>
     </ClCompile>
@@ -3334,6 +3337,9 @@
       <Filter>AudioAnalyzer\Source</Filter>
     </ClInclude>
     <ClInclude Include="..\..\Source\microphoneAccessPermissionAlert.h">
+      <Filter>AudioAnalyzer\Source</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\NotchFilter.h">
       <Filter>AudioAnalyzer\Source</Filter>
     </ClInclude>
     <ClInclude Include="..\..\Source\PlotModule.h">

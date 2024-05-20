@@ -10,7 +10,6 @@
 
 #pragma once
 
-#include "SpectrogramComponent.h"
 #include <juce_audio_formats/juce_audio_formats.h>
 #include <juce_gui_basics/juce_gui_basics.h>
 #include "AudioAnalyzerGlobalEnums.h"
@@ -18,6 +17,8 @@
 #include "freqPlotModule.h"
 #include <semaphore>
 #include <coroutine>
+
+class SpectrogramComponent;
 
 class FFTModule final : public Component
 {
@@ -164,6 +165,8 @@ public:
 
 
 	void setAutoSwitchToInput(bool autoSwitch);
+
+	void setFilterToUse(filterTypes theFilterType);
 
 private:
 	AudioDeviceManager& deviceManager;

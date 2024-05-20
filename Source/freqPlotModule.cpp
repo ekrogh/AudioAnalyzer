@@ -102,10 +102,10 @@ void freqPlotModule::updatePlot
 	(
 		[
 			this
-			,
-			y_values
-			,
-			x_values
+				,
+				y_values
+				,
+				x_values
 		]
 		()
 		{
@@ -130,14 +130,14 @@ void freqPlotModule::updatePlot
 	(
 		[
 			this
-			,
-			y_values
-			,
-			x_values
-			,
-			graph_attributes
-			,
-			legend
+				,
+				y_values
+				,
+				x_values
+				,
+				graph_attributes
+				,
+				legend
 		]
 		()
 		{
@@ -147,9 +147,36 @@ void freqPlotModule::updatePlot
 	);
 }
 
+
 void freqPlotModule::updatePlotRealTime(std::vector <std::vector<float>> y_values)
 {
-	m_plot.realTimePlot(y_values);
+	//m_plot.realTimePlot(y_values);
+	MessageManager::callAsync
+	(
+		[this, y_values]
+		()
+		{
+			m_plot.realTimePlot(y_values);
+		}
+	);
+}
+
+void freqPlotModule::updatePlotRealTime
+(
+	std::vector <std::vector<float>> y_values
+	,
+	std::vector <std::vector<float>> x_values
+)
+{
+	//m_plot.realTimePlot(y_values);
+	MessageManager::callAsync
+	(
+		[ this, y_values, x_values]
+		()
+		{
+			m_plot.realTimePlot(y_values, x_values);
+		}
+	);
 }
 
 void freqPlotModule::clearPlot()

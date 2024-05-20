@@ -112,7 +112,8 @@ namespace cmp
 		 * @param y_data vector of vectors with the y-values.
 		 */
 		void realTimePlot(const std::vector<std::vector<float>>& y_data);
-
+		void realTimePlot(const std::vector<std::vector<float>>& y_data,
+								const std::vector<std::vector<float>>& x_data);
 		/** @brief Fill the area between two data lines.
 		 *
 		 * 1. Use 'plot' or 'realTimePlot' to draw the graph lines.

@@ -87,6 +87,9 @@ private:
     std::unique_ptr<juce::ToggleButton> spectrumOfaudioFile__toggleButton;
     std::unique_ptr<juce::ToggleButton> makespectrumOfInput__toggleButton;
     std::unique_ptr<juce::ToggleButton> autoSwitchToInput__toggleButton;
+    std::unique_ptr<juce::ToggleButton> use50HzFilter__toggleButton;
+    std::unique_ptr<juce::ToggleButton> use60HzFilter__toggleButton;
+    std::unique_ptr<juce::ToggleButton> useNoFilter__toggleButton;
 
 
     //==============================================================================

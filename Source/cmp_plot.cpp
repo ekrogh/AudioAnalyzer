@@ -466,6 +466,16 @@ namespace cmp
 		repaint();
 	}
 
+	void Plot::realTimePlot(const std::vector<std::vector<float>>& y_data,
+							const std::vector<std::vector<float>>& x_data)
+	{
+		plotInternal<GraphLineType::normal>(y_data, x_data, {});
+
+		updateTracePointsAndLegends();
+
+		repaint(m_graph_bounds);
+	}
+
 	void Plot::realTimePlot(const std::vector<std::vector<float>>& y_data)
 	{
 		plotInternal<GraphLineType::normal>(y_data, {}, {});

@@ -32,3 +32,12 @@ enum
 	fftOrder = 10,
 	fftSize = 1 << fftOrder
 };
+
+enum filterTypes
+{
+    noFilter
+    ,
+    filter50Hz
+    ,
+    filter60Hz
+};

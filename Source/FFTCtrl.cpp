@@ -238,7 +238,7 @@ FFTCtrl::FFTCtrl (std::shared_ptr<FFTModule> ptr_module_FFT, std::shared_ptr<Aud
     spectrumOfaudioFile__toggleButton->setRadioGroupId (1);
     spectrumOfaudioFile__toggleButton->addListener (this);
 
-    spectrumOfaudioFile__toggleButton->setBounds (192, 360, 150, 24);
+    spectrumOfaudioFile__toggleButton->setBounds (192, 362, 150, 24);
 
     makespectrumOfInput__toggleButton.reset (new juce::ToggleButton ("makespectrumOfInput toggle button"));
     addAndMakeVisible (makespectrumOfInput__toggleButton.get());
@@ -255,7 +255,35 @@ FFTCtrl::FFTCtrl (std::shared_ptr<FFTModule> ptr_module_FFT, std::shared_ptr<Aud
     autoSwitchToInput__toggleButton->setButtonText (TRANS ("Auto switch to input"));
     autoSwitchToInput__toggleButton->addListener (this);
 
-    autoSwitchToInput__toggleButton->setBounds (192, 399, 150, 24);
+    autoSwitchToInput__toggleButton->setBounds (192, 401, 150, 24);
+
+    use50HzFilter__toggleButton.reset (new juce::ToggleButton ("use50HzFilter toggle button"));
+    addAndMakeVisible (use50HzFilter__toggleButton.get());
+    use50HzFilter__toggleButton->setButtonText (TRANS ("Use 50 Hz filter"));
+    use50HzFilter__toggleButton->setConnectedEdges (juce::Button::ConnectedOnBottom);
+    use50HzFilter__toggleButton->setRadioGroupId (2);
+    use50HzFilter__toggleButton->addListener (this);
+
+    use50HzFilter__toggleButton->setBounds (192, 445, 150, 24);
+
+    use60HzFilter__toggleButton.reset (new juce::ToggleButton ("use60HzFilter toggle button"));
+    addAndMakeVisible (use60HzFilter__toggleButton.get());
+    use60HzFilter__toggleButton->setButtonText (TRANS ("Use 60 Hz filter"));
+    use60HzFilter__toggleButton->setConnectedEdges (juce::Button::ConnectedOnTop | juce::Button::ConnectedOnBottom);
+    use60HzFilter__toggleButton->setRadioGroupId (2);
+    use60HzFilter__toggleButton->addListener (this);
+
+    use60HzFilter__toggleButton->setBounds (192, 485, 150, 24);
+
+    useNoFilter__toggleButton.reset (new juce::ToggleButton ("useNoFilter toggle button"));
+    addAndMakeVisible (useNoFilter__toggleButton.get());
+    useNoFilter__toggleButton->setButtonText (TRANS ("Use no filter"));
+    useNoFilter__toggleButton->setConnectedEdges (juce::Button::ConnectedOnTop);
+    useNoFilter__toggleButton->setRadioGroupId (2);
+    useNoFilter__toggleButton->addListener (this);
+    useNoFilter__toggleButton->setToggleState (true, juce::dontSendNotification);
+
+    useNoFilter__toggleButton->setBounds (192, 525, 150, 24);
 
 
     //[UserPreSize]
@@ -358,6 +386,9 @@ FFTCtrl::~FFTCtrl()
     spectrumOfaudioFile__toggleButton = nullptr;
     makespectrumOfInput__toggleButton = nullptr;
     autoSwitchToInput__toggleButton = nullptr;
+    use50HzFilter__toggleButton = nullptr;
+    use60HzFilter__toggleButton = nullptr;
+    useNoFilter__toggleButton = nullptr;
 
 
     //[Destructor]. You can add your own custom destruction code here..
@@ -526,6 +557,33 @@ void FFTCtrl::buttonClicked (juce::Button* buttonThatWasClicked)
         module_FFT->setAutoSwitchToInput(autoSwitchToInput__toggleButton->getToggleState());
         //[/UserButtonCode_autoSwitchToInput__toggleButton]
     }
+    else if (buttonThatWasClicked == use50HzFilter__toggleButton.get())
+    {
+        //[UserButtonCode_use50HzFilter__toggleButton] -- add your button handler code here..
+        if (use50HzFilter__toggleButton->getToggleState())
+        {
+            module_FFT->setFilterToUse(filter50Hz);
+        }
+        //[/UserButtonCode_use50HzFilter__toggleButton]
+    }
+    else if (buttonThatWasClicked == use60HzFilter__toggleButton.get())
+    {
+        //[UserButtonCode_use60HzFilter__toggleButton] -- add your button handler code here..
+        if (use60HzFilter__toggleButton->getToggleState())
+        {
+            module_FFT->setFilterToUse(filter60Hz);
+        }
+        //[/UserButtonCode_use60HzFilter__toggleButton]
+    }
+    else if (buttonThatWasClicked == useNoFilter__toggleButton.get())
+    {
+        //[UserButtonCode_useNoFilter__toggleButton] -- add your button handler code here..
+        if (useNoFilter__toggleButton->getToggleState())
+        {
+            module_FFT->setFilterToUse(noFilter);
+        }
+        //[/UserButtonCode_useNoFilter__toggleButton]
+    }
 
     //[UserbuttonClicked_Post]
     //[/UserbuttonClicked_Post]
@@ -633,7 +691,7 @@ BEGIN_JUCER_METADATA
               connectedEdges="0" needsCallback="1" radioGroupId="0"/>
   <TOGGLEBUTTON name="spectrumOfaudioFile toggle button" id="1275ad335d939b3e"
                 memberName="spectrumOfaudioFile__toggleButton" virtualName=""
-                explicitFocusOrder="0" pos="192 360 150 24" buttonText="Make spectrum of audio file  "
+                explicitFocusOrder="0" pos="192 362 150 24" buttonText="Make spectrum of audio file  "
                 connectedEdges="4" needsCallback="1" radioGroupId="1" state="0"/>
   <TOGGLEBUTTON name="makespectrumOfInput toggle button" id="a4f23f06626db462"
                 memberName="makespectrumOfInput__toggleButton" virtualName=""
@@ -641,8 +699,17 @@ BEGIN_JUCER_METADATA
                 connectedEdges="8" needsCallback="1" radioGroupId="1" state="1"/>
   <TOGGLEBUTTON name="autoSwitchToInput toggle button" id="f79b3224172a8f2d"
                 memberName="autoSwitchToInput__toggleButton" virtualName="" explicitFocusOrder="0"
-                pos="192 399 150 24" buttonText="Auto switch to input" connectedEdges="0"
+                pos="192 401 150 24" buttonText="Auto switch to input" connectedEdges="0"
                 needsCallback="1" radioGroupId="0" state="0"/>
+  <TOGGLEBUTTON name="use50HzFilter toggle button" id="86160e89f8af914" memberName="use50HzFilter__toggleButton"
+                virtualName="" explicitFocusOrder="0" pos="192 445 150 24" buttonText="Use 50 Hz filter"
+                connectedEdges="8" needsCallback="1" radioGroupId="2" state="0"/>
+  <TOGGLEBUTTON name="use60HzFilter toggle button" id="8fe0a8bef11d661e" memberName="use60HzFilter__toggleButton"
+                virtualName="" explicitFocusOrder="0" pos="192 485 150 24" buttonText="Use 60 Hz filter"
+                connectedEdges="12" needsCallback="1" radioGroupId="2" state="0"/>
+  <TOGGLEBUTTON name="useNoFilter toggle button" id="a4acb1f6eeda074a" memberName="useNoFilter__toggleButton"
+                virtualName="" explicitFocusOrder="0" pos="192 525 150 24" buttonText="Use no filter"
+                connectedEdges="4" needsCallback="1" radioGroupId="2" state="1"/>
 </JUCER_COMPONENT>
 
 END_JUCER_METADATA

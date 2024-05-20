@@ -57,6 +57,7 @@
 		C0266C70A7B169ED278C9072 /* include_juce_audio_processors_lv2_libs.cpp */ = {isa = PBXBuildFile; fileRef = FCEA0228C2C24F009C8C3FDC; };
 		C0598ACC9C3CCA966C5B1226 /* PlotModule.cpp */ = {isa = PBXBuildFile; fileRef = 9DB0A8597631E0CC265AADD2; };
 		C6FADDEDDF82226B1C7B9690 /* FFTCtrl.cpp */ = {isa = PBXBuildFile; fileRef = BA3D298ABB8A39C78A765E5F; };
+		C85F023FBC4E0CEA125DEF78 /* NotchFilter.cpp */ = {isa = PBXBuildFile; fileRef = 4CAA2D93C1535C1111CC8224; };
 		DAE5FADA20FB7553D4185868 /* SpectrogramComponent.cpp */ = {isa = PBXBuildFile; fileRef = 81A46433CB4A1D5874FFA356; };
 		E7E2E63BA3FA401B3A45EE84 /* Foundation.framework */ = {isa = PBXBuildFile; fileRef = E64DB86ECAA9CA472D15217F; };
 		EA4AB435EA212132B32522F0 /* audioanalyzerfirstimage.png */ = {isa = PBXBuildFile; fileRef = 4EC631C748E401C8A059DB3E; };
@@ -104,6 +105,7 @@
 		495AE307CE4B5CEC5EF59768 /* AudioSettingsModule.cpp */ /* AudioSettingsModule.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = AudioSettingsModule.cpp; path = ../../Source/AudioSettingsModule.cpp; sourceTree = SOURCE_ROOT; };
 		49A570884BA8354B0BFD461A /* freqPlotModule.h */ /* freqPlotModule.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = freqPlotModule.h; path = ../../Source/freqPlotModule.h; sourceTree = SOURCE_ROOT; };
 		4ACDBA4EB46616D6D8802321 /* juce_graphics */ /* juce_graphics */ = {isa = PBXFileReference; lastKnownFileType = folder; name = juce_graphics; path = ../../JuceLibraryCode/modules/juce_graphics; sourceTree = SOURCE_ROOT; };
+		4CAA2D93C1535C1111CC8224 /* NotchFilter.cpp */ /* NotchFilter.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = NotchFilter.cpp; path = ../../Source/NotchFilter.cpp; sourceTree = SOURCE_ROOT; };
 		4D62E649CCF127A4FE79C2CA /* audioAnalyzer_large_icon.png */ /* audioAnalyzer_large_icon.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = audioAnalyzer_large_icon.png; path = ../../Source/audioAnalyzer_large_icon.png; sourceTree = SOURCE_ROOT; };
 		4EC631C748E401C8A059DB3E /* audioanalyzerfirstimage.png */ /* audioanalyzerfirstimage.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = audioanalyzerfirstimage.png; path = ../../Source/audioanalyzerfirstimage.png; sourceTree = SOURCE_ROOT; };
 		50D3B2DBEBC4D762C444DE4B /* Main.cpp */ /* Main.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = Main.cpp; path = ../../Source/Main.cpp; sourceTree = SOURCE_ROOT; };
@@ -167,6 +169,7 @@
 		E55DA603B986AEBAC8B7D8BD /* BinaryData.h */ /* BinaryData.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = BinaryData.h; path = ../../JuceLibraryCode/BinaryData.h; sourceTree = SOURCE_ROOT; };
 		E64DB86ECAA9CA472D15217F /* Foundation.framework */ /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
 		EA00BB55652FD7C1DD980120 /* freqPlotModule.cpp */ /* freqPlotModule.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = freqPlotModule.cpp; path = ../../Source/freqPlotModule.cpp; sourceTree = SOURCE_ROOT; };
+		ED53219727D0ABBBA341DCC6 /* NotchFilter.h */ /* NotchFilter.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = NotchFilter.h; path = ../../Source/NotchFilter.h; sourceTree = SOURCE_ROOT; };
 		EDD35A7EC97DE333792F56F0 /* FFTModule.cpp */ /* FFTModule.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = FFTModule.cpp; path = ../../Source/FFTModule.cpp; sourceTree = SOURCE_ROOT; };
 		EE59BF1B0E47C0579F1E4899 /* cmp_downsampler.cpp */ /* cmp_downsampler.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = cmp_downsampler.cpp; path = ../../Source/cmp_downsampler.cpp; sourceTree = SOURCE_ROOT; };
 		F38FFF6A537015437C13EA14 /* juce_audio_basics */ /* juce_audio_basics */ = {isa = PBXFileReference; lastKnownFileType = folder; name = juce_audio_basics; path = ../../JuceLibraryCode/modules/juce_audio_basics; sourceTree = SOURCE_ROOT; };
@@ -242,6 +245,8 @@
 				42B82D20F91B2679F9D673DC,
 				30B6AFA8E961314EEE4306C8,
 				872E482C4DB566BBA1FC386D,
+				4CAA2D93C1535C1111CC8224,
+				ED53219727D0ABBBA341DCC6,
 				9DB0A8597631E0CC265AADD2,
 				856F76DDA0FCFFB66DF3BABA,
 				15E26AB519BF8B807C2920A8,
@@ -492,6 +497,7 @@
 				84E851A40E2809A47EB0FA86,
 				3215A3A74BF043330C9646A0,
 				ADDDEB60EA51F36CC5F3696E,
+				C85F023FBC4E0CEA125DEF78,
 				C0598ACC9C3CCA966C5B1226,
 				4DCDDC66EF5058C5980556A9,
 				DAE5FADA20FB7553D4185868,

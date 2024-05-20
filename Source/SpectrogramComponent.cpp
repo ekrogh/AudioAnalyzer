@@ -8,6 +8,7 @@
   ==============================================================================
 */
 
+#include "FFTModule.h"
 #include "SpectrogramComponent.h"
 
 #include <juce_audio_formats/juce_audio_formats.h>
@@ -24,10 +25,16 @@ SpectrogramComponent::SpectrogramComponent
 	AudioFormatManager& FM
 	,
 	std::shared_ptr<AudioDeviceManager> SADM
+	,
+	FFTModule* FFTMP
+	,
+	std::shared_ptr<freqPlotModule> FPM
 )
 	: formatManager(FM)
 	, AudioAppComponent(*SADM)
 	, spectrogramImage(Image::RGB, 600, 626, true)
+	, theFftModule(*FFTMP)
+	, module_freqPlot(FPM)
 {
 	setOpaque(true);
 
@@ -80,6 +87,32 @@ bool SpectrogramComponent::loadURLIntoSpectrum
 
 		resetVariables();
 
+		// Prepare cartesian plot
+		theFftModule.makeGraphAttributes(graph_attributes);
+		plotLegend = { "p " + std::to_string(plotLegend.size() + 1) };
+
+		module_freqPlot->setTitle("Frequency response [FFT]");
+		module_freqPlot->setXLabel("[Hz]");
+		module_freqPlot->setYLabel("[Magnitude]");
+
+		auto deltaHz = (float)reader->sampleRate / fftSize;
+		auto maxFreq = reader->sampleRate;
+
+		std::vector<float> tmpFreqVctr(0);
+		float freqVal = 0.0f;
+		while (freqVal < maxFreq)
+		{
+			tmpFreqVctr.push_back(freqVal);
+			freqVal += deltaHz;
+		}
+		tmpFreqVctr.resize(fftSize / 100);
+		frequencyValues = { tmpFreqVctr };
+
+		plotValues = frequencyValues;
+		module_freqPlot->updatePlot(plotValues, frequencyValues, graph_attributes, plotLegend);
+
+		//doRealTimeChartPlot = true;
+
 		thisIsAudioFile = true;
 		audioFileReadRunning = true;
 
@@ -111,6 +144,8 @@ bool SpectrogramComponent::loadURLIntoSpectrum
 void SpectrogramComponent::switchToMicrophoneInput()
 {
 	stopTimer();
+
+	doRealTimeChartPlot = false;
 
 	// Stop the threads
 	dataThread.signalThreadShouldExit();
@@ -281,9 +316,31 @@ void SpectrogramComponent::drawNextLineOfSpectrogram()
 	// then render our FFT data..
 	forwardFFT->performFrequencyOnlyForwardTransform(fftDataDraw, true);
 
+	if (doRealTimeChartPlot)
+	{
+		static bool doneFirst = false;
+
+		int sizeToUse = fftSize;
+		//int sizeToUse = fftSize / 100;
+
+		plotValues.clear();
+		plotValues.push_back(std::vector<float>(fftDataDraw, fftDataDraw + sizeToUse));
+		frequencyValues[0].resize(sizeToUse);
+		if (doneFirst)
+		{
+			module_freqPlot->updatePlotRealTime(plotValues);
+			//module_freqPlot->updatePlotRealTime(plotValues, frequencyValues);
+		}
+		else
+		{
+			module_freqPlot->updatePlot(plotValues, frequencyValues, graph_attributes, plotLegend);
+			doneFirst = true;
+		}
+	}
+
 	// find the range of values produced, so we can scale our rendering to
 	// show up the detail clearly
-	auto maxLevel = FloatVectorOperations::findMinAndMax(fftDataDraw, (int)fftSize / 2);
+	auto maxLevel = FloatVectorOperations::findMinAndMax(fftDataDraw, (int)fftSize);
 
 	for (auto y = 1; y < imageHeight; ++y)
 	{
@@ -291,8 +348,10 @@ void SpectrogramComponent::drawNextLineOfSpectrogram()
 		auto fftDataIndex = jlimit(0, (int)fftSize / 2, (int)(skewedProportionY * (int)fftSize / 2));
 		auto level = jmap(fftDataDraw[fftDataIndex], 0.0f, jmax(maxLevel.getEnd(), 1e-5f), 0.0f, 1.0f);
 
-		spectrogramImage.setPixelAt(rightHandEdge, y, Colour::fromHSV(level, 1.0f, level * 1.5f, 2.0f));
+		//spectrogramImage.setPixelAt(rightHandEdge, y, Colour::fromHSL(level, 1.0f, level + 0.1f, 1.0f));
+		spectrogramImage.setPixelAt(rightHandEdge, y, Colour::fromHSV(level, 1.0f, level + 0.03f, 1.0f));
 	}
+
 }
 
 
@@ -300,7 +359,7 @@ SpectrogramComponent::Generator<bool> SpectrogramComponent::readerToFftDataCopy(
 {
 	while (true)
 	{
-		AudioBuffer<float> theAudioBuffer =
+		theAudioBuffer =
 			AudioBuffer<float>::AudioBuffer
 			(
 				reader->numChannels
@@ -308,14 +367,16 @@ SpectrogramComponent::Generator<bool> SpectrogramComponent::readerToFftDataCopy(
 				fftSize
 			);
 
-		juce::int64 readerLngth = reader->lengthInSamples;
+		auto readerLngth = reader->lengthInSamples;
 
 		for
 			(
 				juce::int64 readerStartSample = 0
-				; readerStartSample < readerLngth
-				; readerStartSample += fftSize
-				)
+				;
+				readerStartSample < readerLngth
+				;
+				readerStartSample += fftSize
+			)
 		{
 			reader->read
 			(
@@ -331,6 +392,32 @@ SpectrogramComponent::Generator<bool> SpectrogramComponent::readerToFftDataCopy(
 				,
 				true
 			);
+
+			if (filterToUseChanged)
+			{
+				switch (filterToUse)
+				{
+					case filter50Hz:
+						{
+							theNotchFilter =
+								std::make_unique<NotchFilter>(50.0f, reader->sampleRate, reader->numChannels);
+							break;
+						}
+					case filter60Hz:
+						{
+							theNotchFilter =
+								std::make_unique<NotchFilter>(60.0f, reader->sampleRate, reader->numChannels);
+							break;
+						}
+
+				}
+				filterToUseChanged = false;
+			}
+
+			if (filterToUse != noFilter)
+			{
+				theNotchFilter->process(theAudioBuffer);
+			}
 
 			float theSum = 0.0f;
 			for (auto sampleNbr = 0; sampleNbr < theAudioBuffer.getNumSamples(); sampleNbr++)
@@ -360,7 +447,7 @@ int SpectrogramComponent::useTimeSlice()
 		{
 			// This is the data thread
 			if (!(readyToWriteSemaphore[writeBufferIndex]
-				.try_acquire_for(std::chrono::milliseconds(200))))
+				  .try_acquire_for(std::chrono::milliseconds(200))))
 			{
 				if (juce::Thread::currentThreadShouldExit())
 				{
@@ -396,7 +483,7 @@ int SpectrogramComponent::useTimeSlice()
 		{
 			// This is the draw thread
 			if (!(readyToReadSemaphore[readBufferIndex]
-				.try_acquire_for(std::chrono::milliseconds(200))))
+				  .try_acquire_for(std::chrono::milliseconds(200))))
 			{
 				if (juce::Thread::currentThreadShouldExit())
 				{
@@ -433,4 +520,10 @@ int SpectrogramComponent::useTimeSlice()
 void SpectrogramComponent::setAutoSwitchToInput(bool autoSwitch)
 {
 	autoSwitchToInput = autoSwitch;
+}
+
+void SpectrogramComponent::setFilterToUse(filterTypes theFilterType)
+{
+	filterToUse = theFilterType;
+	filterToUseChanged = true;
 }
