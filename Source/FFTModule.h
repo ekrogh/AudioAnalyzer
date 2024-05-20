@@ -515,7 +515,7 @@ public:
 			}
 			else
 			{
-				return 0; // "Stop" thread
+				return -1; // "Stop" thread
 			}
 		}
 		else if (currentThreadId == drawThread.getThreadId())
