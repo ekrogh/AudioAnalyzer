@@ -47,8 +47,10 @@ SpectrogramComponent::SpectrogramComponent
 	setSize(spectrogramImage.getWidth(), spectrogramImage.getHeight());
 
 	// Add this instance to the TimeSliceThreads
-	dataThread.addTimeSliceClient(this);
-	drawThread.addTimeSliceClient(this);
+	dataReadWriteThread.addTimeSliceClient(this);
+	fftCalculatorThread.addTimeSliceClient(this);
+	fftPlotThread.addTimeSliceClient(this);
+	spectrumDrawerThread.addTimeSliceClient(this);
 
 }
 
@@ -127,12 +129,16 @@ bool SpectrogramComponent::loadURLIntoSpectrum
 
 
 		// Add this instance to the TimeSliceThreads
-		dataThread.addTimeSliceClient(this);
-		drawThread.addTimeSliceClient(this);
+		dataReadWriteThread.addTimeSliceClient(this);
+		fftCalculatorThread.addTimeSliceClient(this);
+		fftPlotThread.addTimeSliceClient(this);
+		spectrumDrawerThread.addTimeSliceClient(this);
 
 		// Start the threads
-		dataThread.startThread();
-		drawThread.startThread();
+		dataReadWriteThread.startThread();
+		fftCalculatorThread.startThread();
+		fftPlotThread.startThread();
+		spectrumDrawerThread.startThread();
 
 
 	}
@@ -145,18 +151,28 @@ void SpectrogramComponent::switchToMicrophoneInput()
 {
 	stopTimer();
 
-	doRealTimeChartPlot = false;
+	doRealTimeFFtPlot = false;
 
 	// Stop the threads
-	dataThread.signalThreadShouldExit();
+	dataReadWriteThread.signalThreadShouldExit();
 	releaseAllSemaphores();
-	dataThread.stopThread(500);
-	dataThread.removeAllClients();
+	dataReadWriteThread.stopThread(500);
+	dataReadWriteThread.removeAllClients();
 
-	drawThread.signalThreadShouldExit();
+	fftCalculatorThread.signalThreadShouldExit();
 	releaseAllSemaphores();
-	drawThread.stopThread(500);
-	drawThread.removeAllClients();
+	fftCalculatorThread.stopThread(500);
+	fftCalculatorThread.removeAllClients();
+
+	fftPlotThread.signalThreadShouldExit();
+	releaseAllSemaphores();
+	fftPlotThread.stopThread(500);
+	fftPlotThread.removeAllClients();
+
+	spectrumDrawerThread.signalThreadShouldExit();
+	releaseAllSemaphores();
+	spectrumDrawerThread.stopThread(500);
+	spectrumDrawerThread.removeAllClients();
 
 	resetVariables();
 
@@ -172,26 +188,58 @@ void SpectrogramComponent::switchToMicrophoneInput()
 
 void SpectrogramComponent::releaseAllSemaphores()
 {
-	timerSemaphore.release();
-	readyToReadSemaphore[0].release(); // Set to 1
-	readyToReadSemaphore[1].release(); // Set to 1
-	readyToWriteSemaphore[0].release(); // Set to 1
-	readyToWriteSemaphore[1].release(); // Set to 1
+	for (auto& bfr : dataBuffers)
+	{
+		bfr.readyToWriteSemaphoreForDataReadWriteThreadForFftPlotThread.release();
+		bfr.readyToWriteSemaphoreForDataReadWriteThreadForSpectrumDrawerThread.release();
+		bfr.readyToWriteSemaphoreForFftCalculatorThread.release();
+		bfr.readyToWriteSemaphoreForFftPlotThread.release();
+		bfr.readyToWriteSemaphoreForSpectrumDrawerThread.release();
+
+		bfr.readyToReadSemaphoreForDataReadWriteThread.release();
+		bfr.readyToReadSemaphoreForFftCalculatorThread.release();
+		bfr.readyToReadSemaphoreForFftPlotThread.release();
+		bfr.readyToReadSemaphoreForSpectrumDrawerThread.release();
+	}
 }
 
 void SpectrogramComponent::resetVariables()
 {
 	spectrogramImage.clear(spectrogramImage.getBounds());
-	while (readyToReadSemaphore[0].try_acquire()) {};  // Remove all
-	while (readyToReadSemaphore[1].try_acquire()) {};  // Remove all
-	while (readyToWriteSemaphore[0].try_acquire()) {};  // Remove all
-	while (readyToWriteSemaphore[1].try_acquire()) {};  // Remove all
-	readyToWriteSemaphore[0].release(); // Set to 1
-	readyToWriteSemaphore[1].release(); // Set to 1
-	readBufferIndex = 0;  // Index of the buffer currently being read
-	writeBufferIndex = 1;  // Index of the buffer currently being filled
-	while (timerSemaphore.try_acquire()) {};  // Remove all
-	fftDataDraw = fftDataBuffers[readBufferIndex];
+	for (auto& bfr : dataBuffers)
+	{
+		while (bfr.readyToWriteSemaphoreForDataReadWriteThreadForFftPlotThread.try_acquire()) {};  // Remove all
+		while (bfr.readyToWriteSemaphoreForDataReadWriteThreadForSpectrumDrawerThread.try_acquire()) {};  // Remove all
+		while (bfr.readyToWriteSemaphoreForFftCalculatorThread.try_acquire()) {};  // Remove all
+		while (bfr.readyToWriteSemaphoreForFftPlotThread.try_acquire()) {};		   // Remove all
+		while (bfr.readyToWriteSemaphoreForSpectrumDrawerThread.try_acquire()) {}; // Remove all
+
+		while (bfr.readyToReadSemaphoreForDataReadWriteThread.try_acquire()) {};  // Remove all
+		while (bfr.readyToReadSemaphoreForFftCalculatorThread.try_acquire()) {};  // Remove all
+		while (bfr.readyToReadSemaphoreForFftPlotThread.try_acquire()) {};        // Remove all
+		while (bfr.readyToReadSemaphoreForSpectrumDrawerThread.try_acquire()) {}; // Remove all
+
+		bfr.readyToWriteSemaphoreForDataReadWriteThreadForFftPlotThread.release();
+		bfr.readyToWriteSemaphoreForDataReadWriteThreadForSpectrumDrawerThread.release();
+		//bfr.readyToWriteSemaphoreForFftCalculatorThread.release();
+		//bfr.readyToWriteSemaphoreForFftPlotThread.release();
+		//bfr.readyToWriteSemaphoreForSpectrumDrawerThread.release();
+
+	}
+
+	dataReadWriteBufferIndex = 0;
+	fftCalculatorBufferIndex = 0;
+	fftPlotBufferIndex = 0;
+	spectrumPlotBufferIndex = 0;
+
+	while (timerSemaphoreSpectrumPlot.try_acquire()) {}; // Remove all
+	while (timerSemaphoreFftPlot.try_acquire()) {};      // Remove all
+
+	dataReadWriteBuffer = dataBuffers[dataReadWriteBufferIndex].dataBuffer;
+	fftCalculatorBuffer = dataBuffers[fftCalculatorBufferIndex].dataBuffer;
+	fftPlotBuffer = dataBuffers[fftPlotBufferIndex].dataBuffer;
+	spectrumPlotBuffer = dataBuffers[spectrumPlotBufferIndex].dataBuffer;
+
 	fifoIndex = 0;
 	nextFFTBlockReady = false;
 }
@@ -208,7 +256,7 @@ void SpectrogramComponent::timerCallback()
 	}
 	else if (thisIsAudioFile)
 	{
-		timerSemaphore.release();  // Release the semaphore
+		timerSemaphoreSpectrumPlot.release();  // Release the semaphore
 	}
 	else if (nextFFTBlockReady)
 	{
@@ -256,8 +304,14 @@ void SpectrogramComponent::pushNextSampleIntoFifo(float sample) noexcept
 	{
 		if (!nextFFTBlockReady)
 		{
-			zeromem(fftDataDraw, sizeof(fftDataDraw));
-			memcpy(fftDataDraw, fifo, sizeof(fifo));
+			zeromem(spectrumPlotBuffer, sizeof(dataBuffers[spectrumPlotBufferIndex].dataBuffer));
+			memcpy(spectrumPlotBuffer, fifo, sizeof(fifo));
+			if (doRealTimeFFtPlot)
+			{
+				zeromem(fftPlotBuffer, sizeof(dataBuffers[fftPlotBufferIndex].dataBuffer));
+				memcpy(fftPlotBuffer, fifo, sizeof(fifo));
+			}
+
 			nextFFTBlockReady = true;
 		}
 
@@ -298,55 +352,15 @@ void SpectrogramComponent::drawNextLineOfSpectrogram()
 	// first, shuffle our image leftwards by 1 pixel..
 	spectrogramImage.moveImageSection(0, 0, 1, 0, rightHandEdge, imageHeight);
 
-	// Window the data
-	juce::dsp::WindowingFunction<float> theHannWindow
-	(
-		fftSize
-		,
-		juce::dsp::WindowingFunction<float>::WindowingMethod::hann
-	);
-
-	theHannWindow.multiplyWithWindowingTable
-	(
-		fftDataDraw
-		,
-		fftSize
-	);
-
-	// then render our FFT data..
-	forwardFFT->performFrequencyOnlyForwardTransform(fftDataDraw, true);
-
-	if (doRealTimeChartPlot)
-	{
-		static bool doneFirst = false;
-
-		int sizeToUse = fftSize;
-		//int sizeToUse = fftSize / 100;
-
-		plotValues.clear();
-		plotValues.push_back(std::vector<float>(fftDataDraw, fftDataDraw + sizeToUse));
-		frequencyValues[0].resize(sizeToUse);
-		if (doneFirst)
-		{
-			module_freqPlot->updatePlotRealTime(plotValues);
-			//module_freqPlot->updatePlotRealTime(plotValues, frequencyValues);
-		}
-		else
-		{
-			module_freqPlot->updatePlot(plotValues, frequencyValues, graph_attributes, plotLegend);
-			doneFirst = true;
-		}
-	}
-
 	// find the range of values produced, so we can scale our rendering to
 	// show up the detail clearly
-	auto maxLevel = FloatVectorOperations::findMinAndMax(fftDataDraw, (int)fftSize);
+	auto maxLevel = FloatVectorOperations::findMinAndMax(spectrumPlotBuffer, (int)fftSize);
 
 	for (auto y = 1; y < imageHeight; ++y)
 	{
 		auto skewedProportionY = 1.0f - std::exp(std::log((float)y / (float)imageHeight) * 0.2f);
 		auto fftDataIndex = jlimit(0, (int)fftSize / 2, (int)(skewedProportionY * (int)fftSize / 2));
-		auto level = jmap(fftDataDraw[fftDataIndex], 0.0f, jmax(maxLevel.getEnd(), 1e-5f), 0.0f, 1.0f);
+		auto level = jmap(spectrumPlotBuffer[fftDataIndex], 0.0f, jmax(maxLevel.getEnd(), 1e-5f), 0.0f, 1.0f);
 
 		//spectrogramImage.setPixelAt(rightHandEdge, y, Colour::fromHSL(level, 1.0f, level + 0.1f, 1.0f));
 		spectrogramImage.setPixelAt(rightHandEdge, y, Colour::fromHSV(level, 1.0f, level + 0.03f, 1.0f));
@@ -376,7 +390,7 @@ SpectrogramComponent::Generator<bool> SpectrogramComponent::readerToFftDataCopy(
 				readerStartSample < readerLngth
 				;
 				readerStartSample += fftSize
-			)
+				)
 		{
 			reader->read
 			(
@@ -427,7 +441,7 @@ SpectrogramComponent::Generator<bool> SpectrogramComponent::readerToFftDataCopy(
 				{
 					theSum += theAudioBuffer.getSample(channelNbr, sampleNbr);
 				}
-				fftDataWrite[sampleNbr] = theSum;
+				dataReadWriteBuffer[sampleNbr] = theSum;
 			}
 
 			co_yield true;
@@ -441,78 +455,217 @@ int SpectrogramComponent::useTimeSlice()
 {
 	auto currentThreadId = juce::Thread::getCurrentThreadId();
 
-	if ((currentThreadId == dataThread.getThreadId()))
+	if ((currentThreadId == dataReadWriteThread.getThreadId()))
 	{
 		if (audioFileReadRunning)
 		{
-			// This is the data thread
-			if (!(readyToWriteSemaphore[writeBufferIndex]
-				  .try_acquire_for(std::chrono::milliseconds(200))))
+			if (doRealTimeFFtPlot)
+			{
+				// This is the data thread
+				if (!(dataBuffers[dataReadWriteBufferIndex]
+					.readyToWriteSemaphoreForDataReadWriteThreadForFftPlotThread
+					.try_acquire_for(std::chrono::milliseconds(200))))
+				{
+					if (juce::Thread::currentThreadShouldExit())
+					{
+						return 10;
+					}
+					return 10;
+				}
+			}
+			if (!(dataBuffers[dataReadWriteBufferIndex]
+				.readyToWriteSemaphoreForDataReadWriteThreadForSpectrumDrawerThread
+				.try_acquire_for(std::chrono::milliseconds(200))))
 			{
 				if (juce::Thread::currentThreadShouldExit())
 				{
-					return -1;
+					return 10;
 				}
-				return -1;
+				return 10;
 			}
 			if (juce::Thread::currentThreadShouldExit())
 			{
-				return -1;
+				return 10;
 			}
 
-			//const juce::ScopedLock lock(criticalSections[writeBufferIndex]);  // Lock the critical section for the write buffer
+			try
+			{
+				audioFileReadRunning = gen();
+			}
+			catch (const std::exception& ex)
+			{
+				std::cerr << "Exception: " << ex.what() << '\n';
+			}
+			catch (...)
+			{
+				std::cerr << "Unknown exception.\n";
+			}
 
-			audioFileReadRunning = gen();
-
-			readyToReadSemaphore[writeBufferIndex].release();  // Signal the draw thread that data is ready
+			// Signal the draw thread that data is ready
+			dataBuffers[dataReadWriteBufferIndex]
+				.readyToWriteSemaphoreForFftCalculatorThread.release();
+			dataBuffers[dataReadWriteBufferIndex]
+				.readyToReadSemaphoreForFftCalculatorThread.release();
 
 			// switch the write buffer
-			writeBufferIndex ^= 1;  // Toggle the write buffer index
-			fftDataWrite = fftDataBuffers[writeBufferIndex];
+			++dataReadWriteBufferIndex %= numFftBuffers; // Next buffer next time
+			dataReadWriteBuffer = dataBuffers[dataReadWriteBufferIndex].dataBuffer;
 
 			return 0;
 		}
 		else
 		{
-			return -1; // "Stop" thread
+			return 10; // "Stop" thread
 		}
 	}
-	else if (currentThreadId == drawThread.getThreadId())
+	else if ((currentThreadId == fftCalculatorThread.getThreadId()))
 	{
-		if (timerSemaphore.try_acquire())  // Try to acquire the semaphore
+		if (audioFileReadRunning)
+		{
+			// This is the data thread
+			if (!(dataBuffers[fftCalculatorBufferIndex]
+				.readyToWriteSemaphoreForFftCalculatorThread
+				.try_acquire_for(std::chrono::milliseconds(200))))
+			{
+				return 10;
+			}
+			if (!(dataBuffers[fftCalculatorBufferIndex]
+				.readyToReadSemaphoreForFftCalculatorThread
+				.try_acquire_for(std::chrono::milliseconds(200))))
+			{
+				return 10;
+			}
+			if (juce::Thread::currentThreadShouldExit())
+			{
+				return 10;
+			}
+
+			// Window the data
+			juce::dsp::WindowingFunction<float> theHannWindow
+			(
+				fftSize
+				,
+				juce::dsp::WindowingFunction<float>::WindowingMethod::hann
+			);
+
+			theHannWindow.multiplyWithWindowingTable
+			(
+				fftCalculatorBuffer
+				,
+				fftSize
+			);
+
+			// then render our FFT data..
+			forwardFFT->performFrequencyOnlyForwardTransform(fftCalculatorBuffer, true);
+
+
+			// Signal the draw thread that data is ready
+			if (doRealTimeFFtPlot)
+			{
+				dataBuffers[fftCalculatorBufferIndex]
+					.readyToReadSemaphoreForFftPlotThread.release();
+			}
+			dataBuffers[fftCalculatorBufferIndex]
+				.readyToReadSemaphoreForSpectrumDrawerThread.release();
+
+			// switch the buffer
+			++fftCalculatorBufferIndex %= numFftBuffers; // Next buffer next time
+			fftCalculatorBuffer = dataBuffers[fftCalculatorBufferIndex].dataBuffer;
+
+			return 0;
+		}
+		else
+		{
+			return 10; // "Stop" thread
+		}
+	}
+	else if ((currentThreadId == fftPlotThread.getThreadId()))
+	{
+		if (doRealTimeFFtPlot && audioFileReadRunning)
+		{
+			// This is the data thread
+			if (!(dataBuffers[fftPlotBufferIndex]
+				.readyToReadSemaphoreForFftPlotThread
+				.try_acquire_for(std::chrono::milliseconds(200))))
+			{
+				return 10;
+			}
+			if (juce::Thread::currentThreadShouldExit())
+			{
+				return 10;
+			}
+
+			static bool doneFirst = false;
+
+			int sizeToUse = fftSize;
+			//int sizeToUse = fftSize / 100;
+
+			plotValues.clear();
+			plotValues.push_back(std::vector<float>(fftPlotBuffer, fftPlotBuffer + sizeToUse));
+			frequencyValues[0].resize(sizeToUse);
+			if (doneFirst)
+			{
+				module_freqPlot->updatePlotRealTime(plotValues);
+				//module_freqPlot->updatePlotRealTime(plotValues, frequencyValues);
+			}
+			else
+			{
+				module_freqPlot->updatePlot(plotValues, frequencyValues, graph_attributes, plotLegend);
+				doneFirst = true;
+			}
+
+			// Signal the draw thread that data is ready
+			dataBuffers[fftPlotBufferIndex]
+				.readyToWriteSemaphoreForDataReadWriteThreadForFftPlotThread.release();
+
+			// switch the write buffer
+			++fftPlotBufferIndex %= numFftBuffers; // Next buffer next time
+			fftPlotBuffer = dataBuffers[fftPlotBufferIndex].dataBuffer;
+
+			return 10;
+		}
+		else
+		{
+			return 10; // "Stop" thread
+		}
+	}
+	else if (currentThreadId == spectrumDrawerThread.getThreadId())
+	{
+		if (timerSemaphoreSpectrumPlot.try_acquire())  // Try to acquire the semaphore
 		{
 			// This is the draw thread
-			if (!(readyToReadSemaphore[readBufferIndex]
-				  .try_acquire_for(std::chrono::milliseconds(200))))
+			if (!(dataBuffers[spectrumPlotBufferIndex]
+				.readyToReadSemaphoreForSpectrumDrawerThread
+				.try_acquire_for(std::chrono::milliseconds(200))))
 			{
 				if (juce::Thread::currentThreadShouldExit())
 				{
-					return -1;
+					return 10;
 				}
 				if (autoSwitchToInput)
 				{
 					doSwitchToMicrophoneInput = true;
 				}
-				return -1;
+				return 10;
 			}
 			if (juce::Thread::currentThreadShouldExit())
 			{
-				return -1;
+				return 10;
 			}
-
-			//const juce::ScopedLock lock(criticalSections[readBufferIndex]);  // Lock the critical section for the read buffer
 
 			drawNextLineOfSpectrogram();
 
 			MessageManager::callAsync([this]() { repaint(); });
 
-			readyToWriteSemaphore[readBufferIndex].release();  // Signal the data thread that it can start writing
+			// Signal the data thread that it can start writing
+			dataBuffers[spectrumPlotBufferIndex]
+				.readyToWriteSemaphoreForDataReadWriteThreadForSpectrumDrawerThread.release();
 
 			// switch the read buffer
-			readBufferIndex ^= 1;  // Toggle the read buffer index
-			fftDataDraw = fftDataBuffers[readBufferIndex];
+			++spectrumPlotBufferIndex %= numFftBuffers; // Next buffer next time
+			spectrumPlotBuffer = dataBuffers[spectrumPlotBufferIndex].dataBuffer;
 		}
-		return 0;
+		return 10;
 	}
 
 }

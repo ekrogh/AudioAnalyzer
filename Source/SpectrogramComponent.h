@@ -152,9 +152,9 @@ public:
 		JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(Generator)
 	};
 
+	Generator<bool> readerToFftDataCopy();
 	Generator<bool> gen = readerToFftDataCopy();
 
-	Generator<bool> readerToFftDataCopy();
 
 	int useTimeSlice() override;
 
@@ -168,7 +168,8 @@ private:
 	std::vector <std::vector<float>> plotValues{ { 1 }, { 1 } };
 	cmp::GraphAttributeList graph_attributes;
 	cmp::StringVector plotLegend{ "1", "2" };
-	bool doRealTimeChartPlot = false;
+
+	bool doRealTimeFFtPlot = false;
 
 	FFTModule& theFftModule;
 
@@ -183,17 +184,57 @@ private:
 	juce::ToggleButton* spectrumOfaudioFile__toggleButton;
 	juce::ToggleButton* makespectrumOfInput__toggleButton;
 
-	juce::TimeSliceThread dataThread{ "Data Thread" };
-	juce::TimeSliceThread drawThread{ "Draw Thread" };
-	std::array<juce::CriticalSection, 2> criticalSections;  // Array of two CriticalSection objects
-	std::array<float[2 * fftSize], 2> fftDataBuffers;  // Array of two fftData buffers
-	std::array<std::binary_semaphore, 2> readyToReadSemaphore =
-	{ std::binary_semaphore{0}, std::binary_semaphore{0} };  // Semaphores to signal when data is ready to be read
-	std::array<std::binary_semaphore, 2> readyToWriteSemaphore =
-	{ std::binary_semaphore{1}, std::binary_semaphore{1} };  // Semaphores to signal when data is ready to be written
-	std::int_fast8_t readBufferIndex = 0;  // Index of the buffer currently being read
-	std::int_fast8_t writeBufferIndex = 1;  // Index of the buffer currently being filled
-	std::binary_semaphore timerSemaphore{ 1 };  // Add this line to declare the semaphore
+
+	struct dataBuffers
+	{
+		float dataBuffer[2 * fftSize];
+
+		std::binary_semaphore
+			readyToWriteSemaphoreForDataReadWriteThreadForFftPlotThread =
+				std::binary_semaphore{ 1 };
+		std::binary_semaphore
+			readyToWriteSemaphoreForDataReadWriteThreadForSpectrumDrawerThread =
+				std::binary_semaphore{ 1 };
+		std::binary_semaphore readyToWriteSemaphoreForFftCalculatorThread =
+			std::binary_semaphore{ 0 };
+		std::binary_semaphore readyToWriteSemaphoreForFftPlotThread =
+			std::binary_semaphore{ 0 };
+		std::binary_semaphore readyToWriteSemaphoreForSpectrumDrawerThread =
+			std::binary_semaphore{ 0 };
+
+		std::binary_semaphore readyToReadSemaphoreForDataReadWriteThread =
+			std::binary_semaphore{ 0 };
+		std::binary_semaphore readyToReadSemaphoreForFftCalculatorThread =
+			std::binary_semaphore{ 0 };
+		std::binary_semaphore readyToReadSemaphoreForFftPlotThread =
+			std::binary_semaphore{ 0 };
+		std::binary_semaphore readyToReadSemaphoreForSpectrumDrawerThread =
+			std::binary_semaphore{ 0 };
+	};
+
+	std::vector<dataBuffers> dataBuffers{ numFftBuffers };
+
+	juce::TimeSliceThread dataReadWriteThread{ "Data Read/Write Thread" };
+	juce::TimeSliceThread fftCalculatorThread{ "FFT Calculator Thread" };
+	juce::TimeSliceThread fftPlotThread{ "FFT Plot Thread" };
+	juce::TimeSliceThread spectrumDrawerThread{ "Spectrum Drawer Thread" };
+
+	std::int_fast8_t dataReadWriteBufferIndex = 0;
+	std::int_fast8_t fftCalculatorBufferIndex = 0;  // FFT Calculator Buffer Index
+	std::int_fast8_t fftPlotBufferIndex = 0;  // Index fftPlot buffer index
+	std::int_fast8_t spectrumPlotBufferIndex = 0;  // Index of the buffer currently being 
+	
+	float* dataReadWriteBuffer = dataBuffers[dataReadWriteBufferIndex].dataBuffer;
+	float* fftCalculatorBuffer = dataBuffers[fftCalculatorBufferIndex].dataBuffer;
+	float* fftPlotBuffer =		 dataBuffers[fftPlotBufferIndex].dataBuffer;
+	float* spectrumPlotBuffer =  dataBuffers[spectrumPlotBufferIndex].dataBuffer;
+	float fifo[fftSize] = { 0 };
+	int fifoIndex = 0;
+	bool nextFFTBlockReady = false;
+
+	std::binary_semaphore timerSemaphoreFftPlot{ 1 };
+	std::binary_semaphore timerSemaphoreSpectrumPlot{ 1 };
+
 
 	bool thisIsAudioFile = false;
 	bool audioFileReadRunning = false;
@@ -201,12 +242,6 @@ private:
 
 	juce::Image spectrogramImage;
 	std::unique_ptr<juce::dsp::FFT> forwardFFT = std::make_unique<dsp::FFT>(fftOrder);
-
-	float fifo[fftSize] = { 0 };
-	float* fftDataDraw = fftDataBuffers[readBufferIndex];
-	float* fftDataWrite = fftDataBuffers[writeBufferIndex];
-	int fifoIndex = 0;
-	bool nextFFTBlockReady = false;
 
 	AudioFormatManager& formatManager;
 	std::unique_ptr<AudioFormatReader> reader;
