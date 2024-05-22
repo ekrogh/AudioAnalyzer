@@ -56,6 +56,7 @@ public:
 
 private:
     //[UserVariables]   -- You can add your own custom variables in this section.
+    std::shared_ptr<SpectrogramComponent> ptrSpectrogramComponent;
     unsigned int fftOrder = 0;
 	unsigned int fftSize = 0;
 	std::shared_ptr<AudioDeviceManager> sharedAudioDeviceManager;

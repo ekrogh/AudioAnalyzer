@@ -24,10 +24,10 @@ FFTModule::FFTModule
 
 	formatManager.registerBasicFormats();
 
-	spectrogramCmpnt =
-		std::make_unique<SpectrogramComponent>(formatManager, SADM, this, FPM);
+	ptrSpectrogramComponent =
+		std::make_shared<SpectrogramComponent>(formatManager, SADM, this, FPM);
 
-	addAndMakeVisible(spectrogramCmpnt.get());
+	addAndMakeVisible(ptrSpectrogramComponent.get());
 	setOpaque(true);
 
 	forwardFFT
@@ -347,7 +347,7 @@ void FFTModule::openAudioFile
 				juce::URL theUrl = fc.getURLResult();
 
 				// Make spectrum plot
-				spectrogramCmpnt->loadURLIntoSpectrum
+				ptrSpectrogramComponent->loadURLIntoSpectrum
 				(
 					theUrl
 					, spectrumOfaudioFile__toggleButton
@@ -400,7 +400,7 @@ void FFTModule::switchToMicrophoneInput()
 	transportSource.setSource(nullptr);
 	currentAudioFileSource.reset(nullptr);
 
-	spectrogramCmpnt->switchToMicrophoneInput();
+	ptrSpectrogramComponent->switchToMicrophoneInput();
 }
 
 bool FFTModule::makeWhiteNoise
@@ -764,10 +764,25 @@ void FFTModule::showValues
 
 void FFTModule::setAutoSwitchToInput(bool autoSwitch)
 {
-	spectrogramCmpnt->setAutoSwitchToInput(autoSwitch);
+	ptrSpectrogramComponent->setAutoSwitchToInput(autoSwitch);
 }
 
 void FFTModule::setFilterToUse(filterTypes theFilterType)
 {
-	spectrogramCmpnt->setFilterToUse(theFilterType);
+	ptrSpectrogramComponent->setFilterToUse(theFilterType);
+}
+
+void FFTModule::setDoRealTimeFftChartPlot(bool doRTFftCP)
+{
+	ptrSpectrogramComponent->setDoRealTimeFftChartPlot(doRTFftCP);
+}
+
+void FFTModule::setMaxFreqInRealTimeFftChartPlot(double maxFRTFftCP)
+{
+	ptrSpectrogramComponent->setMaxFreqInRealTimeFftChartPlot(maxFRTFftCP);
+}
+
+std::shared_ptr<SpectrogramComponent> FFTModule::getPtrSpectrogramComponent()
+{
+	return ptrSpectrogramComponent;
 }

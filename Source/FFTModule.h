@@ -163,10 +163,15 @@ public:
 	);
 	
 
-
 	void setAutoSwitchToInput(bool autoSwitch);
 
 	void setFilterToUse(filterTypes theFilterType);
+
+	void setDoRealTimeFftChartPlot(bool doRTFftCP);
+
+	void setMaxFreqInRealTimeFftChartPlot(double axFITFftCP);
+
+	std::shared_ptr<SpectrogramComponent> getPtrSpectrogramComponent();
 
 private:
 	AudioDeviceManager& deviceManager;
@@ -193,7 +198,7 @@ private:
 
 	std::shared_ptr<freqPlotModule> module_freqPlot;
 
-	std::unique_ptr<SpectrogramComponent> spectrogramCmpnt;
+	std::shared_ptr<SpectrogramComponent> ptrSpectrogramComponent;
 
 	FileChooser chooser
 	{

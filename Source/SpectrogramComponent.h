@@ -25,8 +25,7 @@ class FFTModule;
 class SpectrogramComponent
 	: public AudioAppComponent
 	, private Timer
-	, private juce::TimeSliceClient
-
+	, private Thread
 {
 public:
 	SpectrogramComponent
@@ -67,8 +66,11 @@ public:
 
 	void paint(juce::Graphics& g) override;
 
-	void drawNextLineOfSpectrogram();
+	void drawNextLineOfSpectrogramAndFftPlotUpdate();
 
+	void doFFT(float* fftBuffer, auto fftSize);
+
+	void run() override; // Called from Thread
 
 	template <typename T>
 	struct Generator
@@ -155,26 +157,31 @@ public:
 	Generator<bool> readerToFftDataCopy();
 	Generator<bool> gen = readerToFftDataCopy();
 
-
-	int useTimeSlice() override;
-
 	void setAutoSwitchToInput(bool autoSwitch);
 
 	void setFilterToUse(filterTypes theFilterType);
 
+	void setDoRealTimeFftChartPlot(bool doRTFftCP);
+	void initRealTimeFftChartPlot();
+
+	void setMaxFreqInRealTimeFftChartPlot(double axFITFftCP);
+
 private:
+	WaitableEvent weSpectrumDataReady;
+
 	std::shared_ptr<freqPlotModule> module_freqPlot;
 	std::vector <std::vector<float>> frequencyValues{ { 1 }, { 1 } };
 	std::vector <std::vector<float>> plotValues{ { 1 }, { 1 } };
 	cmp::GraphAttributeList graph_attributes;
 	cmp::StringVector plotLegend{ "1", "2" };
 
-	bool doRealTimeFFtPlot = false;
+	bool doRealTimeFftChartPlot = false;
+	double maxFreqInRealTimeFftChartPlot = 22050.0f;
+	int sizeToUseInFreqInRealTimeFftChartPlot = fftSize;
 
 	FFTModule& theFftModule;
 
 	filterTypes filterToUse = noFilter;
-	bool filterToUseChanged = false;
 
 	std::unique_ptr<NotchFilter> theNotchFilter;
 	AudioBuffer<float> theAudioBuffer;
@@ -185,56 +192,17 @@ private:
 	juce::ToggleButton* makespectrumOfInput__toggleButton;
 
 
-	struct dataBuffers
-	{
-		float dataBuffer[2 * fftSize];
+	std::array<float[2 * fftSize], 2> fftDataBuffers;  // Array of two fftData buffers
+	int fftDataInBufferIndex = 0;  // Index of the buffer currently being filled
+	int fftDataOutBufferIndex = 0;  // Index of the buffer currently being read
 
-		std::binary_semaphore
-			readyToWriteSemaphoreForDataReadWriteThreadForFftPlotThread =
-				std::binary_semaphore{ 1 };
-		std::binary_semaphore
-			readyToWriteSemaphoreForDataReadWriteThreadForSpectrumDrawerThread =
-				std::binary_semaphore{ 1 };
-		std::binary_semaphore readyToWriteSemaphoreForFftCalculatorThread =
-			std::binary_semaphore{ 0 };
-		std::binary_semaphore readyToWriteSemaphoreForFftPlotThread =
-			std::binary_semaphore{ 0 };
-		std::binary_semaphore readyToWriteSemaphoreForSpectrumDrawerThread =
-			std::binary_semaphore{ 0 };
+	float* fftDataInBuffer = fftDataBuffers[fftDataInBufferIndex];
+	float* fftDataOutBuffer = fftDataBuffers[fftDataOutBufferIndex];
 
-		std::binary_semaphore readyToReadSemaphoreForDataReadWriteThread =
-			std::binary_semaphore{ 0 };
-		std::binary_semaphore readyToReadSemaphoreForFftCalculatorThread =
-			std::binary_semaphore{ 0 };
-		std::binary_semaphore readyToReadSemaphoreForFftPlotThread =
-			std::binary_semaphore{ 0 };
-		std::binary_semaphore readyToReadSemaphoreForSpectrumDrawerThread =
-			std::binary_semaphore{ 0 };
-	};
-
-	std::vector<dataBuffers> dataBuffers{ numFftBuffers };
-
-	juce::TimeSliceThread dataReadWriteThread{ "Data Read/Write Thread" };
-	juce::TimeSliceThread fftCalculatorThread{ "FFT Calculator Thread" };
-	juce::TimeSliceThread fftPlotThread{ "FFT Plot Thread" };
-	juce::TimeSliceThread spectrumDrawerThread{ "Spectrum Drawer Thread" };
-
-	std::int_fast8_t dataReadWriteBufferIndex = 0;
-	std::int_fast8_t fftCalculatorBufferIndex = 0;  // FFT Calculator Buffer Index
-	std::int_fast8_t fftPlotBufferIndex = 0;  // Index fftPlot buffer index
-	std::int_fast8_t spectrumPlotBufferIndex = 0;  // Index of the buffer currently being 
-	
-	float* dataReadWriteBuffer = dataBuffers[dataReadWriteBufferIndex].dataBuffer;
-	float* fftCalculatorBuffer = dataBuffers[fftCalculatorBufferIndex].dataBuffer;
-	float* fftPlotBuffer =		 dataBuffers[fftPlotBufferIndex].dataBuffer;
-	float* spectrumPlotBuffer =  dataBuffers[spectrumPlotBufferIndex].dataBuffer;
 	float fifo[fftSize] = { 0 };
 	int fifoIndex = 0;
 	bool nextFFTBlockReady = false;
-
-	std::binary_semaphore timerSemaphoreFftPlot{ 1 };
-	std::binary_semaphore timerSemaphoreSpectrumPlot{ 1 };
-
+	double curSampleRate = 44100.0f; // Hz
 
 	bool thisIsAudioFile = false;
 	bool audioFileReadRunning = false;
