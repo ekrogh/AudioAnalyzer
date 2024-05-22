@@ -62,6 +62,8 @@ bool SpectrogramComponent::loadURLIntoSpectrum
 {
 	if (!(theUrl.isEmpty()))
 	{
+		const ScopedLock sl(fftLockMutex);
+
 		spectrumOfaudioFile__toggleButton = spectrumOfaudioFile__toggleButtonPtr;
 		makespectrumOfInput__toggleButton = makespectrumOfInput__toggleButtonPtr;
 
@@ -437,6 +439,8 @@ void SpectrogramComponent::setFilterToUse(filterTypes theFilterType)
 
 void SpectrogramComponent::initRealTimeFftChartPlot()
 {
+	const ScopedLock sl(fftLockMutex);
+
 	if (doRealTimeFftChartPlot)
 	{
 		theFftModule.makeGraphAttributes(graph_attributes);
@@ -455,6 +459,8 @@ void SpectrogramComponent::initRealTimeFftChartPlot()
 
 void SpectrogramComponent::fillRTChartPlotFrequencyValues()
 {
+	const ScopedLock sl(fftLockMutex);
+
 	auto deltaHz = (float)curSampleRate / fftSize;
 	auto maxFreq = maxFreqInRealTimeFftChartPlot;
 
@@ -470,6 +476,8 @@ void SpectrogramComponent::fillRTChartPlotFrequencyValues()
 
 void SpectrogramComponent::setDoRealTimeFftChartPlot(bool doRTFftCP)
 {
+	const ScopedLock sl(fftLockMutex);
+
 	doRealTimeFftChartPlot = doRTFftCP;
 
 	initRealTimeFftChartPlot();
@@ -477,6 +485,7 @@ void SpectrogramComponent::setDoRealTimeFftChartPlot(bool doRTFftCP)
 
 void SpectrogramComponent::setMaxFreqInRealTimeFftChartPlot(double maxFRTFftCP)
 {
+	const ScopedLock sl(fftLockMutex);
 	maxFreqInRealTimeFftChartPlot = maxFRTFftCP;
 
 	sizeToUseInFreqInRealTimeFftChartPlot
