@@ -66,9 +66,9 @@ public:
 
 	void paint(juce::Graphics& g) override;
 
-	void drawNextLineOfSpectrogramAndFftPlotUpdate();
+	void drawNextLineOfSpectrogramAndFftPlotUpdate(float* fftDataBuffer, unsigned int& fftSize);
 
-	void doFFT(float* fftBuffer, auto fftSize);
+	void doFFT(float* fftDataBuffer, unsigned int& fftSize);
 
 	void run() override; // Called from Thread
 
@@ -163,11 +163,22 @@ public:
 
 	void setDoRealTimeFftChartPlot(bool doRTFftCP);
 	void initRealTimeFftChartPlot();
+	void fillRTChartPlotFrequencyValues();
 
 	void setMaxFreqInRealTimeFftChartPlot(double axFITFftCP);
 
+	void setFftOrderAndFftSize(unsigned int fftOrder, unsigned int fftSize);
+
 private:
+
+	CriticalSection fftLockMutex;
+
 	WaitableEvent weSpectrumDataReady;
+
+	unsigned int fftOrder = defaultFFTValues::fftOrder;
+	unsigned int fftSize = defaultFFTValues::fftSize;
+	double curSampleRate = 44100.0f; // Hz
+	unsigned int numChannels = 1;
 
 	std::shared_ptr<freqPlotModule> module_freqPlot;
 	std::vector <std::vector<float>> frequencyValues{ { 1 }, { 1 } };
@@ -191,18 +202,25 @@ private:
 	juce::ToggleButton* spectrumOfaudioFile__toggleButton;
 	juce::ToggleButton* makespectrumOfInput__toggleButton;
 
+	std::array<float*, 2> fftDataBuffers
+	{
+		new float[2 * defaultFFTValues::fftSize]
+		,
+		new float[2 * defaultFFTValues::fftSize]
+	};
+	unsigned long long sizeOfFftDataBuffersInBytes = 2 * defaultFFTValues::fftSize * sizeof(float);
 
-	std::array<float[2 * fftSize], 2> fftDataBuffers;  // Array of two fftData buffers
 	int fftDataInBufferIndex = 0;  // Index of the buffer currently being filled
 	int fftDataOutBufferIndex = 0;  // Index of the buffer currently being read
 
 	float* fftDataInBuffer = fftDataBuffers[fftDataInBufferIndex];
 	float* fftDataOutBuffer = fftDataBuffers[fftDataOutBufferIndex];
 
-	float fifo[fftSize] = { 0 };
+	float* fifo = new float[defaultFFTValues::fftSize] { 0 };
+	unsigned long long sizeOfFFifoInBytes = defaultFFTValues::fftSize * sizeof(float);
+
 	int fifoIndex = 0;
 	bool nextFFTBlockReady = false;
-	double curSampleRate = 44100.0f; // Hz
 
 	bool thisIsAudioFile = false;
 	bool audioFileReadRunning = false;

@@ -761,17 +761,6 @@ void FFTModule::showValues
 	Sample_Freq__textEditor->setText(String(sampleFreq));
 }
 
-
-void FFTModule::setAutoSwitchToInput(bool autoSwitch)
-{
-	ptrSpectrogramComponent->setAutoSwitchToInput(autoSwitch);
-}
-
-void FFTModule::setFilterToUse(filterTypes theFilterType)
-{
-	ptrSpectrogramComponent->setFilterToUse(theFilterType);
-}
-
 void FFTModule::setDoRealTimeFftChartPlot(bool doRTFftCP)
 {
 	ptrSpectrogramComponent->setDoRealTimeFftChartPlot(doRTFftCP);

@@ -18,6 +18,7 @@
 */
 
 //[Headers] You can add your own extra header files here...
+#include "SpectrogramComponent.h"
 //[/Headers]
 
 #include "FFTCtrl.h"
@@ -30,7 +31,8 @@
 FFTCtrl::FFTCtrl (std::shared_ptr<FFTModule> ptr_module_FFT, std::shared_ptr<AudioDeviceManager> SADM, std::shared_ptr<freqPlotModule> FPM)
     : sharedAudioDeviceManager(SADM),
       module_FFT(ptr_module_FFT),
-      module_freqPlot(FPM)
+      module_freqPlot(FPM),
+      ptrSpectrogramComponent(ptr_module_FFT->getPtrSpectrogramComponent())
 {
     //[Constructor_pre] You can add your own custom stuff here..
     //[/Constructor_pre]
@@ -157,7 +159,7 @@ FFTCtrl::FFTCtrl (std::shared_ptr<FFTModule> ptr_module_FFT, std::shared_ptr<Aud
     Nbr_Samples__textEditor->setScrollbarsShown (true);
     Nbr_Samples__textEditor->setCaretVisible (true);
     Nbr_Samples__textEditor->setPopupMenuEnabled (true);
-    Nbr_Samples__textEditor->setText (TRANS ("4096"));
+    Nbr_Samples__textEditor->setText (TRANS ("1024"));
 
     Nbr_Samples__textEditor->setBounds (16, 224, 150, 24);
 
@@ -187,7 +189,7 @@ FFTCtrl::FFTCtrl (std::shared_ptr<FFTModule> ptr_module_FFT, std::shared_ptr<Aud
     fftOrder__textEditor->setScrollbarsShown (true);
     fftOrder__textEditor->setCaretVisible (true);
     fftOrder__textEditor->setPopupMenuEnabled (true);
-    fftOrder__textEditor->setText (TRANS ("12"));
+    fftOrder__textEditor->setText (TRANS ("10"));
 
     fftOrder__textEditor->setBounds (192, 224, 150, 24);
 
@@ -214,7 +216,7 @@ FFTCtrl::FFTCtrl (std::shared_ptr<FFTModule> ptr_module_FFT, std::shared_ptr<Aud
     fftSize__label->setBounds (192, 254, 150, 24);
 
     fftSizeNbr__label.reset (new juce::Label ("fftSizeNbr label",
-                                              TRANS ("4096")));
+                                              TRANS ("1024")));
     addAndMakeVisible (fftSizeNbr__label.get());
     fftSizeNbr__label->setFont (juce::Font (15.00f, juce::Font::plain).withTypefaceStyle ("Regular"));
     fftSizeNbr__label->setJustificationType (juce::Justification::centredLeft);
@@ -233,12 +235,12 @@ FFTCtrl::FFTCtrl (std::shared_ptr<FFTModule> ptr_module_FFT, std::shared_ptr<Aud
 
     spectrumOfaudioFile__toggleButton.reset (new juce::ToggleButton ("spectrumOfaudioFile toggle button"));
     addAndMakeVisible (spectrumOfaudioFile__toggleButton.get());
-    spectrumOfaudioFile__toggleButton->setButtonText (TRANS ("Make spectrum of audio file  "));
+    spectrumOfaudioFile__toggleButton->setButtonText (TRANS ("Make plots of audio file  "));
     spectrumOfaudioFile__toggleButton->setConnectedEdges (juce::Button::ConnectedOnTop);
     spectrumOfaudioFile__toggleButton->setRadioGroupId (1);
     spectrumOfaudioFile__toggleButton->addListener (this);
 
-    spectrumOfaudioFile__toggleButton->setBounds (192, 362, 150, 24);
+    spectrumOfaudioFile__toggleButton->setBounds (192, 465, 158, 24);
 
     makespectrumOfInput__toggleButton.reset (new juce::ToggleButton ("makespectrumOfInput toggle button"));
     addAndMakeVisible (makespectrumOfInput__toggleButton.get());
@@ -255,7 +257,7 @@ FFTCtrl::FFTCtrl (std::shared_ptr<FFTModule> ptr_module_FFT, std::shared_ptr<Aud
     autoSwitchToInput__toggleButton->setButtonText (TRANS ("Auto switch to input"));
     autoSwitchToInput__toggleButton->addListener (this);
 
-    autoSwitchToInput__toggleButton->setBounds (192, 401, 150, 24);
+    autoSwitchToInput__toggleButton->setBounds (192, 505, 150, 24);
 
     use50HzFilter__toggleButton.reset (new juce::ToggleButton ("use50HzFilter toggle button"));
     addAndMakeVisible (use50HzFilter__toggleButton.get());
@@ -264,7 +266,7 @@ FFTCtrl::FFTCtrl (std::shared_ptr<FFTModule> ptr_module_FFT, std::shared_ptr<Aud
     use50HzFilter__toggleButton->setRadioGroupId (2);
     use50HzFilter__toggleButton->addListener (this);
 
-    use50HzFilter__toggleButton->setBounds (192, 445, 150, 24);
+    use50HzFilter__toggleButton->setBounds (192, 544, 150, 24);
 
     use60HzFilter__toggleButton.reset (new juce::ToggleButton ("use60HzFilter toggle button"));
     addAndMakeVisible (use60HzFilter__toggleButton.get());
@@ -273,7 +275,7 @@ FFTCtrl::FFTCtrl (std::shared_ptr<FFTModule> ptr_module_FFT, std::shared_ptr<Aud
     use60HzFilter__toggleButton->setRadioGroupId (2);
     use60HzFilter__toggleButton->addListener (this);
 
-    use60HzFilter__toggleButton->setBounds (192, 485, 150, 24);
+    use60HzFilter__toggleButton->setBounds (192, 575, 150, 24);
 
     useNoFilter__toggleButton.reset (new juce::ToggleButton ("useNoFilter toggle button"));
     addAndMakeVisible (useNoFilter__toggleButton.get());
@@ -283,7 +285,37 @@ FFTCtrl::FFTCtrl (std::shared_ptr<FFTModule> ptr_module_FFT, std::shared_ptr<Aud
     useNoFilter__toggleButton->addListener (this);
     useNoFilter__toggleButton->setToggleState (true, juce::dontSendNotification);
 
-    useNoFilter__toggleButton->setBounds (192, 525, 150, 24);
+    useNoFilter__toggleButton->setBounds (192, 615, 150, 24);
+
+    makeFFtRealTimeChartPlot__toggleButton.reset (new juce::ToggleButton ("makeFFtRealTimeChartPlot toggle button"));
+    addAndMakeVisible (makeFFtRealTimeChartPlot__toggleButton.get());
+    makeFFtRealTimeChartPlot__toggleButton->setButtonText (TRANS ("Make FFT real time chart plot"));
+    makeFFtRealTimeChartPlot__toggleButton->addListener (this);
+
+    makeFFtRealTimeChartPlot__toggleButton->setBounds (192, 360, 183, 24);
+
+    maxFreqInFFTChart__textEditor.reset (new juce::TextEditor ("max Freq In FFT Chart editor"));
+    addAndMakeVisible (maxFreqInFFTChart__textEditor.get());
+    maxFreqInFFTChart__textEditor->setMultiLine (false);
+    maxFreqInFFTChart__textEditor->setReturnKeyStartsNewLine (false);
+    maxFreqInFFTChart__textEditor->setReadOnly (false);
+    maxFreqInFFTChart__textEditor->setScrollbarsShown (true);
+    maxFreqInFFTChart__textEditor->setCaretVisible (true);
+    maxFreqInFFTChart__textEditor->setPopupMenuEnabled (true);
+    maxFreqInFFTChart__textEditor->setText (TRANS ("22050"));
+
+    maxFreqInFFTChart__textEditor->setBounds (192, 425, 150, 24);
+
+    maxFreqToUsEInFFtChartPlot__label.reset (new juce::Label ("maxFreqToUsEInFFtChartPlot label",
+                                                              TRANS ("Max freq to show in FFT chart plot")));
+    addAndMakeVisible (maxFreqToUsEInFFtChartPlot__label.get());
+    maxFreqToUsEInFFtChartPlot__label->setFont (juce::Font (15.00f, juce::Font::plain).withTypefaceStyle ("Regular"));
+    maxFreqToUsEInFFtChartPlot__label->setJustificationType (juce::Justification::centredLeft);
+    maxFreqToUsEInFFtChartPlot__label->setEditable (false, false, false);
+    maxFreqToUsEInFFtChartPlot__label->setColour (juce::TextEditor::textColourId, juce::Colours::black);
+    maxFreqToUsEInFFtChartPlot__label->setColour (juce::TextEditor::backgroundColourId, juce::Colour (0x00000000));
+
+    maxFreqToUsEInFFtChartPlot__label->setBounds (192, 395, 174, 24);
 
 
     //[UserPreSize]
@@ -299,6 +331,9 @@ FFTCtrl::FFTCtrl (std::shared_ptr<FFTModule> ptr_module_FFT, std::shared_ptr<Aud
 	fftOrder__textEditor->setInputRestrictions(10, "1234567890");
 	fftOrder__textEditor->setSelectAllWhenFocused(true);
 	fftOrder__textEditor->setKeyboardType(juce::TextInputTarget::VirtualKeyboardType::numericKeyboard);
+    maxFreqInFFTChart__textEditor->setInputRestrictions(10, "1234567890.");
+    maxFreqInFFTChart__textEditor->setSelectAllWhenFocused(true);
+    maxFreqInFFTChart__textEditor->setKeyboardType(juce::TextInputTarget::VirtualKeyboardType::numericKeyboard);
 
 	Nbr_Samples__textEditor->onReturnKey =
 		[this]
@@ -316,14 +351,14 @@ FFTCtrl::FFTCtrl (std::shared_ptr<FFTModule> ptr_module_FFT, std::shared_ptr<Aud
 			fftSize = 1 << fftOrder;
 			setValues(fftOrder, fftSize);
 		};
-	Nbr_Samples__textEditor->onTextChange =
-		[this]
-		{
-			fftOrder =
-				static_cast<unsigned int>(std::log2(Nbr_Samples__textEditor->getText().getIntValue()));
-			fftSize = 1 << fftOrder;
-			setValues(fftOrder, fftSize);
-		};
+	//Nbr_Samples__textEditor->onTextChange =
+	//	[this]
+	//	{
+	//		fftOrder =
+	//			static_cast<unsigned int>(std::log2(Nbr_Samples__textEditor->getText().getIntValue()));
+	//		fftSize = 1 << fftOrder;
+	//		setValues(fftOrder, fftSize);
+	//	};
 
 	fftOrder__textEditor->onReturnKey =
 		[this]
@@ -339,18 +374,38 @@ FFTCtrl::FFTCtrl (std::shared_ptr<FFTModule> ptr_module_FFT, std::shared_ptr<Aud
 			fftSize = 1 << fftOrder;
 			setValues(fftOrder, fftSize);
 		};
-	fftOrder__textEditor->onTextChange =
-		[this]
-		{
-			fftOrder = fftOrder__textEditor->getText().getIntValue();
-			fftSize = 1 << fftOrder;
-			setValues(fftOrder, fftSize);
-		};
+	//fftOrder__textEditor->onTextChange =
+	//	[this]
+	//	{
+	//		fftOrder = fftOrder__textEditor->getText().getIntValue();
+	//		fftSize = 1 << fftOrder;
+	//		setValues(fftOrder, fftSize);
+	//	};
 
-	fftOrder =
-		static_cast<unsigned int>(std::log2(Nbr_Samples__textEditor->getText().getIntValue()));
-	fftSize = 1 << fftOrder;
-	setValues(fftOrder, fftSize);
+    fftOrder =
+        static_cast<unsigned int>(std::log2(Nbr_Samples__textEditor->getText().getIntValue()));
+    fftSize = 1 << fftOrder;
+    setValues(fftOrder, fftSize);
+
+    //max Freq In FFT Chart
+    maxFreqInFFTChart__textEditor->onReturnKey =
+        [this]
+        {
+			ptrSpectrogramComponent->setMaxFreqInRealTimeFftChartPlot
+                (maxFreqInFFTChart__textEditor->getText().getDoubleValue());
+        };
+    maxFreqInFFTChart__textEditor->onFocusLost =
+        [this]
+        {
+            ptrSpectrogramComponent->setMaxFreqInRealTimeFftChartPlot
+            (maxFreqInFFTChart__textEditor->getText().getDoubleValue());
+        };
+    //maxFreqInFFTChart__textEditor->onTextChange =
+    //    [this]
+    //    {
+    //        ptrSpectrogramComponent->setMaxFreqInRealTimeFftChartPlot
+    //        (maxFreqInFFTChart__textEditor->getText().getDoubleValue());
+    //    };
     //[/UserPreSize]
 
     setSize (600, 400);
@@ -389,6 +444,9 @@ FFTCtrl::~FFTCtrl()
     use50HzFilter__toggleButton = nullptr;
     use60HzFilter__toggleButton = nullptr;
     useNoFilter__toggleButton = nullptr;
+    makeFFtRealTimeChartPlot__toggleButton = nullptr;
+    maxFreqInFFTChart__textEditor = nullptr;
+    maxFreqToUsEInFFtChartPlot__label = nullptr;
 
 
     //[Destructor]. You can add your own custom destruction code here..
@@ -519,70 +577,78 @@ void FFTCtrl::buttonClicked (juce::Button* buttonThatWasClicked)
     else if (buttonThatWasClicked == spectrumOfaudioFile__toggleButton.get())
     {
         //[UserButtonCode_spectrumOfaudioFile__toggleButton] -- add your button handler code here..
-        if
-        (
-            spectrumOfaudioFile__toggleButton->getToggleState()
-            &&
-            !spectrumOfaudioFileTBState
-        )
-        {
-            module_FFT->openAudioFile
-            (
-                spectrumOfaudioFile__toggleButton.get()
-                ,
-                makespectrumOfInput__toggleButton.get()
-            );
-        }
-        spectrumOfaudioFileTBState = spectrumOfaudioFile__toggleButton->getToggleState();
+		if
+			(
+				spectrumOfaudioFile__toggleButton->getToggleState()
+				&&
+				!spectrumOfaudioFileTBState
+				)
+		{
+			module_FFT->openAudioFile
+			(
+				spectrumOfaudioFile__toggleButton.get()
+				,
+				makespectrumOfInput__toggleButton.get()
+			);
+		}
+		spectrumOfaudioFileTBState = spectrumOfaudioFile__toggleButton->getToggleState();
         //[/UserButtonCode_spectrumOfaudioFile__toggleButton]
     }
     else if (buttonThatWasClicked == makespectrumOfInput__toggleButton.get())
     {
         //[UserButtonCode_makespectrumOfInput__toggleButton] -- add your button handler code here..
-        if
-        (
-            makespectrumOfInput__toggleButton->getToggleState()
-            &&
-            !makespectrumOfInputTBState
-        )
+		if
+			(
+				makespectrumOfInput__toggleButton->getToggleState()
+				&&
+				!makespectrumOfInputTBState
+				)
 		{
 			module_FFT->switchToMicrophoneInput();
 		}
-        makespectrumOfInputTBState = makespectrumOfInput__toggleButton->getToggleState();
+		makespectrumOfInputTBState = makespectrumOfInput__toggleButton->getToggleState();
         //[/UserButtonCode_makespectrumOfInput__toggleButton]
     }
     else if (buttonThatWasClicked == autoSwitchToInput__toggleButton.get())
     {
         //[UserButtonCode_autoSwitchToInput__toggleButton] -- add your button handler code here..
-        module_FFT->setAutoSwitchToInput(autoSwitchToInput__toggleButton->getToggleState());
+		ptrSpectrogramComponent->
+			setAutoSwitchToInput(autoSwitchToInput__toggleButton->getToggleState());
         //[/UserButtonCode_autoSwitchToInput__toggleButton]
     }
     else if (buttonThatWasClicked == use50HzFilter__toggleButton.get())
     {
         //[UserButtonCode_use50HzFilter__toggleButton] -- add your button handler code here..
-        if (use50HzFilter__toggleButton->getToggleState())
-        {
-            module_FFT->setFilterToUse(filter50Hz);
-        }
+		if (use50HzFilter__toggleButton->getToggleState())
+		{
+			ptrSpectrogramComponent->setFilterToUse(filter50Hz);
+		}
         //[/UserButtonCode_use50HzFilter__toggleButton]
     }
     else if (buttonThatWasClicked == use60HzFilter__toggleButton.get())
     {
         //[UserButtonCode_use60HzFilter__toggleButton] -- add your button handler code here..
-        if (use60HzFilter__toggleButton->getToggleState())
-        {
-            module_FFT->setFilterToUse(filter60Hz);
-        }
+		if (use60HzFilter__toggleButton->getToggleState())
+		{
+			ptrSpectrogramComponent->setFilterToUse(filter60Hz);
+		}
         //[/UserButtonCode_use60HzFilter__toggleButton]
     }
     else if (buttonThatWasClicked == useNoFilter__toggleButton.get())
     {
         //[UserButtonCode_useNoFilter__toggleButton] -- add your button handler code here..
-        if (useNoFilter__toggleButton->getToggleState())
-        {
-            module_FFT->setFilterToUse(noFilter);
-        }
+		if (useNoFilter__toggleButton->getToggleState())
+		{
+			ptrSpectrogramComponent->setFilterToUse(noFilter);
+		}
         //[/UserButtonCode_useNoFilter__toggleButton]
+    }
+    else if (buttonThatWasClicked == makeFFtRealTimeChartPlot__toggleButton.get())
+    {
+        //[UserButtonCode_makeFFtRealTimeChartPlot__toggleButton] -- add your button handler code here..
+		ptrSpectrogramComponent->
+			setDoRealTimeFftChartPlot(makeFFtRealTimeChartPlot__toggleButton->getToggleState());
+        //[/UserButtonCode_makeFFtRealTimeChartPlot__toggleButton]
     }
 
     //[UserbuttonClicked_Post]
@@ -594,6 +660,8 @@ void FFTCtrl::buttonClicked (juce::Button* buttonThatWasClicked)
 //[MiscUserCode] You can add your own definitions of your custom methods or any other code here...
 void FFTCtrl::setValues(unsigned int fftOrder, unsigned int fftSize)
 {
+	ptrSpectrogramComponent->setFftOrderAndFftSize(fftOrder, fftSize);
+
 	fftOrder__textEditor->setText(String(fftOrder), true);
 	Nbr_Samples__textEditor->setText(String(fftSize), true);
 	fftSizeNbr__label->setText(String(fftSize), NotificationType::dontSendNotification);
@@ -612,7 +680,7 @@ BEGIN_JUCER_METADATA
 
 <JUCER_COMPONENT documentType="Component" className="FFTCtrl" componentName=""
                  parentClasses="public juce::Component" constructorParams="std::shared_ptr&lt;FFTModule&gt; ptr_module_FFT, std::shared_ptr&lt;AudioDeviceManager&gt; SADM, std::shared_ptr&lt;freqPlotModule&gt; FPM"
-                 variableInitialisers="sharedAudioDeviceManager(SADM)&#10;module_FFT(ptr_module_FFT)&#10;module_freqPlot(FPM)&#10;"
+                 variableInitialisers="sharedAudioDeviceManager(SADM)&#10;module_FFT(ptr_module_FFT)&#10;module_freqPlot(FPM)&#10;ptrSpectrogramComponent(ptr_module_FFT-&gt;getPtrSpectrogramComponent())"
                  snapPixels="8" snapActive="1" snapShown="1" overlayOpacity="0.330"
                  fixedSize="0" initialWidth="600" initialHeight="400">
   <BACKGROUND backgroundColour="ff505050"/>
@@ -659,7 +727,7 @@ BEGIN_JUCER_METADATA
          fontsize="15.0" kerning="0.0" bold="0" italic="0" justification="33"/>
   <TEXTEDITOR name="Nbr_Samples text editor" id="67840ece2249397f" memberName="Nbr_Samples__textEditor"
               virtualName="" explicitFocusOrder="4" pos="16 224 150 24" tooltip="Nbr_Samples"
-              initialText="4096" multiline="0" retKeyStartsLine="0" readonly="0"
+              initialText="1024" multiline="0" retKeyStartsLine="0" readonly="0"
               scrollbars="1" caret="1" popupmenu="1"/>
   <TEXTBUTTON name="clearPlot button" id="655c3dd1794570bf" memberName="clearPlot__textButton"
               virtualName="" explicitFocusOrder="9" pos="192 40 150 24" buttonText="Clear Plot"
@@ -669,7 +737,7 @@ BEGIN_JUCER_METADATA
               connectedEdges="0" needsCallback="1" radioGroupId="0"/>
   <TEXTEDITOR name="fftOrder text editor" id="21a1b23e829f6d24" memberName="fftOrder__textEditor"
               virtualName="" explicitFocusOrder="5" pos="192 224 150 24" tooltip="FFT Order"
-              initialText="12" multiline="0" retKeyStartsLine="0" readonly="0"
+              initialText="10" multiline="0" retKeyStartsLine="0" readonly="0"
               scrollbars="1" caret="1" popupmenu="1"/>
   <LABEL name="fftOrder label" id="3e3a0c0ab0f7ce39" memberName="fftOrder__label"
          virtualName="" explicitFocusOrder="0" pos="192 192 150 24" edTextCol="ff000000"
@@ -683,7 +751,7 @@ BEGIN_JUCER_METADATA
          kerning="0.0" bold="0" italic="0" justification="33"/>
   <LABEL name="fftSizeNbr label" id="f6dc9c671d2b180c" memberName="fftSizeNbr__label"
          virtualName="" explicitFocusOrder="0" pos="192 284 150 24" edTextCol="ff000000"
-         edBkgCol="0" labelText="4096" editableSingleClick="0" editableDoubleClick="0"
+         edBkgCol="0" labelText="1024" editableSingleClick="0" editableDoubleClick="0"
          focusDiscardsChanges="0" fontname="Default font" fontsize="15.0"
          kerning="0.0" bold="0" italic="0" justification="33"/>
   <TEXTBUTTON name="fftWindows button" id="9c0c45ece1379aa3" memberName="fftWindows__textButton"
@@ -691,7 +759,7 @@ BEGIN_JUCER_METADATA
               connectedEdges="0" needsCallback="1" radioGroupId="0"/>
   <TOGGLEBUTTON name="spectrumOfaudioFile toggle button" id="1275ad335d939b3e"
                 memberName="spectrumOfaudioFile__toggleButton" virtualName=""
-                explicitFocusOrder="0" pos="192 362 150 24" buttonText="Make spectrum of audio file  "
+                explicitFocusOrder="0" pos="192 465 158 24" buttonText="Make plots of audio file  "
                 connectedEdges="4" needsCallback="1" radioGroupId="1" state="0"/>
   <TOGGLEBUTTON name="makespectrumOfInput toggle button" id="a4f23f06626db462"
                 memberName="makespectrumOfInput__toggleButton" virtualName=""
@@ -699,17 +767,31 @@ BEGIN_JUCER_METADATA
                 connectedEdges="8" needsCallback="1" radioGroupId="1" state="1"/>
   <TOGGLEBUTTON name="autoSwitchToInput toggle button" id="f79b3224172a8f2d"
                 memberName="autoSwitchToInput__toggleButton" virtualName="" explicitFocusOrder="0"
-                pos="192 401 150 24" buttonText="Auto switch to input" connectedEdges="0"
+                pos="192 505 150 24" buttonText="Auto switch to input" connectedEdges="0"
                 needsCallback="1" radioGroupId="0" state="0"/>
   <TOGGLEBUTTON name="use50HzFilter toggle button" id="86160e89f8af914" memberName="use50HzFilter__toggleButton"
-                virtualName="" explicitFocusOrder="0" pos="192 445 150 24" buttonText="Use 50 Hz filter"
+                virtualName="" explicitFocusOrder="0" pos="192 544 150 24" buttonText="Use 50 Hz filter"
                 connectedEdges="8" needsCallback="1" radioGroupId="2" state="0"/>
   <TOGGLEBUTTON name="use60HzFilter toggle button" id="8fe0a8bef11d661e" memberName="use60HzFilter__toggleButton"
-                virtualName="" explicitFocusOrder="0" pos="192 485 150 24" buttonText="Use 60 Hz filter"
+                virtualName="" explicitFocusOrder="0" pos="192 575 150 24" buttonText="Use 60 Hz filter"
                 connectedEdges="12" needsCallback="1" radioGroupId="2" state="0"/>
   <TOGGLEBUTTON name="useNoFilter toggle button" id="a4acb1f6eeda074a" memberName="useNoFilter__toggleButton"
-                virtualName="" explicitFocusOrder="0" pos="192 525 150 24" buttonText="Use no filter"
+                virtualName="" explicitFocusOrder="0" pos="192 615 150 24" buttonText="Use no filter"
                 connectedEdges="4" needsCallback="1" radioGroupId="2" state="1"/>
+  <TOGGLEBUTTON name="makeFFtRealTimeChartPlot toggle button" id="e0ba875e06b99110"
+                memberName="makeFFtRealTimeChartPlot__toggleButton" virtualName=""
+                explicitFocusOrder="0" pos="192 360 183 24" buttonText="Make FFT real time chart plot"
+                connectedEdges="0" needsCallback="1" radioGroupId="0" state="0"/>
+  <TEXTEDITOR name="max Freq In FFT Chart editor" id="c0d19814ef484ea4" memberName="maxFreqInFFTChart__textEditor"
+              virtualName="" explicitFocusOrder="0" pos="192 425 150 24" initialText="22050"
+              multiline="0" retKeyStartsLine="0" readonly="0" scrollbars="1"
+              caret="1" popupmenu="1"/>
+  <LABEL name="maxFreqToUsEInFFtChartPlot label" id="b3c4bde2ee769bad"
+         memberName="maxFreqToUsEInFFtChartPlot__label" virtualName=""
+         explicitFocusOrder="0" pos="192 395 174 24" edTextCol="ff000000"
+         edBkgCol="0" labelText="Max freq to show in FFT chart plot" editableSingleClick="0"
+         editableDoubleClick="0" focusDiscardsChanges="0" fontname="Default font"
+         fontsize="15.0" kerning="0.0" bold="0" italic="0" justification="33"/>
 </JUCER_COMPONENT>
 
 END_JUCER_METADATA

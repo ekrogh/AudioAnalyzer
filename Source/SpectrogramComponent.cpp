@@ -39,8 +39,11 @@ SpectrogramComponent::SpectrogramComponent
 {
 	setOpaque(true);
 
-	forwardFFT = std::make_unique<juce::dsp::FFT>(fftOrder);
-
+	{
+		const ScopedLock sl(fftLockMutex);
+		forwardFFT = std::make_unique<juce::dsp::FFT>(fftOrder);
+	}
+	numChannels = 1;
 	setAudioChannels(1, 2);
 
 	startTimerHz(60);
@@ -98,9 +101,8 @@ bool SpectrogramComponent::loadURLIntoSpectrum
 		// Start the thread
 		startThread();
 
-		auto sRate = curSampleRate;
 		auto noSamples = reader->lengthInSamples;
-		auto playTime = noSamples / sRate;
+		auto playTime = noSamples / curSampleRate;
 		auto noFftBuffers = noSamples / fftSize;
 		auto timePerBuffer = playTime / noFftBuffers;
 		auto timerFreq = 1.0 / timePerBuffer;
@@ -152,7 +154,7 @@ void SpectrogramComponent::timerCallback()
 	if (nextFFTBlockReady)
 	{
 		doFFT(fftDataOutBuffer, fftSize);
-		drawNextLineOfSpectrogramAndFftPlotUpdate();
+		drawNextLineOfSpectrogramAndFftPlotUpdate(fftDataOutBuffer, fftSize);
 		nextFFTBlockReady = false;
 		repaint();
 	}
@@ -160,7 +162,7 @@ void SpectrogramComponent::timerCallback()
 	{
 		weSpectrumDataReady.signal(); // Task can prepare next buffer of FFT data
 
-		drawNextLineOfSpectrogramAndFftPlotUpdate();
+		drawNextLineOfSpectrogramAndFftPlotUpdate(fftDataOutBuffer, fftSize);
 		repaint();
 
 		fftDataOutBufferIndex ^= 1; // Toggle
@@ -176,9 +178,14 @@ void SpectrogramComponent::timerCallback()
 }
 
 
-void SpectrogramComponent::prepareToPlay(int /*samplesPerBlockExpected*/, double /*newSampleRate*/)
+void SpectrogramComponent::prepareToPlay(int samplesPerBlockExpected, double newSampleRate)
 {
-	// (nothing to do here)
+	curSampleRate = newSampleRate;
+
+	sizeToUseInFreqInRealTimeFftChartPlot
+		= (int)(fftSize * (maxFreqInRealTimeFftChartPlot / curSampleRate));
+
+	fillRTChartPlotFrequencyValues();
 }
 
 
@@ -213,8 +220,8 @@ void SpectrogramComponent::pushNextSampleIntoFifo(float sample) noexcept
 	{
 		if (!nextFFTBlockReady)
 		{
-			zeromem(fftDataOutBuffer, sizeof(fftDataBuffers[fftDataOutBufferIndex]));
-			memcpy(fftDataOutBuffer, fifo, sizeof(fifo));
+			zeromem(fftDataOutBuffer, sizeOfFftDataBuffersInBytes);
+			memcpy(fftDataOutBuffer, fifo, sizeOfFFifoInBytes);
 
 			nextFFTBlockReady = true;
 		}
@@ -247,23 +254,22 @@ SpectrogramComponent::~SpectrogramComponent()
 
 }
 
-
-void SpectrogramComponent::drawNextLineOfSpectrogramAndFftPlotUpdate()
+void SpectrogramComponent::drawNextLineOfSpectrogramAndFftPlotUpdate(float* fftDataBuffer, unsigned int& fftSize)
 {
 	if (doRealTimeFftChartPlot)
 	{
 		static bool doneFirst = false;
 
-		
+
 		//int sizeToUse = fftSize / 100;
 
 		plotValues.clear();
 		plotValues.push_back(std::vector<float>
-			(fftDataOutBuffer, fftDataOutBuffer + sizeToUseInFreqInRealTimeFftChartPlot));
+			(fftDataBuffer, fftDataBuffer + sizeToUseInFreqInRealTimeFftChartPlot));
 		frequencyValues[0].resize(sizeToUseInFreqInRealTimeFftChartPlot);
 		if (doneFirst)
 		{
-			module_freqPlot->updatePlotRealTime(plotValues);
+			module_freqPlot->updatePlotRealTime(plotValues, frequencyValues);
 		}
 		else
 		{
@@ -280,13 +286,13 @@ void SpectrogramComponent::drawNextLineOfSpectrogramAndFftPlotUpdate()
 
 	// find the range of values produced, so we can scale our rendering to
 	// show up the detail clearly
-	auto maxLevel = FloatVectorOperations::findMinAndMax(fftDataOutBuffer, (int)fftSize);
+	auto maxLevel = FloatVectorOperations::findMinAndMax(fftDataBuffer, static_cast<int>(fftSize));
 
 	for (auto y = 1; y < imageHeight; ++y)
 	{
 		auto skewedProportionY = 1.0f - std::exp(std::log((float)y / (float)imageHeight) * 0.2f);
 		auto fftDataIndex = jlimit(0, (int)fftSize / 2, (int)(skewedProportionY * (int)fftSize / 2));
-		auto level = jmap(fftDataOutBuffer[fftDataIndex], 0.0f, jmax(maxLevel.getEnd(), 1e-5f), 0.0f, 1.0f);
+		auto level = jmap(fftDataBuffer[fftDataIndex], 0.0f, jmax(maxLevel.getEnd(), 1e-5f), 0.0f, 1.0f);
 
 		//spectrogramImage.setPixelAt(rightHandEdge, y, Colour::fromHSL(level, 1.0f, level + 0.1f, 1.0f));
 		spectrogramImage.setPixelAt(rightHandEdge, y, Colour::fromHSV(level, 1.0f, level + 0.03f, 1.0f));
@@ -294,7 +300,7 @@ void SpectrogramComponent::drawNextLineOfSpectrogramAndFftPlotUpdate()
 
 }
 
-void SpectrogramComponent::doFFT(float* fftBuffer, auto fftSize)
+void SpectrogramComponent::doFFT(float* fftDataBuffer, unsigned int& fftSize)
 {
 	// Window the data
 	juce::dsp::WindowingFunction<float> theHannWindow
@@ -306,23 +312,28 @@ void SpectrogramComponent::doFFT(float* fftBuffer, auto fftSize)
 
 	theHannWindow.multiplyWithWindowingTable
 	(
-		fftBuffer
+		fftDataBuffer
 		,
 		fftSize
 	);
 
 	// then render our FFT data..
-	forwardFFT->performFrequencyOnlyForwardTransform(fftBuffer, true);
+	{
+		const ScopedLock sl(fftLockMutex);
+		forwardFFT->performFrequencyOnlyForwardTransform(fftDataOutBuffer, true);
+	}
 }
 
 SpectrogramComponent::Generator<bool> SpectrogramComponent::readerToFftDataCopy()
 {
 	while (true)
 	{
+		numChannels = reader->numChannels;
+
 		theAudioBuffer =
 			AudioBuffer<float>::AudioBuffer
 			(
-				reader->numChannels
+				numChannels
 				,
 				fftSize
 			);
@@ -357,6 +368,8 @@ SpectrogramComponent::Generator<bool> SpectrogramComponent::readerToFftDataCopy(
 			{
 				theNotchFilter->process(theAudioBuffer);
 			}
+
+			zeromem(fftDataInBuffer, sizeOfFftDataBuffersInBytes);
 
 			float theSum = 0.0f;
 			for (auto sampleNbr = 0; sampleNbr < theAudioBuffer.getNumSamples(); sampleNbr++)
@@ -407,13 +420,13 @@ void SpectrogramComponent::setFilterToUse(filterTypes theFilterType)
 		case filter50Hz:
 			{
 				theNotchFilter =
-					std::make_unique<NotchFilter>(50.0f, reader->sampleRate, reader->numChannels);
+					std::make_unique<NotchFilter>(50.0f, curSampleRate, numChannels);
 				break;
 			}
 		case filter60Hz:
 			{
 				theNotchFilter =
-					std::make_unique<NotchFilter>(60.0f, reader->sampleRate, reader->numChannels);
+					std::make_unique<NotchFilter>(60.0f, curSampleRate, numChannels);
 				break;
 			}
 	}
@@ -433,26 +446,31 @@ void SpectrogramComponent::initRealTimeFftChartPlot()
 		module_freqPlot->setXLabel("[Hz]");
 		module_freqPlot->setYLabel("[Magnitude]");
 
-		auto deltaHz = (float)curSampleRate / fftSize;
-		auto maxFreq = maxFreqInRealTimeFftChartPlot;
-
-		std::vector<float> tmpFreqVctr(0);
-		float freqVal = 0.0f;
-		while (freqVal < maxFreq)
-		{
-			tmpFreqVctr.push_back(freqVal);
-			freqVal += deltaHz;
-		}
-		frequencyValues = { tmpFreqVctr };
+		fillRTChartPlotFrequencyValues();
 
 		plotValues = frequencyValues;
 		module_freqPlot->updatePlot(plotValues, frequencyValues, graph_attributes, plotLegend);
 	}
 }
 
+void SpectrogramComponent::fillRTChartPlotFrequencyValues()
+{
+	auto deltaHz = (float)curSampleRate / fftSize;
+	auto maxFreq = maxFreqInRealTimeFftChartPlot;
+
+	std::vector<float> tmpFreqVctr(0);
+	float freqVal = 0.0f;
+	while (freqVal < maxFreq)
+	{
+		tmpFreqVctr.push_back(freqVal);
+		freqVal += deltaHz;
+	}
+	frequencyValues = { tmpFreqVctr };
+}
+
 void SpectrogramComponent::setDoRealTimeFftChartPlot(bool doRTFftCP)
 {
-	bool doRealTimeFftChartPlot = doRTFftCP;
+	doRealTimeFftChartPlot = doRTFftCP;
 
 	initRealTimeFftChartPlot();
 }
@@ -464,5 +482,27 @@ void SpectrogramComponent::setMaxFreqInRealTimeFftChartPlot(double maxFRTFftCP)
 	sizeToUseInFreqInRealTimeFftChartPlot
 		= (int)((maxFreqInRealTimeFftChartPlot / curSampleRate) * fftSize);
 
-	initRealTimeFftChartPlot();
+	fillRTChartPlotFrequencyValues();
+}
+
+void SpectrogramComponent::setFftOrderAndFftSize(unsigned int newFftOrder, unsigned int newFftSize)
+{
+	const ScopedLock sl(fftLockMutex);
+
+	fftOrder = newFftOrder;
+	fftSize = newFftSize;
+
+	fftDataBuffers =
+	{
+		new float[2 * fftSize]
+		,
+		new float[2 * fftSize]
+	};
+	sizeOfFftDataBuffersInBytes = sizeof(float) * fftSize * 2;
+
+	fifo = new float[fftSize] { 0 };
+	sizeOfFFifoInBytes = sizeof(float) * fftSize;
+	fillRTChartPlotFrequencyValues();
+
+	forwardFFT = std::make_unique<dsp::FFT>(fftOrder);
 }

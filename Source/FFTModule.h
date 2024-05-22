@@ -163,10 +163,6 @@ public:
 	);
 	
 
-	void setAutoSwitchToInput(bool autoSwitch);
-
-	void setFilterToUse(filterTypes theFilterType);
-
 	void setDoRealTimeFftChartPlot(bool doRTFftCP);
 
 	void setMaxFreqInRealTimeFftChartPlot(double axFITFftCP);

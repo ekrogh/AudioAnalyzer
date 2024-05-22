@@ -56,7 +56,7 @@ public:
 
 private:
     //[UserVariables]   -- You can add your own custom variables in this section.
-    std::shared_ptr<SpectrogramComponent> ptrSpectrogramComponent;
+    std::shared_ptr<SpectrogramComponent> ptrSpectrogramComponent = nullptr;
     unsigned int fftOrder = 0;
 	unsigned int fftSize = 0;
 	std::shared_ptr<AudioDeviceManager> sharedAudioDeviceManager;
@@ -91,6 +91,9 @@ private:
     std::unique_ptr<juce::ToggleButton> use50HzFilter__toggleButton;
     std::unique_ptr<juce::ToggleButton> use60HzFilter__toggleButton;
     std::unique_ptr<juce::ToggleButton> useNoFilter__toggleButton;
+    std::unique_ptr<juce::ToggleButton> makeFFtRealTimeChartPlot__toggleButton;
+    std::unique_ptr<juce::TextEditor> maxFreqInFFTChart__textEditor;
+    std::unique_ptr<juce::Label> maxFreqToUsEInFFtChartPlot__label;
 
 
     //==============================================================================

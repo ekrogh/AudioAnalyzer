@@ -27,7 +27,7 @@ enum
 	, eksAVAuthorizationStatusAuthorized = 3
 };
 
-enum
+enum defaultFFTValues
 {
 	fftOrder = 10
 	, fftSize = 1 << fftOrder
