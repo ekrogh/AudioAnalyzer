@@ -1,0 +1,35 @@
+
+**********************************************************
+drawApplication Log
+Log started: 23 May 2024 3:29:45pm
+
+
+**********************************************************
+drawApplication Log
+Log started: 23 May 2024 3:34:17pm
+
+drawDuration: 271.395785 microseconds
+
+**********************************************************
+drawApplication Log
+Log started: 23 May 2024 3:52:54pm
+
+drawDuration: 206.320843 microseconds
+drawDuration: 0.206321 miliseconds
+drawDuration: 206.320843 seconds
+
+**********************************************************
+drawApplication Log
+Log started: 23 May 2024 3:56:24pm
+
+drawDuration: 194.580796 microseconds
+drawDuration: 0.194581 miliseconds
+drawDuration: 0.000195 seconds
+
+**********************************************************
+drawApplication Log
+Log started: 23 May 2024 3:59:04pm
+
+drawDuration: 230.485380 microseconds
+drawDuration: 0.230485 miliseconds
+drawDuration: 0.000230 seconds

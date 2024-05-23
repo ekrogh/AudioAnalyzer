@@ -731,9 +731,9 @@ void FFTModule::makeGraphAttributes(cmp::GraphAttributeList& ga)
 	(
 		static_cast<juce::int8>(randomRGB.nextInt(juce::Range(10, 255)))
 		,
-		static_cast<juce::int8>(randomRGB.nextInt(juce::Range(10, 255)))
+		static_cast<juce::int8>(randomRGB.nextInt(juce::Range(100, 255)))
 		,
-		static_cast<juce::int8>(randomRGB.nextInt(juce::Range(10, 255)))
+		static_cast<juce::int8>(randomRGB.nextInt(juce::Range(100, 255)))
 	);
 	ga.push_back(colourForLine);
 }

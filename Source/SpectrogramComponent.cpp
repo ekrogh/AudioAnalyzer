@@ -7,7 +7,7 @@
 
   ==============================================================================
 */
-
+#include <chrono>
 #include "FFTModule.h"
 #include "SpectrogramComponent.h"
 
@@ -39,19 +39,85 @@ SpectrogramComponent::SpectrogramComponent
 {
 	setOpaque(true);
 
-	{
-		const ScopedLock sl(fftLockMutex);
-		forwardFFT = std::make_unique<juce::dsp::FFT>(fftOrder);
-	}
-	numChannels = 1;
+	forwardFFT = std::make_unique<juce::dsp::FFT>(fftOrder);
+
+	curNumInputChannels = 1;
 	setAudioChannels(1, 2);
 
-	startTimerHz(60);
+	curTimerFrequencyHz = 60;
+	startTimerHz(curTimerFrequencyHz);
 
 	setSize(spectrogramImage.getWidth(), spectrogramImage.getHeight());
 
 }
 
+
+
+
+void SpectrogramComponent::switchToMicrophoneInput()
+{
+	stopTimer();
+
+	// Stop the thread
+	signalThreadShouldExit();;
+	weSpectrumDataReady.signal();
+
+	resetVariables();
+
+	// For testing purposes
+#ifdef LOG_EXECUTION_TIMES
+	auto drawLogFile = juce::File::getCurrentWorkingDirectory().getChildFile("drawLog.txt");
+	auto drawFileLogger = std::make_unique<juce::FileLogger>(drawLogFile, "drawApplication Log");
+	juce::Logger::setCurrentLogger(drawFileLogger.get());
+	auto drawRes = static_cast<double>(drawDurations) / static_cast<double>(drawDurationCounts);
+	juce::Logger::writeToLog("drawDuration: "
+		+ std::to_string(drawRes)
+		+ " microseconds");
+	juce::Logger::writeToLog("drawDuration: "
+		+ std::to_string(drawRes / 1000.0f)
+		+ " miliseconds");
+	juce::Logger::writeToLog("drawDuration: "
+		+ std::to_string(drawRes / (1000.0f * 1000.0f))
+		+ " seconds");
+
+	auto readAndFFTLogFile = juce::File::getCurrentWorkingDirectory().getChildFile("readAndFFTLog.txt");
+	auto readAndFFTfileLogger = std::make_unique<juce::FileLogger>(readAndFFTLogFile, "readAndFFTApplication Log");
+	auto readFFTRes = static_cast<double>(readAndFFTDurations) / static_cast<double>(readAndFFTDurationCounts);
+	juce::Logger::setCurrentLogger(readAndFFTfileLogger.get()); juce::Logger::writeToLog("readAndFFTDuration: "
+		+ std::to_string(readFFTRes)
+		+ " microseconds");
+	juce::Logger::setCurrentLogger(readAndFFTfileLogger.get()); juce::Logger::writeToLog("readAndFFTDuration: "
+		+ std::to_string(readFFTRes / 1000.0f)
+		+ " miliseconds");
+	juce::Logger::setCurrentLogger(readAndFFTfileLogger.get()); juce::Logger::writeToLog("readAndFFTDuration: "
+		+ std::to_string(readFFTRes / (1000.0f * 1000.0f))
+		+ " seconds");
+#endif
+	// For testing purposes
+
+	setAudioChannels(1, 2);
+
+	thisIsAudioFile = false;
+	audioFileReadRunning = false;
+
+	curTimerFrequencyHz = 60;
+	startTimerHz(curTimerFrequencyHz);
+
+}
+
+void SpectrogramComponent::resetVariables()
+{
+	spectrogramImage.clear(spectrogramImage.getBounds());
+
+	fftDataInBufferIndex = 0;  // Index of the buffer currently being read
+	fftDataOutBufferIndex = 0;  // Index of the buffer currently being filled
+
+	fftDataInBuffer = fftDataBuffers[fftDataInBufferIndex];
+	fftDataOutBuffer = fftDataBuffers[fftDataOutBufferIndex];
+
+	fifoIndex = 0;
+	nextFFTBlockReady = false;
+}
 
 bool SpectrogramComponent::loadURLIntoSpectrum
 (
@@ -62,8 +128,6 @@ bool SpectrogramComponent::loadURLIntoSpectrum
 {
 	if (!(theUrl.isEmpty()))
 	{
-		const ScopedLock sl(fftLockMutex);
-
 		spectrumOfaudioFile__toggleButton = spectrumOfaudioFile__toggleButtonPtr;
 		makespectrumOfInput__toggleButton = makespectrumOfInput__toggleButtonPtr;
 
@@ -100,6 +164,15 @@ bool SpectrogramComponent::loadURLIntoSpectrum
 		thisIsAudioFile = true;
 		audioFileReadRunning = true;
 
+		// For testing purposes
+#ifdef LOG_EXECUTION_TIMES
+		drawDurations = 0;
+		drawDurationCounts = 0;
+		readAndFFTDurations = 0;
+		readAndFFTDurationCounts = 0;
+#endif
+		// For testing purposes
+
 		// Start the thread
 		startThread();
 
@@ -107,49 +180,102 @@ bool SpectrogramComponent::loadURLIntoSpectrum
 		auto playTime = noSamples / curSampleRate;
 		auto noFftBuffers = noSamples / fftSize;
 		auto timePerBuffer = playTime / noFftBuffers;
-		auto timerFreq = 1.0 / timePerBuffer;
 
-		startTimerHz(timerFreq);
+		curTimerInterValMs = static_cast<int>(std::round(timePerBuffer * 1000.0f));
+
+		curTimerFrequencyHz = 1.0 / timePerBuffer;
+
+		startTimer(curTimerInterValMs);
+		//startTimerHz(curTimerFrequencyHz);
 
 	}
 
 	return true;
 }
 
-
-void SpectrogramComponent::switchToMicrophoneInput()
+SpectrogramComponent::Task SpectrogramComponent::readerToFftDataCopy()
 {
-	stopTimer();
+	curNumInputChannels = reader->numChannels;
 
-	// Stop the thread
-	signalThreadShouldExit();;
-	weSpectrumDataReady.signal();
+	auto readerLngth = reader->lengthInSamples;
 
-	resetVariables();
+	for (juce::int64 readerStartSample = 0; readerStartSample < readerLngth; readerStartSample += fftSize)
+	{
+		theAudioBuffer =
+			AudioBuffer<float>::AudioBuffer
+			(
+				curNumInputChannels
+				,
+				fftSize
+			);
+		reader->read
+		(
+			&theAudioBuffer
+			,
+			0
+			,
+			fftSize
+			,
+			readerStartSample
+			,
+			true
+			,
+			true
+		);
 
-	setAudioChannels(1, 2);
+		if (filterToUse != noFilter)
+		{
+			theNotchFilter->process(theAudioBuffer);
+		}
 
-	thisIsAudioFile = false;
-	audioFileReadRunning = false;
+		zeromem(fftDataInBuffer, sizeOfFftDataBuffersInBytes);
 
-	startTimerHz(60);
+		float theSum = 0.0f;
+		for (auto sampleNbr = 0; sampleNbr < theAudioBuffer.getNumSamples(); sampleNbr++)
+		{
+			theSum = 0.0f;
+			for (auto channelNbr = 0; channelNbr < theAudioBuffer.getNumChannels(); channelNbr++)
+			{
+				theSum += theAudioBuffer.getSample(channelNbr, sampleNbr);
+			}
+			fftDataInBuffer[sampleNbr] = theSum;
+		}
 
+		// Make the FFT
+		doFFT(fftDataInBuffer, fftSize);
+
+		co_await std::suspend_always{};
+	}
 }
 
-void SpectrogramComponent::resetVariables()
+void SpectrogramComponent::run()
 {
-	spectrogramImage.clear(spectrogramImage.getBounds());
+	Task t = readerToFftDataCopy();  // Create a Task that suspends itself 5 times
 
-	fftDataInBufferIndex = 0;  // Index of the buffer currently being read
-	fftDataOutBufferIndex = 0;  // Index of the buffer currently being filled
+	do
+	{
+		// For testing purposes
+#ifdef LOG_EXECUTION_TIMES
+		auto start = std::chrono::high_resolution_clock::now();
+#endif
+		// For testing purposes
+		audioFileReadRunning = !t.resume();
 
-	fftDataInBuffer = fftDataBuffers[fftDataInBufferIndex];
-	fftDataOutBuffer = fftDataBuffers[fftDataOutBufferIndex];
+		fftDataInBufferIndex ^= 1; // Toggle
+		fftDataInBuffer = fftDataBuffers[fftDataInBufferIndex];
+		// For testing purposes
+#ifdef LOG_EXECUTION_TIMES
+		auto end = std::chrono::high_resolution_clock::now();
+		readAndFFTDurations += std::chrono::duration_cast<std::chrono::microseconds>(end - start).count();
+		readAndFFTDurationCounts++;
+#endif
+		// For testing purposes
 
-	fifoIndex = 0;
-	nextFFTBlockReady = false;
+	}
+	while (weSpectrumDataReady.wait(500) && !threadShouldExit() && audioFileReadRunning);
+
+	doSwitchToMicrophoneInput = (!audioFileReadRunning) && autoSwitchToInput;
 }
-
 
 void SpectrogramComponent::timerCallback()
 {
@@ -164,8 +290,20 @@ void SpectrogramComponent::timerCallback()
 	{
 		weSpectrumDataReady.signal(); // Task can prepare next buffer of FFT data
 
+		// For testing purposes
+#ifdef LOG_EXECUTION_TIMES
+		auto start = std::chrono::high_resolution_clock::now();
+#endif
+		// For testing purposes
 		drawNextLineOfSpectrogramAndFftPlotUpdate(fftDataOutBuffer, fftSize);
 		repaint();
+		// For testing purposes
+#ifdef LOG_EXECUTION_TIMES
+		auto end = std::chrono::high_resolution_clock::now();
+		drawDurations += std::chrono::duration_cast<std::chrono::microseconds>(end - start).count();
+		drawDurationCounts++;
+#endif
+		// For testing purposes
 
 		fftDataOutBufferIndex ^= 1; // Toggle
 		fftDataOutBuffer = fftDataBuffers[fftDataOutBufferIndex];
@@ -246,14 +384,7 @@ void SpectrogramComponent::paint(juce::Graphics& g)
 
 SpectrogramComponent::~SpectrogramComponent()
 {
-	shutdownAudio();
-
-	stopTimer();
-
-	// Stop the threads
-	//dataThread.stopThread(500);
-	//drawThread.stopThread(500);
-
+	shutDownIO();
 }
 
 void SpectrogramComponent::drawNextLineOfSpectrogramAndFftPlotUpdate(float* fftDataBuffer, unsigned int& fftSize)
@@ -319,96 +450,10 @@ void SpectrogramComponent::doFFT(float* fftDataBuffer, unsigned int& fftSize)
 		fftSize
 	);
 
-	// then render our FFT data..
-	{
-		const ScopedLock sl(fftLockMutex);
-		forwardFFT->performFrequencyOnlyForwardTransform(fftDataOutBuffer, true);
-	}
+	forwardFFT->performFrequencyOnlyForwardTransform(fftDataBuffer, true);
+
 }
 
-SpectrogramComponent::Generator<bool> SpectrogramComponent::readerToFftDataCopy()
-{
-	while (true)
-	{
-		numChannels = reader->numChannels;
-
-		theAudioBuffer =
-			AudioBuffer<float>::AudioBuffer
-			(
-				numChannels
-				,
-				fftSize
-			);
-
-		auto readerLngth = reader->lengthInSamples;
-
-		for
-			(
-				juce::int64 readerStartSample = 0
-				;
-				readerStartSample < readerLngth
-				;
-				readerStartSample += fftSize
-				)
-		{
-			reader->read
-			(
-				&theAudioBuffer
-				,
-				0
-				,
-				fftSize
-				,
-				readerStartSample
-				,
-				true
-				,
-				true
-			);
-
-			if (filterToUse != noFilter)
-			{
-				theNotchFilter->process(theAudioBuffer);
-			}
-
-			zeromem(fftDataInBuffer, sizeOfFftDataBuffersInBytes);
-
-			float theSum = 0.0f;
-			for (auto sampleNbr = 0; sampleNbr < theAudioBuffer.getNumSamples(); sampleNbr++)
-			{
-				theSum = 0.0f;
-				for (auto channelNbr = 0; channelNbr < theAudioBuffer.getNumChannels(); channelNbr++)
-				{
-					theSum += theAudioBuffer.getSample(channelNbr, sampleNbr);
-				}
-				fftDataInBuffer[sampleNbr] = theSum;
-			}
-
-			// Make the FFT
-			doFFT(fftDataInBuffer, fftSize);
-
-			co_yield true;
-		}
-
-		co_yield false;
-	}
-}
-
-void SpectrogramComponent::run()
-{
-	do
-	{
-		audioFileReadRunning = gen();
-
-		fftDataInBufferIndex ^= 1; // Toggle
-		fftDataInBuffer = fftDataBuffers[fftDataInBufferIndex];
-
-		weSpectrumDataReady.wait(-1); // Wait for event to be signaled.
-	}
-	while (!threadShouldExit() && audioFileReadRunning);
-
-	doSwitchToMicrophoneInput = (!audioFileReadRunning) && autoSwitchToInput;
-}
 
 void SpectrogramComponent::setAutoSwitchToInput(bool autoSwitch)
 {
@@ -422,13 +467,13 @@ void SpectrogramComponent::setFilterToUse(filterTypes theFilterType)
 		case filter50Hz:
 			{
 				theNotchFilter =
-					std::make_unique<NotchFilter>(50.0f, curSampleRate, numChannels);
+					std::make_unique<NotchFilter>(50.0f, curSampleRate, curNumInputChannels);
 				break;
 			}
 		case filter60Hz:
 			{
 				theNotchFilter =
-					std::make_unique<NotchFilter>(60.0f, curSampleRate, numChannels);
+					std::make_unique<NotchFilter>(60.0f, curSampleRate, curNumInputChannels);
 				break;
 			}
 	}
@@ -439,8 +484,6 @@ void SpectrogramComponent::setFilterToUse(filterTypes theFilterType)
 
 void SpectrogramComponent::initRealTimeFftChartPlot()
 {
-	const ScopedLock sl(fftLockMutex);
-
 	if (doRealTimeFftChartPlot)
 	{
 		theFftModule.makeGraphAttributes(graph_attributes);
@@ -459,8 +502,6 @@ void SpectrogramComponent::initRealTimeFftChartPlot()
 
 void SpectrogramComponent::fillRTChartPlotFrequencyValues()
 {
-	const ScopedLock sl(fftLockMutex);
-
 	auto deltaHz = (float)curSampleRate / fftSize;
 	auto maxFreq = maxFreqInRealTimeFftChartPlot;
 
@@ -476,27 +517,32 @@ void SpectrogramComponent::fillRTChartPlotFrequencyValues()
 
 void SpectrogramComponent::setDoRealTimeFftChartPlot(bool doRTFftCP)
 {
-	const ScopedLock sl(fftLockMutex);
+	shutDownIO();
 
 	doRealTimeFftChartPlot = doRTFftCP;
 
 	initRealTimeFftChartPlot();
+
+	reStartIO();
 }
 
 void SpectrogramComponent::setMaxFreqInRealTimeFftChartPlot(double maxFRTFftCP)
 {
-	const ScopedLock sl(fftLockMutex);
+	shutDownIO();
+
 	maxFreqInRealTimeFftChartPlot = maxFRTFftCP;
 
 	sizeToUseInFreqInRealTimeFftChartPlot
 		= (int)((maxFreqInRealTimeFftChartPlot / curSampleRate) * fftSize);
 
 	fillRTChartPlotFrequencyValues();
+
+	reStartIO();
 }
 
 void SpectrogramComponent::setFftOrderAndFftSize(unsigned int newFftOrder, unsigned int newFftSize)
 {
-	const ScopedLock sl(fftLockMutex);
+	shutDownIO();
 
 	fftOrder = newFftOrder;
 	fftSize = newFftSize;
@@ -513,5 +559,46 @@ void SpectrogramComponent::setFftOrderAndFftSize(unsigned int newFftOrder, unsig
 	sizeOfFFifoInBytes = sizeof(float) * fftSize;
 	fillRTChartPlotFrequencyValues();
 
+	forwardFFT.reset();
 	forwardFFT = std::make_unique<dsp::FFT>(fftOrder);
+
+	resetVariables();
+
+	reStartIO();
+}
+
+void SpectrogramComponent::shutDownIO()
+{
+	shutdownAudio();
+
+	stopTimer();
+
+	// Stop thread
+	if (threadWasRunning = isThreadRunning())
+	{
+		do
+		{
+			signalThreadShouldExit();
+
+			weSpectrumDataReady.signal();
+		}
+		while (!waitForThreadToExit(100));
+	}
+
+	resetVariables();
+
+}
+
+void SpectrogramComponent::reStartIO()
+{
+	if (threadWasRunning)
+	{
+		startThread();
+	}
+	else
+	{
+		setAudioChannels(curNumInputChannels, curNumOutputChannels);
+	}
+
+	startTimerHz(curTimerFrequencyHz);
 }
