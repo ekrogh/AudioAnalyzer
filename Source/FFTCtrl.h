@@ -92,8 +92,6 @@ private:
     std::unique_ptr<juce::ToggleButton> use60HzFilter__toggleButton;
     std::unique_ptr<juce::ToggleButton> useNoFilter__toggleButton;
     std::unique_ptr<juce::ToggleButton> makeFFtRealTimeChartPlot__toggleButton;
-    std::unique_ptr<juce::TextEditor> maxFreqInFFTChart__textEditor;
-    std::unique_ptr<juce::Label> maxFreqToUsEInFFtChartPlot__label;
 
 
     //==============================================================================
