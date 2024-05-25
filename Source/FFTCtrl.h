@@ -45,7 +45,9 @@ public:
 
     //==============================================================================
     //[UserMethods]     -- You can add your own custom methods in this section.
-	void setValues(unsigned int fftOrder, unsigned int fftSize);
+    void updateSampleRate(double newSampleRate);
+    void setValues(unsigned int fftOrder, unsigned int fftSize);
+    void switchUIToSpecialPlots();
     //[/UserMethods]
 
     void paint (juce::Graphics& g) override;
@@ -56,14 +58,18 @@ public:
 
 private:
     //[UserVariables]   -- You can add your own custom variables in this section.
-    std::shared_ptr<SpectrogramComponent> ptrSpectrogramComponent = nullptr;
+    SpectrogramComponent& refSpectrogramComponent;
+    FFTModule& refModule_FFT;
+    //std::shared_ptr<SpectrogramComponent> ptrSpectrogramComponent = nullptr;
+    //std::shared_ptr<FFTModule> module_FFT = nullptr;
     unsigned int fftOrder = 0;
 	unsigned int fftSize = 0;
 	std::shared_ptr<AudioDeviceManager> sharedAudioDeviceManager;
-	std::shared_ptr<FFTModule> module_FFT;
 	std::shared_ptr<freqPlotModule> module_freqPlot;
     bool spectrumOfaudioFileTBState = false;
     bool makespectrumOfInputTBState = true;
+    double curSampleFreqHz = 44100.0f;
+    double maxChartPlotFreq = 44100.0f;
     //[/UserVariables]
 
     //==============================================================================

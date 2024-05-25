@@ -9,6 +9,7 @@
 */
 
 #include "SpectrogramComponent.h"
+#include "FFTCtrl.h"
 #include "FFTModule.h"
 
 FFTModule::FFTModule
@@ -25,7 +26,16 @@ FFTModule::FFTModule
 	formatManager.registerBasicFormats();
 
 	ptrSpectrogramComponent =
-		std::make_shared<SpectrogramComponent>(formatManager, SADM, this, FPM);
+		std::make_shared<SpectrogramComponent>
+		(
+			formatManager
+			,
+			SADM
+			,
+			this
+			, 
+			FPM
+		);
 
 	addAndMakeVisible(ptrSpectrogramComponent.get());
 	setOpaque(true);
@@ -204,6 +214,8 @@ bool FFTModule::loadURLIntoFFT
 	juce::TextEditor* Sample_Freq__textEditor
 )
 {
+	ptrSpectrogramComponent->shutDownIO();
+	ptrFFTCtrl->switchUIToSpecialPlots();
 	module_freqPlot->clearPlot();
 
 	const auto source = makeInputSource(audioURL);
@@ -224,6 +236,11 @@ bool FFTModule::loadURLIntoFFT
 	juce::int64 bufferLengthInSamples = reader->lengthInSamples;
 	unsigned int fftOrder = static_cast<unsigned int>(std::log2(bufferLengthInSamples));
 	unsigned int fftSize = 1 << fftOrder;
+
+	if (ptrFFTCtrl != nullptr)
+	{
+		ptrFFTCtrl->updateSampleRate(reader->sampleRate);
+	}
 
 	showValues
 	(
@@ -414,6 +431,8 @@ bool FFTModule::makeWhiteNoise
 	unsigned int sampleRate
 )
 {
+	ptrSpectrogramComponent->shutDownIO();
+	ptrFFTCtrl->switchUIToSpecialPlots();
 	module_freqPlot->clearPlot();
 
 	const unsigned int fftDataSize = fftSize << 1;
@@ -490,6 +509,8 @@ bool FFTModule::makeSines
 	std::vector<double>& frequencies
 )
 {
+	ptrSpectrogramComponent->shutDownIO();
+	ptrFFTCtrl->switchUIToSpecialPlots();
 	module_freqPlot->clearPlot();
 
 	const unsigned int fftDataSize = fftSize << 1;
@@ -575,6 +596,8 @@ bool FFTModule::makeWindows
 	unsigned int sampleRate
 )
 {
+	ptrSpectrogramComponent->shutDownIO();
+	ptrFFTCtrl->switchUIToSpecialPlots();
 	module_freqPlot->clearPlot();
 
 	const unsigned int fftDataSize = fftSize << 1;
@@ -729,7 +752,7 @@ void FFTModule::makeGraphAttributes(cmp::GraphAttributeList& ga)
 	cmp::GraphAttribute colourForLine;
 	colourForLine.graph_colour = juce::Colour
 	(
-		static_cast<juce::int8>(randomRGB.nextInt(juce::Range(10, 255)))
+		static_cast<juce::int8>(randomRGB.nextInt(juce::Range(100, 255)))
 		,
 		static_cast<juce::int8>(randomRGB.nextInt(juce::Range(100, 255)))
 		,
@@ -774,4 +797,10 @@ void FFTModule::setMaxFreqInRealTimeFftChartPlot(double maxFRTFftCP)
 std::shared_ptr<SpectrogramComponent> FFTModule::getPtrSpectrogramComponent()
 {
 	return ptrSpectrogramComponent;
+}
+
+void FFTModule::registerFFTCtrl(FFTCtrl* FFTC)
+{
+	ptrFFTCtrl = FFTC;
+	//ptrFFTCtrl = std::unique_ptr<FFTCtrl>(FFTC);
 }

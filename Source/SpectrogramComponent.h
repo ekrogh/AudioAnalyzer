@@ -7,8 +7,6 @@
 
   ==============================================================================
 */
-//#define LOG_EXECUTION_TIMES
-#undef LOG_EXECUTION_TIMES
 
 #pragma once
 
@@ -22,6 +20,7 @@
 #include "NotchFilter.h"
 
 class FFTModule;
+class FFTCtrl;
 
 //==============================================================================
 class SpectrogramComponent
@@ -31,15 +30,15 @@ class SpectrogramComponent
 {
 public:
 	SpectrogramComponent
-	(
-		AudioFormatManager& FM
-		,
-		std::shared_ptr<AudioDeviceManager> SADM
-		,
-		FFTModule* FFTMP
-		,
-		std::shared_ptr<freqPlotModule> FPM
-	);
+(
+	AudioFormatManager& FM
+	,
+	std::shared_ptr<AudioDeviceManager> SADM
+	,
+	FFTModule* FFTMP
+	,
+	std::shared_ptr<freqPlotModule> FPM
+);
 
 	~SpectrogramComponent() override;
 
@@ -89,6 +88,8 @@ public:
 	void shutDownIO();
 	void reStartIO();
 
+	void registerFFTCtrl(FFTCtrl* FFTC);
+
 	// Coroutine def.
 	class Task
 	{
@@ -123,17 +124,6 @@ public:
 	Task readerToFftDataCopy();
 
 private:
-	// For testing purposes
-#ifdef LOG_EXECUTION_TIMES
-	long long drawDurations = 0;
-	long long drawDurationCounts = 0;
-
-	long long readAndFFTDurations = 0;
-	long long readAndFFTDurationCounts = 0;
-#endif
-	// For testing purposes
-
-
 	//CriticalSection fftLockMutex;
 
 	int curNumInputChannels = 1;
@@ -153,11 +143,13 @@ private:
 	cmp::GraphAttributeList graph_attributes;
 	cmp::StringVector plotLegend{ "1", "2" };
 
-	bool doRealTimeFftChartPlot = false;
+	bool doRealTimeFftChartPlot = true;
 	double maxFreqInRealTimeFftChartPlot = 22050.0f;
 	int sizeToUseInFreqInRealTimeFftChartPlot = fftSize;
 
-	FFTModule& theFftModule;
+	FFTModule* ptrFFTModule;
+	FFTCtrl* ptrFFTCtrl = nullptr;
+	//std::unique_ptr<FFTCtrl> ptrFFTCtrl = nullptr;
 
 	filterTypes filterToUse = noFilter;
 

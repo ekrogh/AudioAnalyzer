@@ -7,7 +7,7 @@
 
   ==============================================================================
 */
-#include <chrono>
+#include "FFTCtrl.h"
 #include "FFTModule.h"
 #include "SpectrogramComponent.h"
 
@@ -33,13 +33,15 @@ SpectrogramComponent::SpectrogramComponent
 	: formatManager(FM)
 	, AudioAppComponent(*SADM)
 	, spectrogramImage(Image::RGB, 600, 626, true)
-	, theFftModule(*FFTMP)
+	, ptrFFTModule(FFTMP)
 	, module_freqPlot(FPM)
 	, Thread("Audio file read and FFT")
 {
 	setOpaque(true);
 
 	forwardFFT = std::make_unique<juce::dsp::FFT>(fftOrder);
+
+	initRealTimeFftChartPlot();
 
 	curNumInputChannels = 1;
 	setAudioChannels(1, 2);
@@ -63,37 +65,6 @@ void SpectrogramComponent::switchToMicrophoneInput()
 	weSpectrumDataReady.signal();
 
 	resetVariables();
-
-	// For testing purposes
-#ifdef LOG_EXECUTION_TIMES
-	auto drawLogFile = juce::File::getCurrentWorkingDirectory().getChildFile("drawLog.txt");
-	auto drawFileLogger = std::make_unique<juce::FileLogger>(drawLogFile, "drawApplication Log");
-	juce::Logger::setCurrentLogger(drawFileLogger.get());
-	auto drawRes = static_cast<double>(drawDurations) / static_cast<double>(drawDurationCounts);
-	juce::Logger::writeToLog("drawDuration: "
-		+ std::to_string(drawRes)
-		+ " microseconds");
-	juce::Logger::writeToLog("drawDuration: "
-		+ std::to_string(drawRes / 1000.0f)
-		+ " miliseconds");
-	juce::Logger::writeToLog("drawDuration: "
-		+ std::to_string(drawRes / (1000.0f * 1000.0f))
-		+ " seconds");
-
-	auto readAndFFTLogFile = juce::File::getCurrentWorkingDirectory().getChildFile("readAndFFTLog.txt");
-	auto readAndFFTfileLogger = std::make_unique<juce::FileLogger>(readAndFFTLogFile, "readAndFFTApplication Log");
-	auto readFFTRes = static_cast<double>(readAndFFTDurations) / static_cast<double>(readAndFFTDurationCounts);
-	juce::Logger::setCurrentLogger(readAndFFTfileLogger.get()); juce::Logger::writeToLog("readAndFFTDuration: "
-		+ std::to_string(readFFTRes)
-		+ " microseconds");
-	juce::Logger::setCurrentLogger(readAndFFTfileLogger.get()); juce::Logger::writeToLog("readAndFFTDuration: "
-		+ std::to_string(readFFTRes / 1000.0f)
-		+ " miliseconds");
-	juce::Logger::setCurrentLogger(readAndFFTfileLogger.get()); juce::Logger::writeToLog("readAndFFTDuration: "
-		+ std::to_string(readFFTRes / (1000.0f * 1000.0f))
-		+ " seconds");
-#endif
-	// For testing purposes
 
 	setAudioChannels(1, 2);
 
@@ -161,17 +132,13 @@ bool SpectrogramComponent::loadURLIntoSpectrum
 		// Prepare cartesian plot
 		initRealTimeFftChartPlot();
 
+		if (ptrFFTCtrl != nullptr)
+		{
+			ptrFFTCtrl->updateSampleRate(curSampleRate);
+		}
+
 		thisIsAudioFile = true;
 		audioFileReadRunning = true;
-
-		// For testing purposes
-#ifdef LOG_EXECUTION_TIMES
-		drawDurations = 0;
-		drawDurationCounts = 0;
-		readAndFFTDurations = 0;
-		readAndFFTDurationCounts = 0;
-#endif
-		// For testing purposes
 
 		// Start the thread
 		startThread();
@@ -254,23 +221,10 @@ void SpectrogramComponent::run()
 
 	do
 	{
-		// For testing purposes
-#ifdef LOG_EXECUTION_TIMES
-		auto start = std::chrono::high_resolution_clock::now();
-#endif
-		// For testing purposes
 		audioFileReadRunning = !t.resume();
 
 		fftDataInBufferIndex ^= 1; // Toggle
 		fftDataInBuffer = fftDataBuffers[fftDataInBufferIndex];
-		// For testing purposes
-#ifdef LOG_EXECUTION_TIMES
-		auto end = std::chrono::high_resolution_clock::now();
-		readAndFFTDurations += std::chrono::duration_cast<std::chrono::microseconds>(end - start).count();
-		readAndFFTDurationCounts++;
-#endif
-		// For testing purposes
-
 	}
 	while (weSpectrumDataReady.wait(500) && !threadShouldExit() && audioFileReadRunning);
 
@@ -289,21 +243,8 @@ void SpectrogramComponent::timerCallback()
 	else if (thisIsAudioFile)
 	{
 		weSpectrumDataReady.signal(); // Task can prepare next buffer of FFT data
-
-		// For testing purposes
-#ifdef LOG_EXECUTION_TIMES
-		auto start = std::chrono::high_resolution_clock::now();
-#endif
-		// For testing purposes
 		drawNextLineOfSpectrogramAndFftPlotUpdate(fftDataOutBuffer, fftSize);
 		repaint();
-		// For testing purposes
-#ifdef LOG_EXECUTION_TIMES
-		auto end = std::chrono::high_resolution_clock::now();
-		drawDurations += std::chrono::duration_cast<std::chrono::microseconds>(end - start).count();
-		drawDurationCounts++;
-#endif
-		// For testing purposes
 
 		fftDataOutBufferIndex ^= 1; // Toggle
 		fftDataOutBuffer = fftDataBuffers[fftDataOutBufferIndex];
@@ -326,6 +267,11 @@ void SpectrogramComponent::prepareToPlay(int samplesPerBlockExpected, double new
 		= (int)(fftSize * (maxFreqInRealTimeFftChartPlot / curSampleRate));
 
 	fillRTChartPlotFrequencyValues();
+
+	if (ptrFFTCtrl != nullptr)
+	{
+		ptrFFTCtrl->updateSampleRate(curSampleRate);
+	}
 }
 
 
@@ -486,7 +432,7 @@ void SpectrogramComponent::initRealTimeFftChartPlot()
 {
 	if (doRealTimeFftChartPlot)
 	{
-		theFftModule.makeGraphAttributes(graph_attributes);
+		ptrFFTModule->makeGraphAttributes(graph_attributes);
 		plotLegend = { "p " + std::to_string(plotLegend.size() + 1) };
 
 		module_freqPlot->setTitle("Frequency response [FFT]");
@@ -601,4 +547,10 @@ void SpectrogramComponent::reStartIO()
 	}
 
 	startTimerHz(curTimerFrequencyHz);
+}
+
+void SpectrogramComponent::registerFFTCtrl(FFTCtrl* FFTC)
+{ 
+	ptrFFTCtrl = FFTC;
+	//ptrFFTCtrl = std::unique_ptr<FFTCtrl>(FFTC);
 }

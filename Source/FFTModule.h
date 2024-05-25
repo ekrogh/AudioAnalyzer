@@ -19,6 +19,7 @@
 #include <coroutine>
 
 class SpectrogramComponent;
+class FFTCtrl; 
 
 class FFTModule final : public Component
 {
@@ -169,6 +170,8 @@ public:
 
 	std::shared_ptr<SpectrogramComponent> getPtrSpectrogramComponent();
 
+	void registerFFTCtrl(FFTCtrl* FFTC);
+
 private:
 	AudioDeviceManager& deviceManager;
 
@@ -195,6 +198,8 @@ private:
 	std::shared_ptr<freqPlotModule> module_freqPlot;
 
 	std::shared_ptr<SpectrogramComponent> ptrSpectrogramComponent;
+	FFTCtrl* ptrFFTCtrl = nullptr;
+	//std::unique_ptr<FFTCtrl> ptrFFTCtrl = nullptr;
 
 	FileChooser chooser
 	{
