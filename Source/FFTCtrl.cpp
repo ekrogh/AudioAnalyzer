@@ -358,52 +358,59 @@ FFTCtrl::FFTCtrl (std::shared_ptr<FFTModule> FFT, std::shared_ptr<SpectrogramCom
 	//	};
 
 	//max Freq In FFT Chart
-	max_freq__textEditor->onReturnKey =
-		[this]
-		{
-			double cur_max_freq__textEditor_value =
-				max_freq__textEditor->getText().getDoubleValue();
-			if (cur_max_freq__textEditor_value > curSampleFreqHz)
-			{
-				max_freq__textEditor->
-					setText(juce::String(curSampleFreqHz));
+	//max_freq__textEditor->onReturnKey =
+	//	[this]
+	//	{
+	//		double cur_max_freq__textEditor_value =
+	//			max_freq__textEditor->getText().getDoubleValue();
+	//		if (cur_max_freq__textEditor_value > curSampleFreqHz)
+	//		{
+	//			max_freq__textEditor->
+	//				setText(juce::String(curSampleFreqHz));
 
-				ptrSpectrogramComponent->
-					setMaxFreqInRealTimeFftChartPlot(curSampleFreqHz);
+	//			ptrSpectrogramComponent->
+	//				setMaxFreqInRealTimeFftChartPlot(curSampleFreqHz);
 
-				maxChartPlotFreq = curSampleFreqHz;
-			}
-			else
-			{
-				ptrSpectrogramComponent->
-					setMaxFreqInRealTimeFftChartPlot(cur_max_freq__textEditor_value);
+	//			maxChartPlotFreq = curSampleFreqHz;
+	//		}
+	//		else
+	//		{
+	//			ptrSpectrogramComponent->
+	//				setMaxFreqInRealTimeFftChartPlot(cur_max_freq__textEditor_value);
 
-				maxChartPlotFreq = cur_max_freq__textEditor_value;
-			}
-		};
-	max_freq__textEditor->onFocusLost =
-		[this]
-		{
-			double cur_max_freq__textEditor_value =
-				max_freq__textEditor->getText().getDoubleValue();
-			if (cur_max_freq__textEditor_value > curSampleFreqHz)
-			{
-				max_freq__textEditor->
-					setText(juce::String(curSampleFreqHz));
+	//			maxChartPlotFreq = cur_max_freq__textEditor_value;
+	//		}
+	//	};
+	//max_freq__textEditor->onFocusLost =
+	//	[this]
+	//	{
+	//		double cur_max_freq__textEditor_value =
+	//			max_freq__textEditor->getText().getDoubleValue();
+	//		if (cur_max_freq__textEditor_value > curSampleFreqHz)
+	//		{
+	//			max_freq__textEditor->
+	//				setText(juce::String(curSampleFreqHz));
 
-				ptrSpectrogramComponent->
-					setMaxFreqInRealTimeFftChartPlot(curSampleFreqHz);
+	//			ptrSpectrogramComponent->
+	//				setMaxFreqInRealTimeFftChartPlot(curSampleFreqHz);
 
-				maxChartPlotFreq = curSampleFreqHz;
-			}
-			else
-			{
-				ptrSpectrogramComponent->
-					setMaxFreqInRealTimeFftChartPlot(cur_max_freq__textEditor_value);
+	//			maxChartPlotFreq = curSampleFreqHz;
+	//		}
+	//		else
+	//		{
+ //               MessageManager::callAsync
+ //               (
+ //                   [this, cur_max_freq__textEditor_value]
+ //                   ()
+ //                   {
+ //                       ptrSpectrogramComponent->
+ //                           setMaxFreqInRealTimeFftChartPlot(cur_max_freq__textEditor_value);
+ //                   }
+ //               );
 
-				maxChartPlotFreq = cur_max_freq__textEditor_value;
-			}
-		};
+	//			maxChartPlotFreq = cur_max_freq__textEditor_value;
+	//		}
+	//	};
 
 	//max Freq In FFT Chart
 	Sample_Freq__textEditor->onReturnKey =

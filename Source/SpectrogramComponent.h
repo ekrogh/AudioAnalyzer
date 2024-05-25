@@ -7,8 +7,6 @@
 
   ==============================================================================
 */
-//#define LOG_EXECUTION_TIMES
-#undef LOG_EXECUTION_TIMES
 
 #pragma once
 
@@ -20,6 +18,38 @@
 #include <semaphore>
 #include <coroutine>
 #include "NotchFilter.h"
+
+
+	// Coroutine def.
+class Task
+{
+public:
+	struct promise_type
+	{
+		Task get_return_object() { return std::coroutine_handle<promise_type>::from_promise(*this); }
+		std::suspend_never initial_suspend() { return {}; }
+		std::suspend_always final_suspend() noexcept { return {}; }
+		void return_void() {}
+		void unhandled_exception() {}
+	};
+
+	Task(std::coroutine_handle<promise_type> p) : p_(p) {}
+
+	bool resume()
+	{
+		if (!p_) return true;
+		p_.resume();
+		if (p_.done())
+		{
+			p_ = nullptr;
+			return true;
+		}
+		return false;
+	}
+
+private:
+	std::coroutine_handle<promise_type> p_;
+};
 
 class FFTModule;
 class FFTCtrl;
@@ -90,53 +120,11 @@ public:
 	void shutDownIO();
 	void reStartIO();
 
-	// Coroutine def.
-	class Task
-	{
-	public:
-		struct promise_type
-		{
-			Task get_return_object() { return std::coroutine_handle<promise_type>::from_promise(*this); }
-			std::suspend_never initial_suspend() { return {}; }
-			std::suspend_always final_suspend() noexcept { return {}; }
-			void return_void() {}
-			void unhandled_exception() {}
-		};
-
-		Task(std::coroutine_handle<promise_type> p) : p_(p) {}
-
-		bool resume()
-		{
-			if (!p_) return true;
-			p_.resume();
-			if (p_.done())
-			{
-				p_ = nullptr;
-				return true;
-			}
-			return false;
-		}
-
-	private:
-		std::coroutine_handle<promise_type> p_;
-	};
-
 	Task readerToFftDataCopy();
 
 
 private:
-	// For testing purposes
-#ifdef LOG_EXECUTION_TIMES
-	long long drawDurations = 0;
-	long long drawDurationCounts = 0;
-
-	long long readAndFFTDurations = 0;
-	long long readAndFFTDurationCounts = 0;
-#endif
-	// For testing purposes
-
 	bool audioSysStarted = false;
-
 
 	//CriticalSection fftLockMutex;
 
@@ -163,7 +151,7 @@ private:
 
 	filterTypes filterToUse = noFilter;
 
-	std::unique_ptr<NotchFilter> theNotchFilter;
+	std::unique_ptr<NotchFilter> theNotchFilter = nullptr;
 	AudioBuffer<float> theAudioBuffer;
 
 	bool autoSwitchToInput = false;
