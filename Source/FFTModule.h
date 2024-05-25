@@ -1,9 +1,9 @@
 /*
   ==============================================================================
 
-    FFTModule.h
-    Created: 20 May 2024 1:24:42pm
-    Author:  eigil
+	FFTModule.h
+	Created: 20 May 2024 1:24:42pm
+	Author:  eigil
 
   ==============================================================================
 */
@@ -19,6 +19,7 @@
 #include <coroutine>
 
 class SpectrogramComponent;
+class FFTCtrl;
 
 class FFTModule final : public Component
 {
@@ -43,10 +44,7 @@ public:
 		juce::TextEditor* Nbr_Samples__textEditor
 		,
 		juce::Label* fftSizeNbr__label
-		,
-		juce::TextEditor* Sample_Freq__textEditor
 	);
-	
 
 	void handleAudioResource
 	(
@@ -59,10 +57,7 @@ public:
 		juce::TextEditor* Nbr_Samples__textEditor
 		,
 		juce::Label* fftSizeNbr__label
-		,
-		juce::TextEditor* Sample_Freq__textEditor
 	);
-	
 
 	bool loadURLIntoFFT
 	(
@@ -73,10 +68,8 @@ public:
 		juce::TextEditor* Nbr_Samples__textEditor
 		,
 		juce::Label* fftSizeNbr__label
-		,
-		juce::TextEditor* Sample_Freq__textEditor
 	);
-	
+
 
 	bool loadURLIntoFFT
 	(
@@ -89,10 +82,8 @@ public:
 		juce::TextEditor* Nbr_Samples__textEditor
 		,
 		juce::Label* fftSizeNbr__label
-		,
-		juce::TextEditor* Sample_Freq__textEditor
 	);
-	
+
 
 
 	void openAudioFile
@@ -100,7 +91,7 @@ public:
 		juce::ToggleButton* spectrumOfaudioFile__toggleButton
 		, juce::ToggleButton* makespectrumOfInput__toggleButton
 	);
-	
+
 
 	void switchToMicrophoneInput();
 
@@ -114,7 +105,7 @@ public:
 		,
 		unsigned int sampleRate
 	);
-	
+
 
 	bool makeSines
 	(
@@ -128,7 +119,7 @@ public:
 		,
 		std::vector<double>& frequencies
 	);
-	
+
 
 	bool makeWindows
 	(
@@ -140,7 +131,7 @@ public:
 		,
 		unsigned int sampleRate
 	);
-	
+
 
 	Random randomRGB = juce::Random::getSystemRandom();
 	void makeGraphAttributes(cmp::GraphAttributeList& ga);
@@ -158,10 +149,8 @@ public:
 		juce::TextEditor* Nbr_Samples__textEditor
 		,
 		juce::Label* fftSizeNbr__label
-		,
-		juce::TextEditor* Sample_Freq__textEditor
 	);
-	
+
 
 	void setDoRealTimeFftChartPlot(bool doRTFftCP);
 
@@ -169,7 +158,16 @@ public:
 
 	std::shared_ptr<SpectrogramComponent> getPtrSpectrogramComponent();
 
+	void registerFFTCtrl
+	(
+		std::shared_ptr<FFTCtrl> PFFTC
+	);
+
+	void shutDownIO();
+
 private:
+	std::shared_ptr<FFTCtrl> pFFTCtrl = nullptr;
+
 	AudioDeviceManager& deviceManager;
 
 	AudioIODevice* currentAudioDevice = nullptr;

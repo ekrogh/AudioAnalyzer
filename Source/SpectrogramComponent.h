@@ -22,6 +22,7 @@
 #include "NotchFilter.h"
 
 class FFTModule;
+class FFTCtrl;
 
 //==============================================================================
 class SpectrogramComponent
@@ -122,6 +123,11 @@ public:
 
 	Task readerToFftDataCopy();
 
+	void registerFFTCtrl
+	(
+		std::shared_ptr<FFTCtrl> PFFTC
+	);
+
 private:
 	// For testing purposes
 #ifdef LOG_EXECUTION_TIMES
@@ -132,6 +138,8 @@ private:
 	long long readAndFFTDurationCounts = 0;
 #endif
 	// For testing purposes
+
+	std::shared_ptr<FFTCtrl> pFFTCtrl = nullptr;
 
 
 	//CriticalSection fftLockMutex;

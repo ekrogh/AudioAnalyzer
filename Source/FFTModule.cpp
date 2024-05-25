@@ -8,6 +8,7 @@
   ==============================================================================
 */
 
+#include "FFTCtrl.h"
 #include "SpectrogramComponent.h"
 #include "FFTModule.h"
 
@@ -64,8 +65,6 @@ void FFTModule::selectFile
 	juce::TextEditor* Nbr_Samples__textEditor
 	,
 	juce::Label* fftSizeNbr__label
-	,
-	juce::TextEditor* Sample_Freq__textEditor
 )
 {
 	chooser.launchAsync
@@ -84,8 +83,6 @@ void FFTModule::selectFile
 				Nbr_Samples__textEditor
 				,
 				fftSizeNbr__label
-				,
-				Sample_Freq__textEditor
 		]
 		(const FileChooser& fc) /*mutable*/
 	{
@@ -104,8 +101,6 @@ void FFTModule::selectFile
 				Nbr_Samples__textEditor
 				,
 				fftSizeNbr__label
-				,
-				Sample_Freq__textEditor
 			);
 		}
 	}
@@ -123,8 +118,6 @@ void FFTModule::handleAudioResource
 	juce::TextEditor* Nbr_Samples__textEditor
 	,
 	juce::Label* fftSizeNbr__label
-	,
-	juce::TextEditor* Sample_Freq__textEditor
 )
 {
 	if
@@ -140,8 +133,6 @@ void FFTModule::handleAudioResource
 				Nbr_Samples__textEditor
 				,
 				fftSizeNbr__label
-				,
-				Sample_Freq__textEditor
 			)
 			)
 	{
@@ -162,8 +153,6 @@ bool FFTModule::loadURLIntoFFT
 	juce::TextEditor* Nbr_Samples__textEditor
 	,
 	juce::Label* fftSizeNbr__label
-	,
-	juce::TextEditor* Sample_Freq__textEditor
 )
 {
 	if (currentAudioFile != URL())
@@ -179,8 +168,6 @@ bool FFTModule::loadURLIntoFFT
 			Nbr_Samples__textEditor
 			,
 			fftSizeNbr__label
-			,
-			Sample_Freq__textEditor
 		);
 	}
 	else
@@ -200,8 +187,6 @@ bool FFTModule::loadURLIntoFFT
 	juce::TextEditor* Nbr_Samples__textEditor
 	,
 	juce::Label* fftSizeNbr__label
-	,
-	juce::TextEditor* Sample_Freq__textEditor
 )
 {
 	module_freqPlot->clearPlot();
@@ -225,6 +210,8 @@ bool FFTModule::loadURLIntoFFT
 	unsigned int fftOrder = static_cast<unsigned int>(std::log2(bufferLengthInSamples));
 	unsigned int fftSize = 1 << fftOrder;
 
+	pFFTCtrl->updateSampleRate(reader->sampleRate);
+
 	showValues
 	(
 		fftOrder
@@ -238,8 +225,6 @@ bool FFTModule::loadURLIntoFFT
 		Nbr_Samples__textEditor
 		,
 		fftSizeNbr__label
-		,
-		Sample_Freq__textEditor
 	);
 
 	const unsigned int fftDataSize = fftSize << 1;
@@ -366,10 +351,6 @@ void FFTModule::openAudioFile
 
 					transportSource.setSource
 					(
-						//currentAudioFileSource.get()
-						//, 0			// tells it to buffer this many samples ahead
-						//, nullptr	// this is the background thread to use for reading-ahead
-						//, currentAudioFileSource->getAudioFormatReader()->sampleRate
 						currentAudioFileSource.get()
 						, 0   // tells it to buffer this many samples ahead
 						, &thread // this is the background thread to use for reading-ahead
@@ -751,14 +732,11 @@ void FFTModule::showValues
 	juce::TextEditor* Nbr_Samples__textEditor
 	,
 	juce::Label* fftSizeNbr__label
-	,
-	juce::TextEditor* Sample_Freq__textEditor
 )
 {
 	fftOrder__textEditor->setText(String(fftOrder), true);
 	Nbr_Samples__textEditor->setText(String(fftSize), true);
 	fftSizeNbr__label->setText(String(fftSize), NotificationType::dontSendNotification);
-	Sample_Freq__textEditor->setText(String(sampleFreq));
 }
 
 void FFTModule::setDoRealTimeFftChartPlot(bool doRTFftCP)
@@ -774,4 +752,21 @@ void FFTModule::setMaxFreqInRealTimeFftChartPlot(double maxFRTFftCP)
 std::shared_ptr<SpectrogramComponent> FFTModule::getPtrSpectrogramComponent()
 {
 	return ptrSpectrogramComponent;
+}
+
+void FFTModule::registerFFTCtrl
+(
+	std::shared_ptr<FFTCtrl> PFFTC
+)
+{
+	pFFTCtrl = PFFTC;
+}
+
+
+void FFTModule::shutDownIO()
+{
+	transportSource.stop();
+	deviceManager.removeAudioCallback(&audioSourcePlayer);
+
+	thread.stopThread(100);
 }

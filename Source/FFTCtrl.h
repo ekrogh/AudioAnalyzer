@@ -46,6 +46,8 @@ public:
     //==============================================================================
     //[UserMethods]     -- You can add your own custom methods in this section.
 	void setValues(unsigned int fftOrder, unsigned int fftSize);
+    void stopStreamAudio();
+    void radioButtonEnable();
     //[/UserMethods]
 
     void paint (juce::Graphics& g) override;
@@ -53,25 +55,31 @@ public:
     void buttonClicked (juce::Button* buttonThatWasClicked) override;
 
 
+    void updateSampleRate(double newSampleRate);
+
 
 private:
-    //[UserVariables]   -- You can add your own custom variables in this section.
-    std::shared_ptr<SpectrogramComponent> ptrSpectrogramComponent = nullptr;
+    //[UserVariables]   -- You can add your own custom variables
+    // in this section.
+    std::shared_ptr<SpectrogramComponent> ptrSpectrogramComponent =
+        nullptr;
+    std::shared_ptr<FFTModule> ptrFFTModule;
     unsigned int fftOrder = 0;
 	unsigned int fftSize = 0;
 	std::shared_ptr<AudioDeviceManager> sharedAudioDeviceManager;
-	std::shared_ptr<FFTModule> module_FFT;
 	std::shared_ptr<freqPlotModule> module_freqPlot;
     bool spectrumOfaudioFileTBState = false;
     bool makespectrumOfInputTBState = true;
+	double curSampleFreqHz = 44100.0f;
+    double maxChartPlotFreq = 44100.0f;
     //[/UserVariables]
 
     //==============================================================================
     std::unique_ptr<juce::TextButton> selFile__textButton;
     std::unique_ptr<juce::TextButton> makeWhiteNoise__textButton;
     std::unique_ptr<juce::TextButton> makeSines__textButton;
-    std::unique_ptr<juce::TextEditor> freqs__textEditor;
-    std::unique_ptr<juce::Label> freqs__label;
+    std::unique_ptr<juce::TextEditor> frequency__textEditor;
+    std::unique_ptr<juce::Label> frequency__label;
     std::unique_ptr<juce::TextEditor> max_freq__textEditor;
     std::unique_ptr<juce::Label> max_Freq__label;
     std::unique_ptr<juce::Label> Sample_Freq__label;
@@ -85,8 +93,8 @@ private:
     std::unique_ptr<juce::Label> fftSize__label;
     std::unique_ptr<juce::Label> fftSizeNbr__label;
     std::unique_ptr<juce::TextButton> fftWindows__textButton;
-    std::unique_ptr<juce::ToggleButton> spectrumOfaudioFile__toggleButton;
-    std::unique_ptr<juce::ToggleButton> makespectrumOfInput__toggleButton;
+    std::unique_ptr<juce::ToggleButton> spectrumOfAudioFile__toggleButton;
+    std::unique_ptr<juce::ToggleButton> makeSpectrumOfInput__toggleButton;
     std::unique_ptr<juce::ToggleButton> autoSwitchToInput__toggleButton;
     std::unique_ptr<juce::ToggleButton> use50HzFilter__toggleButton;
     std::unique_ptr<juce::ToggleButton> use60HzFilter__toggleButton;

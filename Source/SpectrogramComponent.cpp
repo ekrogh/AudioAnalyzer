@@ -7,6 +7,7 @@
 
   ==============================================================================
 */
+#include "FFTCtrl.h"
 #include <chrono>
 #include "FFTModule.h"
 #include "SpectrogramComponent.h"
@@ -50,8 +51,6 @@ SpectrogramComponent::SpectrogramComponent
 	setSize(spectrogramImage.getWidth(), spectrogramImage.getHeight());
 
 }
-
-
 
 
 void SpectrogramComponent::switchToMicrophoneInput()
@@ -154,6 +153,8 @@ bool SpectrogramComponent::loadURLIntoSpectrum
 		resetVariables();
 
 		curSampleRate = reader->sampleRate;
+
+		pFFTCtrl->updateSampleRate(curSampleRate);
 
 		sizeToUseInFreqInRealTimeFftChartPlot
 			= (int)(fftSize * (maxFreqInRealTimeFftChartPlot / curSampleRate));
@@ -318,7 +319,10 @@ void SpectrogramComponent::timerCallback()
 }
 
 
-void SpectrogramComponent::prepareToPlay(int samplesPerBlockExpected, double newSampleRate)
+void SpectrogramComponent::prepareToPlay
+(
+	int samplesPerBlockExpected, double newSampleRate
+)
 {
 	curSampleRate = newSampleRate;
 
@@ -326,6 +330,8 @@ void SpectrogramComponent::prepareToPlay(int samplesPerBlockExpected, double new
 		= (int)(fftSize * (maxFreqInRealTimeFftChartPlot / curSampleRate));
 
 	fillRTChartPlotFrequencyValues();
+
+	pFFTCtrl->updateSampleRate(curSampleRate);
 }
 
 
@@ -601,4 +607,12 @@ void SpectrogramComponent::reStartIO()
 	}
 
 	startTimerHz(curTimerFrequencyHz);
+}
+
+void SpectrogramComponent::registerFFTCtrl
+(
+	std::shared_ptr<FFTCtrl> PFFTC
+)
+{
+	pFFTCtrl = PFFTC;
 }
