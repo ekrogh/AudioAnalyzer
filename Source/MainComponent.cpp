@@ -18,6 +18,7 @@
 */
 
 //[Headers] You can add your own extra header files here...
+#include "SpectrogramComponent.h"
 //[/Headers]
 
 #include "MainComponent.h"
@@ -60,15 +61,39 @@ MainComponent::MainComponent()
 			std::make_shared<AudioSettingsModule>(sharedAudioDeviceManager);
 		module_AudioPlayback =
 			std::make_shared<AudioPlaybackModule>(sharedAudioDeviceManager);
+		module_FFTCtrl =
+			std::make_shared<FFTCtrl>
+			(
+				module_FFT
+				,
+				module_SpectrogramComponent
+				,
+				sharedAudioDeviceManager
+				,
+				module_freqPlot
+			);
 		module_FFT =
 			std::make_shared<FFTModule>
 			(
 				sharedAudioDeviceManager
 				,
 				module_freqPlot
+				,
+				module_FFTCtrl
+				,
+				module_SpectrogramComponent
 			);
-		module_FFTCtrl =
-			std::make_shared<FFTCtrl>(module_FFT, sharedAudioDeviceManager, module_freqPlot);
+		module_SpectrogramComponent =
+			std::make_shared<SpectrogramComponent>
+			(
+				sharedAudioDeviceManager
+				,
+				module_FFT
+				,
+				module_FFTCtrl
+				,
+				module_freqPlot
+			);
 
 		juce__tabbedComponent->addTab
 		(

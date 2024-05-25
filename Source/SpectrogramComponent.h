@@ -33,11 +33,11 @@ class SpectrogramComponent
 public:
 	SpectrogramComponent
 	(
-		AudioFormatManager& FM
-		,
 		std::shared_ptr<AudioDeviceManager> SADM
 		,
-		FFTModule* FFTMP
+		std::shared_ptr <FFTModule> FFT
+		,
+		std::shared_ptr<FFTCtrl> FFTC
 		,
 		std::shared_ptr<freqPlotModule> FPM
 	);
@@ -123,10 +123,6 @@ public:
 
 	Task readerToFftDataCopy();
 
-	void registerFFTCtrl
-	(
-		std::shared_ptr<FFTCtrl> PFFTC
-	);
 
 private:
 	// For testing purposes
@@ -139,7 +135,7 @@ private:
 #endif
 	// For testing purposes
 
-	std::shared_ptr<FFTCtrl> pFFTCtrl = nullptr;
+	bool audioSysStarted = false;
 
 
 	//CriticalSection fftLockMutex;
@@ -155,7 +151,6 @@ private:
 	unsigned int fftSize = defaultFFTValues::fftSize;
 	double curSampleRate = 44100.0f; // Hz
 
-	std::shared_ptr<freqPlotModule> module_freqPlot;
 	std::vector <std::vector<float>> frequencyValues{ { 1 }, { 1 } };
 	std::vector <std::vector<float>> plotValues{ { 1 }, { 1 } };
 	cmp::GraphAttributeList graph_attributes;
@@ -165,7 +160,6 @@ private:
 	double maxFreqInRealTimeFftChartPlot = 22050.0f;
 	int sizeToUseInFreqInRealTimeFftChartPlot = fftSize;
 
-	FFTModule& theFftModule;
 
 	filterTypes filterToUse = noFilter;
 
@@ -202,11 +196,16 @@ private:
 	bool doSwitchToMicrophoneInput = false;
 	bool threadWasRunning = false;
 
+
+	AudioFormatManager formatManager;
+	std::unique_ptr<AudioFormatReader> reader;
 	juce::Image spectrogramImage;
+
+	std::shared_ptr <FFTModule> ptrFFTModule;
+	std::shared_ptr<FFTCtrl> ptrFFTCtrl = nullptr;
+	std::shared_ptr<freqPlotModule> module_freqPlot;
 	std::unique_ptr<juce::dsp::FFT> forwardFFT = std::make_unique<dsp::FFT>(fftOrder);
 
-	AudioFormatManager& formatManager;
-	std::unique_ptr<AudioFormatReader> reader;
 
 
 	JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(SpectrogramComponent)

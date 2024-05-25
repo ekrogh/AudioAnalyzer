@@ -29,11 +29,13 @@ public:
 		std::shared_ptr<AudioDeviceManager> SADM
 		,
 		std::shared_ptr<freqPlotModule> FPM
+		,
+		std::shared_ptr<FFTCtrl> FFTC
+		,
+		std::shared_ptr<SpectrogramComponent> SC
 	);
 
-	~FFTModule() override;
-
-	void paint(Graphics& g) override;
+	~FFTModule();
 
 	void selectFile
 	(
@@ -156,17 +158,13 @@ public:
 
 	void setMaxFreqInRealTimeFftChartPlot(double axFITFftCP);
 
-	std::shared_ptr<SpectrogramComponent> getPtrSpectrogramComponent();
-
-	void registerFFTCtrl
-	(
-		std::shared_ptr<FFTCtrl> PFFTC
-	);
-
 	void shutDownIO();
 
+	void paint(Graphics& g) override;
+
 private:
-	std::shared_ptr<FFTCtrl> pFFTCtrl = nullptr;
+	std::shared_ptr<FFTCtrl> ptrFFTCtrl = nullptr;
+	std::shared_ptr<SpectrogramComponent> ptrSpectrogramComponent;
 
 	AudioDeviceManager& deviceManager;
 
@@ -192,7 +190,6 @@ private:
 
 	std::shared_ptr<freqPlotModule> module_freqPlot;
 
-	std::shared_ptr<SpectrogramComponent> ptrSpectrogramComponent;
 
 	FileChooser chooser
 	{

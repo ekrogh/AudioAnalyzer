@@ -17,16 +17,18 @@ FFTModule::FFTModule
 	std::shared_ptr<AudioDeviceManager> SADM
 	,
 	std::shared_ptr<freqPlotModule> FPM
+	,
+	std::shared_ptr<FFTCtrl> FFTC
+	,
+	std::shared_ptr<SpectrogramComponent> SC
 )
 	: module_freqPlot(FPM)
 	, deviceManager(*SADM)
+	, ptrFFTCtrl(FFTC)
+	, ptrSpectrogramComponent(SC)
 {
-	//setSize(700, 300);
 
 	formatManager.registerBasicFormats();
-
-	ptrSpectrogramComponent =
-		std::make_shared<SpectrogramComponent>(formatManager, SADM, this, FPM);
 
 	addAndMakeVisible(ptrSpectrogramComponent.get());
 	setOpaque(true);
@@ -210,7 +212,7 @@ bool FFTModule::loadURLIntoFFT
 	unsigned int fftOrder = static_cast<unsigned int>(std::log2(bufferLengthInSamples));
 	unsigned int fftSize = 1 << fftOrder;
 
-	pFFTCtrl->updateSampleRate(reader->sampleRate);
+	ptrFFTCtrl->updateSampleRate(reader->sampleRate);
 
 	showValues
 	(
@@ -747,19 +749,6 @@ void FFTModule::setDoRealTimeFftChartPlot(bool doRTFftCP)
 void FFTModule::setMaxFreqInRealTimeFftChartPlot(double maxFRTFftCP)
 {
 	ptrSpectrogramComponent->setMaxFreqInRealTimeFftChartPlot(maxFRTFftCP);
-}
-
-std::shared_ptr<SpectrogramComponent> FFTModule::getPtrSpectrogramComponent()
-{
-	return ptrSpectrogramComponent;
-}
-
-void FFTModule::registerFFTCtrl
-(
-	std::shared_ptr<FFTCtrl> PFFTC
-)
-{
-	pFFTCtrl = PFFTC;
 }
 
 

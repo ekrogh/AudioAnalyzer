@@ -104,6 +104,8 @@ private:
 	std::shared_ptr<AudioPlaybackModule> module_AudioPlayback;
 	std::shared_ptr<FFTModule> module_FFT;
 	std::shared_ptr<FFTCtrl> module_FFTCtrl;
+	std::shared_ptr<SpectrogramComponent> module_SpectrogramComponent;
+
 	std::shared_ptr<freqPlotModule> module_freqPlot =
 		std::make_shared<freqPlotModule>();
 	std::shared_ptr<aboutPage> pAboutPage = nullptr;

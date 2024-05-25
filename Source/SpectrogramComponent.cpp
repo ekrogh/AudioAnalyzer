@@ -23,33 +23,31 @@
 //==============================================================================
 SpectrogramComponent::SpectrogramComponent
 (
-	AudioFormatManager& FM
-	,
 	std::shared_ptr<AudioDeviceManager> SADM
 	,
-	FFTModule* FFTMP
+	std::shared_ptr <FFTModule> FFT
+	,
+	std::shared_ptr<FFTCtrl> FFTC
 	,
 	std::shared_ptr<freqPlotModule> FPM
 )
-	: formatManager(FM)
-	, AudioAppComponent(*SADM)
-	, spectrogramImage(Image::RGB, 600, 626, true)
-	, theFftModule(*FFTMP)
-	, module_freqPlot(FPM)
+	: spectrogramImage(Image::RGB, 600, 626, true)
 	, Thread("Audio file read and FFT")
+	, AudioAppComponent(*SADM)
+	, ptrFFTModule(FFT)
+	, ptrFFTCtrl(FFTC)
+	, module_freqPlot(FPM)
 {
+	formatManager.registerBasicFormats();
+
 	setOpaque(true);
 
 	forwardFFT = std::make_unique<juce::dsp::FFT>(fftOrder);
-
-	curNumInputChannels = 1;
-	setAudioChannels(1, 2);
 
 	curTimerFrequencyHz = 60;
 	startTimerHz(curTimerFrequencyHz);
 
 	setSize(spectrogramImage.getWidth(), spectrogramImage.getHeight());
-
 }
 
 
@@ -154,7 +152,7 @@ bool SpectrogramComponent::loadURLIntoSpectrum
 
 		curSampleRate = reader->sampleRate;
 
-		pFFTCtrl->updateSampleRate(curSampleRate);
+		ptrFFTCtrl->updateSampleRate(curSampleRate);
 
 		sizeToUseInFreqInRealTimeFftChartPlot
 			= (int)(fftSize * (maxFreqInRealTimeFftChartPlot / curSampleRate));
@@ -331,7 +329,7 @@ void SpectrogramComponent::prepareToPlay
 
 	fillRTChartPlotFrequencyValues();
 
-	pFFTCtrl->updateSampleRate(curSampleRate);
+	ptrFFTCtrl->updateSampleRate(curSampleRate);
 }
 
 
@@ -492,7 +490,7 @@ void SpectrogramComponent::initRealTimeFftChartPlot()
 {
 	if (doRealTimeFftChartPlot)
 	{
-		theFftModule.makeGraphAttributes(graph_attributes);
+		ptrFFTModule->makeGraphAttributes(graph_attributes);
 		plotLegend = { "p " + std::to_string(plotLegend.size() + 1) };
 
 		module_freqPlot->setTitle("Frequency response [FFT]");
@@ -601,18 +599,10 @@ void SpectrogramComponent::reStartIO()
 	{
 		startThread();
 	}
-	else
+	else if (audioSysStarted)
 	{
 		setAudioChannels(curNumInputChannels, curNumOutputChannels);
 	}
 
 	startTimerHz(curTimerFrequencyHz);
-}
-
-void SpectrogramComponent::registerFFTCtrl
-(
-	std::shared_ptr<FFTCtrl> PFFTC
-)
-{
-	pFFTCtrl = PFFTC;
 }
