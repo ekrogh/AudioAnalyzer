@@ -330,6 +330,12 @@
       <Option compile="0"/>
       <Option link="0"/>
     </Unit>
+    <Unit filename="../../Source/cpEKSNotchFilter.h">
+      <Option target="App | Debug"/>
+      <Option target="App | Release"/>
+      <Option compile="0"/>
+      <Option link="0"/>
+    </Unit>
     <Unit filename="../../Source/FFTCtrl.cpp">
       <Option target="App | Debug"/>
       <Option target="App | Release"/>
@@ -369,6 +375,12 @@
       <Option target="App | Release"/>
     </Unit>
     <Unit filename="../../Source/microphoneAccessPermissionAlert.h">
+      <Option target="App | Debug"/>
+      <Option target="App | Release"/>
+      <Option compile="0"/>
+      <Option link="0"/>
+    </Unit>
+    <Unit filename="../../Source/NOTCH_50_60_Hz_filter_Coeffs.h">
       <Option target="App | Debug"/>
       <Option target="App | Release"/>
       <Option compile="0"/>

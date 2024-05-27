@@ -7,8 +7,10 @@
 
   ==============================================================================
 */
+#include "NOTCH_50_60_Hz_filter_Coeffs.h"
 #include "FFTCtrl.h"
 #include "FFTModule.h"
+#include "cpEKSNotchFilter.h"
 #include "SpectrogramComponent.h"
 
 #include <juce_audio_formats/juce_audio_formats.h>
@@ -18,6 +20,8 @@
 #include "freqPlotModule.h"
 #include <semaphore>
 #include <coroutine>
+
+using namespace NOTCH_50_60_Hz_filter_Coeffs;
 
 //==============================================================================
 SpectrogramComponent::SpectrogramComponent
@@ -53,9 +57,6 @@ SpectrogramComponent::SpectrogramComponent
 
 }
 
-
-
-
 void SpectrogramComponent::switchToMicrophoneInput()
 {
 	stopTimer();
@@ -64,16 +65,39 @@ void SpectrogramComponent::switchToMicrophoneInput()
 	signalThreadShouldExit();;
 	weSpectrumDataReady.signal();
 
+	showFilters = false;
+
 	resetVariables();
 
 	setAudioChannels(1, 2);
 
-	thisIsAudioFile = false;
-	audioFileReadRunning = false;
+	thisIsNotAudioIOSystem = false;
+	notAudioIOSystemIsRunning = false;
 
 	curTimerFrequencyHz = 60;
 	startTimerHz(curTimerFrequencyHz);
 
+}
+
+void SpectrogramComponent::switchToNonInput()
+{
+	stopTimer();
+
+	// Stop the thread
+	signalThreadShouldExit();;
+	weSpectrumDataReady.signal();
+
+	showFilters = false;
+
+	resetVariables();
+
+	thisIsNotAudioIOSystem = false;
+	notAudioIOSystemIsRunning = false;
+
+	curTimerFrequencyHz = 60;
+
+	ptrFFTCtrl->switchUIToSpecialPlots();
+	ptrFFTModule->switchToNonInput();
 }
 
 void SpectrogramComponent::resetVariables()
@@ -88,6 +112,36 @@ void SpectrogramComponent::resetVariables()
 
 	fifoIndex = 0;
 	nextFFTBlockReady = false;
+}
+
+void SpectrogramComponent::startShowingFilters()
+{
+
+	shutdownAudio();
+
+	stopTimer();
+
+	resetVariables();
+
+	sizeToUseInFreqInRealTimeFftChartPlot
+		= (int)(fftSize * (maxFreqInRealTimeFftChartPlot / curSampleRate));
+
+	// Prepare cartesian plot
+	initRealTimeFftChartPlot();
+
+	if (ptrFFTCtrl != nullptr)
+	{
+		ptrFFTCtrl->updateSampleRate(curSampleRate);
+	}
+
+	thisIsNotAudioIOSystem = true;
+	notAudioIOSystemIsRunning = true;
+
+	// Start the thread
+	startThread();
+
+	startTimerHz(60);
+
 }
 
 bool SpectrogramComponent::loadURLIntoSpectrum
@@ -105,6 +159,8 @@ bool SpectrogramComponent::loadURLIntoSpectrum
 		shutdownAudio();
 
 		stopTimer();
+
+		showFilters = false;
 
 		const auto source = makeInputSource(theUrl);
 
@@ -126,6 +182,8 @@ bool SpectrogramComponent::loadURLIntoSpectrum
 
 		curSampleRate = reader->sampleRate;
 
+		setFilterToUse(filterToUse);
+
 		sizeToUseInFreqInRealTimeFftChartPlot
 			= (int)(fftSize * (maxFreqInRealTimeFftChartPlot / curSampleRate));
 
@@ -137,8 +195,8 @@ bool SpectrogramComponent::loadURLIntoSpectrum
 			ptrFFTCtrl->updateSampleRate(curSampleRate);
 		}
 
-		thisIsAudioFile = true;
-		audioFileReadRunning = true;
+		thisIsNotAudioIOSystem = true;
+		notAudioIOSystemIsRunning = true;
 
 		// Start the thread
 		startThread();
@@ -158,6 +216,35 @@ bool SpectrogramComponent::loadURLIntoSpectrum
 	}
 
 	return true;
+}
+
+SpectrogramComponent::Task SpectrogramComponent::makeFilterPing()
+{
+	while (showFilters)
+	{
+		if (filterToUse != noFilter)
+		{
+			zeromem(fftDataInBuffer, sizeOfFftDataBuffersInBytes);
+
+			auto impulseResponse = theNotchFilter->calculateImpulseResponse(fftSize);
+
+			for (auto i = 0; i < impulseResponse.size(); i++)
+			{
+				fftDataInBuffer[i] = impulseResponse[i];
+			}
+
+			doFFT(fftDataInBuffer, fftSize);
+
+			for (size_t n = 0; n < fftSize; n++)
+			{
+				if (std::isnan(fftDataInBuffer[n]) || std::isinf(fftDataInBuffer[n]))
+				{
+					impulseResponse[n] = 0;
+				}
+			}
+		}
+		co_await std::suspend_always{};
+	}
 }
 
 SpectrogramComponent::Task SpectrogramComponent::readerToFftDataCopy()
@@ -215,20 +302,33 @@ SpectrogramComponent::Task SpectrogramComponent::readerToFftDataCopy()
 	}
 }
 
+SpectrogramComponent::Task SpectrogramComponent::setTask()
+{
+	if (showFilters)
+	{
+		return makeFilterPing();
+	}
+	else
+	{
+		return readerToFftDataCopy();
+	}
+}
+
 void SpectrogramComponent::run()
 {
-	Task t = readerToFftDataCopy();  // Create a Task that suspends itself 5 times
+	Task t = setTask();
 
 	do
 	{
-		audioFileReadRunning = !t.resume();
+		notAudioIOSystemIsRunning = !t.resume();
 
 		fftDataInBufferIndex ^= 1; // Toggle
 		fftDataInBuffer = fftDataBuffers[fftDataInBufferIndex];
 	}
-	while (weSpectrumDataReady.wait(500) && !threadShouldExit() && audioFileReadRunning);
+	while (weSpectrumDataReady.wait(500) && !threadShouldExit() && notAudioIOSystemIsRunning);
 
-	doSwitchToMicrophoneInput = (!audioFileReadRunning) && autoSwitchToInput;
+	doSwitchToMicrophoneInput = (!notAudioIOSystemIsRunning) && autoSwitchToInput;
+	doSwitchTNoneInput = !doSwitchToMicrophoneInput;
 }
 
 void SpectrogramComponent::timerCallback()
@@ -240,7 +340,7 @@ void SpectrogramComponent::timerCallback()
 		nextFFTBlockReady = false;
 		repaint();
 	}
-	else if (thisIsAudioFile)
+	else if (thisIsNotAudioIOSystem)
 	{
 		weSpectrumDataReady.signal(); // Task can prepare next buffer of FFT data
 		drawNextLineOfSpectrogramAndFftPlotUpdate(fftDataOutBuffer, fftSize);
@@ -249,12 +349,18 @@ void SpectrogramComponent::timerCallback()
 		fftDataOutBufferIndex ^= 1; // Toggle
 		fftDataOutBuffer = fftDataBuffers[fftDataOutBufferIndex];
 
-		thisIsAudioFile = audioFileReadRunning;
+		thisIsNotAudioIOSystem = notAudioIOSystemIsRunning;
 	}
 	else if (doSwitchToMicrophoneInput)
 	{
 		doSwitchToMicrophoneInput = false;
-		makespectrumOfInput__toggleButton->setToggleState(true, juce::NotificationType::sendNotification);
+		makespectrumOfInput__toggleButton->
+			setToggleState(true, juce::NotificationType::sendNotification);
+	}
+	else if (doSwitchTNoneInput)
+	{
+		doSwitchTNoneInput = false;
+		switchToNonInput();
 	}
 }
 
@@ -262,6 +368,8 @@ void SpectrogramComponent::timerCallback()
 void SpectrogramComponent::prepareToPlay(int samplesPerBlockExpected, double newSampleRate)
 {
 	curSampleRate = newSampleRate;
+
+	setFilterToUse(filterToUse);
 
 	sizeToUseInFreqInRealTimeFftChartPlot
 		= (int)(fftSize * (maxFreqInRealTimeFftChartPlot / curSampleRate));
@@ -346,6 +454,17 @@ void SpectrogramComponent::drawNextLineOfSpectrogramAndFftPlotUpdate(float* fftD
 		plotValues.push_back(std::vector<float>
 			(fftDataBuffer, fftDataBuffer + sizeToUseInFreqInRealTimeFftChartPlot));
 		frequencyValues[0].resize(sizeToUseInFreqInRealTimeFftChartPlot);
+		auto pltSize = plotValues[0].size();
+		auto tstData = plotValues[0].data();
+		auto tstFreq = frequencyValues[0].data();
+		for (size_t n = 0; n < plotValues[0].size(); n++)
+		{
+			if (std::isnan(plotValues[0][n]) || std::isinf(plotValues[0][n]))
+			{
+				plotValues[0][n] = 0;
+			}
+		}
+
 		if (doneFirst)
 		{
 			module_freqPlot->updatePlotRealTime(plotValues, frequencyValues);
@@ -382,19 +501,32 @@ void SpectrogramComponent::drawNextLineOfSpectrogramAndFftPlotUpdate(float* fftD
 void SpectrogramComponent::doFFT(float* fftDataBuffer, unsigned int& fftSize)
 {
 	// Window the data
-	juce::dsp::WindowingFunction<float> theHannWindow
+	juce::dsp::WindowingFunction<float> theKaiserWindow
 	(
 		fftSize
 		,
-		juce::dsp::WindowingFunction<float>::WindowingMethod::hann
+		juce::dsp::WindowingFunction<float>::WindowingMethod::kaiser
 	);
 
-	theHannWindow.multiplyWithWindowingTable
+	theKaiserWindow.multiplyWithWindowingTable
 	(
 		fftDataBuffer
 		,
 		fftSize
 	);
+	//juce::dsp::WindowingFunction<float> theHannWindow
+	//(
+	//	fftSize
+	//	,
+	//	juce::dsp::WindowingFunction<float>::WindowingMethod::hann
+	//);
+
+	//theHannWindow.multiplyWithWindowingTable
+	//(
+	//	fftDataBuffer
+	//	,
+	//	fftSize
+	//);
 
 	forwardFFT->performFrequencyOnlyForwardTransform(fftDataBuffer, true);
 
@@ -406,26 +538,24 @@ void SpectrogramComponent::setAutoSwitchToInput(bool autoSwitch)
 	autoSwitchToInput = autoSwitch;
 }
 
+
 void SpectrogramComponent::setFilterToUse(filterTypes theFilterType)
 {
 	switch (theFilterType)
 	{
 		case filter50Hz:
 			{
-				theNotchFilter =
-					std::make_unique<NotchFilter>(50.0f, curSampleRate, curNumInputChannels);
+				theNotchFilter = std::make_unique<cpEKSNotchFilter>(50.0, curSampleRate, curNumInputChannels, 0.1);
 				break;
 			}
 		case filter60Hz:
 			{
-				theNotchFilter =
-					std::make_unique<NotchFilter>(60.0f, curSampleRate, curNumInputChannels);
+				theNotchFilter = std::make_unique<cpEKSNotchFilter>(60.0, curSampleRate, curNumInputChannels, 0.1);
 				break;
 			}
 	}
 
 	filterToUse = theFilterType;
-
 }
 
 void SpectrogramComponent::initRealTimeFftChartPlot()
@@ -550,7 +680,14 @@ void SpectrogramComponent::reStartIO()
 }
 
 void SpectrogramComponent::registerFFTCtrl(FFTCtrl* FFTC)
-{ 
+{
 	ptrFFTCtrl = FFTC;
 	//ptrFFTCtrl = std::unique_ptr<FFTCtrl>(FFTC);
+}
+
+void SpectrogramComponent::setShowFilters(bool showF)
+{
+	showFilters = showF;
+
+	startShowingFilters();
 }

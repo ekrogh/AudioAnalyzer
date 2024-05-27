@@ -2587,10 +2587,12 @@
     <ClInclude Include="..\..\Source\AudioPlaybackModule.h"/>
     <ClInclude Include="..\..\Source\AudioRecorderModule.h"/>
     <ClInclude Include="..\..\Source\AudioSettingsModule.h"/>
+    <ClInclude Include="..\..\Source\cpEKSNotchFilter.h"/>
     <ClInclude Include="..\..\Source\FFTCtrl.h"/>
     <ClInclude Include="..\..\Source\FFTModule.h"/>
     <ClInclude Include="..\..\Source\MainComponent.h"/>
     <ClInclude Include="..\..\Source\microphoneAccessPermissionAlert.h"/>
+    <ClInclude Include="..\..\Source\NOTCH_50_60_Hz_filter_Coeffs.h"/>
     <ClInclude Include="..\..\Source\NotchFilter.h"/>
     <ClInclude Include="..\..\Source\PlotModule.h"/>
     <ClInclude Include="..\..\Source\SoundProcessorModule.h"/>

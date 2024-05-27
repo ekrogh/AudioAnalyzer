@@ -3327,6 +3327,9 @@
     <ClInclude Include="..\..\Source\AudioSettingsModule.h">
       <Filter>AudioAnalyzer\Source</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\Source\cpEKSNotchFilter.h">
+      <Filter>AudioAnalyzer\Source</Filter>
+    </ClInclude>
     <ClInclude Include="..\..\Source\FFTCtrl.h">
       <Filter>AudioAnalyzer\Source</Filter>
     </ClInclude>
@@ -3337,6 +3340,9 @@
       <Filter>AudioAnalyzer\Source</Filter>
     </ClInclude>
     <ClInclude Include="..\..\Source\microphoneAccessPermissionAlert.h">
+      <Filter>AudioAnalyzer\Source</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\NOTCH_50_60_Hz_filter_Coeffs.h">
       <Filter>AudioAnalyzer\Source</Filter>
     </ClInclude>
     <ClInclude Include="..\..\Source\NotchFilter.h">

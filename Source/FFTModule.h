@@ -104,6 +104,7 @@ public:
 	
 
 	void switchToMicrophoneInput();
+	void switchToNonInput();
 
 	bool makeWhiteNoise
 	(

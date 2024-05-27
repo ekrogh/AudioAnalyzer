@@ -420,6 +420,15 @@ void FFTModule::switchToMicrophoneInput()
 	ptrSpectrogramComponent->switchToMicrophoneInput();
 }
 
+void FFTModule::switchToNonInput()
+{
+	thread.stopThread(100);
+	deviceManager.removeAudioCallback(&audioSourcePlayer);
+	transportSource.stop();
+	transportSource.setSource(nullptr);
+	currentAudioFileSource.reset(nullptr);
+}
+
 bool FFTModule::makeWhiteNoise
 (
 	unsigned int fftOrder

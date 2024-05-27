@@ -68,6 +68,8 @@
             file="Source/AudioSettingsModule.cpp"/>
       <FILE id="dJMzzu" name="AudioSettingsModule.h" compile="0" resource="0"
             file="Source/AudioSettingsModule.h"/>
+      <FILE id="gcAZ5Y" name="cpEKSNotchFilter.h" compile="0" resource="0"
+            file="Source/cpEKSNotchFilter.h"/>
       <FILE id="AxQVJX" name="FFTCtrl.cpp" compile="1" resource="0" file="Source/FFTCtrl.cpp"/>
       <FILE id="HhhnxZ" name="FFTCtrl.h" compile="0" resource="0" file="Source/FFTCtrl.h"/>
       <FILE id="kETeAf" name="FFTModule.cpp" compile="1" resource="0" file="Source/FFTModule.cpp"/>
@@ -80,6 +82,8 @@
             resource="0" file="Source/microphoneAccessPermissionAlert.cpp"/>
       <FILE id="hBE5Tv" name="microphoneAccessPermissionAlert.h" compile="0"
             resource="0" file="Source/microphoneAccessPermissionAlert.h"/>
+      <FILE id="ndWD7U" name="NOTCH_50_60_Hz_filter_Coeffs.h" compile="0"
+            resource="0" file="Source/NOTCH_50_60_Hz_filter_Coeffs.h"/>
       <FILE id="pEPoNe" name="NotchFilter.cpp" compile="1" resource="0" file="Source/NotchFilter.cpp"/>
       <FILE id="rlg337" name="NotchFilter.h" compile="0" resource="0" file="Source/NotchFilter.h"/>
       <FILE id="ezQVuB" name="PlotModule.cpp" compile="1" resource="0" file="Source/PlotModule.cpp"/>

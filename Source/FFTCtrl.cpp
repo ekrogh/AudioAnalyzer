@@ -240,7 +240,7 @@ FFTCtrl::FFTCtrl (std::shared_ptr<FFTModule> ptr_module_FFT, std::shared_ptr<Aud
     spectrumOfaudioFile__toggleButton->setRadioGroupId (1);
     spectrumOfaudioFile__toggleButton->addListener (this);
 
-    spectrumOfaudioFile__toggleButton->setBounds (192, 357, 158, 24);
+    spectrumOfaudioFile__toggleButton->setBounds (192, 309, 158, 24);
 
     makespectrumOfInput__toggleButton.reset (new juce::ToggleButton ("makespectrumOfInput toggle button"));
     addAndMakeVisible (makespectrumOfInput__toggleButton.get());
@@ -257,7 +257,7 @@ FFTCtrl::FFTCtrl (std::shared_ptr<FFTModule> ptr_module_FFT, std::shared_ptr<Aud
     autoSwitchToInput__toggleButton->setButtonText (TRANS ("Auto switch to input"));
     autoSwitchToInput__toggleButton->addListener (this);
 
-    autoSwitchToInput__toggleButton->setBounds (192, 397, 150, 24);
+    autoSwitchToInput__toggleButton->setBounds (192, 403, 150, 24);
 
     use50HzFilter__toggleButton.reset (new juce::ToggleButton ("use50HzFilter toggle button"));
     addAndMakeVisible (use50HzFilter__toggleButton.get());
@@ -285,7 +285,7 @@ FFTCtrl::FFTCtrl (std::shared_ptr<FFTModule> ptr_module_FFT, std::shared_ptr<Aud
     useNoFilter__toggleButton->addListener (this);
     useNoFilter__toggleButton->setToggleState (true, juce::dontSendNotification);
 
-    useNoFilter__toggleButton->setBounds (192, 507, 150, 24);
+    useNoFilter__toggleButton->setBounds (192, 503, 150, 24);
 
     makeFFtRealTimeChartPlot__toggleButton.reset (new juce::ToggleButton ("makeFFtRealTimeChartPlot toggle button"));
     addAndMakeVisible (makeFFtRealTimeChartPlot__toggleButton.get());
@@ -293,7 +293,16 @@ FFTCtrl::FFTCtrl (std::shared_ptr<FFTModule> ptr_module_FFT, std::shared_ptr<Aud
     makeFFtRealTimeChartPlot__toggleButton->addListener (this);
     makeFFtRealTimeChartPlot__toggleButton->setToggleState (true, juce::dontSendNotification);
 
-    makeFFtRealTimeChartPlot__toggleButton->setBounds (192, 315, 183, 24);
+    makeFFtRealTimeChartPlot__toggleButton->setBounds (192, 372, 183, 24);
+
+    showFilter__toggleButton.reset (new juce::ToggleButton ("show Filter toggle button"));
+    addAndMakeVisible (showFilter__toggleButton.get());
+    showFilter__toggleButton->setButtonText (TRANS ("Show filters"));
+    showFilter__toggleButton->setConnectedEdges (juce::Button::ConnectedOnTop | juce::Button::ConnectedOnBottom);
+    showFilter__toggleButton->setRadioGroupId (1);
+    showFilter__toggleButton->addListener (this);
+
+    showFilter__toggleButton->setBounds (192, 339, 150, 24);
 
 
     //[UserPreSize]
@@ -462,6 +471,7 @@ FFTCtrl::~FFTCtrl()
     use60HzFilter__toggleButton = nullptr;
     useNoFilter__toggleButton = nullptr;
     makeFFtRealTimeChartPlot__toggleButton = nullptr;
+    showFilter__toggleButton = nullptr;
 
 
     //[Destructor]. You can add your own custom destruction code here..
@@ -596,7 +606,8 @@ void FFTCtrl::buttonClicked (juce::Button* buttonThatWasClicked)
 		{
 			spectrumOfaudioFile__toggleButton->setRadioGroupId(1);
 			makespectrumOfInput__toggleButton->setRadioGroupId(1);
-		}
+            showFilter__toggleButton->setRadioGroupId(1);
+        }
 
 		if
 			(
@@ -622,7 +633,8 @@ void FFTCtrl::buttonClicked (juce::Button* buttonThatWasClicked)
 		{
 			makespectrumOfInput__toggleButton->setRadioGroupId(1);
 			spectrumOfaudioFile__toggleButton->setRadioGroupId(1);
-		}
+            showFilter__toggleButton->setRadioGroupId(1);
+        }
 
 		if
 			(
@@ -677,6 +689,30 @@ void FFTCtrl::buttonClicked (juce::Button* buttonThatWasClicked)
 			setDoRealTimeFftChartPlot(makeFFtRealTimeChartPlot__toggleButton->getToggleState());
         //[/UserButtonCode_makeFFtRealTimeChartPlot__toggleButton]
     }
+    else if (buttonThatWasClicked == showFilter__toggleButton.get())
+    {
+        //[UserButtonCode_showFilter__toggleButton] -- add your button handler code here..
+        //HERFRA
+        if ((showFilter__toggleButton->getRadioGroupId()) == 0)
+        {
+			showFilter__toggleButton->setRadioGroupId(1);
+            makespectrumOfInput__toggleButton->setRadioGroupId(1);
+            spectrumOfaudioFile__toggleButton->setRadioGroupId(1);
+        }
+
+        if
+            (
+                showFilter__toggleButton->getToggleState()
+                &&
+                !makespectrumOfInputTBState
+                )
+        {
+            refSpectrogramComponent.setShowFilters(showFilter__toggleButton->getToggleState());
+        }
+        showFilterTBState = showFilter__toggleButton->getToggleState();
+        //HERTIL
+        //[/UserButtonCode_showFilter__toggleButton]
+    }
 
     //[UserbuttonClicked_Post]
     //[/UserbuttonClicked_Post]
@@ -716,9 +752,14 @@ void FFTCtrl::setValues(unsigned int fftOrder, unsigned int fftSize)
 void FFTCtrl::switchUIToSpecialPlots()
 {
 	spectrumOfaudioFile__toggleButton->setRadioGroupId(0);
-	makespectrumOfInput__toggleButton->setRadioGroupId(0);
+    makespectrumOfInput__toggleButton->setRadioGroupId(0);
+    showFilter__toggleButton->setRadioGroupId(0);
 	spectrumOfaudioFile__toggleButton->setToggleState(false, juce::dontSendNotification);
-	makespectrumOfInput__toggleButton->setToggleState(false, juce::dontSendNotification);
+    makespectrumOfInput__toggleButton->setToggleState(false, juce::dontSendNotification);
+    showFilter__toggleButton->setToggleState(false, juce::dontSendNotification);
+	spectrumOfaudioFileTBState = false;
+	makespectrumOfInputTBState = false;
+	showFilterTBState = false;
 }
 //[/MiscUserCode]
 
@@ -813,7 +854,7 @@ BEGIN_JUCER_METADATA
               connectedEdges="0" needsCallback="1" radioGroupId="0"/>
   <TOGGLEBUTTON name="spectrumOfaudioFile toggle button" id="1275ad335d939b3e"
                 memberName="spectrumOfaudioFile__toggleButton" virtualName=""
-                explicitFocusOrder="0" pos="192 357 158 24" buttonText="Make plots of audio file  "
+                explicitFocusOrder="0" pos="192 309 158 24" buttonText="Make plots of audio file  "
                 connectedEdges="4" needsCallback="1" radioGroupId="1" state="0"/>
   <TOGGLEBUTTON name="makespectrumOfInput toggle button" id="a4f23f06626db462"
                 memberName="makespectrumOfInput__toggleButton" virtualName=""
@@ -821,7 +862,7 @@ BEGIN_JUCER_METADATA
                 connectedEdges="8" needsCallback="1" radioGroupId="1" state="1"/>
   <TOGGLEBUTTON name="autoSwitchToInput toggle button" id="f79b3224172a8f2d"
                 memberName="autoSwitchToInput__toggleButton" virtualName="" explicitFocusOrder="0"
-                pos="192 397 150 24" buttonText="Auto switch to input" connectedEdges="0"
+                pos="192 403 150 24" buttonText="Auto switch to input" connectedEdges="0"
                 needsCallback="1" radioGroupId="0" state="0"/>
   <TOGGLEBUTTON name="use50HzFilter toggle button" id="86160e89f8af914" memberName="use50HzFilter__toggleButton"
                 virtualName="" explicitFocusOrder="0" pos="192 436 150 24" buttonText="Use 50 Hz filter"
@@ -830,12 +871,15 @@ BEGIN_JUCER_METADATA
                 virtualName="" explicitFocusOrder="0" pos="192 467 150 24" buttonText="Use 60 Hz filter"
                 connectedEdges="12" needsCallback="1" radioGroupId="2" state="0"/>
   <TOGGLEBUTTON name="useNoFilter toggle button" id="a4acb1f6eeda074a" memberName="useNoFilter__toggleButton"
-                virtualName="" explicitFocusOrder="0" pos="192 507 150 24" buttonText="Use no filter"
+                virtualName="" explicitFocusOrder="0" pos="192 503 150 24" buttonText="Use no filter"
                 connectedEdges="4" needsCallback="1" radioGroupId="2" state="1"/>
   <TOGGLEBUTTON name="makeFFtRealTimeChartPlot toggle button" id="e0ba875e06b99110"
                 memberName="makeFFtRealTimeChartPlot__toggleButton" virtualName=""
-                explicitFocusOrder="0" pos="192 315 183 24" buttonText="Make FFT real time chart plot"
+                explicitFocusOrder="0" pos="192 372 183 24" buttonText="Make FFT real time chart plot"
                 connectedEdges="0" needsCallback="1" radioGroupId="0" state="1"/>
+  <TOGGLEBUTTON name="show Filter toggle button" id="e40cdc89151095fd" memberName="showFilter__toggleButton"
+                virtualName="" explicitFocusOrder="0" pos="192 339 150 24" buttonText="Show filters"
+                connectedEdges="12" needsCallback="1" radioGroupId="1" state="0"/>
 </JUCER_COMPONENT>
 
 END_JUCER_METADATA

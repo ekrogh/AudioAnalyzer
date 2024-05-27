@@ -21,6 +21,7 @@
 
 class FFTModule;
 class FFTCtrl;
+class cpEKSNotchFilter;
 
 //==============================================================================
 class SpectrogramComponent
@@ -49,9 +50,11 @@ public:
 		, juce::ToggleButton* makespectrumOfInput__toggleButtonPtr
 	);
 
+	void startShowingFilters();
+
 	void switchToMicrophoneInput();
 
-	void releaseAllSemaphores();
+	void switchToNonInput();
 
 	void resetVariables();
 
@@ -90,6 +93,8 @@ public:
 
 	void registerFFTCtrl(FFTCtrl* FFTC);
 
+	void setShowFilters(bool showFilters);
+
 	// Coroutine def.
 	class Task
 	{
@@ -122,6 +127,8 @@ public:
 	};
 
 	Task readerToFftDataCopy();
+	Task makeFilterPing();
+	Task setTask();
 
 private:
 	//CriticalSection fftLockMutex;
@@ -144,7 +151,7 @@ private:
 	cmp::StringVector plotLegend{ "1", "2" };
 
 	bool doRealTimeFftChartPlot = true;
-	double maxFreqInRealTimeFftChartPlot = 22050.0f;
+	double maxFreqInRealTimeFftChartPlot = 500.0f;
 	int sizeToUseInFreqInRealTimeFftChartPlot = fftSize;
 
 	FFTModule* ptrFFTModule;
@@ -153,7 +160,7 @@ private:
 
 	filterTypes filterToUse = noFilter;
 
-	std::unique_ptr<NotchFilter> theNotchFilter;
+	std::unique_ptr<cpEKSNotchFilter> theNotchFilter;
 	AudioBuffer<float> theAudioBuffer;
 
 	bool autoSwitchToInput = false;
@@ -181,9 +188,11 @@ private:
 	int fifoIndex = 0;
 	bool nextFFTBlockReady = false;
 
-	bool thisIsAudioFile = false;
-	bool audioFileReadRunning = false;
+	bool thisIsNotAudioIOSystem = false;
+	bool notAudioIOSystemIsRunning = false;
+	bool showFilters = false;
 	bool doSwitchToMicrophoneInput = false;
+	bool doSwitchTNoneInput = false;
 	bool threadWasRunning = false;
 
 	juce::Image spectrogramImage;

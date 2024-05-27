@@ -68,6 +68,7 @@ private:
 	std::shared_ptr<freqPlotModule> module_freqPlot;
     bool spectrumOfaudioFileTBState = false;
     bool makespectrumOfInputTBState = true;
+    bool showFilterTBState = false;
     double curSampleFreqHz = 44100.0f;
     double maxChartPlotFreq = 44100.0f;
     //[/UserVariables]
@@ -98,6 +99,7 @@ private:
     std::unique_ptr<juce::ToggleButton> use60HzFilter__toggleButton;
     std::unique_ptr<juce::ToggleButton> useNoFilter__toggleButton;
     std::unique_ptr<juce::ToggleButton> makeFFtRealTimeChartPlot__toggleButton;
+    std::unique_ptr<juce::ToggleButton> showFilter__toggleButton;
 
 
     //==============================================================================
