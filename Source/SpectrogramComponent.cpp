@@ -7,7 +7,6 @@
 
   ==============================================================================
 */
-#include "NOTCH_50_60_Hz_filter_Coeffs.h"
 #include "FFTCtrl.h"
 #include "FFTModule.h"
 #include "cpEKSNotchFilter.h"
@@ -21,7 +20,6 @@
 #include <semaphore>
 #include <coroutine>
 
-using namespace NOTCH_50_60_Hz_filter_Coeffs;
 
 //==============================================================================
 SpectrogramComponent::SpectrogramComponent
@@ -222,27 +220,20 @@ SpectrogramComponent::Task SpectrogramComponent::makeFilterPing()
 {
 	while (showFilters)
 	{
+		zeromem(fftDataInBuffer, sizeOfFftDataBuffersInBytes);
+
 		if (filterToUse != noFilter)
 		{
-			zeromem(fftDataInBuffer, sizeOfFftDataBuffersInBytes);
+			// Set impulse
+			fftDataInBuffer[0] = 1.0f;
 
-			auto impulseResponse = theNotchFilter->calculateImpulseResponse(fftSize);
+			// Run it through the filter
+			theNotchFilter->process(fftDataInBuffer, fftSize);
 
-			for (auto i = 0; i < impulseResponse.size(); i++)
-			{
-				fftDataInBuffer[i] = impulseResponse[i];
-			}
-
+			// Make the FFT
 			doFFT(fftDataInBuffer, fftSize);
-
-			for (size_t n = 0; n < fftSize; n++)
-			{
-				if (std::isnan(fftDataInBuffer[n]) || std::isinf(fftDataInBuffer[n]))
-				{
-					impulseResponse[n] = 0;
-				}
-			}
 		}
+
 		co_await std::suspend_always{};
 	}
 }
@@ -423,7 +414,14 @@ void SpectrogramComponent::pushNextSampleIntoFifo(float sample) noexcept
 		fifoIndex = 0;
 	}
 
-	fifo[fifoIndex++] = sample;
+	if (filterToUse == noFilter)
+	{
+		fifo[fifoIndex++] = sample;
+	}
+	else
+	{
+		fifo[fifoIndex++] = theNotchFilter->process(sample);
+	}
 }
 
 
@@ -545,12 +543,12 @@ void SpectrogramComponent::setFilterToUse(filterTypes theFilterType)
 	{
 		case filter50Hz:
 			{
-				theNotchFilter = std::make_unique<cpEKSNotchFilter>(50.0, curSampleRate, curNumInputChannels, 0.1);
+				theNotchFilter = std::make_unique<NotchFilter>(50.0, curSampleRate);
 				break;
 			}
 		case filter60Hz:
 			{
-				theNotchFilter = std::make_unique<cpEKSNotchFilter>(60.0, curSampleRate, curNumInputChannels, 0.1);
+				theNotchFilter = std::make_unique<NotchFilter>(60.0, curSampleRate);
 				break;
 			}
 	}

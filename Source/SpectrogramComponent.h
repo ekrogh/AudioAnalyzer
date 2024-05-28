@@ -160,7 +160,7 @@ private:
 
 	filterTypes filterToUse = noFilter;
 
-	std::unique_ptr<cpEKSNotchFilter> theNotchFilter;
+	std::unique_ptr<NotchFilter> theNotchFilter;
 	AudioBuffer<float> theAudioBuffer;
 
 	bool autoSwitchToInput = false;
