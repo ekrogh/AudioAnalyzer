@@ -173,6 +173,7 @@ namespace NOTCH_50_60_Hz_filter_Coeffs
 	};
 
 
+	// 50Hz and 60Hz Notch filters coefficients map
     std::unordered_map<int, std::unordered_map<int, std::tuple<int, int, std::vector<double>::const_iterator, std::vector<double>::const_iterator>>>
 		notchFiltersCoefficientsMap =
     {
