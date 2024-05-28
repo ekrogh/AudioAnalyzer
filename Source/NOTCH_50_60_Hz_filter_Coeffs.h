@@ -2,7 +2,7 @@
 
 //  NOTCH_50_60_Hz_filter_Coeffs.h
 
-//  27-May-2024 21:48:55
+//  28-May-2024 14:28:08
 
 //  Made with:
 //   NOTCH_50_60_Hz_filters_Vector_Double_Iterators_2_map.m
@@ -14,7 +14,6 @@
 
 namespace NOTCH_50_60_Hz_filter_Coeffs
 {
-
 	// 50Hz Notch filter at 8000 Hz
 	const std::vector<double> c50HzNotchCoeffsAtFS8000
 	{
@@ -92,6 +91,7 @@ namespace NOTCH_50_60_Hz_filter_Coeffs
 	   0.99891133317037339445,  -5.99331709216222563441,  14.98306637581303846218, -19.97732123364232847962,  14.98306637581303846218,
 	  -5.99331709216222563441,   0.99891133317037339445
 	};
+
 
 
 	// 60Hz Notch filter at 8000 Hz
@@ -173,29 +173,30 @@ namespace NOTCH_50_60_Hz_filter_Coeffs
 	};
 
 
+
 	// 50Hz and 60Hz Notch filters coefficients map
-    std::unordered_map<int, std::unordered_map<int, std::tuple<int, int, std::vector<double>::const_iterator, std::vector<double>::const_iterator>>>
-		notchFiltersCoefficientsMap =
-    {
-        {50, 
-            {
-                {8000, {6, 7, c50HzNotchCoeffsAtFS8000.cbegin(), d50HzNotchCoeffsAtFS8000.cbegin()}},
-                {16000, {6, 7, c50HzNotchCoeffsAtFS16000.cbegin(), d50HzNotchCoeffsAtFS16000.cbegin()}},
-                {44100, {6, 7, c50HzNotchCoeffsAtFS44100.cbegin(), d50HzNotchCoeffsAtFS44100.cbegin()}},
-                {48000, {6, 7, c50HzNotchCoeffsAtFS48000.cbegin(), d50HzNotchCoeffsAtFS48000.cbegin()}},
-                {88200, {6, 7, c50HzNotchCoeffsAtFS88200.cbegin(), d50HzNotchCoeffsAtFS88200.cbegin()}},
-                {96000, {6, 7, c50HzNotchCoeffsAtFS96000.cbegin(), d50HzNotchCoeffsAtFS96000.cbegin()}}
-            }
-        },
-        {60, 
-            {
-                {8000, {6, 7, c60HzNotchCoeffsAtFS8000.cbegin(), d60HzNotchCoeffsAtFS8000.cbegin()}},
-                {16000, {6, 7, c60HzNotchCoeffsAtFS16000.cbegin(), d60HzNotchCoeffsAtFS16000.cbegin()}},
-                {44100, {6, 7, c60HzNotchCoeffsAtFS44100.cbegin(), d60HzNotchCoeffsAtFS44100.cbegin()}},
-                {48000, {6, 7, c60HzNotchCoeffsAtFS48000.cbegin(), d60HzNotchCoeffsAtFS48000.cbegin()}},
-                {88200, {6, 7, c60HzNotchCoeffsAtFS88200.cbegin(), d60HzNotchCoeffsAtFS88200.cbegin()}},
-                {96000, {6, 7, c60HzNotchCoeffsAtFS96000.cbegin(), d60HzNotchCoeffsAtFS96000.cbegin()}}
-            }
-        }
-    };
+	std::unordered_map<int, std::unordered_map<int, std::tuple<int, int, std::vector<double>::const_iterator, std::vector<double>::const_iterator>>>
+	notchFiltersCoefficientsMap =
+	{
+		{50,
+			{
+				{8000, {6, 7, c50HzNotchCoeffsAtFS8000.cbegin(), d50HzNotchCoeffsAtFS8000.cbegin()}},
+				{16000, {6, 7, c50HzNotchCoeffsAtFS16000.cbegin(), d50HzNotchCoeffsAtFS16000.cbegin()}},
+				{44100, {6, 7, c50HzNotchCoeffsAtFS44100.cbegin(), d50HzNotchCoeffsAtFS44100.cbegin()}},
+				{48000, {6, 7, c50HzNotchCoeffsAtFS48000.cbegin(), d50HzNotchCoeffsAtFS48000.cbegin()}},
+				{88200, {6, 7, c50HzNotchCoeffsAtFS88200.cbegin(), d50HzNotchCoeffsAtFS88200.cbegin()}},
+				{96000, {6, 7, c50HzNotchCoeffsAtFS96000.cbegin(), d50HzNotchCoeffsAtFS96000.cbegin()}},
+			}
+		},
+		{60,
+			{
+				{8000, {6, 7, c60HzNotchCoeffsAtFS8000.cbegin(), d60HzNotchCoeffsAtFS8000.cbegin()}},
+				{16000, {6, 7, c60HzNotchCoeffsAtFS16000.cbegin(), d60HzNotchCoeffsAtFS16000.cbegin()}},
+				{44100, {6, 7, c60HzNotchCoeffsAtFS44100.cbegin(), d60HzNotchCoeffsAtFS44100.cbegin()}},
+				{48000, {6, 7, c60HzNotchCoeffsAtFS48000.cbegin(), d60HzNotchCoeffsAtFS48000.cbegin()}},
+				{88200, {6, 7, c60HzNotchCoeffsAtFS88200.cbegin(), d60HzNotchCoeffsAtFS88200.cbegin()}},
+				{96000, {6, 7, c60HzNotchCoeffsAtFS96000.cbegin(), d60HzNotchCoeffsAtFS96000.cbegin()}},
+			}
+		}
+	};
 };
