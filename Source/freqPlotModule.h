@@ -43,6 +43,9 @@ public:
 
 	//==============================================================================
 	//[UserMethods]     -- You can add your own custom methods in this section.
+	void xLim(const float min, const float max);
+	void yLim(const float min, const float max);
+
 	void updatePlot
 	(
 		std::vector <std::vector<float>> y_values

@@ -90,6 +90,30 @@ void freqPlotModule::resized()
 
 
 //[MiscUserCode] You can add your own definitions of your custom methods or any other code here...
+void freqPlotModule::xLim(const float min, const float max)
+{ 
+	MessageManager::callAsync
+	(
+		[this, min, max]
+		()
+		{
+			m_plot.xLim(min, max); 
+		}
+	);
+}
+
+void freqPlotModule::yLim(const float min, const float max)
+{
+	MessageManager::callAsync
+	(
+		[this, min, max]
+		()
+		{
+			m_plot.yLim(min, max);
+		}
+	);
+}
+
 void freqPlotModule::updatePlot
 (
 	std::vector <std::vector<float>> y_values

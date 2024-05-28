@@ -443,35 +443,12 @@ void SpectrogramComponent::drawNextLineOfSpectrogramAndFftPlotUpdate(float* fftD
 {
 	if (doRealTimeFftChartPlot)
 	{
-		static bool doneFirst = false;
-
-
-		//int sizeToUse = fftSize / 100;
-
 		plotValues.clear();
 		plotValues.push_back(std::vector<float>
 			(fftDataBuffer, fftDataBuffer + sizeToUseInFreqInRealTimeFftChartPlot));
 		frequencyValues[0].resize(sizeToUseInFreqInRealTimeFftChartPlot);
-		auto pltSize = plotValues[0].size();
-		auto tstData = plotValues[0].data();
-		auto tstFreq = frequencyValues[0].data();
-		for (size_t n = 0; n < plotValues[0].size(); n++)
-		{
-			if (std::isnan(plotValues[0][n]) || std::isinf(plotValues[0][n]))
-			{
-				plotValues[0][n] = 0;
-			}
-		}
 
-		if (doneFirst)
-		{
-			module_freqPlot->updatePlotRealTime(plotValues, frequencyValues);
-		}
-		else
-		{
-			module_freqPlot->updatePlot(plotValues, frequencyValues, graph_attributes, plotLegend);
-			doneFirst = true;
-		}
+		module_freqPlot->updatePlotRealTime(plotValues, frequencyValues);
 	}
 
 	auto rightHandEdge = spectrogramImage.getWidth() - 1;
