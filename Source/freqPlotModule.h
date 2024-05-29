@@ -75,6 +75,10 @@ public:
 	void setXLabel(const std::string& x_label) { m_plot.setXLabel(x_label); };
 	void setYLabel(const std::string& y_label) { m_plot.setYLabel(y_label); };
 	void setTitle(const std::string& title) { m_plot.setTitle(title); };
+	void setXTicks(const std::vector<float>& x_ticks);
+	void setXTickLabels(const std::vector<std::string>& x_labels);
+	void plotVerticalLines(const std::vector<float>& x_coordinates,
+		const cmp::GraphAttributeList& graph_attributes = {});
 	//[/UserMethods]
 
 	void paint(juce::Graphics& g) override;

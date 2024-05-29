@@ -203,10 +203,57 @@ void freqPlotModule::updatePlotRealTime
 	);
 }
 
+void freqPlotModule::setXTicks(const std::vector<float>& x_ticks)
+{
+	m_plot.setXTicks(x_ticks);
+
+	//MessageManager::callAsync
+	//(
+	//	[this, x_ticks]
+	//	()
+	//	{
+	//		m_plot.setXTicks(x_ticks);
+	//	}
+	//);
+}
+
+void freqPlotModule::setXTickLabels(const std::vector<std::string>& x_labels)
+{
+	m_plot.setXTickLabels(x_labels);
+
+	//MessageManager::callAsync
+	//(
+	//	[this, x_labels]
+	//	()
+	//	{
+	//		m_plot.setXTickLabels(x_labels);
+	//	}
+	//);
+}
+
+void freqPlotModule::plotVerticalLines
+(
+	const std::vector<float>& x_coordinates
+	,
+	const cmp::GraphAttributeList& graph_attributes
+)
+{
+	//m_plot.realTimePlot(y_values);
+	MessageManager::callAsync
+	(
+		[this, x_coordinates, graph_attributes]
+		()
+		{
+			m_plot.plotVerticalLines(x_coordinates, graph_attributes);
+		}
+	);
+}
+
 void freqPlotModule::clearPlot()
 {
 	m_plot.plot({ { 1 } }, { { 1 } });
 }
+
 //[/MiscUserCode]
 
 

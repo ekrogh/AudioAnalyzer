@@ -56,6 +56,7 @@ public:
 
 	void switchToNonInput();
 
+	void clearPlotAndSpectrogram();
 	void resetVariables();
 
 	void timerCallback() override;
@@ -94,7 +95,12 @@ public:
 	void registerFFTCtrl(FFTCtrl* FFTC);
 
 	void setShowFilters(bool showFilters);
+	
+	void setXTicksForGridFrequencies();
 
+	void stopTheThread();
+
+		
 	// Coroutine def.
 	class Task
 	{
@@ -131,7 +137,7 @@ public:
 	Task setTask();
 
 private:
-	//CriticalSection fftLockMutex;
+	std::binary_semaphore drawSemaphore{ 0 };
 
 	int curNumInputChannels = 1;
 	int curNumOutputChannels = 2;
@@ -148,7 +154,7 @@ private:
 	std::vector <std::vector<float>> frequencyValues{ { 1 }, { 1 } };
 	std::vector <std::vector<float>> plotValues{ { 1 }, { 1 } };
 	cmp::GraphAttributeList graph_attributes;
-	cmp::StringVector plotLegend{ "1", "2" };
+	cmp::StringVector plotLegend;
 
 	bool doRealTimeFftChartPlot = true;
 	double maxFreqInRealTimeFftChartPlot = 500.0f;

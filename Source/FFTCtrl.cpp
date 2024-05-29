@@ -641,7 +641,7 @@ void FFTCtrl::buttonClicked (juce::Button* buttonThatWasClicked)
 				makespectrumOfInput__toggleButton->getToggleState()
 				&&
 				!makespectrumOfInputTBState
-				)
+			)
 		{
 			refModule_FFT.switchToMicrophoneInput();
 		}

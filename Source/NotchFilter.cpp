@@ -54,16 +54,16 @@ void NotchFilter::process(juce::AudioBuffer<float>& buffer)
 		for (int sn = 0; sn < buffer.getNumSamples(); sn++)
 		{
 			filterXValues.pop_back();
-			filterXValues.push_front((double)channelDataIn[sn]);
+			filterXValues.push_front(static_cast<double>(channelDataIn[sn]));
 
 			yNew =
-				inner_product(filterXValues.begin(), filterXValues.end(), dNotchCoeffsBegin, (double)0.0)
-				- inner_product(filterYValues.begin(), filterYValues.end(), cNotchCoeffsBegin, (double)0.0);
+				std::inner_product(filterXValues.begin(), filterXValues.end(), dNotchCoeffsBegin, 0.0)
+				- std::inner_product(filterYValues.begin(), filterYValues.end(), cNotchCoeffsBegin, 0.0);
 
 			filterYValues.pop_back();
 			filterYValues.push_front(yNew);
 
-			channelDataOut[sn] = (float)yNew;
+			channelDataOut[sn] = static_cast<float>(yNew);
 		}
 	}
 }
@@ -77,16 +77,16 @@ void NotchFilter::process(std::vector<float>& buffer)
 	for (int sn = 0; sn < buffer.size(); sn++)
 	{
 		filterXValues.pop_back();
-		filterXValues.push_front((double)vectorData[sn]);
+		filterXValues.push_front(static_cast<double>(vectorData[sn]));
 
 		yNew =
-			inner_product(filterXValues.begin(), filterXValues.end(), dNotchCoeffsBegin, (double)0.0)
-			- inner_product(filterYValues.begin(), filterYValues.end(), cNotchCoeffsBegin, (double)0.0);
+			std::inner_product(filterXValues.begin(), filterXValues.end(), dNotchCoeffsBegin, 0.0)
+			- std::inner_product(filterYValues.begin(), filterYValues.end(), cNotchCoeffsBegin, 0.0);
 
 		filterYValues.pop_back();
 		filterYValues.push_front(yNew);
 
-		vectorData[sn] = (float)yNew;
+		vectorData[sn] = static_cast<float>(yNew);
 	}
 }
 
@@ -97,30 +97,30 @@ void NotchFilter::process(float* buffer, unsigned int numSamples)
 	for (int sn = 0; sn < numSamples; sn++)
 	{
 		filterXValues.pop_back();
-		filterXValues.push_front((double)buffer[sn]);
+		filterXValues.push_front(static_cast<double>(buffer[sn]));
 
 		yNew =
-			inner_product(filterXValues.begin(), filterXValues.end(), dNotchCoeffsBegin, (double)0.0)
-			- inner_product(filterYValues.begin(), filterYValues.end(), cNotchCoeffsBegin, (double)0.0);
+			std::inner_product(filterXValues.begin(), filterXValues.end(), dNotchCoeffsBegin, 0.0)
+			- std::inner_product(filterYValues.begin(), filterYValues.end(), cNotchCoeffsBegin, 0.0);
 
 		filterYValues.pop_back();
 		filterYValues.push_front(yNew);
 
-		buffer[sn] = (float)yNew;
+		buffer[sn] = static_cast<float>(yNew);
 	}
 }
 
 float NotchFilter::process(float sample)
 {
 	filterXValues.pop_back();
-	filterXValues.push_front((double)sample);
+	filterXValues.push_front(static_cast<double>(sample));
 
 	double yNew =
-		inner_product(filterXValues.begin(), filterXValues.end(), dNotchCoeffsBegin, (double)0.0)
-		- inner_product(filterYValues.begin(), filterYValues.end(), cNotchCoeffsBegin, (double)0.0);
+		std::inner_product(filterXValues.begin(), filterXValues.end(), dNotchCoeffsBegin, 0.0)
+		- std::inner_product(filterYValues.begin(), filterYValues.end(), cNotchCoeffsBegin, 0.0);
 
 	filterYValues.pop_back();
 	filterYValues.push_front(yNew);
 
-	return (float)yNew;
+	return static_cast<float>(yNew);
 }

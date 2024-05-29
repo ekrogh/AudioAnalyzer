@@ -60,17 +60,23 @@ void SpectrogramComponent::switchToMicrophoneInput()
 	stopTimer();
 
 	// Stop the thread
-	signalThreadShouldExit();;
-	weSpectrumDataReady.signal();
+	stopTheThread();
 
+	autoSwitchToInput = false;
+	doSwitchToMicrophoneInput = false;
+	doSwitchTNoneInput = false;
 	showFilters = false;
 
 	resetVariables();
+
+	clearPlotAndSpectrogram();
 
 	setAudioChannels(1, 2);
 
 	thisIsNotAudioIOSystem = false;
 	notAudioIOSystemIsRunning = false;
+
+	drawSemaphore.try_acquire();
 
 	curTimerFrequencyHz = 60;
 	startTimerHz(curTimerFrequencyHz);
@@ -82,8 +88,7 @@ void SpectrogramComponent::switchToNonInput()
 	stopTimer();
 
 	// Stop the thread
-	signalThreadShouldExit();;
-	weSpectrumDataReady.signal();
+	stopTheThread();
 
 	showFilters = false;
 
@@ -98,10 +103,19 @@ void SpectrogramComponent::switchToNonInput()
 	ptrFFTModule->switchToNonInput();
 }
 
-void SpectrogramComponent::resetVariables()
+void SpectrogramComponent::clearPlotAndSpectrogram()
 {
 	spectrogramImage.clear(spectrogramImage.getBounds());
 
+	module_freqPlot->setXTicks({});
+	module_freqPlot->setXTickLabels({});
+
+	module_freqPlot->clearPlot();
+
+}
+
+void SpectrogramComponent::resetVariables()
+{
 	fftDataInBufferIndex = 0;  // Index of the buffer currently being read
 	fftDataOutBufferIndex = 0;  // Index of the buffer currently being filled
 
@@ -119,6 +133,9 @@ void SpectrogramComponent::startShowingFilters()
 
 	stopTimer();
 
+	// Stop the thread
+	stopTheThread();
+
 	resetVariables();
 
 	sizeToUseInFreqInRealTimeFftChartPlot
@@ -126,6 +143,8 @@ void SpectrogramComponent::startShowingFilters()
 
 	// Prepare cartesian plot
 	initRealTimeFftChartPlot();
+
+	setXTicksForGridFrequencies();
 
 	if (ptrFFTCtrl != nullptr)
 	{
@@ -140,6 +159,41 @@ void SpectrogramComponent::startShowingFilters()
 
 	startTimerHz(60);
 
+}
+
+void SpectrogramComponent::setXTicksForGridFrequencies()
+{
+	module_freqPlot->clearPlot();
+	module_freqPlot->setXTicks({});
+	module_freqPlot->setXTickLabels({});
+
+	switch (filterToUse)
+	{
+		case filter50Hz:
+			{
+				module_freqPlot->setXTicks({ 50.0f, 100.0f, 150.0f });
+				module_freqPlot->setXTickLabels({ "50.0", "100.0", "150.0" });
+				break;
+			}
+		case filter60Hz:
+			{
+				module_freqPlot->setXTicks({ 60.0f, 120.0f, 180.0f });
+				module_freqPlot->setXTickLabels({ "60.0", "120.0", "180.0" });
+				break;
+			}
+	}
+}
+
+void SpectrogramComponent::stopTheThread()
+{
+	// Stop the thread
+	while (isThreadRunning())
+	{
+		signalThreadShouldExit();;
+		weSpectrumDataReady.signal();
+
+		std::this_thread::sleep_for(std::chrono::milliseconds(100));
+	}
 }
 
 bool SpectrogramComponent::loadURLIntoSpectrum
@@ -157,6 +211,8 @@ bool SpectrogramComponent::loadURLIntoSpectrum
 		shutdownAudio();
 
 		stopTimer();
+
+		stopTheThread();
 
 		showFilters = false;
 
@@ -177,6 +233,8 @@ bool SpectrogramComponent::loadURLIntoSpectrum
 
 
 		resetVariables();
+
+		clearPlotAndSpectrogram();
 
 		curSampleRate = reader->sampleRate;
 
@@ -313,6 +371,8 @@ void SpectrogramComponent::run()
 	{
 		notAudioIOSystemIsRunning = !t.resume();
 
+		drawSemaphore.release(); // Wait for buffer to be ready
+
 		fftDataInBufferIndex ^= 1; // Toggle
 		fftDataInBuffer = fftDataBuffers[fftDataInBufferIndex];
 	}
@@ -334,6 +394,9 @@ void SpectrogramComponent::timerCallback()
 	else if (thisIsNotAudioIOSystem)
 	{
 		weSpectrumDataReady.signal(); // Task can prepare next buffer of FFT data
+
+		drawSemaphore.acquire(); // Wait for next buffer to be ready
+
 		drawNextLineOfSpectrogramAndFftPlotUpdate(fftDataOutBuffer, fftSize);
 		repaint();
 
@@ -449,6 +512,8 @@ void SpectrogramComponent::drawNextLineOfSpectrogramAndFftPlotUpdate(float* fftD
 		frequencyValues[0].resize(sizeToUseInFreqInRealTimeFftChartPlot);
 
 		module_freqPlot->updatePlotRealTime(plotValues, frequencyValues);
+		//module_freqPlot->updatePlotRealTime(plotValues);
+		//module_freqPlot->updatePlot(plotValues, frequencyValues);
 	}
 
 	auto rightHandEdge = spectrogramImage.getWidth() - 1;
@@ -516,8 +581,27 @@ void SpectrogramComponent::setAutoSwitchToInput(bool autoSwitch)
 
 void SpectrogramComponent::setFilterToUse(filterTypes theFilterType)
 {
+	// Stop thread
+	bool threadWasRunning = isThreadRunning();
+	if (threadWasRunning)
+	{
+		do
+		{
+			signalThreadShouldExit();
+
+			weSpectrumDataReady.signal();
+		}
+		while (!waitForThreadToExit(100));
+	}
+
+
 	switch (theFilterType)
 	{
+		case noFilter:
+			{
+				theNotchFilter = nullptr;
+				break;
+			}
 		case filter50Hz:
 			{
 				theNotchFilter = std::make_unique<NotchFilter>(50.0, curSampleRate);
@@ -531,6 +615,16 @@ void SpectrogramComponent::setFilterToUse(filterTypes theFilterType)
 	}
 
 	filterToUse = theFilterType;
+
+	if (showFilters)
+	{
+		startShowingFilters();
+	}
+	else if (threadWasRunning)
+	{
+		// Start the thread
+		startThread();
+	}
 }
 
 void SpectrogramComponent::initRealTimeFftChartPlot()
@@ -538,7 +632,7 @@ void SpectrogramComponent::initRealTimeFftChartPlot()
 	if (doRealTimeFftChartPlot)
 	{
 		ptrFFTModule->makeGraphAttributes(graph_attributes);
-		plotLegend = { "p " + std::to_string(plotLegend.size() + 1) };
+		plotLegend.push_back("p " + std::to_string(plotLegend.size() + 1));
 
 		module_freqPlot->setTitle("Frequency response [FFT]");
 		module_freqPlot->setXLabel("[Hz]");
@@ -546,8 +640,14 @@ void SpectrogramComponent::initRealTimeFftChartPlot()
 
 		fillRTChartPlotFrequencyValues();
 
+		clearPlotAndSpectrogram();
+
 		plotValues = frequencyValues;
 		module_freqPlot->updatePlot(plotValues, frequencyValues, graph_attributes, plotLegend);
+
+		//module_freqPlot->xLim(0.0f, maxFreqInRealTimeFftChartPlot);
+
+		drawSemaphore.try_acquire();
 	}
 }
 
@@ -589,6 +689,8 @@ void SpectrogramComponent::setMaxFreqInRealTimeFftChartPlot(double maxFRTFftCP)
 	fillRTChartPlotFrequencyValues();
 
 	reStartIO();
+
+	module_freqPlot->xLim(0.0f, maxFreqInRealTimeFftChartPlot);
 }
 
 void SpectrogramComponent::setFftOrderAndFftSize(unsigned int newFftOrder, unsigned int newFftSize)
@@ -637,6 +739,8 @@ void SpectrogramComponent::shutDownIO()
 	}
 
 	resetVariables();
+
+	clearPlotAndSpectrogram();
 
 }
 
