@@ -313,7 +313,7 @@ private:
 		,
 		File::getSpecialLocation
 		(
-			juce::File::SpecialLocationType::userDocumentsDirectory
+			juce::File::SpecialLocationType::userMusicDirectory
 		)
 		.getChildFile("recording.wav"), "*.wav"
 	};

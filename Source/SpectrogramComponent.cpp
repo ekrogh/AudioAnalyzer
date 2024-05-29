@@ -645,8 +645,6 @@ void SpectrogramComponent::initRealTimeFftChartPlot()
 		plotValues = frequencyValues;
 		module_freqPlot->updatePlot(plotValues, frequencyValues, graph_attributes, plotLegend);
 
-		//module_freqPlot->xLim(0.0f, maxFreqInRealTimeFftChartPlot);
-
 		drawSemaphore.try_acquire();
 	}
 }
