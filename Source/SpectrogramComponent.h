@@ -96,7 +96,7 @@ public:
 
 	void setShowFilters(bool showFilters);
 	
-	void setXTicksForGridFrequencies();
+	void setXTicksForPowerGridFrequencies();
 
 	void stopTheThread();
 

@@ -144,7 +144,7 @@ void SpectrogramComponent::startShowingFilters()
 	// Prepare cartesian plot
 	initRealTimeFftChartPlot();
 
-	setXTicksForGridFrequencies();
+	setXTicksForPowerGridFrequencies();
 
 	if (ptrFFTCtrl != nullptr)
 	{
@@ -161,7 +161,7 @@ void SpectrogramComponent::startShowingFilters()
 
 }
 
-void SpectrogramComponent::setXTicksForGridFrequencies()
+void SpectrogramComponent::setXTicksForPowerGridFrequencies()
 {
 	module_freqPlot->clearPlot();
 	module_freqPlot->setXTicks({});
@@ -230,7 +230,6 @@ bool SpectrogramComponent::loadURLIntoSpectrum
 
 		if (reader == nullptr)
 			return false;
-
 
 		resetVariables();
 
@@ -346,6 +345,25 @@ SpectrogramComponent::Task SpectrogramComponent::readerToFftDataCopy()
 
 		// Make the FFT
 		doFFT(fftDataInBuffer, fftSize);
+
+		static float prevMinVal = 0.0f;
+		static float prevMaxVal = 0.0f;
+
+		float minVal, maxVal;
+		juce::findMinAndMax(fftDataInBuffer, fftSize, minVal, maxVal);
+
+		if ((minVal < prevMinVal) || (maxVal > prevMaxVal))
+		{
+			if (minVal < prevMinVal)
+			{
+				prevMinVal = minVal;
+			}
+			if (maxVal > prevMaxVal)
+			{
+				prevMaxVal = maxVal;
+			}
+			module_freqPlot->yLim(prevMinVal, prevMaxVal);
+		}
 
 		co_await std::suspend_always{};
 	}
