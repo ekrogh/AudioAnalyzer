@@ -218,7 +218,7 @@ bool SpectrogramComponent::loadURLIntoSpectrum
 
 		std::this_thread::sleep_for(std::chrono::milliseconds(500));
 
-		resetFilterToUse(filterToUse);
+		reSetFilterToUse(filterToUse);
 
 		const auto source = makeInputSource(theUrl);
 
@@ -663,7 +663,7 @@ void SpectrogramComponent::setFilterToUse(filterTypes theFilterType)
 		void shutdownAudio();
 	}
 
-	resetFilterToUse(theFilterType);
+	reSetFilterToUse(theFilterType);
 
 	filterToUse = theFilterType;
 
@@ -685,7 +685,7 @@ void SpectrogramComponent::setFilterToUse(filterTypes theFilterType)
 	}
 }
 
-void SpectrogramComponent::resetFilterToUse(filterTypes theFilterType)
+void SpectrogramComponent::reSetFilterToUse(filterTypes theFilterType)
 {
 	switch (theFilterType)
 	{

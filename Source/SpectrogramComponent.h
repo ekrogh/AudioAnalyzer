@@ -80,7 +80,7 @@ public:
 	void setAutoSwitchToInput(bool autoSwitch);
 
 	void setFilterToUse(filterTypes theFilterType);
-	void resetFilterToUse(filterTypes theFilterType);
+	void reSetFilterToUse(filterTypes theFilterType);
 
 	void setDoRealTimeFftChartPlot(bool doRTFftCP);
 	void initRealTimeFftChartPlot();
