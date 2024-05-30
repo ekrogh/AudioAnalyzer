@@ -29,7 +29,7 @@ enum
 
 enum defaultFFTValues
 {
-	fftOrder = 10
+	fftOrder = 13
 	, fftSize = 1 << fftOrder
 	, numFftBuffers = 3
 };

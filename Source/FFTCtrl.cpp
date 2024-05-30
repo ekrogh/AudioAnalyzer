@@ -159,7 +159,7 @@ FFTCtrl::FFTCtrl (std::shared_ptr<FFTModule> ptr_module_FFT, std::shared_ptr<Aud
     Nbr_Samples__textEditor->setScrollbarsShown (true);
     Nbr_Samples__textEditor->setCaretVisible (true);
     Nbr_Samples__textEditor->setPopupMenuEnabled (true);
-    Nbr_Samples__textEditor->setText (TRANS ("1024"));
+    Nbr_Samples__textEditor->setText (TRANS ("8192"));
 
     Nbr_Samples__textEditor->setBounds (16, 224, 150, 24);
 
@@ -189,7 +189,7 @@ FFTCtrl::FFTCtrl (std::shared_ptr<FFTModule> ptr_module_FFT, std::shared_ptr<Aud
     fftOrder__textEditor->setScrollbarsShown (true);
     fftOrder__textEditor->setCaretVisible (true);
     fftOrder__textEditor->setPopupMenuEnabled (true);
-    fftOrder__textEditor->setText (TRANS ("10"));
+    fftOrder__textEditor->setText (TRANS ("13"));
 
     fftOrder__textEditor->setBounds (192, 183, 150, 24);
 
@@ -216,7 +216,7 @@ FFTCtrl::FFTCtrl (std::shared_ptr<FFTModule> ptr_module_FFT, std::shared_ptr<Aud
     fftSize__label->setBounds (192, 213, 150, 24);
 
     fftSizeNbr__label.reset (new juce::Label ("fftSizeNbr label",
-                                              TRANS ("1024")));
+                                              TRANS ("8192")));
     addAndMakeVisible (fftSizeNbr__label.get());
     fftSizeNbr__label->setFont (juce::Font (15.00f, juce::Font::plain).withTypefaceStyle ("Regular"));
     fftSizeNbr__label->setJustificationType (juce::Justification::centredLeft);
@@ -822,7 +822,7 @@ BEGIN_JUCER_METADATA
          fontsize="15.0" kerning="0.0" bold="0" italic="0" justification="33"/>
   <TEXTEDITOR name="Nbr_Samples text editor" id="67840ece2249397f" memberName="Nbr_Samples__textEditor"
               virtualName="" explicitFocusOrder="4" pos="16 224 150 24" tooltip="Nbr_Samples"
-              initialText="1024" multiline="0" retKeyStartsLine="0" readonly="0"
+              initialText="8192" multiline="0" retKeyStartsLine="0" readonly="0"
               scrollbars="1" caret="1" popupmenu="1"/>
   <TEXTBUTTON name="clearPlot button" id="655c3dd1794570bf" memberName="clearPlot__textButton"
               virtualName="" explicitFocusOrder="9" pos="192 40 150 24" buttonText="Clear Plot"
@@ -832,7 +832,7 @@ BEGIN_JUCER_METADATA
               connectedEdges="0" needsCallback="1" radioGroupId="0"/>
   <TEXTEDITOR name="fftOrder text editor" id="21a1b23e829f6d24" memberName="fftOrder__textEditor"
               virtualName="" explicitFocusOrder="5" pos="192 183 150 24" tooltip="FFT Order"
-              initialText="10" multiline="0" retKeyStartsLine="0" readonly="0"
+              initialText="13" multiline="0" retKeyStartsLine="0" readonly="0"
               scrollbars="1" caret="1" popupmenu="1"/>
   <LABEL name="fftOrder label" id="3e3a0c0ab0f7ce39" memberName="fftOrder__label"
          virtualName="" explicitFocusOrder="0" pos="192 151 150 24" edTextCol="ff000000"
@@ -846,7 +846,7 @@ BEGIN_JUCER_METADATA
          kerning="0.0" bold="0" italic="0" justification="33"/>
   <LABEL name="fftSizeNbr label" id="f6dc9c671d2b180c" memberName="fftSizeNbr__label"
          virtualName="" explicitFocusOrder="0" pos="192 236 150 24" edTextCol="ff000000"
-         edBkgCol="0" labelText="1024" editableSingleClick="0" editableDoubleClick="0"
+         edBkgCol="0" labelText="8192" editableSingleClick="0" editableDoubleClick="0"
          focusDiscardsChanges="0" fontname="Default font" fontsize="15.0"
          kerning="0.0" bold="0" italic="0" justification="33"/>
   <TEXTBUTTON name="fftWindows button" id="9c0c45ece1379aa3" memberName="fftWindows__textButton"

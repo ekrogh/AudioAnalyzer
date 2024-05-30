@@ -216,6 +216,10 @@ bool SpectrogramComponent::loadURLIntoSpectrum
 
 		showFilters = false;
 
+		std::this_thread::sleep_for(std::chrono::milliseconds(500));
+
+		resetFilterToUse(filterToUse);
+
 		const auto source = makeInputSource(theUrl);
 
 		if (source == nullptr)
@@ -237,7 +241,7 @@ bool SpectrogramComponent::loadURLIntoSpectrum
 
 		curSampleRate = reader->sampleRate;
 
-		setFilterToUse(filterToUse);
+		//setFilterToUse(filterToUse);
 
 		sizeToUseInFreqInRealTimeFftChartPlot
 			= (int)(fftSize * (maxFreqInRealTimeFftChartPlot / curSampleRate));
@@ -275,6 +279,9 @@ bool SpectrogramComponent::loadURLIntoSpectrum
 
 SpectrogramComponent::Task SpectrogramComponent::makeFilterPing()
 {
+	prevMinValFromFFT = std::numeric_limits<float>::max();
+	prevMaxValFromFFT = std::numeric_limits<float>::min();
+
 	while (showFilters)
 	{
 		zeromem(fftDataInBuffer, sizeOfFftDataBuffersInBytes);
@@ -289,6 +296,23 @@ SpectrogramComponent::Task SpectrogramComponent::makeFilterPing()
 
 			// Make the FFT
 			doFFT(fftDataInBuffer, fftSize);
+
+			float minVal, maxVal;
+			juce::findMinAndMax(fftDataInBuffer, fftSize, minVal, maxVal);
+
+			if ((minVal < prevMinValFromFFT) || (maxVal > prevMaxValFromFFT))
+			{
+				if (minVal < prevMinValFromFFT)
+				{
+					prevMinValFromFFT = minVal;
+				}
+				if (maxVal > prevMaxValFromFFT)
+				{
+					prevMaxValFromFFT = maxVal;
+				}
+				module_freqPlot->yLim(prevMinValFromFFT, prevMaxValFromFFT);
+			}
+
 		}
 
 		co_await std::suspend_always{};
@@ -297,6 +321,9 @@ SpectrogramComponent::Task SpectrogramComponent::makeFilterPing()
 
 SpectrogramComponent::Task SpectrogramComponent::readerToFftDataCopy()
 {
+	prevMinValFromFFT = std::numeric_limits<float>::max();
+	prevMaxValFromFFT = std::numeric_limits<float>::min();
+
 	curNumInputChannels = reader->numChannels;
 
 	auto readerLngth = reader->lengthInSamples;
@@ -346,23 +373,20 @@ SpectrogramComponent::Task SpectrogramComponent::readerToFftDataCopy()
 		// Make the FFT
 		doFFT(fftDataInBuffer, fftSize);
 
-		static float prevMinVal = 0.0f;
-		static float prevMaxVal = 0.0f;
-
 		float minVal, maxVal;
 		juce::findMinAndMax(fftDataInBuffer, fftSize, minVal, maxVal);
 
-		if ((minVal < prevMinVal) || (maxVal > prevMaxVal))
+		if ((minVal < prevMinValFromFFT) || (maxVal > prevMaxValFromFFT))
 		{
-			if (minVal < prevMinVal)
+			if (minVal < prevMinValFromFFT)
 			{
-				prevMinVal = minVal;
+				prevMinValFromFFT = minVal;
 			}
-			if (maxVal > prevMaxVal)
+			if (maxVal > prevMaxValFromFFT)
 			{
-				prevMaxVal = maxVal;
+				prevMaxValFromFFT = maxVal;
 			}
-			module_freqPlot->yLim(prevMinVal, prevMaxVal);
+			module_freqPlot->yLim(prevMinValFromFFT, prevMaxValFromFFT);
 		}
 
 		co_await std::suspend_always{};
@@ -407,6 +431,22 @@ void SpectrogramComponent::timerCallback()
 	if (nextFFTBlockReady)
 	{
 		doFFT(fftDataOutBuffer, fftSize);
+		float minVal, maxVal;
+		juce::findMinAndMax(fftDataInBuffer, fftSize, minVal, maxVal);
+
+		if ((minVal < prevMinValFromFFT) || (maxVal > prevMaxValFromFFT))
+		{
+			if (minVal < prevMinValFromFFT)
+			{
+				prevMinValFromFFT = minVal;
+			}
+			if (maxVal > prevMaxValFromFFT)
+			{
+				prevMaxValFromFFT = maxVal;
+			}
+			module_freqPlot->yLim(prevMinValFromFFT, prevMaxValFromFFT);
+		}
+
 		drawNextLineOfSpectrogramAndFftPlotUpdate(fftDataOutBuffer, fftSize);
 		nextFFTBlockReady = false;
 		repaint();
@@ -442,8 +482,6 @@ void SpectrogramComponent::timerCallback()
 void SpectrogramComponent::prepareToPlay(int samplesPerBlockExpected, double newSampleRate)
 {
 	curSampleRate = newSampleRate;
-
-	setFilterToUse(filterToUse);
 
 	sizeToUseInFreqInRealTimeFftChartPlot
 		= (int)(fftSize * (maxFreqInRealTimeFftChartPlot / curSampleRate));
@@ -620,8 +658,35 @@ void SpectrogramComponent::setFilterToUse(filterTypes theFilterType)
 		resetVariables();
 
 	}
+	else
+	{
+		void shutdownAudio();
+	}
 
+	resetFilterToUse(theFilterType);
 
+	filterToUse = theFilterType;
+
+	prevMinValFromFFT = std::numeric_limits<float>::max();
+	prevMaxValFromFFT = std::numeric_limits<float>::min();
+
+	if (showFilters)
+	{
+		startShowingFilters();
+	}
+	else if (threadWasRunning)
+	{
+		startThread();
+		startTimer(curTimerInterValMs);
+	}
+	else
+	{
+		setAudioChannels(curNumInputChannels, curNumOutputChannels);
+	}
+}
+
+void SpectrogramComponent::resetFilterToUse(filterTypes theFilterType)
+{
 	switch (theFilterType)
 	{
 		case noFilter:
@@ -639,18 +704,6 @@ void SpectrogramComponent::setFilterToUse(filterTypes theFilterType)
 				theNotchFilter = std::make_unique<NotchFilter>(60.0, curSampleRate);
 				break;
 			}
-	}
-
-	filterToUse = theFilterType;
-
-	if (showFilters)
-	{
-		startShowingFilters();
-	}
-	else if (threadWasRunning)
-	{
-		startThread();
-		startTimer(curTimerInterValMs);
 	}
 }
 
@@ -715,7 +768,7 @@ void SpectrogramComponent::setMaxFreqInRealTimeFftChartPlot(double maxFRTFftCP)
 
 	reStartIO();
 
-	module_freqPlot->xLim(0.0f, maxFreqInRealTimeFftChartPlot);
+	module_freqPlot->xLim(-10.0f, maxFreqInRealTimeFftChartPlot);
 }
 
 void SpectrogramComponent::setFftOrderAndFftSize(unsigned int newFftOrder, unsigned int newFftSize)

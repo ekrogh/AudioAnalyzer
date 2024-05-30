@@ -80,6 +80,7 @@ public:
 	void setAutoSwitchToInput(bool autoSwitch);
 
 	void setFilterToUse(filterTypes theFilterType);
+	void resetFilterToUse(filterTypes theFilterType);
 
 	void setDoRealTimeFftChartPlot(bool doRTFftCP);
 	void initRealTimeFftChartPlot();
@@ -193,6 +194,10 @@ private:
 
 	int fifoIndex = 0;
 	bool nextFFTBlockReady = false;
+
+	float prevMinValFromFFT = std::numeric_limits<float>::max();
+	float prevMaxValFromFFT = std::numeric_limits<float>::min();
+
 
 	bool thisIsNotAudioIOSystem = false;
 	bool notAudioIOSystemIsRunning = false;
