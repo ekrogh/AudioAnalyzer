@@ -367,6 +367,8 @@ void SpectrogramComponent::run()
 {
 	Task t = setTask();
 
+	weSpectrumDataReady.signal(); // Secure both buffers filled
+
 	do
 	{
 		notAudioIOSystemIsRunning = !t.resume();
@@ -585,6 +587,9 @@ void SpectrogramComponent::setFilterToUse(filterTypes theFilterType)
 	bool threadWasRunning = isThreadRunning();
 	if (threadWasRunning)
 	{
+		stopTimer();
+		drawSemaphore.release();
+
 		do
 		{
 			signalThreadShouldExit();
@@ -592,6 +597,10 @@ void SpectrogramComponent::setFilterToUse(filterTypes theFilterType)
 			weSpectrumDataReady.signal();
 		}
 		while (!waitForThreadToExit(100));
+
+		drawSemaphore.try_acquire();
+		resetVariables();
+
 	}
 
 
@@ -622,8 +631,8 @@ void SpectrogramComponent::setFilterToUse(filterTypes theFilterType)
 	}
 	else if (threadWasRunning)
 	{
-		// Start the thread
 		startThread();
+		startTimer(curTimerInterValMs);
 	}
 }
 
