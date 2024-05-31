@@ -138,14 +138,10 @@ public:
 	Task setTask();
 
 private:
-	std::binary_semaphore drawSemaphore{ 0 };
-
 	int curNumInputChannels = 1;
 	int curNumOutputChannels = 2;
 	int curTimerFrequencyHz = 60;
 	int curTimerInterValMs = 17;
-
-	WaitableEvent weSpectrumDataReady;
 
 	unsigned int fftOrder = defaultFFTValues::fftOrder;
 	unsigned int fftSize = defaultFFTValues::fftSize;
@@ -185,6 +181,14 @@ private:
 
 	int fftDataInBufferIndex = 0;  // Index of the buffer currently being filled
 	int fftDataOutBufferIndex = 0;  // Index of the buffer currently being read
+
+    #include <array>
+
+    std::array<WaitableEvent, 2> weSpectrumDataReady;
+    //weSpectrumDataReady[0].signal();
+    //weSpectrumDataReady[1].signal();
+    std::array<std::binary_semaphore, 2>
+		drawSemaphore{ std::binary_semaphore(0), std::binary_semaphore(0) };
 
 	float* fftDataInBuffer = fftDataBuffers[fftDataInBufferIndex];
 	float* fftDataOutBuffer = fftDataBuffers[fftDataOutBufferIndex];

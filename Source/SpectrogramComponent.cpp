@@ -76,7 +76,8 @@ void SpectrogramComponent::switchToMicrophoneInput()
 	thisIsNotAudioIOSystem = false;
 	notAudioIOSystemIsRunning = false;
 
-	drawSemaphore.try_acquire();
+	drawSemaphore[0].try_acquire();
+	drawSemaphore[1].try_acquire();
 
 	curTimerFrequencyHz = 60;
 	startTimerHz(curTimerFrequencyHz);
@@ -190,7 +191,8 @@ void SpectrogramComponent::stopTheThread()
 	while (isThreadRunning())
 	{
 		signalThreadShouldExit();;
-		weSpectrumDataReady.signal();
+		weSpectrumDataReady[0].signal();
+		weSpectrumDataReady[1].signal();
 
 		std::this_thread::sleep_for(std::chrono::milliseconds(100));
 	}
@@ -409,18 +411,23 @@ void SpectrogramComponent::run()
 {
 	Task t = setTask();
 
-	weSpectrumDataReady.signal(); // Secure both buffers filled
+	weSpectrumDataReady[fftDataInBufferIndex^1].signal(); // Secure both buffers filled
 
 	do
 	{
 		notAudioIOSystemIsRunning = !t.resume();
 
-		drawSemaphore.release(); // Wait for buffer to be ready
+		drawSemaphore[fftDataInBufferIndex].release(); // Show buffer fftDataInBufferIndex is ready
 
 		fftDataInBufferIndex ^= 1; // Toggle
 		fftDataInBuffer = fftDataBuffers[fftDataInBufferIndex];
 	}
-	while (weSpectrumDataReady.wait(500) && !threadShouldExit() && notAudioIOSystemIsRunning);
+	while
+		(
+			weSpectrumDataReady[fftDataInBufferIndex].wait(500)
+			&& !threadShouldExit()
+			&& notAudioIOSystemIsRunning
+		);
 
 	doSwitchToMicrophoneInput = (!notAudioIOSystemIsRunning) && autoSwitchToInput;
 	doSwitchTNoneInput = !doSwitchToMicrophoneInput;
@@ -453,11 +460,13 @@ void SpectrogramComponent::timerCallback()
 	}
 	else if (thisIsNotAudioIOSystem)
 	{
-		weSpectrumDataReady.signal(); // Task can prepare next buffer of FFT data
 
-		drawSemaphore.acquire(); // Wait for next buffer to be ready
+		drawSemaphore[fftDataOutBufferIndex].acquire(); // Wait for next buffer to be ready
 
 		drawNextLineOfSpectrogramAndFftPlotUpdate(fftDataOutBuffer, fftSize);
+
+		weSpectrumDataReady[fftDataOutBufferIndex].signal(); // Task can prepare this buffer of FFT data
+
 		repaint();
 
 		fftDataOutBufferIndex ^= 1; // Toggle
@@ -644,17 +653,21 @@ void SpectrogramComponent::setFilterToUse(filterTypes theFilterType)
 	if (threadWasRunning)
 	{
 		stopTimer();
-		drawSemaphore.release();
+		drawSemaphore[0].release();
+		drawSemaphore[1].release();
 
 		do
 		{
 			signalThreadShouldExit();
 
-			weSpectrumDataReady.signal();
+			weSpectrumDataReady[0].signal();
+			weSpectrumDataReady[1].signal();
 		}
 		while (!waitForThreadToExit(100));
 
-		drawSemaphore.try_acquire();
+		drawSemaphore[0].try_acquire();
+		drawSemaphore[1].try_acquire();
+
 		resetVariables();
 
 	}
@@ -725,7 +738,8 @@ void SpectrogramComponent::initRealTimeFftChartPlot()
 		plotValues = frequencyValues;
 		module_freqPlot->updatePlot(plotValues, frequencyValues, graph_attributes, plotLegend);
 
-		drawSemaphore.try_acquire();
+		drawSemaphore[0].try_acquire();
+		drawSemaphore[1].try_acquire();
 	}
 }
 
@@ -811,7 +825,8 @@ void SpectrogramComponent::shutDownIO()
 		{
 			signalThreadShouldExit();
 
-			weSpectrumDataReady.signal();
+			weSpectrumDataReady[0].signal();
+			weSpectrumDataReady[1].signal();
 		}
 		while (!waitForThreadToExit(100));
 	}
