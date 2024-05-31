@@ -412,6 +412,7 @@ void SpectrogramComponent::run()
 	Task t = setTask();
 
 	weSpectrumDataReady[fftDataInBufferIndex^1].signal(); // Secure both buffers filled
+	weSpectrumDataReady[fftDataInBufferIndex].reset(); // ... but NOT more than that until read
 
 	do
 	{
