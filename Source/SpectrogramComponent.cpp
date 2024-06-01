@@ -9,7 +9,6 @@
 */
 #include "FFTCtrl.h"
 #include "FFTModule.h"
-#include "cpEKSNotchFilter.h"
 #include "SpectrogramComponent.h"
 
 #include <juce_audio_formats/juce_audio_formats.h>
@@ -333,7 +332,7 @@ SpectrogramComponent::Task SpectrogramComponent::readerToFftDataCopy()
 	for (juce::int64 readerStartSample = 0; readerStartSample < readerLngth; readerStartSample += fftSize)
 	{
 		theAudioBuffer =
-			AudioBuffer<float>::AudioBuffer
+			AudioBuffer<float>
 			(
 				curNumInputChannels
 				,
