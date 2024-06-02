@@ -77,6 +77,8 @@ public:
 	void setTitle(const std::string& title) { m_plot.setTitle(title); };
 	void setXTicks(const std::vector<float>& x_ticks);
 	void setXTickLabels(const std::vector<std::string>& x_labels);
+	void setYTicks(const std::vector<float>& x_ticks);
+	void setYTickLabels(const std::vector<std::string>& x_labels);
 	void plotVerticalLines(const std::vector<float>& x_coordinates,
 		const cmp::GraphAttributeList& graph_attributes = {});
 	//[/UserMethods]

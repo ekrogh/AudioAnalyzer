@@ -10,6 +10,7 @@
 
 #pragma once
 
+#include <array>
 #include <juce_audio_formats/juce_audio_formats.h>
 #include <juce_gui_basics/juce_gui_basics.h>
 #include "AudioAnalyzerGlobalEnums.h"
@@ -31,15 +32,15 @@ class SpectrogramComponent
 {
 public:
 	SpectrogramComponent
-(
-	AudioFormatManager& FM
-	,
-	std::shared_ptr<AudioDeviceManager> SADM
-	,
-	FFTModule* FFTMP
-	,
-	std::shared_ptr<freqPlotModule> FPM
-);
+	(
+		AudioFormatManager& FM
+		,
+		std::shared_ptr<AudioDeviceManager> SADM
+		,
+		FFTModule* FFTMP
+		,
+		std::shared_ptr<freqPlotModule> FPM
+	);
 
 	~SpectrogramComponent() override;
 
@@ -96,12 +97,14 @@ public:
 	void registerFFTCtrl(FFTCtrl* FFTC);
 
 	void setShowFilters(bool showFilters);
-	
+
 	void setXTicksForPowerGridFrequencies();
 
 	void stopTheThread();
 
-		
+	void calculateYLim();
+
+
 	// Coroutine def.
 	class Task
 	{
@@ -138,6 +141,10 @@ public:
 	Task setTask();
 
 private:
+	//std::unique_ptr<juce::Timer> yLimTimer;
+	//int yLimTimerInterval = 10000;
+
+	// Variables
 	int curNumInputChannels = 1;
 	int curNumOutputChannels = 2;
 	int curTimerFrequencyHz = 60;
@@ -182,12 +189,10 @@ private:
 	int fftDataInBufferIndex = 0;  // Index of the buffer currently being filled
 	int fftDataOutBufferIndex = 0;  // Index of the buffer currently being read
 
-    #include <array>
-
-    std::array<WaitableEvent, 2> weSpectrumDataReady;
-    //weSpectrumDataReady[0].signal();
-    //weSpectrumDataReady[1].signal();
-    std::array<std::binary_semaphore, 2>
+	std::array<WaitableEvent, 2> weSpectrumDataReady;
+	//weSpectrumDataReady[0].signal();
+	//weSpectrumDataReady[1].signal();
+	std::array<std::binary_semaphore, 2>
 		drawSemaphore{ std::binary_semaphore(0), std::binary_semaphore(0) };
 
 	float* fftDataInBuffer = fftDataBuffers[fftDataInBufferIndex];
@@ -218,4 +223,22 @@ private:
 
 
 	JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(SpectrogramComponent)
+};
+
+///////////////////////////////
+class YLimTimer : public juce::Timer
+{
+public:
+	YLimTimer(SpectrogramComponent& component) : component(component) {}
+
+	void timerCallback() override
+	{
+		component.calculateYLim();
+	}
+
+private:
+	SpectrogramComponent& component;
+
+	JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(YLimTimer)
+
 };

@@ -91,19 +91,25 @@ void freqPlotModule::resized()
 
 //[MiscUserCode] You can add your own definitions of your custom methods or any other code here...
 void freqPlotModule::xLim(const float min, const float max)
-{ 
-	MessageManager::callAsync
-	(
-		[this, min, max]
-		()
-		{
-			m_plot.xLim(min, max); 
-		}
-	);
+{
+	m_plot.xLim(min, max);
+	
+	//MessageManager::callAsync
+	//(
+	//	[this, min, max]
+	//	()
+	//	{
+	//		m_plot.xLim(min, max);
+	//	}
+	//);
 }
 
 void freqPlotModule::yLim(const float min, const float max)
 {
+	//{
+	//	MessageManagerLock ml (Thread::getCurrentThread());
+	//	m_plot.yLim(min, max);
+	//}
 	MessageManager::callAsync
 	(
 		[this, min, max]
@@ -192,15 +198,16 @@ void freqPlotModule::updatePlotRealTime
 	std::vector <std::vector<float>> x_values
 )
 {
-	//m_plot.realTimePlot(y_values);
-	MessageManager::callAsync
-	(
-		[ this, y_values, x_values]
-		()
-		{
-			m_plot.realTimePlot(y_values, x_values);
-		}
-	);
+	m_plot.realTimePlot(y_values, x_values);
+
+	//MessageManager::callAsync
+	//(
+	//	[ this, y_values, x_values]
+	//	()
+	//	{
+	//		m_plot.realTimePlot(y_values, x_values);
+	//	}
+	//);
 }
 
 void freqPlotModule::setXTicks(const std::vector<float>& x_ticks)
@@ -220,6 +227,34 @@ void freqPlotModule::setXTicks(const std::vector<float>& x_ticks)
 void freqPlotModule::setXTickLabels(const std::vector<std::string>& x_labels)
 {
 	m_plot.setXTickLabels(x_labels);
+
+	//MessageManager::callAsync
+	//(
+	//	[this, x_labels]
+	//	()
+	//	{
+	//		m_plot.setXTickLabels(x_labels);
+	//	}
+	//);
+}
+
+void freqPlotModule::setYTicks(const std::vector<float>& x_ticks)
+{
+	m_plot.setYTicks(x_ticks);
+
+	//MessageManager::callAsync
+	//(
+	//	[this, x_ticks]
+	//	()
+	//	{
+	//		m_plot.setXTicks(x_ticks);
+	//	}
+	//);
+}
+
+void freqPlotModule::setYTickLabels(const std::vector<std::string>& x_labels)
+{
+	m_plot.setYTickLabels(x_labels);
 
 	//MessageManager::callAsync
 	//(

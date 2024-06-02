@@ -41,6 +41,7 @@ SpectrogramComponent::SpectrogramComponent
 	setOpaque(true);
 
 	forwardFFT = std::make_unique<juce::dsp::FFT>(fftOrder);
+	//yLimTimer = std::make_unique<YLimTimer>(*this);
 
 	initRealTimeFftChartPlot();
 
@@ -49,6 +50,7 @@ SpectrogramComponent::SpectrogramComponent
 
 	curTimerFrequencyHz = 60;
 	startTimerHz(curTimerFrequencyHz);
+	//yLimTimer->startTimer(yLimTimerInterval);
 
 	setSize(spectrogramImage.getWidth(), spectrogramImage.getHeight());
 
@@ -56,6 +58,7 @@ SpectrogramComponent::SpectrogramComponent
 
 void SpectrogramComponent::switchToMicrophoneInput()
 {
+	//yLimTimer->stopTimer();
 	stopTimer();
 
 	// Stop the thread
@@ -85,6 +88,7 @@ void SpectrogramComponent::switchToMicrophoneInput()
 
 void SpectrogramComponent::switchToNonInput()
 {
+	//yLimTimer->stopTimer();
 	stopTimer();
 
 	// Stop the thread
@@ -131,6 +135,7 @@ void SpectrogramComponent::startShowingFilters()
 
 	shutdownAudio();
 
+	//yLimTimer->stopTimer();
 	stopTimer();
 
 	// Stop the thread
@@ -158,6 +163,7 @@ void SpectrogramComponent::startShowingFilters()
 	startThread();
 
 	startTimerHz(60);
+	//yLimTimer->startTimer(yLimTimerInterval);
 
 }
 
@@ -211,6 +217,7 @@ bool SpectrogramComponent::loadURLIntoSpectrum
 
 		shutdownAudio();
 
+		//yLimTimer->stopTimer();
 		stopTimer();
 
 		stopTheThread();
@@ -271,7 +278,7 @@ bool SpectrogramComponent::loadURLIntoSpectrum
 		curTimerFrequencyHz = 1.0 / timePerBuffer;
 
 		startTimer(curTimerInterValMs);
-		//startTimerHz(curTimerFrequencyHz);
+		//yLimTimer->startTimer(yLimTimerInterval);
 
 	}
 
@@ -311,6 +318,7 @@ SpectrogramComponent::Task SpectrogramComponent::makeFilterPing()
 				{
 					prevMaxValFromFFT = maxVal;
 				}
+				module_freqPlot->setYTickLabels({});
 				module_freqPlot->yLim(prevMinValFromFFT, prevMaxValFromFFT);
 			}
 
@@ -387,6 +395,7 @@ SpectrogramComponent::Task SpectrogramComponent::readerToFftDataCopy()
 			{
 				prevMaxValFromFFT = maxVal;
 			}
+			module_freqPlot->setYTickLabels({});
 			module_freqPlot->yLim(prevMinValFromFFT, prevMaxValFromFFT);
 		}
 
@@ -451,6 +460,7 @@ void SpectrogramComponent::timerCallback()
 			{
 				prevMaxValFromFFT = maxVal;
 			}
+			module_freqPlot->setYTickLabels({});
 			module_freqPlot->yLim(prevMinValFromFFT, prevMaxValFromFFT);
 		}
 
@@ -485,6 +495,12 @@ void SpectrogramComponent::timerCallback()
 		doSwitchTNoneInput = false;
 		switchToNonInput();
 	}
+}
+
+void SpectrogramComponent::calculateYLim()
+{
+	prevMinValFromFFT = std::numeric_limits<float>::max();
+	prevMaxValFromFFT = std::numeric_limits<float>::min();
 }
 
 
@@ -567,6 +583,9 @@ void SpectrogramComponent::paint(juce::Graphics& g)
 SpectrogramComponent::~SpectrogramComponent()
 {
 	shutDownIO();
+
+	//yLimTimer->stopTimer();
+
 }
 
 void SpectrogramComponent::drawNextLineOfSpectrogramAndFftPlotUpdate(float* fftDataBuffer, unsigned int& fftSize)
@@ -652,6 +671,7 @@ void SpectrogramComponent::setFilterToUse(filterTypes theFilterType)
 	bool threadWasRunning = isThreadRunning();
 	if (threadWasRunning)
 	{
+		//yLimTimer->stopTimer();
 		stopTimer();
 		drawSemaphore[0].release();
 		drawSemaphore[1].release();
@@ -691,6 +711,7 @@ void SpectrogramComponent::setFilterToUse(filterTypes theFilterType)
 	{
 		startThread();
 		startTimer(curTimerInterValMs);
+		//yLimTimer->startTimer(yLimTimerInterval);
 	}
 	else
 	{
@@ -816,6 +837,7 @@ void SpectrogramComponent::shutDownIO()
 {
 	shutdownAudio();
 
+	//yLimTimer->stopTimer();
 	stopTimer();
 
 	// Stop thread
@@ -849,6 +871,7 @@ void SpectrogramComponent::reStartIO()
 	}
 
 	startTimerHz(curTimerFrequencyHz);
+	//yLimTimer->startTimer(yLimTimerInterval);
 }
 
 void SpectrogramComponent::registerFFTCtrl(FFTCtrl* FFTC)
