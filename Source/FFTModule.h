@@ -216,7 +216,7 @@ private:
 #if JUCE_ANDROID
 				"*.*"
 #else
-				"*.wav;*.flac;*.aif"
+				"*.wav;*.flac;*.aif;*.mp3"
 #endif
 	};
 

@@ -228,19 +228,19 @@ private:
 };
 
 ///////////////////////////////
-class YLimTimer : public juce::Timer
-{
-public:
-	YLimTimer(SpectrogramComponent& component) : component(component) {}
-
-	void timerCallback() override
-	{
-		component.calculateYLim();
-	}
-
-private:
-	SpectrogramComponent& component;
-
-	JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(YLimTimer)
-
-};
+//class YLimTimer : public juce::Timer
+//{
+//public:
+//	YLimTimer(SpectrogramComponent& component) : component(component) {}
+//
+//	void timerCallback() override
+//	{
+//		component.calculateYLim();
+//	}
+//
+//private:
+//	SpectrogramComponent& component;
+//
+//	JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(YLimTimer)
+//
+//};
