@@ -116,6 +116,7 @@ void freqPlotModule::yLim(const float min, const float max)
 		()
 		{
 			m_plot.yLim(min, max);
+			m_plot.repaint();
 		}
 	);
 }
@@ -199,7 +200,6 @@ void freqPlotModule::updatePlotRealTime
 )
 {
 	m_plot.realTimePlot(y_values, x_values);
-
 	//MessageManager::callAsync
 	//(
 	//	[ this, y_values, x_values]

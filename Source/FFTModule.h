@@ -102,6 +102,7 @@ public:
 		, juce::ToggleButton* makespectrumOfInput__toggleButton
 	);
 	
+	void setTransportSourcePosition(double newPositionSec);
 
 	void switchToMicrophoneInput();
 	void switchToNonInput();

@@ -142,7 +142,9 @@ public:
 
 private:
 	//std::unique_ptr<juce::Timer> yLimTimer;
-	//int yLimTimerInterval = 10000;
+	int yLimIntervalMs = 5000;
+	int yLimNumTimerCallBacks = yLimIntervalMs / curTimerInterValMs;
+	bool plotYAndXTicks = false;
 
 	// Variables
 	int curNumInputChannels = 1;

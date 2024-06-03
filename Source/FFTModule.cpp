@@ -354,8 +354,8 @@ void FFTModule::openAudioFile
 		,
 		[
 			this
-				, spectrumOfaudioFile__toggleButton
-				, makespectrumOfInput__toggleButton
+			, spectrumOfaudioFile__toggleButton
+			, makespectrumOfInput__toggleButton
 		]
 		(const FileChooser& fc) /*mutable*/
 		{
@@ -383,10 +383,6 @@ void FFTModule::openAudioFile
 
 					transportSource.setSource
 					(
-						//currentAudioFileSource.get()
-						//, 0			// tells it to buffer this many samples ahead
-						//, nullptr	// this is the background thread to use for reading-ahead
-						//, currentAudioFileSource->getAudioFormatReader()->sampleRate
 						currentAudioFileSource.get()
 						, 0   // tells it to buffer this many samples ahead
 						, &thread // this is the background thread to use for reading-ahead
@@ -407,6 +403,12 @@ void FFTModule::openAudioFile
 		}
 	);
 
+}
+
+
+void FFTModule::setTransportSourcePosition(double newPositionSec)
+{
+	transportSource.setPosition(newPositionSec);
 }
 
 void FFTModule::switchToMicrophoneInput()
