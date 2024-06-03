@@ -18,7 +18,9 @@
           <Add option="-DLINUX=&quot;1&quot;"/>
           <Add option="-DDEBUG=&quot;1&quot;"/>
           <Add option="-D_DEBUG=&quot;1&quot;"/>
-          <Add option="-DJUCE_PROJUCER_VERSION=&quot;0x80000&quot;"/>
+          <Add option="-DJUCE_DISPLAY_SPLASH_SCREEN=&quot;1&quot;"/>
+          <Add option="-DJUCE_USE_DARK_SPLASH_SCREEN=&quot;1&quot;"/>
+          <Add option="-DJUCE_PROJUCER_VERSION=&quot;0x7000c&quot;"/>
           <Add option="-DJUCE_MODULE_AVAILABLE_juce_audio_basics=&quot;1&quot;"/>
           <Add option="-DJUCE_MODULE_AVAILABLE_juce_audio_devices=&quot;1&quot;"/>
           <Add option="-DJUCE_MODULE_AVAILABLE_juce_audio_formats=&quot;1&quot;"/>
@@ -32,6 +34,8 @@
           <Add option="-DJUCE_MODULE_AVAILABLE_juce_gui_basics=&quot;1&quot;"/>
           <Add option="-DJUCE_MODULE_AVAILABLE_juce_gui_extra=&quot;1&quot;"/>
           <Add option="-DJUCE_GLOBAL_MODULE_SETTINGS_INCLUDED=&quot;1&quot;"/>
+          <Add option="-DJUCE_USE_MP3AUDIOFORMAT=&quot;1&quot;"/>
+          <Add option="-DJUCE_USE_LAME_AUDIO_FORMAT=&quot;1&quot;"/>
           <Add option="-DJUCE_STRICT_REFCOUNTEDPOINTER=&quot;1&quot;"/>
           <Add option="-DJUCE_WEB_BROWSER=&quot;0&quot;"/>
           <Add option="-DJUCE_STANDALONE_APPLICATION=&quot;1&quot;"/>
@@ -76,7 +80,9 @@
         <Compiler>
           <Add option="-DLINUX=&quot;1&quot;"/>
           <Add option="-DNDEBUG=&quot;1&quot;"/>
-          <Add option="-DJUCE_PROJUCER_VERSION=&quot;0x80000&quot;"/>
+          <Add option="-DJUCE_DISPLAY_SPLASH_SCREEN=&quot;1&quot;"/>
+          <Add option="-DJUCE_USE_DARK_SPLASH_SCREEN=&quot;1&quot;"/>
+          <Add option="-DJUCE_PROJUCER_VERSION=&quot;0x7000c&quot;"/>
           <Add option="-DJUCE_MODULE_AVAILABLE_juce_audio_basics=&quot;1&quot;"/>
           <Add option="-DJUCE_MODULE_AVAILABLE_juce_audio_devices=&quot;1&quot;"/>
           <Add option="-DJUCE_MODULE_AVAILABLE_juce_audio_formats=&quot;1&quot;"/>
@@ -90,6 +96,8 @@
           <Add option="-DJUCE_MODULE_AVAILABLE_juce_gui_basics=&quot;1&quot;"/>
           <Add option="-DJUCE_MODULE_AVAILABLE_juce_gui_extra=&quot;1&quot;"/>
           <Add option="-DJUCE_GLOBAL_MODULE_SETTINGS_INCLUDED=&quot;1&quot;"/>
+          <Add option="-DJUCE_USE_MP3AUDIOFORMAT=&quot;1&quot;"/>
+          <Add option="-DJUCE_USE_LAME_AUDIO_FORMAT=&quot;1&quot;"/>
           <Add option="-DJUCE_STRICT_REFCOUNTEDPOINTER=&quot;1&quot;"/>
           <Add option="-DJUCE_WEB_BROWSER=&quot;0&quot;"/>
           <Add option="-DJUCE_STANDALONE_APPLICATION=&quot;1&quot;"/>
