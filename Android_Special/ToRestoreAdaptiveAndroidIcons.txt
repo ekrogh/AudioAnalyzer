@@ -1,0 +1,9 @@
+To Restore Adaptive Android Icons:
+
+1. Replace Android folder "guitarFineTune/Builds/Android" with "./Builds/Android" folder in this folder
+2. Run Projucer (if needed) and Save propject
+3. Merge
+		"./Builds/AndroidAndroid/app/src/main/AndroidManifest.xml"
+	into
+		"guitarFineTune/Builds/Android/app/src/main/AndroidManifest.xml"
+	keeping the version numbers
