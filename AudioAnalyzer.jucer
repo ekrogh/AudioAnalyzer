@@ -203,14 +203,14 @@
     </VS2022>
     <XCODE_IPHONE targetFolder="Builds/iOS" microphonePermissionNeeded="1" iosScreenOrientation="UIInterfaceOrientationLandscapeLeft,UIInterfaceOrientationLandscapeRight,UIInterfaceOrientationPortrait,UIInterfaceOrientationPortraitUpsideDown"
                   iPadScreenOrientation="UIInterfaceOrientationLandscapeLeft,UIInterfaceOrientationLandscapeRight,UIInterfaceOrientationPortrait,UIInterfaceOrientationPortraitUpsideDown"
-                  UIFileSharingEnabled="1" extraDefs="JUCE_SILENCE_XCODE_15_LINKER_WARNING=1"
-                  extraLinkerFlags="-Wl,-weak_reference_mismatches,weak&#10;" iosDevelopmentTeamID="4657Q2Y6NH"
-                  UIStatusBarHidden="1" iCloudPermissions="1" smallIcon="zrVA6e"
-                  bigIcon="Hd60ks" customLaunchStoryboard="iOSLaunchScreen/iOSLaunchScreen.storyboard"
+                  UIFileSharingEnabled="1" iosDevelopmentTeamID="4657Q2Y6NH" UIStatusBarHidden="1"
+                  iCloudPermissions="1" smallIcon="zrVA6e" bigIcon="Hd60ks" customLaunchStoryboard="iOSLaunchScreen/iOSLaunchScreen.storyboard"
                   buildNumber="2" iosBluetoothPermissionNeeded="1" iosBackgroundAudio="1">
       <CONFIGURATIONS>
-        <CONFIGURATION isDebug="1" name="Debug" targetName="AudioAnalyzer"/>
-        <CONFIGURATION isDebug="0" name="Release" targetName="AudioAnalyzer"/>
+        <CONFIGURATION isDebug="1" name="Debug" targetName="AudioAnalyzer" iosDeploymentTarget="14"
+                       iosCompatibility="14"/>
+        <CONFIGURATION isDebug="0" name="Release" targetName="AudioAnalyzer" iosDeploymentTarget="14"
+                       iosCompatibility="14"/>
       </CONFIGURATIONS>
       <MODULEPATHS>
         <MODULEPATH id="juce_audio_basics" path="../JUCE/modules"/>

@@ -1,9 +1,0 @@
-dk.eksit.audioanalyzer.app-debug_-0 D:\Users\eigil\projects\juceProjs\AudioAnalyzer\Builds\Android\app\build\generated\res\pngs\debug_\debug
-dk.eksit.audioanalyzer.app-debug_-1 D:\Users\eigil\projects\juceProjs\AudioAnalyzer\Builds\Android\app\build\generated\res\resValues\debug_\debug
-dk.eksit.audioanalyzer.app-packageDebug_DebugResources-2 D:\Users\eigil\projects\juceProjs\AudioAnalyzer\Builds\Android\app\build\intermediates\incremental\debug_Debug\packageDebug_DebugResources\merged.dir
-dk.eksit.audioanalyzer.app-packageDebug_DebugResources-3 D:\Users\eigil\projects\juceProjs\AudioAnalyzer\Builds\Android\app\build\intermediates\incremental\debug_Debug\packageDebug_DebugResources\stripped.dir
-dk.eksit.audioanalyzer.app-debug_Debug-4 D:\Users\eigil\projects\juceProjs\AudioAnalyzer\Builds\Android\app\build\intermediates\merged_res\debug_Debug\mergeDebug_DebugResources
-dk.eksit.audioanalyzer.app-debug-5 D:\Users\eigil\projects\juceProjs\AudioAnalyzer\Builds\Android\app\src\debug\res
-dk.eksit.audioanalyzer.app-debug_-6 D:\Users\eigil\projects\juceProjs\AudioAnalyzer\Builds\Android\app\src\debug_\res
-dk.eksit.audioanalyzer.app-debug_Debug-7 D:\Users\eigil\projects\juceProjs\AudioAnalyzer\Builds\Android\app\src\debug_Debug\res
-dk.eksit.audioanalyzer.app-main-8 D:\Users\eigil\projects\juceProjs\AudioAnalyzer\Builds\Android\app\src\main\res

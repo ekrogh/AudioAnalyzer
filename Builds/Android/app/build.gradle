@@ -13,24 +13,12 @@ android {
         }
     }
     signingConfigs {
-        debug {
-            storeFile file('D:\\Users\\eigil\\projects\\juceProjs\\AudioAnalyzer\\Android_Special\\keystore.jks')
-            storePassword '6taura'
-            keyAlias 'upload'
-            keyPassword '6taura'
-        }
         juceSigning {
             storeFile     file("..${File.separator}..${File.separator}..${File.separator}Android_Special${File.separator}keystore.jks")
             storePassword "6taura"
             keyAlias      "upload"
             keyPassword   "6taura"
             storeType     "jks"
-        }
-        Release {
-            storeFile file('D:\\Users\\eigil\\projects\\juceProjs\\AudioAnalyzer\\Android_Special\\keystore.jks')
-            storePassword '6taura'
-            keyAlias 'upload'
-            keyPassword '6taura'
         }
     }
 
@@ -50,13 +38,13 @@ android {
              initWith debug
              debuggable    true
              jniDebuggable true
-             signingConfig signingConfigs.debug
+             signingConfig signingConfigs.juceSigning
          }
          release {
              initWith release
              debuggable    false
              jniDebuggable false
-             signingConfig signingConfigs.Release
+             signingConfig signingConfigs.juceSigning
          }
     }
 
