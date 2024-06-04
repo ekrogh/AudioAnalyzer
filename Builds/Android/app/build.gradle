@@ -1,9 +1,9 @@
 apply plugin: 'com.android.application'
 
-def ndkVersionString = "25.2.9519653"
+def ndkVersionString = "26.2.11394342"
 
 android {
-    compileSdkVersion 33
+    compileSdkVersion 34
     ndkVersion ndkVersionString
     namespace "dk.eksit.audioanalyzer"
     externalNativeBuild {
@@ -13,6 +13,12 @@ android {
         }
     }
     signingConfigs {
+        debug {
+            storeFile file('D:\\Users\\eigil\\projects\\juceProjs\\AudioAnalyzer\\Android_Special\\keystore.jks')
+            storePassword '6taura'
+            keyAlias 'upload'
+            keyPassword '6taura'
+        }
         juceSigning {
             storeFile     file("..${File.separator}..${File.separator}..${File.separator}Android_Special${File.separator}keystore.jks")
             storePassword "6taura"
@@ -20,15 +26,21 @@ android {
             keyPassword   "6taura"
             storeType     "jks"
         }
+        Release {
+            storeFile file('D:\\Users\\eigil\\projects\\juceProjs\\AudioAnalyzer\\Android_Special\\keystore.jks')
+            storePassword '6taura'
+            keyAlias 'upload'
+            keyPassword '6taura'
+        }
     }
 
     defaultConfig {
         applicationId "dk.eksit.audioanalyzer"
-        minSdkVersion    19
-        targetSdkVersion 33
+        minSdkVersion    21
+        targetSdkVersion 34
         externalNativeBuild {
             cmake {
-                arguments "-DANDROID_TOOLCHAIN=clang", "-DANDROID_PLATFORM=android-19", "-DANDROID_STL=c++_static", "-DANDROID_CPP_FEATURES=exceptions rtti", "-DANDROID_ARM_MODE=arm", "-DANDROID_ARM_NEON=TRUE", "-DCMAKE_CXX_STANDARD=20", "-DCMAKE_CXX_EXTENSIONS=OFF"
+                arguments "-DANDROID_TOOLCHAIN=clang", "-DANDROID_PLATFORM=android-21", "-DANDROID_STL=c++_static", "-DANDROID_CPP_FEATURES=exceptions rtti", "-DANDROID_ARM_MODE=arm", "-DANDROID_ARM_NEON=TRUE", "-DANDROID_WEAK_API_DEFS=ON", "-DCMAKE_CXX_STANDARD=20", "-DCMAKE_CXX_EXTENSIONS=OFF"
             }
         }
     }
@@ -38,13 +50,13 @@ android {
              initWith debug
              debuggable    true
              jniDebuggable true
-             signingConfig signingConfigs.juceSigning
+             signingConfig signingConfigs.debug
          }
          release {
              initWith release
              debuggable    false
              jniDebuggable false
-             signingConfig signingConfigs.juceSigning
+             signingConfig signingConfigs.Release
          }
     }
 

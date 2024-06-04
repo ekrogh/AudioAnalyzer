@@ -1,0 +1,107 @@
+1<?xml version="1.0" encoding="utf-8"?>
+2<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+3    package="dk.eksit.audioanalyzer"
+4    android:versionCode="2"
+5    android:versionName="1.2.2" >
+6
+7    <uses-sdk
+8        android:minSdkVersion="21"
+9        android:targetSdkVersion="34" />
+10
+11    <supports-screens
+11-->D:\Users\eigil\projects\juceProjs\AudioAnalyzer\Builds\Android\app\src\main\AndroidManifest.xml:4:3-5:51
+12        android:anyDensity="true"
+12-->D:\Users\eigil\projects\juceProjs\AudioAnalyzer\Builds\Android\app\src\main\AndroidManifest.xml:4:106-131
+13        android:largeScreens="true"
+13-->D:\Users\eigil\projects\juceProjs\AudioAnalyzer\Builds\Android\app\src\main\AndroidManifest.xml:4:78-105
+14        android:normalScreens="true"
+14-->D:\Users\eigil\projects\juceProjs\AudioAnalyzer\Builds\Android\app\src\main\AndroidManifest.xml:4:49-77
+15        android:smallScreens="true"
+15-->D:\Users\eigil\projects\juceProjs\AudioAnalyzer\Builds\Android\app\src\main\AndroidManifest.xml:4:21-48
+16        android:xlargeScreens="true" />
+16-->D:\Users\eigil\projects\juceProjs\AudioAnalyzer\Builds\Android\app\src\main\AndroidManifest.xml:5:21-49
+17
+18    <uses-permission
+18-->D:\Users\eigil\projects\juceProjs\AudioAnalyzer\Builds\Android\app\src\main\AndroidManifest.xml:6:3-105
+19        android:name="android.permission.WRITE_EXTERNAL_STORAGE"
+19-->D:\Users\eigil\projects\juceProjs\AudioAnalyzer\Builds\Android\app\src\main\AndroidManifest.xml:6:20-76
+20        android:maxSdkVersion="28" />
+20-->D:\Users\eigil\projects\juceProjs\AudioAnalyzer\Builds\Android\app\src\main\AndroidManifest.xml:6:77-103
+21    <uses-permission
+21-->D:\Users\eigil\projects\juceProjs\AudioAnalyzer\Builds\Android\app\src\main\AndroidManifest.xml:7:3-104
+22        android:name="android.permission.READ_EXTERNAL_STORAGE"
+22-->D:\Users\eigil\projects\juceProjs\AudioAnalyzer\Builds\Android\app\src\main\AndroidManifest.xml:7:20-75
+23        android:maxSdkVersion="32" />
+23-->D:\Users\eigil\projects\juceProjs\AudioAnalyzer\Builds\Android\app\src\main\AndroidManifest.xml:7:76-102
+24    <uses-permission android:name="android.permission.READ_MEDIA_VIDEO" />
+24-->D:\Users\eigil\projects\juceProjs\AudioAnalyzer\Builds\Android\app\src\main\AndroidManifest.xml:8:3-72
+24-->D:\Users\eigil\projects\juceProjs\AudioAnalyzer\Builds\Android\app\src\main\AndroidManifest.xml:8:20-70
+25    <uses-permission android:name="android.permission.READ_MEDIA_IMAGES" />
+25-->D:\Users\eigil\projects\juceProjs\AudioAnalyzer\Builds\Android\app\src\main\AndroidManifest.xml:9:3-73
+25-->D:\Users\eigil\projects\juceProjs\AudioAnalyzer\Builds\Android\app\src\main\AndroidManifest.xml:9:20-71
+26    <uses-permission android:name="android.permission.READ_MEDIA_AUDIO" />
+26-->D:\Users\eigil\projects\juceProjs\AudioAnalyzer\Builds\Android\app\src\main\AndroidManifest.xml:10:3-72
+26-->D:\Users\eigil\projects\juceProjs\AudioAnalyzer\Builds\Android\app\src\main\AndroidManifest.xml:10:20-70
+27    <uses-permission android:name="android.permission.RECORD_AUDIO" />
+27-->D:\Users\eigil\projects\juceProjs\AudioAnalyzer\Builds\Android\app\src\main\AndroidManifest.xml:11:3-68
+27-->D:\Users\eigil\projects\juceProjs\AudioAnalyzer\Builds\Android\app\src\main\AndroidManifest.xml:11:20-66
+28
+29    <application
+29-->D:\Users\eigil\projects\juceProjs\AudioAnalyzer\Builds\Android\app\src\main\AndroidManifest.xml:12:3-24:17
+30        android:name="com.rmsl.juce.JuceApp"
+30-->D:\Users\eigil\projects\juceProjs\AudioAnalyzer\Builds\Android\app\src\main\AndroidManifest.xml:12:49-85
+31        android:debuggable="true"
+32        android:extractNativeLibs="true"
+33        android:hardwareAccelerated="false"
+33-->D:\Users\eigil\projects\juceProjs\AudioAnalyzer\Builds\Android\app\src\main\AndroidManifest.xml:12:116-151
+34        android:icon="@drawable/icon"
+34-->D:\Users\eigil\projects\juceProjs\AudioAnalyzer\Builds\Android\app\src\main\AndroidManifest.xml:12:86-115
+35        android:label="@string/app_name"
+35-->D:\Users\eigil\projects\juceProjs\AudioAnalyzer\Builds\Android\app\src\main\AndroidManifest.xml:12:16-48
+36        android:testOnly="true" >
+37        <receiver
+37-->D:\Users\eigil\projects\juceProjs\AudioAnalyzer\Builds\Android\app\src\main\AndroidManifest.xml:13:5-79
+38            android:name="com.rmsl.juce.Receiver"
+38-->D:\Users\eigil\projects\juceProjs\AudioAnalyzer\Builds\Android\app\src\main\AndroidManifest.xml:13:15-52
+39            android:exported="false" />
+39-->D:\Users\eigil\projects\juceProjs\AudioAnalyzer\Builds\Android\app\src\main\AndroidManifest.xml:13:53-77
+40
+41        <activity
+41-->D:\Users\eigil\projects\juceProjs\AudioAnalyzer\Builds\Android\app\src\main\AndroidManifest.xml:14:5-21:16
+42            android:name="com.rmsl.juce.JuceActivity"
+42-->D:\Users\eigil\projects\juceProjs\AudioAnalyzer\Builds\Android\app\src\main\AndroidManifest.xml:14:15-56
+43            android:configChanges="keyboard|keyboardHidden|orientation|screenSize|navigation"
+43-->D:\Users\eigil\projects\juceProjs\AudioAnalyzer\Builds\Android\app\src\main\AndroidManifest.xml:14:57-138
+44            android:exported="true"
+44-->D:\Users\eigil\projects\juceProjs\AudioAnalyzer\Builds\Android\app\src\main\AndroidManifest.xml:16:15-38
+45            android:hardwareAccelerated="true"
+45-->D:\Users\eigil\projects\juceProjs\AudioAnalyzer\Builds\Android\app\src\main\AndroidManifest.xml:15:87-121
+46            android:launchMode="singleTask"
+46-->D:\Users\eigil\projects\juceProjs\AudioAnalyzer\Builds\Android\app\src\main\AndroidManifest.xml:15:55-86
+47            android:screenOrientation="unspecified" >
+47-->D:\Users\eigil\projects\juceProjs\AudioAnalyzer\Builds\Android\app\src\main\AndroidManifest.xml:15:15-54
+48            <intent-filter>
+48-->D:\Users\eigil\projects\juceProjs\AudioAnalyzer\Builds\Android\app\src\main\AndroidManifest.xml:17:7-20:23
+49                <action android:name="android.intent.action.MAIN" />
+49-->D:\Users\eigil\projects\juceProjs\AudioAnalyzer\Builds\Android\app\src\main\AndroidManifest.xml:18:9-60
+49-->D:\Users\eigil\projects\juceProjs\AudioAnalyzer\Builds\Android\app\src\main\AndroidManifest.xml:18:17-58
+50
+51                <category android:name="android.intent.category.LAUNCHER" />
+51-->D:\Users\eigil\projects\juceProjs\AudioAnalyzer\Builds\Android\app\src\main\AndroidManifest.xml:19:9-68
+51-->D:\Users\eigil\projects\juceProjs\AudioAnalyzer\Builds\Android\app\src\main\AndroidManifest.xml:19:19-66
+52            </intent-filter>
+53        </activity>
+54
+55        <provider
+55-->D:\Users\eigil\projects\juceProjs\AudioAnalyzer\Builds\Android\app\src\main\AndroidManifest.xml:22:5-23:75
+56            android:name="com.rmsl.juce.JuceSharingContentProvider"
+56-->D:\Users\eigil\projects\juceProjs\AudioAnalyzer\Builds\Android\app\src\main\AndroidManifest.xml:22:15-70
+57            android:authorities="dk.eksit.audioanalyzer.sharingcontentprovider"
+57-->D:\Users\eigil\projects\juceProjs\AudioAnalyzer\Builds\Android\app\src\main\AndroidManifest.xml:22:71-138
+58            android:exported="true"
+58-->D:\Users\eigil\projects\juceProjs\AudioAnalyzer\Builds\Android\app\src\main\AndroidManifest.xml:23:50-73
+59            android:grantUriPermissions="true" />
+59-->D:\Users\eigil\projects\juceProjs\AudioAnalyzer\Builds\Android\app\src\main\AndroidManifest.xml:23:15-49
+60    </application>
+61
+62</manifest>

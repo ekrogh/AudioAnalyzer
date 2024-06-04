@@ -1,0 +1,7 @@
+#Tue Jun 04 19:30:55 CEST 2024
+base.0=D\:\\Users\\eigil\\projects\\juceProjs\\AudioAnalyzer\\Builds\\Android\\app\\build\\intermediates\\dex\\debug_Debug\\mergeProjectDexDebug_Debug\\0\\classes.dex
+base.1=D\:\\Users\\eigil\\projects\\juceProjs\\AudioAnalyzer\\Builds\\Android\\app\\build\\intermediates\\dex\\debug_Debug\\mergeProjectDexDebug_Debug\\5\\classes.dex
+path.0=0/classes.dex
+path.1=5/classes.dex
+renamed.0=classes.dex
+renamed.1=classes2.dex
