@@ -192,23 +192,23 @@ void freqPlotModule::updatePlotRealTime(std::vector <std::vector<float>> y_value
 	);
 }
 
-void freqPlotModule::updatePlotRealTime
-(
-	std::vector <std::vector<float>> y_values
-	,
-	std::vector <std::vector<float>> x_values
-)
-{
-	m_plot.realTimePlot(y_values, x_values);
-	//MessageManager::callAsync
-	//(
-	//	[ this, y_values, x_values]
-	//	()
-	//	{
-	//		m_plot.realTimePlot(y_values, x_values);
-	//	}
-	//);
-}
+//void freqPlotModule::updatePlotRealTime
+//(
+//	std::vector <std::vector<float>> y_values
+//	,
+//	std::vector <std::vector<float>> x_values
+//)
+//{
+//	m_plot.realTimePlot(y_values, x_values);
+//	//MessageManager::callAsync
+//	//(
+//	//	[ this, y_values, x_values]
+//	//	()
+//	//	{
+//	//		m_plot.realTimePlot(y_values, x_values);
+//	//	}
+//	//);
+//}
 
 void freqPlotModule::setXTicks(const std::vector<float>& x_ticks)
 {
