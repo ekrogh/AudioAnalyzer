@@ -2,7 +2,7 @@
 
 <JUCERPROJECT id="SUXWw8" name="AudioAnalyzer" projectType="guiapp" useAppConfig="0"
               displaySplashScreen="1" jucerFormatVersion="1" companyWebsite="www.eksit.dk"
-              bundleIdentifier="dk.eksit.AudioAnalyzer" cppLanguageStandard="20"
+              bundleIdentifier="dk.eksit.AudioAnalyzer" cppLanguageStandard="latest"
               version="1.2.2">
   <MAINGROUP id="J330RL" name="AudioAnalyzer">
     <GROUP id="{444701EC-2BDB-E376-CB2D-A176BB8655A4}" name="Source">

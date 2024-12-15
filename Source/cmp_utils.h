@@ -124,7 +124,7 @@ constexpr float getXDataFromXPixelCoordinate(
       return coordinateToXLinear();
       break;
     case Scaling::logarithmic:
-      return coordinateToXLog();
+      return (float)(coordinateToXLog());
       break;
     default:
       return coordinateToXLinear();
@@ -152,7 +152,7 @@ constexpr float getYDataFromYPixelCoordinate(
       return coordinateToYLinear();
       break;
     case Scaling::logarithmic:
-      return coordinateToYLog();
+      return (float)(coordinateToYLog());
       break;
     default:
       return coordinateToYLinear();

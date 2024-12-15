@@ -605,8 +605,8 @@ void SpectrogramComponent::drawNextLineOfSpectrogramAndFftPlotUpdate(float* fftD
 		frequencyValues[0].resize(sizeToUseInFreqInRealTimeFftChartPlot);
 
 		//module_freqPlot->updatePlotRealTime(plotValues, frequencyValues);
-		module_freqPlot->updatePlotRealTime(plotValues);
-		//module_freqPlot->updatePlot(plotValues, frequencyValues);
+		//module_freqPlot->updatePlotRealTime(plotValues);
+		module_freqPlot->updatePlot(plotValues, frequencyValues);
 	}
 
 	auto rightHandEdge = spectrogramImage.getWidth() - 1;
