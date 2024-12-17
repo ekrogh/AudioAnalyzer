@@ -19,6 +19,7 @@
 #include <semaphore>
 #include <coroutine>
 #include "NotchFilter.h"
+#include "rnnoise.h"
 
 class FFTModule;
 class FFTCtrl;
@@ -141,6 +142,9 @@ public:
 	Task setTask();
 
 private:
+	DenoiseState* rnnoiseState;
+	int frameSize;
+
 	int yLimIntervalMs = 5000;
 	int yLimNumTimerCallBacks = 294; // yLimIntervalMs / curTimerInterValMs;
 	bool plotYAndXTicks = false;

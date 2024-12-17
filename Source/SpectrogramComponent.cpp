@@ -54,6 +54,11 @@ SpectrogramComponent::SpectrogramComponent
 
 	setSize(spectrogramImage.getWidth(), spectrogramImage.getHeight());
 
+
+
+	// Initialize RNNoise
+	rnnoiseState = rnnoise_create(nullptr);
+	frameSize = rnnoise_get_frame_size();
 }
 
 void SpectrogramComponent::switchToMicrophoneInput()
@@ -545,10 +550,16 @@ void SpectrogramComponent::getNextAudioBlock(const juce::AudioSourceChannelInfo&
 	{
 		const auto* channelData = bufferToFill.buffer->getReadPointer(0, bufferToFill.startSample);
 
+		// Process audio with RNNoise
+		for (int i = 0; i < noSampls; i += frameSize)
+		{
+			rnnoise_process_frame(rnnoiseState, const_cast<float*>(channelData) + i, const_cast<float*>(channelData) + i);
+		}
+
 		for (auto i = 0; i < noSampls; ++i)
 			pushNextSampleIntoFifo(channelData[i]);
 
-		bufferToFill.clearActiveBufferRegion();
+		//bufferToFill.clearActiveBufferRegion();
 	}
 }
 
@@ -593,6 +604,9 @@ void SpectrogramComponent::paint(juce::Graphics& g)
 SpectrogramComponent::~SpectrogramComponent()
 {
 	shutDownIO();
+
+	rnnoise_destroy(rnnoiseState);
+
 }
 
 void SpectrogramComponent::drawNextLineOfSpectrogramAndFftPlotUpdate(float* fftDataBuffer, unsigned int& fftSize)

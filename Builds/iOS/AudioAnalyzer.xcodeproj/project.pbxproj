@@ -697,13 +697,14 @@
 				HEADER_SEARCH_PATHS = (
 					"$(SRCROOT)/../../JuceLibraryCode",
 					"$(SRCROOT)/../../JuceLibraryCode/modules",
+					"$(SRCROOT)/..\..\rnnoise",
 					"$(inherited)",
 				);
 				INFOPLIST_FILE = Info-App.plist;
 				INFOPLIST_PREPROCESS = NO;
 				INSTALL_PATH = "$(HOME)/Applications";
 				LLVM_LTO = YES_THIN;
-				MTL_HEADER_SEARCH_PATHS = "$(SRCROOT)/../../JuceLibraryCode $(SRCROOT)/../../JuceLibraryCode/modules";
+				MTL_HEADER_SEARCH_PATHS = "$(SRCROOT)/../../JuceLibraryCode $(SRCROOT)/../../JuceLibraryCode/modules $(SRCROOT)/..\..\rnnoise";
 				PRODUCT_BUNDLE_IDENTIFIER = dk.eksit.AudioAnalyzer;
 				PRODUCT_NAME = "AudioAnalyzer";
 				PROVISIONING_PROFILE_SPECIFIER = "";
@@ -765,12 +766,13 @@
 				HEADER_SEARCH_PATHS = (
 					"$(SRCROOT)/../../JuceLibraryCode",
 					"$(SRCROOT)/../../JuceLibraryCode/modules",
+					"$(SRCROOT)/..\..\rnnoise",
 					"$(inherited)",
 				);
 				INFOPLIST_FILE = Info-App.plist;
 				INFOPLIST_PREPROCESS = NO;
 				INSTALL_PATH = "$(HOME)/Applications";
-				MTL_HEADER_SEARCH_PATHS = "$(SRCROOT)/../../JuceLibraryCode $(SRCROOT)/../../JuceLibraryCode/modules";
+				MTL_HEADER_SEARCH_PATHS = "$(SRCROOT)/../../JuceLibraryCode $(SRCROOT)/../../JuceLibraryCode/modules $(SRCROOT)/..\..\rnnoise";
 				PRODUCT_BUNDLE_IDENTIFIER = dk.eksit.AudioAnalyzer;
 				PRODUCT_NAME = "AudioAnalyzer";
 				PROVISIONING_PROFILE_SPECIFIER = "";

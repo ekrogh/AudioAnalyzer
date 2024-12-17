@@ -3,7 +3,7 @@
 <JUCERPROJECT id="SUXWw8" name="AudioAnalyzer" projectType="guiapp" useAppConfig="0"
               displaySplashScreen="1" jucerFormatVersion="1" companyWebsite="www.eksit.dk"
               bundleIdentifier="dk.eksit.AudioAnalyzer" cppLanguageStandard="latest"
-              version="1.2.2">
+              version="1.2.2" headerPath="..\..\rnnoise">
   <MAINGROUP id="J330RL" name="AudioAnalyzer">
     <GROUP id="{444701EC-2BDB-E376-CB2D-A176BB8655A4}" name="Source">
       <GROUP id="{E0980DD4-085C-A615-407B-AC22978106DF}" name="Resources">
@@ -181,7 +181,8 @@
         <MODULEPATH id="juce_dsp" path="..\JUCE\modules"/>
       </MODULEPATHS>
     </LINUX_MAKE>
-    <VS2022 targetFolder="Builds/VisualStudio2022" smallIcon="zrVA6e" bigIcon="Hd60ks">
+    <VS2022 targetFolder="Builds/VisualStudio2022" smallIcon="zrVA6e" bigIcon="Hd60ks"
+            externalLibraries="..\..\rnnoise\librnnoise.a">
       <CONFIGURATIONS>
         <CONFIGURATION isDebug="1" name="Debug" targetName="AudioAnalyzer"/>
         <CONFIGURATION isDebug="0" name="Release" targetName="AudioAnalyzer"/>
