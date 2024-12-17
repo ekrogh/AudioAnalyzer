@@ -52,6 +52,8 @@ public:
 		, juce::ToggleButton* makespectrumOfInput__toggleButtonPtr
 	);
 
+	bool audioSysInit();
+
 	void startShowingFilters();
 
 	void switchToMicrophoneInput();
@@ -229,6 +231,7 @@ private:
 
 	AudioFormatManager& formatManager;
 	std::unique_ptr<AudioFormatReader> reader;
+	std::shared_ptr<AudioDeviceManager> sharedAudioDeviceManager;
 
 
 	JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(SpectrogramComponent)

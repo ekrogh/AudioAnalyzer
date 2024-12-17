@@ -37,6 +37,7 @@ SpectrogramComponent::SpectrogramComponent
 	, ptrFFTModule(FFTMP)
 	, module_freqPlot(FPM)
 	, Thread("Audio file read and FFT")
+	, sharedAudioDeviceManager(SADM)
 {
 	setOpaque(true);
 
@@ -46,6 +47,7 @@ SpectrogramComponent::SpectrogramComponent
 
 	curNumInputChannels = 1;
 	setAudioChannels(1, 2);
+	audioSysInit();
 
 	curTimerFrequencyHz = 60;
 	yLimNumTimerCallBacks =
@@ -59,6 +61,20 @@ SpectrogramComponent::SpectrogramComponent
 	// Initialize RNNoise
 	rnnoiseState = rnnoise_create(nullptr);
 	frameSize = rnnoise_get_frame_size();
+}
+
+bool SpectrogramComponent::audioSysInit()
+{
+	juce::AudioDeviceManager::AudioDeviceSetup currentAudioConfig;
+	sharedAudioDeviceManager->getAudioDeviceSetup(currentAudioConfig);
+
+	if ((currentAudioConfig.bufferSize % 256) != 0)
+	{
+		currentAudioConfig.bufferSize = 1024;
+		sharedAudioDeviceManager->setAudioDeviceSetup(currentAudioConfig, true);
+	}
+
+	return true;
 }
 
 void SpectrogramComponent::switchToMicrophoneInput()
@@ -540,7 +556,6 @@ void SpectrogramComponent::releaseResources()
 	// (nothing to do here)
 }
 
-
 void SpectrogramComponent::getNextAudioBlock(const juce::AudioSourceChannelInfo& bufferToFill)
 {
 	auto numChans = bufferToFill.buffer->getNumChannels();
@@ -553,11 +568,26 @@ void SpectrogramComponent::getNextAudioBlock(const juce::AudioSourceChannelInfo&
 		// Process audio with RNNoise
 		if (useRnNoise)
 		{
-			for (int i = 0; i < noSampls; i += frameSize)
+			auto channelWritePtr = bufferToFill.buffer->getWritePointer(0);
+			//auto channelWritePtr =
+			//	const_cast<float*>(bufferToFill.buffer->getWritePointer(0));
+			auto iStop = noSampls - frameSize;
+			int i = 0;
+			for (; i <= iStop; i += frameSize)
 			{
-				rnnoise_process_frame(rnnoiseState, const_cast<float*>(channelData) + i, const_cast<float*>(channelData) + i);
+				rnnoise_process_frame(rnnoiseState, &channelWritePtr[i], &channelData[i]);
 				// Add logging to check the processed data
 				DBG("Processed frame starting at sample " << i);
+			}
+
+			// Process remaining samples
+			if (i < noSampls)
+			{
+				std::vector<float> remainingSamples(frameSize, 0.0f);
+				std::copy(&channelData[i], &channelData[noSampls], remainingSamples.begin());
+				rnnoise_process_frame(rnnoiseState, remainingSamples.data(), remainingSamples.data());
+				std::copy(remainingSamples.begin(), remainingSamples.begin() + (noSampls - i), &channelWritePtr[i]);
+				DBG("Processed remaining samples starting at sample " << i);
 			}
 		}
 
