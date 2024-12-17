@@ -180,18 +180,18 @@ void SpectrogramComponent::setXTicksForPowerGridFrequencies()
 
 	switch (filterToUse)
 	{
-		case filter50Hz:
-			{
-				module_freqPlot->setXTicks({ 50.0f, 100.0f, 150.0f });
-				module_freqPlot->setXTickLabels({ "50.0", "100.0", "150.0" });
-				break;
-			}
-		case filter60Hz:
-			{
-				module_freqPlot->setXTicks({ 60.0f, 120.0f, 180.0f });
-				module_freqPlot->setXTickLabels({ "60.0", "120.0", "180.0" });
-				break;
-			}
+	case filter50Hz:
+	{
+		module_freqPlot->setXTicks({ 50.0f, 100.0f, 150.0f });
+		module_freqPlot->setXTickLabels({ "50.0", "100.0", "150.0" });
+		break;
+	}
+	case filter60Hz:
+	{
+		module_freqPlot->setXTicks({ 60.0f, 120.0f, 180.0f });
+		module_freqPlot->setXTickLabels({ "60.0", "120.0", "180.0" });
+		break;
+	}
 	}
 }
 
@@ -426,7 +426,7 @@ void SpectrogramComponent::run()
 {
 	Task t = setTask();
 
-	weSpectrumDataReady[fftDataInBufferIndex^1].signal(); // Secure both buffers filled
+	weSpectrumDataReady[fftDataInBufferIndex ^ 1].signal(); // Secure both buffers filled
 	weSpectrumDataReady[fftDataInBufferIndex].reset(); // ... but NOT more than that until read
 
 	do
@@ -443,7 +443,7 @@ void SpectrogramComponent::run()
 			weSpectrumDataReady[fftDataInBufferIndex].wait(500)
 			&& !threadShouldExit()
 			&& notAudioIOSystemIsRunning
-		);
+			);
 
 	doSwitchToMicrophoneInput = (!notAudioIOSystemIsRunning) && autoSwitchToInput;
 	doSwitchTNoneInput = !doSwitchToMicrophoneInput;
@@ -551,9 +551,14 @@ void SpectrogramComponent::getNextAudioBlock(const juce::AudioSourceChannelInfo&
 		const auto* channelData = bufferToFill.buffer->getReadPointer(0, bufferToFill.startSample);
 
 		// Process audio with RNNoise
-		for (int i = 0; i < noSampls; i += frameSize)
+		if (useRnNoise)
 		{
-			rnnoise_process_frame(rnnoiseState, const_cast<float*>(channelData) + i, const_cast<float*>(channelData) + i);
+			for (int i = 0; i < noSampls; i += frameSize)
+			{
+				rnnoise_process_frame(rnnoiseState, const_cast<float*>(channelData) + i, const_cast<float*>(channelData) + i);
+				// Add logging to check the processed data
+				DBG("Processed frame starting at sample " << i);
+			}
 		}
 
 		for (auto i = 0; i < noSampls; ++i)
@@ -742,21 +747,21 @@ void SpectrogramComponent::reSetFilterToUse(filterTypes theFilterType)
 {
 	switch (theFilterType)
 	{
-		case noFilter:
-			{
-				theNotchFilter = nullptr;
-				break;
-			}
-		case filter50Hz:
-			{
-				theNotchFilter = std::make_unique<NotchFilter>(50.0, curSampleRate);
-				break;
-			}
-		case filter60Hz:
-			{
-				theNotchFilter = std::make_unique<NotchFilter>(60.0, curSampleRate);
-				break;
-			}
+	case noFilter:
+	{
+		theNotchFilter = nullptr;
+		break;
+	}
+	case filter50Hz:
+	{
+		theNotchFilter = std::make_unique<NotchFilter>(50.0, curSampleRate);
+		break;
+	}
+	case filter60Hz:
+	{
+		theNotchFilter = std::make_unique<NotchFilter>(60.0, curSampleRate);
+		break;
+	}
 	}
 }
 
@@ -902,4 +907,10 @@ void SpectrogramComponent::setShowFilters(bool showF)
 	showFilters = showF;
 
 	startShowingFilters();
+}
+
+
+void SpectrogramComponent::setUseRnNoises(bool useRnNoiseIn)
+{
+	useRnNoise = useRnNoiseIn;
 }

@@ -7,7 +7,7 @@
   the "//[xyz]" and "//[/xyz]" sections will be retained when the file is loaded
   and re-saved.
 
-  Created with Projucer version: 7.0.12
+  Created with Projucer version: 7.0.8
 
   ------------------------------------------------------------------------------
 
@@ -100,6 +100,7 @@ private:
     std::unique_ptr<juce::ToggleButton> useNoFilter__toggleButton;
     std::unique_ptr<juce::ToggleButton> makeFFtRealTimeChartPlot__toggleButton;
     std::unique_ptr<juce::ToggleButton> showFilter__toggleButton;
+    std::unique_ptr<juce::ToggleButton> rnnoise_toggleButton;
 
 
     //==============================================================================

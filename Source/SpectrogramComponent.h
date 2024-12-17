@@ -98,6 +98,9 @@ public:
 	void registerFFTCtrl(FFTCtrl* FFTC);
 
 	void setShowFilters(bool showFilters);
+	
+	void setUseRnNoises(bool useRnNoiseIn);
+
 
 	void setXTicksForPowerGridFrequencies();
 
@@ -144,6 +147,7 @@ public:
 private:
 	DenoiseState* rnnoiseState;
 	int frameSize;
+	bool useRnNoise = false;
 
 	int yLimIntervalMs = 5000;
 	int yLimNumTimerCallBacks = 294; // yLimIntervalMs / curTimerInterValMs;

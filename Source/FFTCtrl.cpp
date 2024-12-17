@@ -7,7 +7,7 @@
   the "//[xyz]" and "//[/xyz]" sections will be retained when the file is loaded
   and re-saved.
 
-  Created with Projucer version: 7.0.12
+  Created with Projucer version: 7.0.8
 
   ------------------------------------------------------------------------------
 
@@ -304,6 +304,13 @@ FFTCtrl::FFTCtrl (std::shared_ptr<FFTModule> ptr_module_FFT, std::shared_ptr<Aud
 
     showFilter__toggleButton->setBounds (192, 339, 150, 24);
 
+    rnnoise_toggleButton.reset (new juce::ToggleButton ("rnnoise_toggleButton"));
+    addAndMakeVisible (rnnoise_toggleButton.get());
+    rnnoise_toggleButton->setButtonText (TRANS ("rnnoise"));
+    rnnoise_toggleButton->addListener (this);
+
+    rnnoise_toggleButton->setBounds (192, 544, 150, 24);
+
 
     //[UserPreSize]
 	max_freq__textEditor->setInputRestrictions(10, "1234567890.,");
@@ -472,6 +479,7 @@ FFTCtrl::~FFTCtrl()
     useNoFilter__toggleButton = nullptr;
     makeFFtRealTimeChartPlot__toggleButton = nullptr;
     showFilter__toggleButton = nullptr;
+    rnnoise_toggleButton = nullptr;
 
 
     //[Destructor]. You can add your own custom destruction code here..
@@ -713,6 +721,12 @@ void FFTCtrl::buttonClicked (juce::Button* buttonThatWasClicked)
         //HERTIL
         //[/UserButtonCode_showFilter__toggleButton]
     }
+    else if (buttonThatWasClicked == rnnoise_toggleButton.get())
+    {
+        //[UserButtonCode_rnnoise_toggleButton] -- add your button handler code here..
+        refSpectrogramComponent.setUseRnNoises(rnnoise_toggleButton->getToggleState());
+        //[/UserButtonCode_rnnoise_toggleButton]
+    }
 
     //[UserbuttonClicked_Post]
     //[/UserbuttonClicked_Post]
@@ -880,6 +894,9 @@ BEGIN_JUCER_METADATA
   <TOGGLEBUTTON name="show Filter toggle button" id="e40cdc89151095fd" memberName="showFilter__toggleButton"
                 virtualName="" explicitFocusOrder="0" pos="192 339 150 24" buttonText="Show filters"
                 connectedEdges="12" needsCallback="1" radioGroupId="1" state="0"/>
+  <TOGGLEBUTTON name="rnnoise_toggleButton" id="5d84f592c86b759e" memberName="rnnoise_toggleButton"
+                virtualName="" explicitFocusOrder="0" pos="192 544 150 24" buttonText="rnnoise"
+                connectedEdges="0" needsCallback="1" radioGroupId="0" state="0"/>
 </JUCER_COMPONENT>
 
 END_JUCER_METADATA
