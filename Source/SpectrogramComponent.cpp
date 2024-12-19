@@ -564,6 +564,7 @@ void SpectrogramComponent::getNextAudioBlock(const juce::AudioSourceChannelInfo&
 	if (numChans > 0)
 	{
 		const auto* channelData = bufferToFill.buffer->getReadPointer(0, bufferToFill.startSample);
+		auto* channelWritePtr = bufferToFill.buffer->getWritePointer(0);
 
 		// Process audio with RNNoise
 		if (useRnNoise)

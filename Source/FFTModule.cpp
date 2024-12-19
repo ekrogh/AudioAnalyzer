@@ -613,6 +613,9 @@ bool FFTModule::makeWindows
 
 	const unsigned int fftDataSize = fftSize << 1;
 
+	float yMin = std::numeric_limits<float>::max();
+	float yMax = std::numeric_limits<float>::min();
+
 	// hann window
 	float* fftData = new float[fftDataSize] { 0 };
 
@@ -647,6 +650,17 @@ bool FFTModule::makeWindows
 
 	std::vector <std::vector<float>>
 		plotValues{ { fftData, fftData + nbrSamplesInPlot } };
+	
+	auto maxMinLevel = FloatVectorOperations::findMinAndMax(fftData, static_cast<int>(nbrSamplesInPlot));
+
+	if (maxMinLevel.getStart() < yMin)
+	{
+		yMin = maxMinLevel.getStart();
+	}
+	if (maxMinLevel.getEnd() > yMax)
+	{
+		yMax = maxMinLevel.getEnd();
+	}
 
 	cmp::GraphAttributeList graph_attributes(0);
 	makeGraphAttributes(graph_attributes);
@@ -670,6 +684,17 @@ bool FFTModule::makeWindows
 
 	frequencyValues.push_back(tmpFreqVctr);
 	plotValues.push_back({ fftData, fftData + nbrSamplesInPlot });
+
+	maxMinLevel = FloatVectorOperations::findMinAndMax(fftData, static_cast<int>(nbrSamplesInPlot));
+	if (maxMinLevel.getStart() < yMin)
+	{
+		yMin = maxMinLevel.getStart();
+	}
+	if (maxMinLevel.getEnd() > yMax)
+	{
+		yMax = maxMinLevel.getEnd();
+	}
+
 	makeGraphAttributes(graph_attributes);
 	plotLegend.push_back("hamming");
 
@@ -689,6 +714,17 @@ bool FFTModule::makeWindows
 
 	frequencyValues.push_back(tmpFreqVctr);
 	plotValues.push_back({ fftData, fftData + nbrSamplesInPlot });
+
+	maxMinLevel = FloatVectorOperations::findMinAndMax(fftData, static_cast<int>(nbrSamplesInPlot));
+	if (maxMinLevel.getStart() < yMin)
+	{
+		yMin = maxMinLevel.getStart();
+	}
+	if (maxMinLevel.getEnd() > yMax)
+	{
+		yMax = maxMinLevel.getEnd();
+	}
+
 	makeGraphAttributes(graph_attributes);
 	plotLegend.push_back("blackman");
 
@@ -708,6 +744,17 @@ bool FFTModule::makeWindows
 
 	frequencyValues.push_back(tmpFreqVctr);
 	plotValues.push_back({ fftData, fftData + nbrSamplesInPlot });
+
+	maxMinLevel = FloatVectorOperations::findMinAndMax(fftData, static_cast<int>(nbrSamplesInPlot));
+	if (maxMinLevel.getStart() < yMin)
+	{
+		yMin = maxMinLevel.getStart();
+	}
+	if (maxMinLevel.getEnd() > yMax)
+	{
+		yMax = maxMinLevel.getEnd();
+	}
+
 	makeGraphAttributes(graph_attributes);
 	plotLegend.push_back("blackmanHarris");
 
@@ -727,6 +774,17 @@ bool FFTModule::makeWindows
 
 	frequencyValues.push_back(tmpFreqVctr);
 	plotValues.push_back({ fftData, fftData + nbrSamplesInPlot });
+
+	maxMinLevel = FloatVectorOperations::findMinAndMax(fftData, static_cast<int>(nbrSamplesInPlot));
+	if (maxMinLevel.getStart() < yMin)
+	{
+		yMin = maxMinLevel.getStart();
+	}
+	if (maxMinLevel.getEnd() > yMax)
+	{
+		yMax = maxMinLevel.getEnd();
+	}
+
 	makeGraphAttributes(graph_attributes);
 	plotLegend.push_back("flatTop");
 
@@ -746,12 +804,24 @@ bool FFTModule::makeWindows
 
 	frequencyValues.push_back(tmpFreqVctr);
 	plotValues.push_back({ fftData, fftData + nbrSamplesInPlot });
+
+	maxMinLevel = FloatVectorOperations::findMinAndMax(fftData, static_cast<int>(nbrSamplesInPlot));
+	if (maxMinLevel.getStart() < yMin)
+	{
+		yMin = maxMinLevel.getStart();
+	}
+	if (maxMinLevel.getEnd() > yMax)
+	{
+		yMax = maxMinLevel.getEnd();
+	}
+	
 	makeGraphAttributes(graph_attributes);
 	plotLegend.push_back("kaiser");
 
 	module_freqPlot->setTitle("Frequency response [FFT]");
 	module_freqPlot->setXLabel("[Hz]");
 	module_freqPlot->setYLabel("[Magnitude]");
+	module_freqPlot->yLim(yMin - 100, yMax + 100);
 
 	module_freqPlot->updatePlot(plotValues, frequencyValues, graph_attributes, plotLegend);
 
