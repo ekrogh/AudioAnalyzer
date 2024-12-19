@@ -3,9 +3,30 @@
 <JUCERPROJECT id="SUXWw8" name="AudioAnalyzer" projectType="guiapp" useAppConfig="0"
               displaySplashScreen="1" jucerFormatVersion="1" companyWebsite="www.eksit.dk"
               bundleIdentifier="dk.eksit.AudioAnalyzer" cppLanguageStandard="latest"
-              version="1.2.2" headerPath="..\..\rnnoise">
+              version="1.2.2" headerPath="..\Source\rnnoise_source\">
   <MAINGROUP id="J330RL" name="AudioAnalyzer">
     <GROUP id="{444701EC-2BDB-E376-CB2D-A176BB8655A4}" name="Source">
+      <GROUP id="{0E7A431B-7E60-9B60-691D-20B7EE2974C5}" name="rnnoise_source">
+        <FILE id="NzSZUr" name="_kiss_fft_guts.h" compile="0" resource="0"
+              file="Source/rnnoise_source/_kiss_fft_guts.h"/>
+        <FILE id="ebEaJW" name="arch.h" compile="0" resource="0" file="Source/rnnoise_source/arch.h"/>
+        <FILE id="CGMpwT" name="celt_lpc.c" compile="1" resource="0" file="Source/rnnoise_source/celt_lpc.c"/>
+        <FILE id="e81N4H" name="celt_lpc.h" compile="0" resource="0" file="Source/rnnoise_source/celt_lpc.h"/>
+        <FILE id="mKHPUp" name="common.h" compile="0" resource="0" file="Source/rnnoise_source/common.h"/>
+        <FILE id="LGr380" name="denoise.c" compile="1" resource="0" file="Source/rnnoise_source/denoise.c"/>
+        <FILE id="QsIUyw" name="kiss_fft.c" compile="1" resource="0" file="Source/rnnoise_source/kiss_fft.c"/>
+        <FILE id="ppECFj" name="kiss_fft.h" compile="0" resource="0" file="Source/rnnoise_source/kiss_fft.h"/>
+        <FILE id="QYDe6Y" name="opus_types.h" compile="0" resource="0" file="Source/rnnoise_source/opus_types.h"/>
+        <FILE id="VnuFkb" name="pitch.c" compile="1" resource="0" file="Source/rnnoise_source/pitch.c"/>
+        <FILE id="SZwXxv" name="pitch.h" compile="0" resource="0" file="Source/rnnoise_source/pitch.h"/>
+        <FILE id="toxmDC" name="rnn.c" compile="1" resource="0" file="Source/rnnoise_source/rnn.c"/>
+        <FILE id="TXhB88" name="rnn.h" compile="0" resource="0" file="Source/rnnoise_source/rnn.h"/>
+        <FILE id="kpVTUx" name="rnn_data.c" compile="1" resource="0" file="Source/rnnoise_source/rnn_data.c"/>
+        <FILE id="tdlqTm" name="rnn_data.h" compile="0" resource="0" file="Source/rnnoise_source/rnn_data.h"/>
+        <FILE id="xQJFMt" name="rnn_reader.c" compile="1" resource="0" file="Source/rnnoise_source/rnn_reader.c"/>
+        <FILE id="lu2m0A" name="rnnoise.h" compile="0" resource="0" file="Source/rnnoise_source/rnnoise.h"/>
+        <FILE id="awFh8z" name="tansig_table.h" compile="0" resource="0" file="Source/rnnoise_source/tansig_table.h"/>
+      </GROUP>
       <GROUP id="{E0980DD4-085C-A615-407B-AC22978106DF}" name="Resources">
         <FILE id="MXXT25" name="audioanalyzerfirstimage.png" compile="0" resource="1"
               file="Source/audioanalyzerfirstimage.png" xcodeResource="1"/>
@@ -181,8 +202,7 @@
         <MODULEPATH id="juce_dsp" path="..\JUCE\modules"/>
       </MODULEPATHS>
     </LINUX_MAKE>
-    <VS2022 targetFolder="Builds/VisualStudio2022" smallIcon="zrVA6e" bigIcon="Hd60ks"
-            externalLibraries="..\..\rnnoise\librnnoise.a&#10;..\..\rnnoise\libgcc.a&#10;..\..\rnnoise\libm.a&#10;..\..\rnnoise\libmingwex.a&#10;">
+    <VS2022 targetFolder="Builds/VisualStudio2022" smallIcon="zrVA6e" bigIcon="Hd60ks">
       <CONFIGURATIONS>
         <CONFIGURATION isDebug="1" name="Debug" targetName="AudioAnalyzer"/>
         <CONFIGURATION isDebug="0" name="Release" targetName="AudioAnalyzer"/>

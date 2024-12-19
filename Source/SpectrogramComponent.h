@@ -19,7 +19,7 @@
 #include <semaphore>
 #include <coroutine>
 #include "NotchFilter.h"
-#include "rnnoise.h"
+#include "rnnoise_source/rnnoise.h"
 
 class FFTModule;
 class FFTCtrl;

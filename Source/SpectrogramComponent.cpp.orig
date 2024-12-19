@@ -570,6 +570,8 @@ void SpectrogramComponent::getNextAudioBlock(const juce::AudioSourceChannelInfo&
 		if (useRnNoise)
 		{
 			auto channelWritePtr = bufferToFill.buffer->getWritePointer(0);
+			//auto channelWritePtr =
+			//	const_cast<float*>(bufferToFill.buffer->getWritePointer(0));
 			auto iStop = noSampls - frameSize;
 			int i = 0;
 			for (; i <= iStop; i += frameSize)

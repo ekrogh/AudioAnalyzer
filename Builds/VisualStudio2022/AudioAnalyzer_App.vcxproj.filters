@@ -2,6 +2,9 @@
 
 <Project ToolsVersion="17.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
+    <Filter Include="AudioAnalyzer\Source\rnnoise_source">
+      <UniqueIdentifier>{3F659F53-6C9F-C11D-BABC-C879286E7D07}</UniqueIdentifier>
+    </Filter>
     <Filter Include="AudioAnalyzer\Source\CustomMatPlot">
       <UniqueIdentifier>{6EA5EDA9-E3CA-6F26-9513-7D912E7FE087}</UniqueIdentifier>
     </Filter>
@@ -691,6 +694,27 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="..\..\Source\rnnoise_source\celt_lpc.c">
+      <Filter>AudioAnalyzer\Source\rnnoise_source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\rnnoise_source\denoise.c">
+      <Filter>AudioAnalyzer\Source\rnnoise_source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\rnnoise_source\kiss_fft.c">
+      <Filter>AudioAnalyzer\Source\rnnoise_source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\rnnoise_source\pitch.c">
+      <Filter>AudioAnalyzer\Source\rnnoise_source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\rnnoise_source\rnn.c">
+      <Filter>AudioAnalyzer\Source\rnnoise_source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\rnnoise_source\rnn_data.c">
+      <Filter>AudioAnalyzer\Source\rnnoise_source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\rnnoise_source\rnn_reader.c">
+      <Filter>AudioAnalyzer\Source\rnnoise_source</Filter>
+    </ClCompile>
     <ClCompile Include="..\..\Source\cmp_downsampler.cpp">
       <Filter>AudioAnalyzer\Source\CustomMatPlot</Filter>
     </ClCompile>
@@ -3708,6 +3732,39 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\..\Source\rnnoise_source\_kiss_fft_guts.h">
+      <Filter>AudioAnalyzer\Source\rnnoise_source</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\rnnoise_source\arch.h">
+      <Filter>AudioAnalyzer\Source\rnnoise_source</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\rnnoise_source\celt_lpc.h">
+      <Filter>AudioAnalyzer\Source\rnnoise_source</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\rnnoise_source\common.h">
+      <Filter>AudioAnalyzer\Source\rnnoise_source</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\rnnoise_source\kiss_fft.h">
+      <Filter>AudioAnalyzer\Source\rnnoise_source</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\rnnoise_source\opus_types.h">
+      <Filter>AudioAnalyzer\Source\rnnoise_source</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\rnnoise_source\pitch.h">
+      <Filter>AudioAnalyzer\Source\rnnoise_source</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\rnnoise_source\rnn.h">
+      <Filter>AudioAnalyzer\Source\rnnoise_source</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\rnnoise_source\rnn_data.h">
+      <Filter>AudioAnalyzer\Source\rnnoise_source</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\rnnoise_source\rnnoise.h">
+      <Filter>AudioAnalyzer\Source\rnnoise_source</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\rnnoise_source\tansig_table.h">
+      <Filter>AudioAnalyzer\Source\rnnoise_source</Filter>
+    </ClInclude>
     <ClInclude Include="..\..\Source\cmp_datamodels.h">
       <Filter>AudioAnalyzer\Source\CustomMatPlot</Filter>
     </ClInclude>

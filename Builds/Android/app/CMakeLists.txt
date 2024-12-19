@@ -27,13 +27,13 @@ enable_language(ASM)
 if(JUCE_BUILD_CONFIGURATION MATCHES "DEBUG")
     add_definitions([[-DJUCE_PROJUCER_VERSION=0x80004]] [[-DJUCE_MODULE_AVAILABLE_juce_audio_basics=1]] [[-DJUCE_MODULE_AVAILABLE_juce_audio_devices=1]] [[-DJUCE_MODULE_AVAILABLE_juce_audio_formats=1]] [[-DJUCE_MODULE_AVAILABLE_juce_audio_processors=1]] [[-DJUCE_MODULE_AVAILABLE_juce_audio_utils=1]] [[-DJUCE_MODULE_AVAILABLE_juce_core=1]] [[-DJUCE_MODULE_AVAILABLE_juce_data_structures=1]] [[-DJUCE_MODULE_AVAILABLE_juce_dsp=1]] [[-DJUCE_MODULE_AVAILABLE_juce_events=1]] [[-DJUCE_MODULE_AVAILABLE_juce_graphics=1]] [[-DJUCE_MODULE_AVAILABLE_juce_gui_basics=1]] [[-DJUCE_MODULE_AVAILABLE_juce_gui_extra=1]] [[-DJUCE_GLOBAL_MODULE_SETTINGS_INCLUDED=1]] [[-DJUCE_USE_MP3AUDIOFORMAT=1]] [[-DJUCE_USE_LAME_AUDIO_FORMAT=1]] [[-DJUCE_STRICT_REFCOUNTEDPOINTER=1]] [[-DJUCE_WEB_BROWSER=0]] [[-DJUCE_STANDALONE_APPLICATION=1]] [[-DANDROID_VERSION_CODE=2]] [[-DJUCER_ANDROIDSTUDIO_7F0E4A25=1]] [[-DJUCE_APP_VERSION=1.2.2]] [[-DJUCE_APP_VERSION_HEX=0x10202]] [[-DDEBUG=1]] [[-D_DEBUG=1]])
     include_directories( AFTER
-        "../../../rnnoise"
+        "../../Source/rnnoise_source"
     )
 
 elseif(JUCE_BUILD_CONFIGURATION MATCHES "RELEASE")
     add_definitions([[-DJUCE_PROJUCER_VERSION=0x80004]] [[-DJUCE_MODULE_AVAILABLE_juce_audio_basics=1]] [[-DJUCE_MODULE_AVAILABLE_juce_audio_devices=1]] [[-DJUCE_MODULE_AVAILABLE_juce_audio_formats=1]] [[-DJUCE_MODULE_AVAILABLE_juce_audio_processors=1]] [[-DJUCE_MODULE_AVAILABLE_juce_audio_utils=1]] [[-DJUCE_MODULE_AVAILABLE_juce_core=1]] [[-DJUCE_MODULE_AVAILABLE_juce_data_structures=1]] [[-DJUCE_MODULE_AVAILABLE_juce_dsp=1]] [[-DJUCE_MODULE_AVAILABLE_juce_events=1]] [[-DJUCE_MODULE_AVAILABLE_juce_graphics=1]] [[-DJUCE_MODULE_AVAILABLE_juce_gui_basics=1]] [[-DJUCE_MODULE_AVAILABLE_juce_gui_extra=1]] [[-DJUCE_GLOBAL_MODULE_SETTINGS_INCLUDED=1]] [[-DJUCE_USE_MP3AUDIOFORMAT=1]] [[-DJUCE_USE_LAME_AUDIO_FORMAT=1]] [[-DJUCE_STRICT_REFCOUNTEDPOINTER=1]] [[-DJUCE_WEB_BROWSER=0]] [[-DJUCE_STANDALONE_APPLICATION=1]] [[-DANDROID_VERSION_CODE=2]] [[-DJUCER_ANDROIDSTUDIO_7F0E4A25=1]] [[-DJUCE_APP_VERSION=1.2.2]] [[-DJUCE_APP_VERSION_HEX=0x10202]] [[-DNDEBUG=1]])
     include_directories( AFTER
-        "../../../rnnoise"
+        "../../Source/rnnoise_source"
     )
 
 else()
@@ -44,6 +44,24 @@ add_library( ${BINARY_NAME}
 
     SHARED
 
+    "../../../Source/rnnoise_source/_kiss_fft_guts.h"
+    "../../../Source/rnnoise_source/arch.h"
+    "../../../Source/rnnoise_source/celt_lpc.c"
+    "../../../Source/rnnoise_source/celt_lpc.h"
+    "../../../Source/rnnoise_source/common.h"
+    "../../../Source/rnnoise_source/denoise.c"
+    "../../../Source/rnnoise_source/kiss_fft.c"
+    "../../../Source/rnnoise_source/kiss_fft.h"
+    "../../../Source/rnnoise_source/opus_types.h"
+    "../../../Source/rnnoise_source/pitch.c"
+    "../../../Source/rnnoise_source/pitch.h"
+    "../../../Source/rnnoise_source/rnn.c"
+    "../../../Source/rnnoise_source/rnn.h"
+    "../../../Source/rnnoise_source/rnn_data.c"
+    "../../../Source/rnnoise_source/rnn_data.h"
+    "../../../Source/rnnoise_source/rnn_reader.c"
+    "../../../Source/rnnoise_source/rnnoise.h"
+    "../../../Source/rnnoise_source/tansig_table.h"
     "../../../Source/cmp_datamodels.h"
     "../../../Source/cmp_downsampler.cpp"
     "../../../Source/cmp_downsampler.h"
@@ -2440,6 +2458,17 @@ add_library( ${BINARY_NAME}
 )
 
 set_source_files_properties(
+    "../../../Source/rnnoise_source/_kiss_fft_guts.h"
+    "../../../Source/rnnoise_source/arch.h"
+    "../../../Source/rnnoise_source/celt_lpc.h"
+    "../../../Source/rnnoise_source/common.h"
+    "../../../Source/rnnoise_source/kiss_fft.h"
+    "../../../Source/rnnoise_source/opus_types.h"
+    "../../../Source/rnnoise_source/pitch.h"
+    "../../../Source/rnnoise_source/rnn.h"
+    "../../../Source/rnnoise_source/rnn_data.h"
+    "../../../Source/rnnoise_source/rnnoise.h"
+    "../../../Source/rnnoise_source/tansig_table.h"
     "../../../Source/cmp_datamodels.h"
     "../../../Source/cmp_downsampler.h"
     "../../../Source/cmp_frame.h"
