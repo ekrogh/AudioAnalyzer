@@ -19,7 +19,7 @@
 #include <semaphore>
 #include <coroutine>
 #define DR_WAV_IMPLEMENTATION
-#include "rnnoise_source/dr_wav.h"
+#include "dr_wav.h"
 
 //==============================================================================
 SpectrogramComponent::SpectrogramComponent
@@ -580,7 +580,7 @@ float SpectrogramComponent::rnnoise_process(float* pFrameOut, const float* pFram
 void SpectrogramComponent::getNextAudioBlock(const juce::AudioSourceChannelInfo& bufferToFill)
 {
 	auto numChans = bufferToFill.buffer->getNumChannels();
-	auto noSampls = bufferToFill.numSamples;
+	auto noSampels = bufferToFill.numSamples;
 
 	if (numChans > 0)
 	{
@@ -591,7 +591,7 @@ void SpectrogramComponent::getNextAudioBlock(const juce::AudioSourceChannelInfo&
 		if (useRnNoise)
 		{
 			auto channelWritePtr = bufferToFill.buffer->getWritePointer(0);
-			auto iStop = noSampls - frameSize;
+			auto iStop = noSampels - frameSize;
 			int i = 0;
 			for (; i <= iStop; i += frameSize)
 			{
@@ -601,17 +601,22 @@ void SpectrogramComponent::getNextAudioBlock(const juce::AudioSourceChannelInfo&
 			}
 
 			// Process remaining samples
-			if (i < noSampls)
+			if (i < noSampels)
 			{
 				std::vector<float> remainingSamples(frameSize, 0.0f);
-				std::copy(&channelData[i], &channelData[noSampls], remainingSamples.begin());
+				std::copy(&channelData[i], &channelData[noSampels], remainingSamples.begin());
 				rnnoise_process(remainingSamples.data(), remainingSamples.data());
-				std::copy(remainingSamples.begin(), remainingSamples.begin() + (noSampls - i), &channelWritePtr[i]);
+				std::copy(remainingSamples.begin(), remainingSamples.begin() + (noSampels - i), &channelWritePtr[i]);
 				DBG("Processed remaining samples starting at sample " << i);
 			}
 		}
 
-		for (auto i = 0; i < noSampls; ++i)
+		if (numChans >= 2)
+		{
+			bufferToFill.buffer->copyFrom(1, bufferToFill.startSample, channelData, noSampels);
+		}
+
+		for (auto i = 0; i < noSampels; ++i)
 			pushNextSampleIntoFifo(channelData[i]);
 
 		//bufferToFill.clearActiveBufferRegion();
