@@ -2950,6 +2950,7 @@
     <ClInclude Include="..\..\Source\rnnoise_source\arch.h"/>
     <ClInclude Include="..\..\Source\rnnoise_source\celt_lpc.h"/>
     <ClInclude Include="..\..\Source\rnnoise_source\common.h"/>
+    <ClInclude Include="..\..\Source\rnnoise_source\dr_wav.h"/>
     <ClInclude Include="..\..\Source\rnnoise_source\kiss_fft.h"/>
     <ClInclude Include="..\..\Source\rnnoise_source\opus_types.h"/>
     <ClInclude Include="..\..\Source\rnnoise_source\pitch.h"/>

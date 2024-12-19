@@ -14,6 +14,7 @@
         <FILE id="e81N4H" name="celt_lpc.h" compile="0" resource="0" file="Source/rnnoise_source/celt_lpc.h"/>
         <FILE id="mKHPUp" name="common.h" compile="0" resource="0" file="Source/rnnoise_source/common.h"/>
         <FILE id="LGr380" name="denoise.c" compile="1" resource="0" file="Source/rnnoise_source/denoise.c"/>
+        <FILE id="R6BJ6F" name="dr_wav.h" compile="0" resource="0" file="Source/rnnoise_source/dr_wav.h"/>
         <FILE id="QsIUyw" name="kiss_fft.c" compile="1" resource="0" file="Source/rnnoise_source/kiss_fft.c"/>
         <FILE id="ppECFj" name="kiss_fft.h" compile="0" resource="0" file="Source/rnnoise_source/kiss_fft.h"/>
         <FILE id="QYDe6Y" name="opus_types.h" compile="0" resource="0" file="Source/rnnoise_source/opus_types.h"/>

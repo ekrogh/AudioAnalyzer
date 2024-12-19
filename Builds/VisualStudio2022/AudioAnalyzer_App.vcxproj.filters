@@ -3744,6 +3744,9 @@
     <ClInclude Include="..\..\Source\rnnoise_source\common.h">
       <Filter>AudioAnalyzer\Source\rnnoise_source</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\Source\rnnoise_source\dr_wav.h">
+      <Filter>AudioAnalyzer\Source\rnnoise_source</Filter>
+    </ClInclude>
     <ClInclude Include="..\..\Source\rnnoise_source\kiss_fft.h">
       <Filter>AudioAnalyzer\Source\rnnoise_source</Filter>
     </ClInclude>

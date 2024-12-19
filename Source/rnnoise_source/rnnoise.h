@@ -48,7 +48,6 @@
 typedef struct DenoiseState DenoiseState;
 typedef struct RNNModel RNNModel;
 
-// MyCFuncs.h
 #ifdef __cplusplus
 extern "C"
 {  // only need to export C interface if

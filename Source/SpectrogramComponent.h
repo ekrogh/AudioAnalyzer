@@ -52,8 +52,6 @@ public:
 		, juce::ToggleButton* makespectrumOfInput__toggleButtonPtr
 	);
 
-	bool audioSysInit();
-
 	void startShowingFilters();
 
 	void switchToMicrophoneInput();
@@ -66,6 +64,8 @@ public:
 	void timerCallback() override;
 
 	void prepareToPlay(int /*samplesPerBlockExpected*/, double /*newSampleRate*/) override;
+
+	float rnnoise_process(float* pFrameOut, const float* pFrameIn);
 
 	void releaseResources() override;
 

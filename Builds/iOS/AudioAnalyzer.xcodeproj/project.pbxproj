@@ -157,6 +157,7 @@
 		930BCC4849FBC2E75620E08E /* CoreAudio.framework */ /* CoreAudio.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreAudio.framework; path = System/Library/Frameworks/CoreAudio.framework; sourceTree = SDKROOT; };
 		9410C8EFB67636756E24BE2E /* SpectrogramComponent.h */ /* SpectrogramComponent.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = SpectrogramComponent.h; path = ../../Source/SpectrogramComponent.h; sourceTree = SOURCE_ROOT; };
 		946C2DE9E64E21E3D14CF9D8 /* include_juce_graphics.mm */ /* include_juce_graphics.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; name = include_juce_graphics.mm; path = ../../JuceLibraryCode/include_juce_graphics.mm; sourceTree = SOURCE_ROOT; };
+		9711BB73852929D589B4602D /* dr_wav.h */ /* dr_wav.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = dr_wav.h; path = ../../Source/rnnoise_source/dr_wav.h; sourceTree = SOURCE_ROOT; };
 		97A65C4B592B3BE7610E23D1 /* AudioSettingsModule.h */ /* AudioSettingsModule.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = AudioSettingsModule.h; path = ../../Source/AudioSettingsModule.h; sourceTree = SOURCE_ROOT; };
 		99B027D6C4AA831EBED3953B /* iOSLaunchScreen.storyboard */ /* iOSLaunchScreen.storyboard */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = iOSLaunchScreen.storyboard; path = ../../iOSLaunchScreen/iOSLaunchScreen.storyboard; sourceTree = SOURCE_ROOT; };
 		9DB0A8597631E0CC265AADD2 /* PlotModule.cpp */ /* PlotModule.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = PlotModule.cpp; path = ../../Source/PlotModule.cpp; sourceTree = SOURCE_ROOT; };
@@ -400,6 +401,7 @@
 				2D2435F21876F7316398227D,
 				7F14200CF5C03D39C239DE38,
 				6A0A309663CB68A73E042796,
+				9711BB73852929D589B4602D,
 				AE5BD1C434A4213A31997AB8,
 				6B210CE0807E06D896209468,
 				E5379A1B2A7B78A3DFEB5E14,
