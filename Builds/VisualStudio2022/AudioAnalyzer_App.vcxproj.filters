@@ -757,6 +757,9 @@
     <ClCompile Include="..\..\Source\SpectrogramComponent.cpp">
       <Filter>AudioAnalyzer\Source</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\pythonThings\audio_processing_bindings.cpp">
+      <Filter>AudioAnalyzer</Filter>
+    </ClCompile>
     <ClCompile Include="..\..\JuceLibraryCode\modules\juce_audio_basics\audio_play_head\juce_AudioPlayHead.cpp">
       <Filter>JUCE Modules\juce_audio_basics\audio_play_head</Filter>
     </ClCompile>
@@ -3809,6 +3812,9 @@
     </ClInclude>
     <ClInclude Include="..\..\Source\Utilities.h">
       <Filter>AudioAnalyzer\Source</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\pythonThings\audio_processing_bindings.h">
+      <Filter>AudioAnalyzer</Filter>
     </ClInclude>
     <ClInclude Include="..\..\JuceLibraryCode\modules\juce_audio_basics\audio_play_head\juce_AudioPlayHead.h">
       <Filter>JUCE Modules\juce_audio_basics\audio_play_head</Filter>

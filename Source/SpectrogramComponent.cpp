@@ -19,6 +19,7 @@
 #include <semaphore>
 #include <coroutine>
 #include "eksClamp.h"
+#include <audio_processing_bindings.h>
 
 //==============================================================================
 SpectrogramComponent::SpectrogramComponent
@@ -44,10 +45,6 @@ SpectrogramComponent::SpectrogramComponent
 	forwardFFT = std::make_unique<juce::dsp::FFT>(fftOrder);
 
 	initRealTimeFftChartPlot();
-
-	// Initialize RNNoise
-	rnnoiseState = rnnoise_create(nullptr);
-	frameSize = rnnoise_get_frame_size();
 
 	curNumInputChannels = 1;
 	setAudioChannels(1, 2);
@@ -555,9 +552,9 @@ void SpectrogramComponent::releaseResources()
 	// (nothing to do here)
 }
 
-// The wrapped of rnnoise's |rnnoise_process_frame| function so as to make sure its input/outpu is |f32| format.
+// The wrapped of noiseRemoval's |noiseRemoval_process_frame| function so as to make sure its input/outpu is |f32| format.
 // Note tha the frame size is fixed 480.
-float SpectrogramComponent::rnnoise_process(float* pFrameOut, const float* pFrameIn)
+float SpectrogramComponent::noiseRemoval_process(float* pFrameOut, const float* pFrameIn)
 {
 	float vadProb;
 	float* buffer = new float[frameSize];
@@ -574,7 +571,7 @@ float SpectrogramComponent::rnnoise_process(float* pFrameOut, const float* pFram
 		}
 	);
 
-	vadProb = rnnoise_process_frame(rnnoiseState, &buffer[0], &buffer[0]);
+	//vadProb = process_frame(rnnoiseState, &buffer[0], &buffer[0]);
 
 	std::transform
 	(
@@ -593,7 +590,7 @@ float SpectrogramComponent::rnnoise_process(float* pFrameOut, const float* pFram
 void SpectrogramComponent::getNextAudioBlock(const juce::AudioSourceChannelInfo& bufferToFill)
 {
 	auto numChans = bufferToFill.buffer->getNumChannels();
-	auto noSampels = bufferToFill.numSamples;
+	auto noSamples = bufferToFill.numSamples;
 
 	if (numChans > 0)
 	{
@@ -601,35 +598,35 @@ void SpectrogramComponent::getNextAudioBlock(const juce::AudioSourceChannelInfo&
 		auto* channelWritePtr = bufferToFill.buffer->getWritePointer(0);
 
 		// Process audio with RNNoise
-		if (useRnNoise)
+		if (useAINoiseRemoval)
 		{
 			auto channelWritePtr = bufferToFill.buffer->getWritePointer(0);
-			auto iStop = noSampels - frameSize;
-			int i = 0;
-			for (; i <= iStop; i += frameSize)
+
+			// Initialize Python interpreter
+			//static py::scoped_interpreter guard{};
+
+			// Call Spleeter separation
+			//spleeter_separate(channelData, noSamples, channelWritePtr);
+
+			// Call OpenUnmix separation
+			try
 			{
-				rnnoise_process(&channelWritePtr[i], &channelData[i]);
-				// Add logging to check the processed data
-				DBG("Processed frame starting at sample " << i);
+				openunmix_separate(channelData, noSamples, channelWritePtr);
+			}
+			catch (const std::exception& e)
+			{
+				auto ermsg = e.what();
+				//std::cerr << "Error in openunmix_separate: " << e.what() << std::endl;
 			}
 
-			// Process remaining samples
-			if (i < noSampels)
-			{
-				std::vector<float> remainingSamples(frameSize, 0.0f);
-				std::copy(&channelData[i], &channelData[noSampels], remainingSamples.begin());
-				rnnoise_process(remainingSamples.data(), remainingSamples.data());
-				std::copy(remainingSamples.begin(), remainingSamples.begin() + (noSampels - i), &channelWritePtr[i]);
-				DBG("Processed remaining samples starting at sample " << i);
-			}
 		}
 
 		if (numChans >= 2)
 		{
-			bufferToFill.buffer->copyFrom(1, bufferToFill.startSample, channelData, noSampels);
+			bufferToFill.buffer->copyFrom(1, bufferToFill.startSample, channelData, noSamples);
 		}
 
-		for (auto i = 0; i < noSampels; ++i)
+		for (auto i = 0; i < noSamples; ++i)
 			pushNextSampleIntoFifo(channelData[i]);
 
 		//bufferToFill.clearActiveBufferRegion();
@@ -677,9 +674,6 @@ void SpectrogramComponent::paint(juce::Graphics& g)
 SpectrogramComponent::~SpectrogramComponent()
 {
 	shutDownIO();
-
-	rnnoise_destroy(rnnoiseState);
-
 }
 
 void SpectrogramComponent::drawNextLineOfSpectrogramAndFftPlotUpdate(float* fftDataBuffer, unsigned int& fftSize)
@@ -980,5 +974,5 @@ void SpectrogramComponent::setShowFilters(bool showF)
 
 void SpectrogramComponent::setUseRnNoises(bool useRnNoiseIn)
 {
-	useRnNoise = useRnNoiseIn;
+	useAINoiseRemoval = useRnNoiseIn;
 }

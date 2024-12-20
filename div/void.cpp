@@ -1,47 +1,42 @@
-void openAudioFile(File audioFile)
+#include "spleeterpp/Spleeter.hpp"
+#include <vector>
+#include <iostream>
+
+// Function to separate audio using Spleeter
+void spleeter_separate(const float* input_buffer, size_t buffer_size, float* output_buffer)
 {
-    // Create a new audio format reader for the file
-    std::unique_ptr<AudioFormatReader> reader(formatManager.createReaderFor(audioFile));
-
-    if (reader)
+    try
     {
-        // Create a new AudioFormatReaderSource for the reader
-        auto newSource = std::make_unique<AudioFormatReaderSource>(reader.release(), true);
+        // Initialize Spleeter with the 2 stems model
+        spleeterpp::Spleeter spleeter("spleeter:2stems");
 
-        // Set the source for the AudioSourcePlayer
-        audioSourcePlayer.setSource(newSource.get());
+        // Convert input buffer to a vector
+        std::vector<float> input_audio(input_buffer, input_buffer + buffer_size);
 
-        // Take ownership of the new source
-        currentAudioSource.reset(newSource.release());
+        // Separate the audio
+        auto result = spleeter.separate(input_audio);
+
+        // Extract the separated audio from the result
+        const auto& separated_audio = result["vocals"]; // or "accompaniment"
+        std::copy(separated_audio.begin(), separated_audio.end(), output_buffer);
+    }
+    catch (const std::exception& e)
+    {
+        std::cerr << "Error in spleeter_separate: " << e.what() << std::endl;
+        throw;
     }
 }
 
-
-void openAudioFile()
+int main()
 {
-    // ... (existing code) ...
+    // Example usage
+    const size_t buffer_size = 44100; // Example buffer size
+    float input_buffer[buffer_size] = { /* Your input audio data */ };
+    float output_buffer[buffer_size] = { 0 };
 
-    if (reader.get() != nullptr)
-    {
-        currentAudioFileSource =
-            std::make_unique<AudioFormatReaderSource>(reader.release(), true);
+    spleeter_separate(input_buffer, buffer_size, output_buffer);
 
-        transportSource.setSource
-        (
-            currentAudioFileSource.get()
-            , 0         // tells it to buffer this many samples ahead
-            , nullptr   // this is the background thread to use for reading-ahead
-            , currentAudioFileSource->getAudioFormatReader()->sampleRate
-        );
-        setSource(&transportSource);
-        audioSourcePlayer.setSource(&transportSource);
+    // Process the output_buffer as needed
 
-        // Remove this as an audio callback from the deviceManager
-        deviceManager.removeAudioCallback(this);
-
-        deviceManager.addAudioCallback(&audioSourcePlayer);
-        transportSource.start();
-    }
-
-    // ... (existing code) ...
+    return 0;
 }

@@ -19,7 +19,6 @@
 #include <semaphore>
 #include <coroutine>
 #include "NotchFilter.h"
-#include "rnnoise.h"
 
 class FFTModule;
 class FFTCtrl;
@@ -67,7 +66,7 @@ public:
 
 	void prepareToPlay(int /*samplesPerBlockExpected*/, double /*newSampleRate*/) override;
 
-	float rnnoise_process(float* pFrameOut, const float* pFrameIn);
+	float noiseRemoval_process(float* pFrameOut, const float* pFrameIn);
 
 	void releaseResources() override;
 
@@ -149,9 +148,8 @@ public:
 	Task setTask();
 
 private:
-	DenoiseState* rnnoiseState;
-	int frameSize;
-	bool useRnNoise = false;
+	int frameSize = 480;
+	bool useAINoiseRemoval = false;
 
 	int yLimIntervalMs = 5000;
 	int yLimNumTimerCallBacks = 294; // yLimIntervalMs / curTimerInterValMs;

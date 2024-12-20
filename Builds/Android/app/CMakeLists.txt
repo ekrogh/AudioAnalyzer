@@ -27,13 +27,17 @@ enable_language(ASM)
 if(JUCE_BUILD_CONFIGURATION MATCHES "DEBUG")
     add_definitions([[-DJUCE_PROJUCER_VERSION=0x80004]] [[-DJUCE_MODULE_AVAILABLE_juce_audio_basics=1]] [[-DJUCE_MODULE_AVAILABLE_juce_audio_devices=1]] [[-DJUCE_MODULE_AVAILABLE_juce_audio_formats=1]] [[-DJUCE_MODULE_AVAILABLE_juce_audio_processors=1]] [[-DJUCE_MODULE_AVAILABLE_juce_audio_utils=1]] [[-DJUCE_MODULE_AVAILABLE_juce_core=1]] [[-DJUCE_MODULE_AVAILABLE_juce_data_structures=1]] [[-DJUCE_MODULE_AVAILABLE_juce_dsp=1]] [[-DJUCE_MODULE_AVAILABLE_juce_events=1]] [[-DJUCE_MODULE_AVAILABLE_juce_graphics=1]] [[-DJUCE_MODULE_AVAILABLE_juce_gui_basics=1]] [[-DJUCE_MODULE_AVAILABLE_juce_gui_extra=1]] [[-DJUCE_GLOBAL_MODULE_SETTINGS_INCLUDED=1]] [[-DJUCE_USE_MP3AUDIOFORMAT=1]] [[-DJUCE_USE_LAME_AUDIO_FORMAT=1]] [[-DJUCE_STRICT_REFCOUNTEDPOINTER=1]] [[-DJUCE_WEB_BROWSER=0]] [[-DJUCE_STANDALONE_APPLICATION=1]] [[-DANDROID_VERSION_CODE=2]] [[-DJUCER_ANDROIDSTUDIO_7F0E4A25=1]] [[-DJUCE_APP_VERSION=1.2.2]] [[-DJUCE_APP_VERSION_HEX=0x10202]] [[-DDEBUG=1]] [[-D_DEBUG=1]])
     include_directories( AFTER
-        "../../../rnnoise"
+        "D:/Users/eigil/projects/pythonProjs/spleeterpp-0.2.1/src/spleeter_common/"
+        "D:/Users/eigil/projects/pythonProjs/spleeterpp-0.2.1/build/_deps/eigen3-src/"
+        "D:/Users/eigil/projects/pythonProjs/spleeterpp-0.2.1/src/"
     )
 
 elseif(JUCE_BUILD_CONFIGURATION MATCHES "RELEASE")
     add_definitions([[-DJUCE_PROJUCER_VERSION=0x80004]] [[-DJUCE_MODULE_AVAILABLE_juce_audio_basics=1]] [[-DJUCE_MODULE_AVAILABLE_juce_audio_devices=1]] [[-DJUCE_MODULE_AVAILABLE_juce_audio_formats=1]] [[-DJUCE_MODULE_AVAILABLE_juce_audio_processors=1]] [[-DJUCE_MODULE_AVAILABLE_juce_audio_utils=1]] [[-DJUCE_MODULE_AVAILABLE_juce_core=1]] [[-DJUCE_MODULE_AVAILABLE_juce_data_structures=1]] [[-DJUCE_MODULE_AVAILABLE_juce_dsp=1]] [[-DJUCE_MODULE_AVAILABLE_juce_events=1]] [[-DJUCE_MODULE_AVAILABLE_juce_graphics=1]] [[-DJUCE_MODULE_AVAILABLE_juce_gui_basics=1]] [[-DJUCE_MODULE_AVAILABLE_juce_gui_extra=1]] [[-DJUCE_GLOBAL_MODULE_SETTINGS_INCLUDED=1]] [[-DJUCE_USE_MP3AUDIOFORMAT=1]] [[-DJUCE_USE_LAME_AUDIO_FORMAT=1]] [[-DJUCE_STRICT_REFCOUNTEDPOINTER=1]] [[-DJUCE_WEB_BROWSER=0]] [[-DJUCE_STANDALONE_APPLICATION=1]] [[-DANDROID_VERSION_CODE=2]] [[-DJUCER_ANDROIDSTUDIO_7F0E4A25=1]] [[-DJUCE_APP_VERSION=1.2.2]] [[-DJUCE_APP_VERSION_HEX=0x10202]] [[-DNDEBUG=1]])
     include_directories( AFTER
-        "../../../rnnoise"
+        "D:/Users/eigil/projects/pythonProjs/spleeterpp-0.2.1/src/spleeter_common/"
+        "D:/Users/eigil/projects/pythonProjs/spleeterpp-0.2.1/build/_deps/eigen3-src/"
+        "D:/Users/eigil/projects/pythonProjs/spleeterpp-0.2.1/src/"
     )
 
 else()
@@ -102,6 +106,8 @@ add_library( ${BINARY_NAME}
     "../../../Source/SpectrogramComponent.cpp"
     "../../../Source/SpectrogramComponent.h"
     "../../../Source/Utilities.h"
+    "../../../pythonThings/audio_processing_bindings.cpp"
+    "../../../pythonThings/audio_processing_bindings.h"
     "../../../JuceLibraryCode/modules/juce_audio_basics/audio_play_head/juce_AudioPlayHead.cpp"
     "../../../JuceLibraryCode/modules/juce_audio_basics/audio_play_head/juce_AudioPlayHead.h"
     "../../../JuceLibraryCode/modules/juce_audio_basics/buffers/juce_AudioChannelSet.cpp"
@@ -2477,6 +2483,7 @@ set_source_files_properties(
     "../../../Source/SoundProcessorModule.h"
     "../../../Source/SpectrogramComponent.h"
     "../../../Source/Utilities.h"
+    "../../../pythonThings/audio_processing_bindings.h"
     "../../../JuceLibraryCode/modules/juce_audio_basics/audio_play_head/juce_AudioPlayHead.cpp"
     "../../../JuceLibraryCode/modules/juce_audio_basics/audio_play_head/juce_AudioPlayHead.h"
     "../../../JuceLibraryCode/modules/juce_audio_basics/buffers/juce_AudioChannelSet.cpp"

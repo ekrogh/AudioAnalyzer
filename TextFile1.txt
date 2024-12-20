@@ -1,0 +1,1 @@
+pip install spleeter openunmix pybind11
