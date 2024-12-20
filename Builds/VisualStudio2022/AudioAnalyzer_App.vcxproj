@@ -2960,6 +2960,7 @@
     <ClInclude Include="..\..\Source\cmp_version.h"/>
     <ClInclude Include="..\..\Source\example_utils.h"/>
     <ClInclude Include="..\..\Source\package.h"/>
+    <ClInclude Include="..\..\Source\eksClamp.h"/>
     <ClInclude Include="..\..\Source\freqPlotModule.h"/>
     <ClInclude Include="..\..\Source\helpPage.h"/>
     <ClInclude Include="..\..\Source\AudioAnalyzerGlobalEnums.h"/>

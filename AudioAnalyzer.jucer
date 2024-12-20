@@ -46,6 +46,7 @@
         <FILE id="xCj0j1" name="example_utils.h" compile="0" resource="0" file="Source/example_utils.h"/>
         <FILE id="MHxuPf" name="package.h" compile="0" resource="0" file="Source/package.h"/>
       </GROUP>
+      <FILE id="LD9qND" name="eksClamp.h" compile="0" resource="0" file="Source/eksClamp.h"/>
       <FILE id="dVzrFQ" name="freqPlotModule.cpp" compile="1" resource="0"
             file="Source/freqPlotModule.cpp"/>
       <FILE id="Ih9JJw" name="freqPlotModule.h" compile="0" resource="0"

@@ -174,6 +174,7 @@
 		DE9EC28CBFF42EF15ABB9515 /* Images.xcassets */ /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; name = Images.xcassets; path = AudioAnalyzer/Images.xcassets; sourceTree = SOURCE_ROOT; };
 		DEDAD8150C7622F52AC88057 /* AudioAnalyzerGlobalEnums.h */ /* AudioAnalyzerGlobalEnums.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = AudioAnalyzerGlobalEnums.h; path = ../../Source/AudioAnalyzerGlobalEnums.h; sourceTree = SOURCE_ROOT; };
 		E14BBDBACDC3ED8D1E892A91 /* SoundProcessorModule.h */ /* SoundProcessorModule.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = SoundProcessorModule.h; path = ../../Source/SoundProcessorModule.h; sourceTree = SOURCE_ROOT; };
+		E19FB943B33E40D01F03EF54 /* eksClamp.h */ /* eksClamp.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = eksClamp.h; path = ../../Source/eksClamp.h; sourceTree = SOURCE_ROOT; };
 		E32743BCB0246A7284C1A3BB /* cmp_graph_line.cpp */ /* cmp_graph_line.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = cmp_graph_line.cpp; path = ../../Source/cmp_graph_line.cpp; sourceTree = SOURCE_ROOT; };
 		E55DA603B986AEBAC8B7D8BD /* BinaryData.h */ /* BinaryData.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = BinaryData.h; path = ../../JuceLibraryCode/BinaryData.h; sourceTree = SOURCE_ROOT; };
 		E64DB86ECAA9CA472D15217F /* Foundation.framework */ /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
@@ -235,6 +236,7 @@
 			isa = PBXGroup;
 			children = (
 				EE60B08214E56352EB2094B7,
+				E19FB943B33E40D01F03EF54,
 				EA00BB55652FD7C1DD980120,
 				49A570884BA8354B0BFD461A,
 				564CC108A29DD3E5585B888F,

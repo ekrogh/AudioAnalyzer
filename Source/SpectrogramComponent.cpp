@@ -18,8 +18,7 @@
 #include "freqPlotModule.h"
 #include <semaphore>
 #include <coroutine>
-#define DR_WAV_IMPLEMENTATION
-#include "dr_wav.h"
+#include "eksClamp.h"
 
 //==============================================================================
 SpectrogramComponent::SpectrogramComponent
@@ -46,8 +45,13 @@ SpectrogramComponent::SpectrogramComponent
 
 	initRealTimeFftChartPlot();
 
+	// Initialize RNNoise
+	rnnoiseState = rnnoise_create(nullptr);
+	frameSize = rnnoise_get_frame_size();
+
 	curNumInputChannels = 1;
 	setAudioChannels(1, 2);
+	audioSysInit();
 
 	curTimerFrequencyHz = 60;
 	yLimNumTimerCallBacks =
@@ -56,11 +60,20 @@ SpectrogramComponent::SpectrogramComponent
 
 	setSize(spectrogramImage.getWidth(), spectrogramImage.getHeight());
 
+}
 
+bool SpectrogramComponent::audioSysInit()
+{
+	juce::AudioDeviceManager::AudioDeviceSetup currentAudioConfig;
+	sharedAudioDeviceManager->getAudioDeviceSetup(currentAudioConfig);
 
-	// Initialize RNNoise
-	rnnoiseState = rnnoise_create(nullptr);
-	frameSize = rnnoise_get_frame_size();
+	if ((currentAudioConfig.bufferSize < frameSize) != 0)
+	{
+		currentAudioConfig.bufferSize = frameSize;
+		sharedAudioDeviceManager->setAudioDeviceSetup(currentAudioConfig, true);
+	}
+
+	return true;
 }
 
 void SpectrogramComponent::switchToMicrophoneInput()
@@ -570,7 +583,7 @@ float SpectrogramComponent::rnnoise_process(float* pFrameOut, const float* pFram
 		, &pFrameOut[0]
 		, [](float x)
 		{
-			return drwav_clamp(x, -32768, 32767) * (1.0f / 32768.0f);
+			return eks_clamp(x, -32768, 32767)  / 32768.0f;
 		}
 	);
 

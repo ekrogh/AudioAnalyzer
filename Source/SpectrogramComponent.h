@@ -52,6 +52,8 @@ public:
 		, juce::ToggleButton* makespectrumOfInput__toggleButtonPtr
 	);
 
+	bool audioSysInit();
+
 	void startShowingFilters();
 
 	void switchToMicrophoneInput();

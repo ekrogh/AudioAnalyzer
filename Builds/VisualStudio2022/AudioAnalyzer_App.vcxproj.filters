@@ -3753,6 +3753,9 @@
     <ClInclude Include="..\..\Source\package.h">
       <Filter>AudioAnalyzer\Source\CustomMatPlot</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\Source\eksClamp.h">
+      <Filter>AudioAnalyzer\Source</Filter>
+    </ClInclude>
     <ClInclude Include="..\..\Source\freqPlotModule.h">
       <Filter>AudioAnalyzer\Source</Filter>
     </ClInclude>
