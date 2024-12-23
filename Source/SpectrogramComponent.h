@@ -19,6 +19,11 @@
 #include <semaphore>
 #include <coroutine>
 #include "NotchFilter.h"
+#include <pybind11/embed.h>
+#include <pybind11/numpy.h>
+
+
+namespace py = pybind11;
 
 class FFTModule;
 class FFTCtrl;
@@ -67,6 +72,8 @@ public:
 	void prepareToPlay(int /*samplesPerBlockExpected*/, double /*newSampleRate*/) override;
 
 	float noiseRemoval_process(float* pFrameOut, const float* pFrameIn);
+
+	std::vector<float> separateGuitarSounds(const std::vector<float>& inputBuffer);
 
 	void releaseResources() override;
 
@@ -148,6 +155,10 @@ public:
 	Task setTask();
 
 private:
+	py::object separation;
+	py::object separate_guitar_buffer;
+	py::object global;
+
 	int frameSize = 480;
 	bool useAINoiseRemoval = false;
 
