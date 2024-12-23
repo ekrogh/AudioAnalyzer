@@ -21,9 +21,11 @@ cpp
 
 namespace py = pybind11;
 
-class PythonEnvironment {
+class PythonEnvironment
+{
 public:
-    static PythonEnvironment& getInstance() {
+    static PythonEnvironment &getInstance()
+    {
         static PythonEnvironment instance;
         return instance;
     }
@@ -38,11 +40,14 @@ private:
     py::object separation;
     py::object separate_guitar_buffer;
 
-    PythonEnvironment() : guard{} {
+    PythonEnvironment()
+    : guard{}
+    {
         initialize();
     }
 
-    void initialize() {
+    void initialize()
+    {
         _putenv("PYTHONHOME=D:/Program_Files/Python/miniconda3/envs/guitarStringSoundsEnv");
         _putenv("PYTHONPATH=D:/Program_Files/Python/miniconda3/envs/guitarStringSoundsEnv/Lib;D:/Program_Files/Python/miniconda3/envs/guitarStringSoundsEnv/site-packages;D:/Users/eigil/projects/juceProjs/AudioAnalyzer/Source");
 
@@ -66,7 +71,8 @@ private:
                     pass
             sys.stdout = CatchOutErr()   # redirect std out
             sys.stderr = CatchOutErr()   # redirect std err
-        )", global);
+        )",
+                 global);
 
         py::module sys = py::module::import("sys");
         py::exec("print(sys.path)", global);
@@ -75,69 +81,78 @@ private:
         separate_guitar_buffer = separation.attr("separate_guitar_buffer");
     }
 
-    PythonEnvironment(const PythonEnvironment&) = delete;
-    PythonEnvironment& operator=(const PythonEnvironment&) = delete;
+    PythonEnvironment(const PythonEnvironment &) = delete;
+    PythonEnvironment &operator=(const PythonEnvironment &) = delete;
 };
 
-class SpectrogramComponent {
+class SpectrogramComponent
+{
 public:
-    SpectrogramComponent(AudioFormatManager& FM, std::shared_ptr<AudioDeviceManager> SADM, FFTModule* FFTMP, std::shared_ptr<freqPlotModule> FPM);
-    std::vector<float> separateGuitarSounds(const std::vector<float>& inputBuffer);
-    void getNextAudioBlock(const juce::AudioSourceChannelInfo& bufferToFill);
+    SpectrogramComponent(AudioFormatManager &FM, std::shared_ptr<AudioDeviceManager> SADM, FFTModule *FFTMP, std::shared_ptr<freqPlotModule> FPM);
+    std::vector<float> separateGuitarSounds(const std::vector<float> &inputBuffer);
+    void getNextAudioBlock(const juce::AudioSourceChannelInfo &bufferToFill);
 
 private:
-    AudioFormatManager& formatManager;
-    FFTModule* ptrFFTModule;
+    AudioFormatManager &formatManager;
+    FFTModule *ptrFFTModule;
     std::shared_ptr<freqPlotModule> module_freqPlot;
     std::shared_ptr<AudioDeviceManager> sharedAudioDeviceManager;
     py::object global;
     py::object separate_guitar_buffer;
 };
 
-SpectrogramComponent::SpectrogramComponent(AudioFormatManager& FM, std::shared_ptr<AudioDeviceManager> SADM, FFTModule* FFTMP, std::shared_ptr<freqPlotModule> FPM)
-    : formatManager(FM)
-    , ptrFFTModule(FFTMP)
-    , module_freqPlot(FPM)
-    , sharedAudioDeviceManager(SADM)
+SpectrogramComponent::SpectrogramComponent(AudioFormatManager &FM, std::shared_ptr<AudioDeviceManager> SADM, FFTModule *FFTMP, std::shared_ptr<freqPlotModule> FPM)
+    : formatManager(FM), ptrFFTModule(FFTMP), module_freqPlot(FPM), sharedAudioDeviceManager(SADM)
 {
-    auto& pyEnv = PythonEnvironment::getInstance();
+    auto &pyEnv = PythonEnvironment::getInstance();
     global = pyEnv.getGlobal();
     separate_guitar_buffer = pyEnv.getSeparateGuitarBuffer();
 }
 
-std::vector<float> SpectrogramComponent::separateGuitarSounds(const std::vector<float>& inputBuffer) {
+std::vector<float> SpectrogramComponent::separateGuitarSounds(const std::vector<float> &inputBuffer)
+{
     py::gil_scoped_acquire acquire;
-    try {
+    try
+    {
         py::array_t<float> buffer_array(inputBuffer.size(), inputBuffer.data());
 
         py::array_t<float> result = separate_guitar_buffer(buffer_array);
         auto buffer_info = result.request();
-        float* ptr = static_cast<float*>(buffer_info.ptr);
+        float *ptr = static_cast<float *>(buffer_info.ptr);
         std::vector<float> guitar_track(ptr, ptr + buffer_info.size);
 
         return guitar_track;
-    } catch (const py::error_already_set& e) {
+    }
+    catch (const py::error_already_set &e)
+    {
         OutputDebugString("Python error: ");
         OutputDebugString(e.what());
         OutputDebugString("\n");
         return {};
-    } catch (const std::runtime_error& e) {
+    }
+    catch (const std::runtime_error &e)
+    {
         OutputDebugString("Runtime error: ");
         OutputDebugString(e.what());
         OutputDebugString("\n");
         return {};
-    } catch (const std::exception& e) {
+    }
+    catch (const std::exception &e)
+    {
         OutputDebugString("Error during separation: ");
         OutputDebugString(e.what());
         OutputDebugString("\n");
         return {};
-    } catch (...) {
+    }
+    catch (...)
+    {
         OutputDebugString("Unknown error occurred during separation.\n");
         return {};
     }
 }
 
-void SpectrogramComponent::getNextAudioBlock(const juce::AudioSourceChannelInfo& bufferToFill) {
+void SpectrogramComponent::getNextAudioBlock(const juce::AudioSourceChannelInfo &bufferToFill)
+{
     std::vector<float> inputBuffer; // Fill with actual audio data
     std::vector<float> separatedGuitarTrack = separateGuitarSounds(inputBuffer);
 }

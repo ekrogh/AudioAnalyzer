@@ -25,7 +25,6 @@
 #include <cstdlib> // for _putenv
 #include "SpectrogramComponent.h"
 
-
 //==============================================================================
 SpectrogramComponent::SpectrogramComponent
 (
@@ -62,68 +61,9 @@ SpectrogramComponent::SpectrogramComponent
 
 	setSize(spectrogramImage.getWidth(), spectrogramImage.getHeight());
 
-	// Set environment variables
-	_putenv("PYTHONHOME=D:/Program_Files/Python/miniconda3/envs/guitarStringSoundsEnv");
-	_putenv("PYTHONPATH=D:/Program_Files/Python/miniconda3/envs/guitarStringSoundsEnv/Lib;D:/Program_Files/Python/miniconda3/envs/guitarStringSoundsEnv/site-packages;D:/Users/eigil/projects/juceProjs/AudioAnalyzer/Source");
-
-	// Add DLL path to PATH and set DLL directory
-	std::string dllPath = "D:/Program_Files/Python/miniconda3/envs/guitarStringSoundsEnv";
-	std::string pathEnv = "PATH=" + dllPath + ";" + std::getenv("PATH");
-	_putenv(pathEnv.c_str());
-	SetDllDirectory(dllPath.c_str());
-
-	OutputDebugString("PYTHONHOME: ");
-	OutputDebugString(std::getenv("PYTHONHOME"));
-	OutputDebugString("\nPYTHONPATH: ");
-	OutputDebugString(std::getenv("PYTHONPATH"));
-	OutputDebugString("\nPATH: ");
-	OutputDebugString(std::getenv("PATH"));
-	OutputDebugString("\n");
-
-	//try
-	//{
-	//	//static py::scoped_interpreter guard{};
-	//	OutputDebugString("Python interpreter initialized successfully.\n");
-
-	//	py::object main = py::module::import("__main__");
-	//	global = main.attr("__dict__");
-
-	//	// Redirect stdout and stderr
-	//	py::exec(R"(
- //           import sys
- //           class CatchOutErr:
- //               def __init__(self):
- //                   self.value = ''
- //               def write(self, txt):
- //                   self.value += txt
- //               def flush(self):
- //                   pass
- //           sys.stdout = CatchOutErr()   # redirect std out
- //           sys.stderr = CatchOutErr()   # redirect std err
- //       )", global);
-
-	//	py::module sys = py::module::import("sys");
-	//	OutputDebugString("Python sys module imported successfully.\n");
-	//	py::exec("print(sys.path)", global);
-
-	//	std::string stdout_str = py::str(global["sys"].attr("stdout").attr("value"));
-	//	OutputDebugString("Python sys.path: ");
-	//	OutputDebugString(stdout_str.c_str());
-	//	OutputDebugString("\n");
-
-	//	// Import the separation module
-	//	OutputDebugString("Attempting to import separation module...\n");
-	//	separation = py::module::import("separation");
-	//	OutputDebugString("Python separation module imported successfully.\n");
-
-	//	separate_guitar_buffer = separation.attr("separate_guitar_buffer");
-	//}
-	//catch (const py::error_already_set& e)
-	//{
-	//	OutputDebugString("Error initializing Python interpreter: ");
-	//	OutputDebugString(e.what());
-	//	OutputDebugString("\n");
-	//}
+	//auto gen = counter6();
+	//while (gen)
+	//	std::cout << "counter6: " << gen() << std::endl;
 
 	//// Set environment variables
 	//_putenv("PYTHONHOME=D:/Program_Files/Python/miniconda3/envs/guitarStringSoundsEnv");
@@ -220,8 +160,8 @@ SpectrogramComponent::SpectrogramComponent
 	//	OutputDebugString("\n");
 	//}
 
-	auto ph = std::getenv("PYTHONHOME");
-	auto pp = std::getenv("PYTHONPATH");
+	//auto ph = std::getenv("PYTHONHOME");
+	//auto pp = std::getenv("PYTHONPATH");
 }
 
 bool SpectrogramComponent::audioSysInit()
@@ -752,8 +692,14 @@ float SpectrogramComponent::noiseRemoval_process(float* pFrameOut, const float* 
 	return vadProb;
 }
 
-std::vector<float> SpectrogramComponent::separateGuitarSounds(const std::vector<float>& inputBuffer)
+SpectrogramComponent::generatorType<std::vector<float>> SpectrogramComponent::separateGuitarSounds()
 {
+	//while (true)
+	//{
+	//	co_yield std::vector<float>{}; // Dummy return value
+	//}
+
+	// Set environment variables
 	_putenv("PYTHONHOME=D:/Program_Files/Python/miniconda3/envs/guitarStringSoundsEnv");
 	_putenv("PYTHONPATH=D:/Program_Files/Python/miniconda3/envs/guitarStringSoundsEnv/Lib;D:/Program_Files/Python/miniconda3/envs/guitarStringSoundsEnv/site-packages;D:/Users/eigil/projects/juceProjs/AudioAnalyzer/Source");
 
@@ -770,6 +716,8 @@ std::vector<float> SpectrogramComponent::separateGuitarSounds(const std::vector<
 	OutputDebugString("\nPATH: ");
 	OutputDebugString(std::getenv("PATH"));
 	OutputDebugString("\n");
+
+	py::object separate_guitar_buffer;
 
 	try
 	{
@@ -812,7 +760,7 @@ std::vector<float> SpectrogramComponent::separateGuitarSounds(const std::vector<
 		py::array_t<float> buffer_array(buffer.size(), buffer.data());
 
 		// Call the separate_guitar_buffer function
-		py::object separate_guitar_buffer = separation.attr("separate_guitar_buffer");
+		separate_guitar_buffer = separation.attr("separate_guitar_buffer");
 		py::array_t<float> result = separate_guitar_buffer(buffer_array);
 		OutputDebugString("Guitar track separated successfully.\n");
 
@@ -833,7 +781,6 @@ std::vector<float> SpectrogramComponent::separateGuitarSounds(const std::vector<
 		std::vector<float> guitar_track(ptr, ptr + buffer_info.size);  // Use size instead of size()
 
 		// Process the separated guitar track as needed
-		return guitar_track;
 
 	}
 	catch (const py::error_already_set& e)
@@ -849,68 +796,56 @@ std::vector<float> SpectrogramComponent::separateGuitarSounds(const std::vector<
 		OutputDebugString("\n");
 	}
 
+	auto ph = std::getenv("PYTHONHOME");
+	auto pp = std::getenv("PYTHONPATH");
+
+	co_yield std::vector<float>{}; // Dummy return value
+
+
+	while (true)
+	{
+		try
+		{
+			py::array_t<float> buffer_array(inputBuffer.size(), inputBuffer.data());
+
+			py::array_t<float> result = separate_guitar_buffer(buffer_array);
+			auto buffer_info = result.request();
+			float* ptr = static_cast<float*>(buffer_info.ptr);
+			std::vector<float> guitar_track(ptr, ptr + buffer_info.size);
+
+			co_yield guitar_track;
+
+		}
+		catch (const py::error_already_set& e)
+		{
+			OutputDebugString("Python error: ");
+			OutputDebugString(e.what());
+			OutputDebugString("\n");
+		}
+		catch (const std::runtime_error& e)
+		{
+			OutputDebugString("Runtime error: ");
+			OutputDebugString(e.what());
+			OutputDebugString("\n");
+		}
+		catch (const std::exception& e)
+		{
+			OutputDebugString("Error during separation: ");
+			OutputDebugString(e.what());
+			OutputDebugString("\n");
+		}
+		catch (...)
+		{
+			OutputDebugString("Unknown error occurred during separation.\n");
+		}
+
+	}
 }
-//{
-//	try
-//	{
-//		static py::scoped_interpreter guard{};
-//
-//		py::gil_scoped_acquire acquire;
-//
-//		// Convert std::vector<float> to pybind11::array_t<float>
-//		py::array_t<float> buffer_array(inputBuffer.size(), inputBuffer.data());
-//
-//		// Call the separate_guitar_buffer function
-//		OutputDebugString("Calling separate_guitar_buffer function...\n");
-//		py::array_t<float> result = separate_guitar_buffer(buffer_array);
-//		OutputDebugString("Guitar track separated successfully.\n");
-//
-//		// Capture the print output from Python
-//		std::string python_stdout = py::str(global["sys"].attr("stdout").attr("value"));
-//		OutputDebugString("Python stdout: ");
-//		OutputDebugString(python_stdout.c_str());
-//		OutputDebugString("\n");
-//
-//		std::string python_stderr = py::str(global["sys"].attr("stderr").attr("value"));
-//		OutputDebugString("Python stderr: ");
-//		OutputDebugString(python_stderr.c_str());
-//		OutputDebugString("\n");
-//
-//		// Convert result to C++ data structure if needed
-//		auto buffer_info = result.request();
-//		float* ptr = static_cast<float*>(buffer_info.ptr);
-//		std::vector<float> guitar_track(ptr, ptr + buffer_info.size);
-//
-//		return guitar_track;
-//
-//	}
-//	catch (const py::error_already_set& e)
-//	{
-//		OutputDebugString("Python error: ");
-//		OutputDebugString(e.what());
-//		OutputDebugString("\n");
-//		return {};
-//	}
-//	catch (const std::runtime_error& e)
-//	{
-//		OutputDebugString("Runtime error: ");
-//		OutputDebugString(e.what());
-//		OutputDebugString("\n");
-//		return {};
-//	}
-//	catch (const std::exception& e)
-//	{
-//		OutputDebugString("Error during separation: ");
-//		OutputDebugString(e.what());
-//		OutputDebugString("\n");
-//		return {};
-//	}
-//	catch (...)
-//	{
-//		OutputDebugString("Unknown error occurred during separation.\n");
-//		return {};
-//	}
-//}
+
+void SpectrogramComponent::updateInputBuffer(const std::vector<float>& newInputBuffer)
+{
+	inputBuffer = newInputBuffer;
+}
 
 void SpectrogramComponent::getNextAudioBlock(const juce::AudioSourceChannelInfo& bufferToFill)
 {
@@ -926,7 +861,7 @@ void SpectrogramComponent::getNextAudioBlock(const juce::AudioSourceChannelInfo&
 		if (useAINoiseRemoval)
 		{
 			std::vector<float> inputBuffer(channelData, channelData + bufferToFill.numSamples);
-			auto outputBuffer = separateGuitarSounds(inputBuffer);
+			auto outputBuffer = generatorSeparateGuitarSounds();
 			std::copy(outputBuffer.begin(), outputBuffer.end(), channelWritePtr);
 		}
 

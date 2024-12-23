@@ -10,6 +10,7 @@
 
 #pragma once
 
+#include <Windows.h> // Include Windows.h for OutputDebugString
 #include <array>
 #include <juce_audio_formats/juce_audio_formats.h>
 #include <juce_gui_basics/juce_gui_basics.h>
@@ -73,7 +74,7 @@ public:
 
 	float noiseRemoval_process(float* pFrameOut, const float* pFrameIn);
 
-	std::vector<float> separateGuitarSounds(const std::vector<float>& inputBuffer);
+	//std::vector<float> separateGuitarSounds(const std::vector<float>& inputBuffer);
 
 	void releaseResources() override;
 
@@ -108,7 +109,7 @@ public:
 	void registerFFTCtrl(FFTCtrl* FFTC);
 
 	void setShowFilters(bool showFilters);
-	
+
 	void setUseRnNoises(bool useRnNoiseIn);
 
 
@@ -120,6 +121,7 @@ public:
 
 
 	// Coroutine def.
+	// Task def.
 	class Task
 	{
 	public:
@@ -154,10 +156,140 @@ public:
 	Task makeFilterPing();
 	Task setTask();
 
+	// Generator def.
+	template<typename T>
+	struct generatorType
+	{
+		struct promise_type;
+		using handle_type = std::coroutine_handle<promise_type>;
+
+		struct promise_type
+		{
+			T value_;
+			std::exception_ptr exception_;
+
+			generatorType get_return_object()
+			{
+				return generatorType(handle_type::from_promise(*this));
+			}
+			std::suspend_always initial_suspend() { return {}; }
+			std::suspend_always final_suspend() noexcept { return {}; }
+			void unhandled_exception() { exception_ = std::current_exception(); }
+			template<std::convertible_to<T> From> // C++20 concept
+			std::suspend_always yield_value(From&& from)
+			{
+				value_ = std::forward<From>(from);
+				return {};
+			}
+			void return_void() {}
+		};
+
+		handle_type h_;
+
+		generatorType(handle_type h) : h_(h) {}
+		generatorType(const generatorType&) = delete;
+		~generatorType() { h_.destroy(); }
+		explicit operator bool()
+		{
+			fill();
+			return !h_.done();
+		}
+		T operator()()
+		{
+			fill();
+			full_ = false;
+			return std::move(h_.promise().value_);
+		}
+
+	private:
+		bool full_ = false;
+
+		void fill()
+		{
+			if (!full_)
+			{
+				h_();
+				if (h_.promise().exception_)
+					std::rethrow_exception(h_.promise().exception_);
+				full_ = true;
+			}
+		}
+	};
+
+	generatorType<std::vector<float>> separateGuitarSounds();
+
+	void updateInputBuffer(const std::vector<float>& newInputBuffer);
+
+	//generatorType<unsigned>
+	//	counter6()
+	//{
+	//	while (true)
+	//		co_yield 0;
+	//	for (unsigned i = 0; i < 3;)
+	//		co_yield i++;
+	//}
+
+	//void
+	//	main6()
+	//{
+	//	auto gen = counter6();
+	//	while (gen)
+	//		std::cout << "counter6: " << gen() << std::endl;
+	//}
+
+	//class generatorType
+	//{
+	//public:
+	//	struct promise_type
+	//	{
+	//		std::vector<float> value;
+	//		std::exception_ptr exception;
+
+	//		generatorType get_return_object()
+	//		{
+	//			return generatorType{ std::coroutine_handle<promise_type>::from_promise(*this) };
+	//		}
+
+	//		std::suspend_never initial_suspend() { return {}; }
+	//		std::suspend_always final_suspend() noexcept { return {}; }
+
+	//		std::suspend_always yield_value(std::vector<float> v)
+	//		{
+	//			value = std::move(v);
+	//			return {};
+	//		}
+
+	//		void return_void() {}
+	//		void unhandled_exception() { exception = std::current_exception(); }
+	//	};
+
+	//	using handle_type = std::coroutine_handle<promise_type>;
+
+	//	generatorType(handle_type h) : handle(h) {}
+	//	~generatorType() { if (handle) handle.destroy(); }
+
+	//	std::vector<float> operator()()
+	//	{
+	//		if (!handle.done())
+	//		{
+	//			handle.resume();
+	//		}
+	//		if (handle.promise().exception)
+	//		{
+	//			std::rethrow_exception(handle.promise().exception);
+	//		}
+	//		return handle.promise().value;
+	//	}
+
+	//private:
+	//	handle_type handle;
+	//};
+
+	//generatorType separateGuitarSounds(const std::vector<float>& inputBuffer);
+
 private:
-	py::object separation;
-	py::object separate_guitar_buffer;
-	py::object global;
+	SpectrogramComponent::generatorType<std::vector<float>> generatorSeparateGuitarSounds = separateGuitarSounds();
+	std::vector<float> inputBuffer{ 0 };
 
 	int frameSize = 480;
 	bool useAINoiseRemoval = false;

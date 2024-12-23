@@ -3,7 +3,7 @@
 <JUCERPROJECT id="SUXWw8" name="AudioAnalyzer" projectType="guiapp" useAppConfig="0"
               displaySplashScreen="1" jucerFormatVersion="1" companyWebsite="www.eksit.dk"
               bundleIdentifier="dk.eksit.AudioAnalyzer" cppLanguageStandard="latest"
-              version="1.2.2" headerPath="D:\Users\eigil\projects\pythonProjs\spleeterpp-0.2.1\src\spleeter_common\&#10;D:\Users\eigil\projects\pythonProjs\spleeterpp-0.2.1\build\_deps\eigen3-src\&#10;D:\Users\eigil\projects\pythonProjs\spleeterpp-0.2.1\src\">
+              version="1.2.2" headerPath="D:\Users\eigil\AppData\Roaming\Python\Python312\site-packages\pybind11\include\&#10;D:\Program_Files\Python\miniconda3\envs\guitarStringSoundsEnv\include\&#10;">
   <MAINGROUP id="J330RL" name="AudioAnalyzer">
     <GROUP id="{444701EC-2BDB-E376-CB2D-A176BB8655A4}" name="Source">
       <GROUP id="{E0980DD4-085C-A615-407B-AC22978106DF}" name="Resources">
@@ -99,10 +99,6 @@
             file="Source/SpectrogramComponent.h"/>
       <FILE id="cqhsP1" name="Utilities.h" compile="0" resource="0" file="Source/Utilities.h"/>
     </GROUP>
-    <FILE id="D0LWOv" name="audio_processing_bindings.cpp" compile="1"
-          resource="0" file="pythonThings/audio_processing_bindings.cpp"/>
-    <FILE id="avpu6N" name="audio_processing_bindings.h" compile="0" resource="0"
-          file="pythonThings/audio_processing_bindings.h"/>
   </MAINGROUP>
   <MODULES>
     <MODULE id="juce_audio_basics" showAllCode="1" useLocalCopy="1" useGlobalPath="0"/>
@@ -187,7 +183,7 @@
       </MODULEPATHS>
     </LINUX_MAKE>
     <VS2022 targetFolder="Builds/VisualStudio2022" smallIcon="zrVA6e" bigIcon="Hd60ks"
-            externalLibraries="..\..\build\lib\Debug\audio_processing_bindings.Lib&#10;..\..\pythonThings\python37.lib&#10;..\..\pythonThings\python312.lib">
+            externalLibraries="D:\Program_Files\Python\miniconda3\envs\guitarStringSoundsEnv\libs\python310.lib&#10;D:\Program_Files\Python\miniconda3\envs\guitarStringSoundsEnv\libs\python3.lib">
       <CONFIGURATIONS>
         <CONFIGURATION isDebug="1" name="Debug" targetName="AudioAnalyzer"/>
         <CONFIGURATION isDebug="0" name="Release" targetName="AudioAnalyzer"/>
