@@ -1,0 +1,30 @@
+pytorch2.5.1:È
+j
+onnx::ReduceMean_0/ReduceMean_output_0/ReduceMean"
+ReduceMean*
+axes@ÿÿÿÿÿÿÿÿÿ *
+keepdims 
+D
+onnx::ReduceMean_0
+/ReduceMean_output_0/Sub_output_0/Sub"Sub
+)
+/Sub_output_0/Abs_output_0/Abs"Abs
+b
+/Abs_output_0/ReduceMax_output_0
+/ReduceMax"	ReduceMax*
+axes@ÿÿÿÿÿÿÿÿÿ *
+keepdims 
+2
+/Sub_output_0
+/ReduceMax_output_05/Div"Div
+main_graphZ*
+onnx::ReduceMean_0
+
+
+
+¬ÿb
+5
+
+
+
+¬ÿB
