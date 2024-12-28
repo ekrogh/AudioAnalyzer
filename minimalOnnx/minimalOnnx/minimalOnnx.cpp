@@ -21,11 +21,11 @@ std::wstring stringToWString(const std::string& str)
 int main()
 {
 	// Set the DLL directory
-	if (!SetDllDirectory(L"D:/Users/eigil/projects/machineLearning/onnxruntime/build/Windows/RelWithDebInfo/RelWithDebInfo"))
-	{
-		std::cerr << "Failed to set DLL directory." << std::endl;
-		return -1;
-	}
+	//if (!SetDllDirectory(L"D:/Users/eigil/projects/machineLearning/onnxruntime/build/Windows/RelWithDebInfo/RelWithDebInfo"))
+	//{
+	//	std::cerr << "Failed to set DLL directory." << std::endl;
+	//	return -1;
+	//}
 
 	try
 	{
@@ -35,8 +35,8 @@ int main()
 
 		Ort::Env env(ORT_LOGGING_LEVEL_WARNING, "ONNXModel");
 		Ort::SessionOptions session_options;
-		std::wstring preprocess_model_path = stringToWString("D:/Users/eigil/projects/juceProjs/AudioAnalyzer/onnxThings/preprocess_model.onnx");
-		std::wstring main_model_path = stringToWString("D:/Users/eigil/projects/juceProjs/AudioAnalyzer/onnxThings/post_stft_model.onnx");
+		std::wstring preprocess_model_path = stringToWString("D:/Users/eigil/projects/juceProjs/AudioAnalyzer/onnxThings/preprocess_model_v15.onnx");
+		std::wstring main_model_path = stringToWString("D:/Users/eigil/projects/juceProjs/AudioAnalyzer/onnxThings/post_stft_model_v15.onnx");
 
 		Ort::Session preprocess_session(env, preprocess_model_path.c_str(), session_options);
 		Ort::Session main_session(env, main_model_path.c_str(), session_options);

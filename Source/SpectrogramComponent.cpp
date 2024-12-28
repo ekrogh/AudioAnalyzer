@@ -64,14 +64,35 @@ SpectrogramComponent::SpectrogramComponent
 	setSize(spectrogramImage.getWidth(), spectrogramImage.getHeight());
 
 	// Set the DLL directory
-	if (!SetDllDirectory(L"D:/Users/eigil/projects/machineLearning/onnxruntime-win-x64-1.20.1/lib"))
-	{
-		// Handle error
-		//return -1;
-	}
+	SetDllDirectory
+	(
+		L"D:/Users/eigil/projects/machineLearning/onnxruntime/build/Windows/RelWithDebInfo/RelWithDebInfo"
+	);
+	//	if
+	//	(
+	//		!SetDllDirectory
+	//		(
+	//			L"D:/Users/eigil/projects/machineLearning/onnxruntime/build/Windows/RelWithDebInfo/RelWithDebInfo"
+	//		)
+	//	)
+	//{
+	//	// Handle error
+	//	//return -1;
+	//}
 
-	onnx_model_ = ONNXModel(stringToWString("D:/Users/eigil/projects/juceProjs/AudioAnalyzer/onnxThings/preprocess_model.onnx"),
-		stringToWString("D:/Users/eigil/projects/juceProjs/AudioAnalyzer/onnxThings/post_stft_model.onnx"));
+	onnx_model_ =
+		ONNXModel
+		(
+			stringToWString
+			(
+				"D:/Users/eigil/projects/juceProjs/AudioAnalyzer/onnxThings/preprocess_model_v15.onnx"
+			)
+			,
+			stringToWString
+			(
+				"D:/Users/eigil/projects/juceProjs/AudioAnalyzer/onnxThings/post_stft_model_v15.onnx"
+			)
+		);
 
 }
 
