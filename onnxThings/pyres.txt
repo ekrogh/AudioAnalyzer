@@ -1,9 +1,0 @@
-D:\Users\eigil\projects\juceProjs\AudioAnalyzer\python\Export_the_Model_to_ONNX_2.py:64: TracerWarning: Converting a tensor to a Python integer might cause the trace to be incorrect. We can't record the data flow of Python values, so this value will be treated as a constant in the future. This means that the trace might not generalize to other inputs!
-  le = int(torch.ceil(mix.shape[-1] / hl))
-D:\Program_Files\Python\miniconda3\envs\guitarStringSoundsEnv\lib\site-packages\torch\onnx\utils.py:663: UserWarning: Constant folding - Only steps=1 can be constant folded for opset >= 10 onnx::Slice op. Constant folding not applied. (Triggered internally at C:\actions-runner\_work\pytorch\pytorch\builder\windows\pytorch\torch\csrc\jit\passes\onnx\constant_fold.cpp:180.)
-  _C._jit_pass_onnx_graph_shape_type_inference(
-D:\Program_Files\Python\miniconda3\envs\guitarStringSoundsEnv\lib\site-packages\torch\onnx\utils.py:1186: UserWarning: Constant folding - Only steps=1 can be constant folded for opset >= 10 onnx::Slice op. Constant folding not applied. (Triggered internally at C:\actions-runner\_work\pytorch\pytorch\builder\windows\pytorch\torch\csrc\jit\passes\onnx\constant_fold.cpp:180.)
-  _C._jit_pass_onnx_graph_shape_type_inference(
-torch.Size([1, 2, 1025, 87])
-torch.Size([1, 4, 1025, 87])
-Post-STFT model exported to post_stft_model.onnx
