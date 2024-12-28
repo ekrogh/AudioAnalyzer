@@ -27,15 +27,13 @@ enable_language(ASM)
 if(JUCE_BUILD_CONFIGURATION MATCHES "DEBUG")
     add_definitions([[-DJUCE_PROJUCER_VERSION=0x80004]] [[-DJUCE_MODULE_AVAILABLE_juce_audio_basics=1]] [[-DJUCE_MODULE_AVAILABLE_juce_audio_devices=1]] [[-DJUCE_MODULE_AVAILABLE_juce_audio_formats=1]] [[-DJUCE_MODULE_AVAILABLE_juce_audio_processors=1]] [[-DJUCE_MODULE_AVAILABLE_juce_audio_utils=1]] [[-DJUCE_MODULE_AVAILABLE_juce_core=1]] [[-DJUCE_MODULE_AVAILABLE_juce_data_structures=1]] [[-DJUCE_MODULE_AVAILABLE_juce_dsp=1]] [[-DJUCE_MODULE_AVAILABLE_juce_events=1]] [[-DJUCE_MODULE_AVAILABLE_juce_graphics=1]] [[-DJUCE_MODULE_AVAILABLE_juce_gui_basics=1]] [[-DJUCE_MODULE_AVAILABLE_juce_gui_extra=1]] [[-DJUCE_GLOBAL_MODULE_SETTINGS_INCLUDED=1]] [[-DJUCE_USE_MP3AUDIOFORMAT=1]] [[-DJUCE_USE_LAME_AUDIO_FORMAT=1]] [[-DJUCE_STRICT_REFCOUNTEDPOINTER=1]] [[-DJUCE_WEB_BROWSER=0]] [[-DJUCE_STANDALONE_APPLICATION=1]] [[-DANDROID_VERSION_CODE=2]] [[-DJUCER_ANDROIDSTUDIO_7F0E4A25=1]] [[-DJUCE_APP_VERSION=1.2.2]] [[-DJUCE_APP_VERSION_HEX=0x10202]] [[-DDEBUG=1]] [[-D_DEBUG=1]])
     include_directories( AFTER
-        "D:/Users/eigil/AppData/Roaming/Python/Python312/site-packages/pybind11/include/"
-        "D:/Program_Files/Python/miniconda3/envs/guitarStringSoundsEnv/include/"
+        "D:/Users/eigil/projects/machineLearning/onnxruntime-win-x64-1.20.1/include"
     )
 
 elseif(JUCE_BUILD_CONFIGURATION MATCHES "RELEASE")
     add_definitions([[-DJUCE_PROJUCER_VERSION=0x80004]] [[-DJUCE_MODULE_AVAILABLE_juce_audio_basics=1]] [[-DJUCE_MODULE_AVAILABLE_juce_audio_devices=1]] [[-DJUCE_MODULE_AVAILABLE_juce_audio_formats=1]] [[-DJUCE_MODULE_AVAILABLE_juce_audio_processors=1]] [[-DJUCE_MODULE_AVAILABLE_juce_audio_utils=1]] [[-DJUCE_MODULE_AVAILABLE_juce_core=1]] [[-DJUCE_MODULE_AVAILABLE_juce_data_structures=1]] [[-DJUCE_MODULE_AVAILABLE_juce_dsp=1]] [[-DJUCE_MODULE_AVAILABLE_juce_events=1]] [[-DJUCE_MODULE_AVAILABLE_juce_graphics=1]] [[-DJUCE_MODULE_AVAILABLE_juce_gui_basics=1]] [[-DJUCE_MODULE_AVAILABLE_juce_gui_extra=1]] [[-DJUCE_GLOBAL_MODULE_SETTINGS_INCLUDED=1]] [[-DJUCE_USE_MP3AUDIOFORMAT=1]] [[-DJUCE_USE_LAME_AUDIO_FORMAT=1]] [[-DJUCE_STRICT_REFCOUNTEDPOINTER=1]] [[-DJUCE_WEB_BROWSER=0]] [[-DJUCE_STANDALONE_APPLICATION=1]] [[-DANDROID_VERSION_CODE=2]] [[-DJUCER_ANDROIDSTUDIO_7F0E4A25=1]] [[-DJUCE_APP_VERSION=1.2.2]] [[-DJUCE_APP_VERSION_HEX=0x10202]] [[-DNDEBUG=1]])
     include_directories( AFTER
-        "D:/Users/eigil/AppData/Roaming/Python/Python312/site-packages/pybind11/include/"
-        "D:/Program_Files/Python/miniconda3/envs/guitarStringSoundsEnv/include/"
+        "D:/Users/eigil/projects/machineLearning/onnxruntime-win-x64-1.20.1/include"
     )
 
 else()
@@ -97,6 +95,8 @@ add_library( ${BINARY_NAME}
     "../../../Source/NOTCH_50_60_Hz_filter_Coeffs.h"
     "../../../Source/NotchFilter.cpp"
     "../../../Source/NotchFilter.h"
+    "../../../Source/ONNXModel.cpp"
+    "../../../Source/ONNXModel.h"
     "../../../Source/PlotModule.cpp"
     "../../../Source/PlotModule.h"
     "../../../Source/SoundProcessorModule.cpp"
@@ -2475,6 +2475,7 @@ set_source_files_properties(
     "../../../Source/microphoneAccessPermissionAlert.h"
     "../../../Source/NOTCH_50_60_Hz_filter_Coeffs.h"
     "../../../Source/NotchFilter.h"
+    "../../../Source/ONNXModel.h"
     "../../../Source/PlotModule.h"
     "../../../Source/SoundProcessorModule.h"
     "../../../Source/SpectrogramComponent.h"

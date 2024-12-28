@@ -55,6 +55,7 @@
 		A4032E744816BBC741E301C8 /* include_juce_events.mm */ = {isa = PBXBuildFile; fileRef = B29B945DBA0FDA042BB65404; };
 		A9CB5547AE07FD5090D4F978 /* cmp_trace.cpp */ = {isa = PBXBuildFile; fileRef = 6929E5D8CFBBB1C1B9FF6851; };
 		ADDDEB60EA51F36CC5F3696E /* microphoneAccessPermissionAlert.cpp */ = {isa = PBXBuildFile; fileRef = 30B6AFA8E961314EEE4306C8; };
+		B80CC2C7D080192C451C6154 /* ONNXModel.cpp */ = {isa = PBXBuildFile; fileRef = 3B1C39CD47381E100CA381E2; };
 		B997916396E4CB72DEC3F313 /* cmp_grid.cpp */ = {isa = PBXBuildFile; fileRef = D3D3723D78D8593EA1A857C9; };
 		BBF8F357D32D8D392574B780 /* cmp_legend.cpp */ = {isa = PBXBuildFile; fileRef = 88C0BE36CE7D396AE9922878; };
 		BC9BE136ED3569603042210D /* include_juce_data_structures.mm */ = {isa = PBXBuildFile; fileRef = 3C5676D0F87D322CC8B534AC; };
@@ -97,6 +98,7 @@
 		3777F08B0EF8D4A3C8EF82B0 /* cmp_label.cpp */ /* cmp_label.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = cmp_label.cpp; path = ../../Source/cmp_label.cpp; sourceTree = SOURCE_ROOT; };
 		3916F85AC8B00CA49B36218C /* cmp_label.h */ /* cmp_label.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = cmp_label.h; path = ../../Source/cmp_label.h; sourceTree = SOURCE_ROOT; };
 		39C6782DD99D9319E6258837 /* juce_audio_utils */ /* juce_audio_utils */ = {isa = PBXFileReference; lastKnownFileType = folder; name = juce_audio_utils; path = ../../JuceLibraryCode/modules/juce_audio_utils; sourceTree = SOURCE_ROOT; };
+		3B1C39CD47381E100CA381E2 /* ONNXModel.cpp */ /* ONNXModel.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = ONNXModel.cpp; path = ../../Source/ONNXModel.cpp; sourceTree = SOURCE_ROOT; };
 		3BAF2DCB96EB8EB6E29398AE /* include_juce_gui_extra.mm */ /* include_juce_gui_extra.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; name = include_juce_gui_extra.mm; path = ../../JuceLibraryCode/include_juce_gui_extra.mm; sourceTree = SOURCE_ROOT; };
 		3C5676D0F87D322CC8B534AC /* include_juce_data_structures.mm */ /* include_juce_data_structures.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; name = include_juce_data_structures.mm; path = ../../JuceLibraryCode/include_juce_data_structures.mm; sourceTree = SOURCE_ROOT; };
 		3DC0B4543FC79FCF54F43478 /* cmp_legend.h */ /* cmp_legend.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = cmp_legend.h; path = ../../Source/cmp_legend.h; sourceTree = SOURCE_ROOT; };
@@ -110,6 +112,7 @@
 		495AE307CE4B5CEC5EF59768 /* AudioSettingsModule.cpp */ /* AudioSettingsModule.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = AudioSettingsModule.cpp; path = ../../Source/AudioSettingsModule.cpp; sourceTree = SOURCE_ROOT; };
 		49A570884BA8354B0BFD461A /* freqPlotModule.h */ /* freqPlotModule.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = freqPlotModule.h; path = ../../Source/freqPlotModule.h; sourceTree = SOURCE_ROOT; };
 		4ACDBA4EB46616D6D8802321 /* juce_graphics */ /* juce_graphics */ = {isa = PBXFileReference; lastKnownFileType = folder; name = juce_graphics; path = ../../JuceLibraryCode/modules/juce_graphics; sourceTree = SOURCE_ROOT; };
+		4AE6A1A1BFA6159FF8E271A8 /* ONNXModel.h */ /* ONNXModel.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = ONNXModel.h; path = ../../Source/ONNXModel.h; sourceTree = SOURCE_ROOT; };
 		4CAA2D93C1535C1111CC8224 /* NotchFilter.cpp */ /* NotchFilter.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = NotchFilter.cpp; path = ../../Source/NotchFilter.cpp; sourceTree = SOURCE_ROOT; };
 		4D62E649CCF127A4FE79C2CA /* audioAnalyzer_large_icon.png */ /* audioAnalyzer_large_icon.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = audioAnalyzer_large_icon.png; path = ../../Source/audioAnalyzer_large_icon.png; sourceTree = SOURCE_ROOT; };
 		4EC631C748E401C8A059DB3E /* audioanalyzerfirstimage.png */ /* audioanalyzerfirstimage.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = audioanalyzerfirstimage.png; path = ../../Source/audioanalyzerfirstimage.png; sourceTree = SOURCE_ROOT; };
@@ -262,6 +265,8 @@
 				D6B3B7C7AB1E4E15219F85E9,
 				4CAA2D93C1535C1111CC8224,
 				ED53219727D0ABBBA341DCC6,
+				3B1C39CD47381E100CA381E2,
+				4AE6A1A1BFA6159FF8E271A8,
 				9DB0A8597631E0CC265AADD2,
 				856F76DDA0FCFFB66DF3BABA,
 				15E26AB519BF8B807C2920A8,
@@ -517,6 +522,7 @@
 				3215A3A74BF043330C9646A0,
 				ADDDEB60EA51F36CC5F3696E,
 				C85F023FBC4E0CEA125DEF78,
+				B80CC2C7D080192C451C6154,
 				C0598ACC9C3CCA966C5B1226,
 				4DCDDC66EF5058C5980556A9,
 				DAE5FADA20FB7553D4185868,
@@ -699,15 +705,14 @@
 				HEADER_SEARCH_PATHS = (
 					"$(SRCROOT)/../../JuceLibraryCode",
 					"$(SRCROOT)/../../JuceLibraryCode/modules",
-					"D:\Users\eigil\AppData\Roaming\Python\Python312\site-packages\pybind11\include\",
-					"D:\Program_Files\Python\miniconda3\envs\guitarStringSoundsEnv\include\",
+					"D:\Users\eigil\projects\machineLearning\onnxruntime-win-x64-1.20.1\include",
 					"$(inherited)",
 				);
 				INFOPLIST_FILE = Info-App.plist;
 				INFOPLIST_PREPROCESS = NO;
 				INSTALL_PATH = "$(HOME)/Applications";
 				LLVM_LTO = YES_THIN;
-				MTL_HEADER_SEARCH_PATHS = "$(SRCROOT)/../../JuceLibraryCode $(SRCROOT)/../../JuceLibraryCode/modules D:\Users\eigil\AppData\Roaming\Python\Python312\site-packages\pybind11\include\ D:\Program_Files\Python\miniconda3\envs\guitarStringSoundsEnv\include\";
+				MTL_HEADER_SEARCH_PATHS = "$(SRCROOT)/../../JuceLibraryCode $(SRCROOT)/../../JuceLibraryCode/modules D:\Users\eigil\projects\machineLearning\onnxruntime-win-x64-1.20.1\include";
 				PRODUCT_BUNDLE_IDENTIFIER = dk.eksit.AudioAnalyzer;
 				PRODUCT_NAME = "AudioAnalyzer";
 				PROVISIONING_PROFILE_SPECIFIER = "";
@@ -769,14 +774,13 @@
 				HEADER_SEARCH_PATHS = (
 					"$(SRCROOT)/../../JuceLibraryCode",
 					"$(SRCROOT)/../../JuceLibraryCode/modules",
-					"D:\Users\eigil\AppData\Roaming\Python\Python312\site-packages\pybind11\include\",
-					"D:\Program_Files\Python\miniconda3\envs\guitarStringSoundsEnv\include\",
+					"D:\Users\eigil\projects\machineLearning\onnxruntime-win-x64-1.20.1\include",
 					"$(inherited)",
 				);
 				INFOPLIST_FILE = Info-App.plist;
 				INFOPLIST_PREPROCESS = NO;
 				INSTALL_PATH = "$(HOME)/Applications";
-				MTL_HEADER_SEARCH_PATHS = "$(SRCROOT)/../../JuceLibraryCode $(SRCROOT)/../../JuceLibraryCode/modules D:\Users\eigil\AppData\Roaming\Python\Python312\site-packages\pybind11\include\ D:\Program_Files\Python\miniconda3\envs\guitarStringSoundsEnv\include\";
+				MTL_HEADER_SEARCH_PATHS = "$(SRCROOT)/../../JuceLibraryCode $(SRCROOT)/../../JuceLibraryCode/modules D:\Users\eigil\projects\machineLearning\onnxruntime-win-x64-1.20.1\include";
 				PRODUCT_BUNDLE_IDENTIFIER = dk.eksit.AudioAnalyzer;
 				PRODUCT_NAME = "AudioAnalyzer";
 				PROVISIONING_PROFILE_SPECIFIER = "";

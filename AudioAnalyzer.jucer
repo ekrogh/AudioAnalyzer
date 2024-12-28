@@ -3,7 +3,7 @@
 <JUCERPROJECT id="SUXWw8" name="AudioAnalyzer" projectType="guiapp" useAppConfig="0"
               displaySplashScreen="1" jucerFormatVersion="1" companyWebsite="www.eksit.dk"
               bundleIdentifier="dk.eksit.AudioAnalyzer" cppLanguageStandard="latest"
-              version="1.2.2" headerPath="D:\Users\eigil\AppData\Roaming\Python\Python312\site-packages\pybind11\include\&#10;D:\Program_Files\Python\miniconda3\envs\guitarStringSoundsEnv\include\&#10;">
+              version="1.2.2" headerPath="D:\Users\eigil\projects\machineLearning\onnxruntime-win-x64-1.20.1\include">
   <MAINGROUP id="J330RL" name="AudioAnalyzer">
     <GROUP id="{444701EC-2BDB-E376-CB2D-A176BB8655A4}" name="Source">
       <GROUP id="{E0980DD4-085C-A615-407B-AC22978106DF}" name="Resources">
@@ -87,6 +87,8 @@
             resource="0" file="Source/NOTCH_50_60_Hz_filter_Coeffs.h"/>
       <FILE id="pEPoNe" name="NotchFilter.cpp" compile="1" resource="0" file="Source/NotchFilter.cpp"/>
       <FILE id="rlg337" name="NotchFilter.h" compile="0" resource="0" file="Source/NotchFilter.h"/>
+      <FILE id="KtqxdN" name="ONNXModel.cpp" compile="1" resource="0" file="Source/ONNXModel.cpp"/>
+      <FILE id="Lvwlza" name="ONNXModel.h" compile="0" resource="0" file="Source/ONNXModel.h"/>
       <FILE id="ezQVuB" name="PlotModule.cpp" compile="1" resource="0" file="Source/PlotModule.cpp"/>
       <FILE id="rMdbof" name="PlotModule.h" compile="0" resource="0" file="Source/PlotModule.h"/>
       <FILE id="iY4WPw" name="SoundProcessorModule.cpp" compile="1" resource="0"
@@ -183,7 +185,7 @@
       </MODULEPATHS>
     </LINUX_MAKE>
     <VS2022 targetFolder="Builds/VisualStudio2022" smallIcon="zrVA6e" bigIcon="Hd60ks"
-            externalLibraries="D:\Program_Files\Python\miniconda3\envs\guitarStringSoundsEnv\libs\python310.lib&#10;D:\Program_Files\Python\miniconda3\envs\guitarStringSoundsEnv\libs\python3.lib">
+            externalLibraries="D:\Users\eigil\projects\machineLearning\onnxruntime-win-x64-1.20.1\lib\onnxruntime.lib">
       <CONFIGURATIONS>
         <CONFIGURATION isDebug="1" name="Debug" targetName="AudioAnalyzer"/>
         <CONFIGURATION isDebug="0" name="Release" targetName="AudioAnalyzer"/>

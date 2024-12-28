@@ -20,11 +20,12 @@
 #include <semaphore>
 #include <coroutine>
 #include "NotchFilter.h"
-#include <pybind11/embed.h>
-#include <pybind11/numpy.h>
+#include <onnxruntime_cxx_api.h>
+#include "ONNXModel.h"
+#include <locale>
+#include <codecvt>
 
 
-namespace py = pybind11;
 
 class FFTModule;
 class FFTCtrl;
@@ -156,139 +157,23 @@ public:
 	Task makeFilterPing();
 	Task setTask();
 
-	// Generator def.
-	template<typename T>
-	struct generatorType
+	void processBlock(AudioBuffer<float>& buffer);
+
+	// Function to convert std::string to std::wstring
+	std::wstring stringToWString(const std::string& str)
 	{
-		struct promise_type;
-		using handle_type = std::coroutine_handle<promise_type>;
+		std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>> converter;
+		return converter.from_bytes(str);
+	}
 
-		struct promise_type
-		{
-			T value_;
-			std::exception_ptr exception_;
-
-			generatorType get_return_object()
-			{
-				return generatorType(handle_type::from_promise(*this));
-			}
-			std::suspend_always initial_suspend() { return {}; }
-			std::suspend_always final_suspend() noexcept { return {}; }
-			void unhandled_exception() { exception_ = std::current_exception(); }
-			template<std::convertible_to<T> From> // C++20 concept
-			std::suspend_always yield_value(From&& from)
-			{
-				value_ = std::forward<From>(from);
-				return {};
-			}
-			void return_void() {}
-		};
-
-		handle_type h_;
-
-		generatorType(handle_type h) : h_(h) {}
-		generatorType(const generatorType&) = delete;
-		~generatorType() { h_.destroy(); }
-		explicit operator bool()
-		{
-			fill();
-			return !h_.done();
-		}
-		T operator()()
-		{
-			fill();
-			full_ = false;
-			return std::move(h_.promise().value_);
-		}
-
-	private:
-		bool full_ = false;
-
-		void fill()
-		{
-			if (!full_)
-			{
-				h_();
-				if (h_.promise().exception_)
-					std::rethrow_exception(h_.promise().exception_);
-				full_ = true;
-			}
-		}
-	};
-
-	generatorType<std::vector<float>> separateGuitarSounds();
-
-	void updateInputBuffer(const std::vector<float>& newInputBuffer);
-
-	//generatorType<unsigned>
-	//	counter6()
-	//{
-	//	while (true)
-	//		co_yield 0;
-	//	for (unsigned i = 0; i < 3;)
-	//		co_yield i++;
-	//}
-
-	//void
-	//	main6()
-	//{
-	//	auto gen = counter6();
-	//	while (gen)
-	//		std::cout << "counter6: " << gen() << std::endl;
-	//}
-
-	//class generatorType
-	//{
-	//public:
-	//	struct promise_type
-	//	{
-	//		std::vector<float> value;
-	//		std::exception_ptr exception;
-
-	//		generatorType get_return_object()
-	//		{
-	//			return generatorType{ std::coroutine_handle<promise_type>::from_promise(*this) };
-	//		}
-
-	//		std::suspend_never initial_suspend() { return {}; }
-	//		std::suspend_always final_suspend() noexcept { return {}; }
-
-	//		std::suspend_always yield_value(std::vector<float> v)
-	//		{
-	//			value = std::move(v);
-	//			return {};
-	//		}
-
-	//		void return_void() {}
-	//		void unhandled_exception() { exception = std::current_exception(); }
-	//	};
-
-	//	using handle_type = std::coroutine_handle<promise_type>;
-
-	//	generatorType(handle_type h) : handle(h) {}
-	//	~generatorType() { if (handle) handle.destroy(); }
-
-	//	std::vector<float> operator()()
-	//	{
-	//		if (!handle.done())
-	//		{
-	//			handle.resume();
-	//		}
-	//		if (handle.promise().exception)
-	//		{
-	//			std::rethrow_exception(handle.promise().exception);
-	//		}
-	//		return handle.promise().value;
-	//	}
-
-	//private:
-	//	handle_type handle;
-	//};
-
-	//generatorType separateGuitarSounds(const std::vector<float>& inputBuffer);
+	// Function to set the DLL directory
+	bool SetDllDirectory(const std::wstring& directory)
+	{
+		return SetDllDirectoryW(directory.c_str()) != 0;
+	}
 
 private:
-	SpectrogramComponent::generatorType<std::vector<float>> generatorSeparateGuitarSounds = separateGuitarSounds();
+	ONNXModel onnx_model_;
 	std::vector<float> inputBuffer{ 0 };
 
 	int frameSize = 480;

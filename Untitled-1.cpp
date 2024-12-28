@@ -1,162 +1,72 @@
-It seems like we've confirmed that py::scoped_interpreter works in isolation, but integrating it into your specific application context causes an exception. This suggests that there may be contextual or environmental factors in your application affecting the Python interpreter initialization. Here are a few strategies to help you integrate py::scoped_interpreter without causing exceptions:
-
-Key Considerations
-Singleton Pattern for Interpreter Initialization: Ensure that the Python interpreter is initialized only once throughout the lifetime of your application.
-
-Thread Safety: If your application uses multiple threads, ensure proper GIL management and thread safety.
-
-Environment Configuration: Make sure all necessary environment variables are set correctly before initializing the interpreter.
-
-Singleton Pattern for Interpreter Initialization
-Here's an approach using a singleton pattern to ensure that the Python interpreter is initialized only once:
-
-cpp
-#include <pybind11/embed.h>
-#include <pybind11/numpy.h>
-#include <vector>
-#include <iostream>
+#include "SpectrogramComponent.h"
 #include <string>
-#include <memory>
-#include <Windows.h>
+#include <locale>
+#include <codecvt>
+#include <windows.h>
 
-namespace py = pybind11;
-
-class PythonEnvironment
+// Function to set the DLL directory
+bool SetDllDirectory(const std::wstring &directory)
 {
-public:
-    static PythonEnvironment &getInstance()
-    {
-        static PythonEnvironment instance;
-        return instance;
-    }
-
-    py::object getGlobal() const { return global; }
-    py::object getSeparation() const { return separation; }
-    py::object getSeparateGuitarBuffer() const { return separate_guitar_buffer; }
-
-private:
-    py::scoped_interpreter guard;
-    py::object global;
-    py::object separation;
-    py::object separate_guitar_buffer;
-
-    PythonEnvironment()
-    : guard{}
-    {
-        initialize();
-    }
-
-    void initialize()
-    {
-        _putenv("PYTHONHOME=D:/Program_Files/Python/miniconda3/envs/guitarStringSoundsEnv");
-        _putenv("PYTHONPATH=D:/Program_Files/Python/miniconda3/envs/guitarStringSoundsEnv/Lib;D:/Program_Files/Python/miniconda3/envs/guitarStringSoundsEnv/site-packages;D:/Users/eigil/projects/juceProjs/AudioAnalyzer/Source");
-
-        // Add DLL path to PATH and set DLL directory
-        std::string dllPath = "D:/Program_Files/Python/miniconda3/envs/guitarStringSoundsEnv";
-        std::string pathEnv = "PATH=" + dllPath + ";" + std::getenv("PATH");
-        _putenv(pathEnv.c_str());
-        SetDllDirectory(dllPath.c_str());
-
-        py::object main = py::module::import("__main__");
-        global = main.attr("__dict__");
-
-        py::exec(R"(
-            import sys
-            class CatchOutErr:
-                def __init__(self):
-                    self.value = ''
-                def write(self, txt):
-                    self.value += txt
-                def flush(self):
-                    pass
-            sys.stdout = CatchOutErr()   # redirect std out
-            sys.stderr = CatchOutErr()   # redirect std err
-        )",
-                 global);
-
-        py::module sys = py::module::import("sys");
-        py::exec("print(sys.path)", global);
-
-        separation = py::module::import("separation");
-        separate_guitar_buffer = separation.attr("separate_guitar_buffer");
-    }
-
-    PythonEnvironment(const PythonEnvironment &) = delete;
-    PythonEnvironment &operator=(const PythonEnvironment &) = delete;
-};
-
-class SpectrogramComponent
-{
-public:
-    SpectrogramComponent(AudioFormatManager &FM, std::shared_ptr<AudioDeviceManager> SADM, FFTModule *FFTMP, std::shared_ptr<freqPlotModule> FPM);
-    std::vector<float> separateGuitarSounds(const std::vector<float> &inputBuffer);
-    void getNextAudioBlock(const juce::AudioSourceChannelInfo &bufferToFill);
-
-private:
-    AudioFormatManager &formatManager;
-    FFTModule *ptrFFTModule;
-    std::shared_ptr<freqPlotModule> module_freqPlot;
-    std::shared_ptr<AudioDeviceManager> sharedAudioDeviceManager;
-    py::object global;
-    py::object separate_guitar_buffer;
-};
-
-SpectrogramComponent::SpectrogramComponent(AudioFormatManager &FM, std::shared_ptr<AudioDeviceManager> SADM, FFTModule *FFTMP, std::shared_ptr<freqPlotModule> FPM)
-    : formatManager(FM), ptrFFTModule(FFTMP), module_freqPlot(FPM), sharedAudioDeviceManager(SADM)
-{
-    auto &pyEnv = PythonEnvironment::getInstance();
-    global = pyEnv.getGlobal();
-    separate_guitar_buffer = pyEnv.getSeparateGuitarBuffer();
+    return SetDllDirectoryW(directory.c_str()) != 0;
 }
 
-std::vector<float> SpectrogramComponent::separateGuitarSounds(const std::vector<float> &inputBuffer)
+// Function to convert std::string to std::wstring
+std::wstring stringToWString(const std::string &str)
 {
-    py::gil_scoped_acquire acquire;
-    try
-    {
-        py::array_t<float> buffer_array(inputBuffer.size(), inputBuffer.data());
+    std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>> converter;
+    return converter.from_bytes(str);
+}
 
-        py::array_t<float> result = separate_guitar_buffer(buffer_array);
-        auto buffer_info = result.request();
-        float *ptr = static_cast<float *>(buffer_info.ptr);
-        std::vector<float> guitar_track(ptr, ptr + buffer_info.size);
+SpectrogramComponent::SpectrogramComponent(AudioFormatManager &FM, std::shared_ptr<AudioDeviceManager> SADM, FFTModule *FFTMP, std::shared_ptr<freqPlotModule> FPM)
+    : formatManager(FM), AudioAppComponent(*SADM), spectrogramImage(Image::RGB, 600, 626, true), ptrFFTModule(FFTMP), module_freqPlot(FPM), Thread("Audio file read and FFT"), sharedAudioDeviceManager(SADM)
+{
+    // Set the DLL directory
+    if (!SetDllDirectory(L"C:\\path\\to\\onnxruntime\\dlls"))
+    {
+        // Handle error (e.g., log it, throw an exception, etc.)
+    }
 
-        return guitar_track;
-    }
-    catch (const py::error_already_set &e)
-    {
-        OutputDebugString("Python error: ");
-        OutputDebugString(e.what());
-        OutputDebugString("\n");
-        return {};
-    }
-    catch (const std::runtime_error &e)
-    {
-        OutputDebugString("Runtime error: ");
-        OutputDebugString(e.what());
-        OutputDebugString("\n");
-        return {};
-    }
-    catch (const std::exception &e)
-    {
-        OutputDebugString("Error during separation: ");
-        OutputDebugString(e.what());
-        OutputDebugString("\n");
-        return {};
-    }
-    catch (...)
-    {
-        OutputDebugString("Unknown error occurred during separation.\n");
-        return {};
-    }
+    // Initialize the ONNX model
+    onnx_model_ = ONNXModel(stringToWString("D:/Users/eigil/projects/juceProjs/AudioAnalyzer/onnxThings/preprocess_model.onnx"),
+                            stringToWString("D:/Users/eigil/projects/juceProjs/AudioAnalyzer/onnxThings/post_stft_model.onnx"));
 }
 
 void SpectrogramComponent::getNextAudioBlock(const juce::AudioSourceChannelInfo &bufferToFill)
 {
-    std::vector<float> inputBuffer; // Fill with actual audio data
-    std::vector<float> separatedGuitarTrack = separateGuitarSounds(inputBuffer);
-}
-Summary
-By using a singleton pattern for the Python environment initialization, we ensure the interpreter is initialized only once and remains consistent throughout the application. This approach should help avoid the crashes you're experiencing. If the issue persists, please share more details, and we'll continue troubleshooting together! 🎸
+    auto numChans = bufferToFill.buffer->getNumChannels();
+    auto numSamples = bufferToFill.numSamples;
 
-Let's get this working smoothly!
+    if (numChans > 0)
+    {
+        const auto *channelData = bufferToFill.buffer->getReadPointer(0, bufferToFill.startSample);
+        auto *channelWritePtr = bufferToFill.buffer->getWritePointer(0);
+
+        // Process audio with RNNoise
+        if (useAINoiseRemoval)
+        {
+            // Add your RNNoise processing code here
+        }
+
+        if (numChans >= 2)
+        {
+            bufferToFill.buffer->copyFrom(1, bufferToFill.startSample, channelData, numSamples);
+        }
+
+        for (auto i = 0; i < numSamples; ++i)
+            pushNextSampleIntoFifo(channelData[i]);
+
+        // Call processBlock with the audio buffer
+        processBlock(*bufferToFill.buffer);
+
+        // bufferToFill.clearActiveBufferRegion(); // Uncomment if you need to clear the buffer
+    }
+}
+
+void SpectrogramComponent::processBlock(juce::AudioBuffer<float> &buffer)
+{
+    for (int channel = 0; channel < buffer.getNumChannels(); ++channel)
+    {
+        float *audio_data = buffer.getWritePointer(channel, 0);
+        onnx_model_.processAudio(audio_data, buffer.getNumSamples());
+    }
+}
