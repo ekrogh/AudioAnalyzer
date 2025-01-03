@@ -73,7 +73,7 @@ public:
 
 	void prepareToPlay(int /*samplesPerBlockExpected*/, double /*newSampleRate*/) override;
 
-	float noiseRemoval_process(float* pFrameOut, const float* pFrameIn);
+	void noiseRemoval_process(AudioBuffer<float>& buffer);
 
 	//std::vector<float> separateGuitarSounds(const std::vector<float>& inputBuffer);
 

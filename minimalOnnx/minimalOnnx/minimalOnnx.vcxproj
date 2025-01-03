@@ -70,6 +70,14 @@
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <ReferencePath>D:\Users\eigil\projects\machineLearning\onnxruntime\build\Windows\RelWithDebInfo\RelWithDebInfo;$(ReferencePath)</ReferencePath>
+    <LibraryPath>D:\Users\eigil\projects\machineLearning\onnxruntime\build\Windows\RelWithDebInfo\RelWithDebInfo;$(LibraryPath)</LibraryPath>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <ReferencePath>D:\Users\eigil\projects\machineLearning\onnxruntime\build\Windows\RelWithDebInfo\RelWithDebInfo;$(ReferencePath)</ReferencePath>
+    <LibraryPath>D:\Users\eigil\projects\machineLearning\onnxruntime\build\Windows\RelWithDebInfo\RelWithDebInfo;$(LibraryPath)</LibraryPath>
+  </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
@@ -110,7 +118,7 @@
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalLibraryDirectories>D:\Users\eigil\projects\machineLearning\onnxruntime\build\Windows\RelWithDebInfo\RelWithDebInfo</AdditionalLibraryDirectories>
-      <AdditionalDependencies>onnxruntime.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>D:\Users\eigil\projects\machineLearning\onnxruntime\build\Windows\RelWithDebInfo\RelWithDebInfo\onnxruntime.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -129,7 +137,7 @@
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalLibraryDirectories>D:\Users\eigil\projects\machineLearning\onnxruntime\build\Windows\RelWithDebInfo\RelWithDebInfo</AdditionalLibraryDirectories>
-      <AdditionalDependencies>onnxruntime.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>D:\Users\eigil\projects\machineLearning\onnxruntime\build\Windows\RelWithDebInfo\RelWithDebInfo\onnxruntime.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>

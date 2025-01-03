@@ -85,13 +85,22 @@ SpectrogramComponent::SpectrogramComponent
 		(
 			stringToWString
 			(
-				"D:/Users/eigil/projects/juceProjs/AudioAnalyzer/onnxThings/preprocess_model_v15.onnx"
+				"D:/Users/eigil/projects/juceProjs/AudioAnalyzer/onnxThings/preprocess_model.onnx"
 			)
 			,
 			stringToWString
 			(
-				"D:/Users/eigil/projects/juceProjs/AudioAnalyzer/onnxThings/post_stft_model_v15.onnx"
+				"D:/Users/eigil/projects/juceProjs/AudioAnalyzer/onnxThings/post_stft_model.onnx"
 			)
+			//stringToWString
+			//(
+			//	"D:/Users/eigil/projects/juceProjs/AudioAnalyzer/onnxThings/preprocess_model_v15.onnx"
+			//)
+			//,
+			//stringToWString
+			//(
+			//	"D:/Users/eigil/projects/juceProjs/AudioAnalyzer/onnxThings/post_stft_model_v15.onnx"
+			//)
 		);
 
 }
@@ -591,16 +600,17 @@ void SpectrogramComponent::releaseResources()
 
 // The wrapped of noiseRemoval's |noiseRemoval_process_frame| function so as to make sure its input/outpu is |f32| format.
 // Note tha the frame size is fixed 480.
-float SpectrogramComponent::noiseRemoval_process(float* pFrameOut, const float* pFrameIn)
+void SpectrogramComponent::noiseRemoval_process(AudioBuffer<float>& audioBuffer)
 {
 	float vadProb;
-	float* buffer = new float[frameSize];
-
+	auto noSamples = audioBuffer.getNumSamples();
+	float* buffer = new float[noSamples] {0};
+	const float* audio_data = audioBuffer.getReadPointer(0, 0);
 	// Note: Be careful for the format of the input data.
 	std::transform
 	(
-		&pFrameIn[0]
-		, &pFrameIn[frameSize]
+		&audio_data[0]
+		, &audio_data[noSamples]
 		, &buffer[0]
 		, [](float x)
 		{
@@ -608,28 +618,31 @@ float SpectrogramComponent::noiseRemoval_process(float* pFrameOut, const float* 
 		}
 	);
 
-	//vadProb = process_frame(rnnoiseState, &buffer[0], &buffer[0]);
+	onnx_model_.processAudio(buffer, noSamples);
+
+	auto outBuffer = audioBuffer.getWritePointer(0, 0);
+	audioBuffer.clear();
 
 	std::transform
 	(
 		&buffer[0]
 		, &buffer[frameSize]
-		, &pFrameOut[0]
+		, &outBuffer[0]
 		, [](float x)
 		{
 			return eks_clamp(x, -32768, 32767) / 32768.0f;
 		}
 	);
-
-	return vadProb;
 }
 void SpectrogramComponent::processBlock(AudioBuffer<float>& buffer)
 {
-	for (int channel = 0; channel < buffer.getNumChannels(); ++channel)
-	{
-		float* audio_data = buffer.getWritePointer(channel, 0);
+		float* audio_data = buffer.getWritePointer(0, 0);
 		onnx_model_.processAudio(audio_data, buffer.getNumSamples());
-	}
+	//for (int channel = 0; channel < buffer.getNumChannels(); ++channel)
+	//{
+	//	float* audio_data = buffer.getWritePointer(channel, 0);
+	//	onnx_model_.processAudio(audio_data, buffer.getNumSamples());
+	//}
 }
 
 void SpectrogramComponent::getNextAudioBlock(const juce::AudioSourceChannelInfo& bufferToFill)
@@ -645,7 +658,8 @@ void SpectrogramComponent::getNextAudioBlock(const juce::AudioSourceChannelInfo&
 		// Process audio with RNNoise
 		if (useAINoiseRemoval)
 		{
-			processBlock(*bufferToFill.buffer);
+			noiseRemoval_process(*bufferToFill.buffer);
+			//processBlock(*bufferToFill.buffer);
 		}
 
 		if (numChans >= 2)
