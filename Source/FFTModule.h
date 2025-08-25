@@ -145,7 +145,6 @@ public:
 	);
 	
 
-	Random randomRGB = juce::Random::getSystemRandom();
 	void makeGraphAttributes(cmp::GraphAttributeList& ga);
 
 	void showValues

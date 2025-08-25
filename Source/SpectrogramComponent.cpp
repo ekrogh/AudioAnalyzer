@@ -47,7 +47,7 @@ SpectrogramComponent::SpectrogramComponent
 
 	// Initialize RNNoise
 	rnnoiseState = rnnoise_create(nullptr);
-	frameSize = rnnoise_get_frame_size();
+	rnnoiseFrameSize = rnnoise_get_frame_size();
 
 	curNumInputChannels = 1;
 	setAudioChannels(1, 2);
@@ -67,11 +67,15 @@ bool SpectrogramComponent::audioSysInit()
 	juce::AudioDeviceManager::AudioDeviceSetup currentAudioConfig;
 	sharedAudioDeviceManager->getAudioDeviceSetup(currentAudioConfig);
 
-	if ((currentAudioConfig.bufferSize < frameSize) != 0)
+	if (currentAudioConfig.bufferSize < rnnoiseFrameSize)
 	{
-		currentAudioConfig.bufferSize = frameSize;
-		sharedAudioDeviceManager->setAudioDeviceSetup(currentAudioConfig, true);
+		currentAudioConfig.bufferSize = rnnoiseFrameSize;
 	}
+	if (currentAudioConfig.sampleRate != sysSampleRate)
+	{
+		currentAudioConfig.sampleRate = sysSampleRate;
+	}
+	sharedAudioDeviceManager->setAudioDeviceSetup(currentAudioConfig, true);
 
 	return true;
 }
@@ -560,13 +564,13 @@ void SpectrogramComponent::releaseResources()
 float SpectrogramComponent::rnnoise_process(float* pFrameOut, const float* pFrameIn)
 {
 	float vadProb;
-	float* buffer = new float[frameSize];
+	float* buffer = new float[rnnoiseFrameSize];
 
 	// Note: Be careful for the format of the input data.
 	std::transform
 	(
 		&pFrameIn[0]
-		, &pFrameIn[frameSize]
+		, &pFrameIn[rnnoiseFrameSize]
 		, &buffer[0]
 		, [](float x)
 		{
@@ -579,7 +583,7 @@ float SpectrogramComponent::rnnoise_process(float* pFrameOut, const float* pFram
 	std::transform
 	(
 		&buffer[0]
-		, &buffer[frameSize]
+		, &buffer[rnnoiseFrameSize]
 		, &pFrameOut[0]
 		, [](float x)
 		{
@@ -604,9 +608,9 @@ void SpectrogramComponent::getNextAudioBlock(const juce::AudioSourceChannelInfo&
 		if (useRnNoise)
 		{
 			auto channelWritePtr = bufferToFill.buffer->getWritePointer(0);
-			auto iStop = noSampels - frameSize;
+			auto iStop = noSampels - rnnoiseFrameSize;
 			int i = 0;
-			for (; i <= iStop; i += frameSize)
+			for (; i <= iStop; i += rnnoiseFrameSize)
 			{
 				rnnoise_process(&channelWritePtr[i], &channelData[i]);
 				// Add logging to check the processed data
@@ -616,7 +620,7 @@ void SpectrogramComponent::getNextAudioBlock(const juce::AudioSourceChannelInfo&
 			// Process remaining samples
 			if (i < noSampels)
 			{
-				std::vector<float> remainingSamples(frameSize, 0.0f);
+				std::vector<float> remainingSamples(rnnoiseFrameSize, 0.0f);
 				std::copy(&channelData[i], &channelData[noSampels], remainingSamples.begin());
 				rnnoise_process(remainingSamples.data(), remainingSamples.data());
 				std::copy(remainingSamples.begin(), remainingSamples.begin() + (noSampels - i), &channelWritePtr[i]);

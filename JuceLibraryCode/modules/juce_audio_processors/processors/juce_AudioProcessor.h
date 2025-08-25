@@ -1131,7 +1131,7 @@ public:
 
         @see getCurrentProgramStateInformation
     */
-    virtual void getStateInformation (juce::MemoryBlock& destData) = 0;
+    virtual void getStateInformation (MemoryBlock& destData) = 0;
 
     /** The host will call this method if it wants to save the state of just the processor's
         current program.
@@ -1144,7 +1144,7 @@ public:
 
         @see getStateInformation, setCurrentProgramStateInformation
     */
-    virtual void getCurrentProgramStateInformation (juce::MemoryBlock& destData);
+    virtual void getCurrentProgramStateInformation (MemoryBlock& destData);
 
     /** This must restore the processor's state from a block of data previously created
         using getStateInformation().
@@ -1154,7 +1154,18 @@ public:
 
         See also the helper function getXmlFromBinary() for loading settings as XML.
 
-        @see setCurrentProgramStateInformation
+        In the case that this AudioProcessor is implementing a VST3 that has declared compatible
+        plugins via VST3ClientExtensions::getCompatibleClasses(), the state passed to this
+        function may have been created by one of these compatible plugins.
+
+        If the parameter IDs of the current plugin differ from the IDs of the plugin whose state
+        was passed to this function, you can use information from the plugin state
+        to determine which parameter mapping to use if necessary.
+        VST3ClientExtensions::getCompatibleParameterIds() will always be called after
+        setStateInformation(), and that function should return the parameter mapping from the most
+        recently-loaded state.
+
+        @see setCurrentProgramStateInformation, VST3ClientExtensions::getCompatibleParameterIds
     */
     virtual void setStateInformation (const void* data, int sizeInBytes) = 0;
 
@@ -1301,8 +1312,8 @@ public:
         AudioProcessor is loaded. */
     struct TrackProperties
     {
-        String name;    // The name of the track - this will be empty if the track name is not known
-        Colour colour;  // The colour of the track - this will be transparentBlack if the colour is not known
+        std::optional<String> name;     // The name of the track - this will be empty if the track name is not known
+        std::optional<Colour> colour;   // The colour of the track - this will be empty if the colour is not known
 
         // other properties may be added in the future
     };
@@ -1323,6 +1334,21 @@ public:
     */
     virtual void updateTrackProperties (const TrackProperties& properties);
 
+    /** Returns a custom name for a MIDI note number.
+
+        This method allows the host to query your plugin for a custom name to display
+        for a given MIDI note number. It's useful for plugins that work with drum kits,
+        microtonal scales, or other mappings.
+
+        @param note         The MIDI note number for which the name is being requested.
+                            Some DAWs can request a note range outside of the standard
+                            [0-127]. Ensure your plugin can handle this.
+        @param midiChannel  The MIDI channel associated with the note. This is a 1-based
+                            index (1-16). Use this parameter if your plugin provides
+                            channel-specific note mappings.
+    */
+    virtual std::optional<String> getNameForMidiNoteNumber (int note, int midiChannel);
+
     //==============================================================================
     /** Helper function that just converts an xml element into a binary blob.
 
@@ -1333,7 +1359,7 @@ public:
         from a binary blob.
     */
     static void copyXmlToBinary (const XmlElement& xml,
-                                 juce::MemoryBlock& destData);
+                                 MemoryBlock& destData);
 
     /** Retrieves an XML element that was stored as binary with the copyXmlToBinary() method.
         This might return nullptr if the data's unsuitable or corrupted.

@@ -183,7 +183,7 @@
       </MODULEPATHS>
     </LINUX_MAKE>
     <VS2022 targetFolder="Builds/VisualStudio2022" smallIcon="zrVA6e" bigIcon="Hd60ks"
-            externalLibraries="..\..\rnnoise\libgcc.a&#10;..\..\rnnoise\libm.a&#10;..\..\rnnoise\libmingwex.a&#10;..\..\rnnoise\librnnoise.a&#10;">
+            externalLibraries="..\..\rnnoise\rnnoise.lib&#10;">
       <CONFIGURATIONS>
         <CONFIGURATION isDebug="1" name="Debug" targetName="AudioAnalyzer"/>
         <CONFIGURATION isDebug="0" name="Release" targetName="AudioAnalyzer"/>

@@ -645,11 +645,11 @@ void SoundProcessorModule::makeGraphAttributes()
 	cmp::GraphAttribute colourForLine;
 	colourForLine.graph_colour = juce::Colour
 	(
-		static_cast<juce::int8>(randomRGB.nextInt(juce::Range(100, 255)))
+		static_cast<juce::int8>(juce::Random::getSystemRandom().nextInt(juce::Range(100, 255)))
 		,
-		static_cast<juce::int8>(randomRGB.nextInt(juce::Range(100, 255)))
+		static_cast<juce::int8>(juce::Random::getSystemRandom().nextInt(juce::Range(100, 255)))
 		,
-		static_cast<juce::int8>(randomRGB.nextInt(juce::Range(100, 255)))
+		static_cast<juce::int8>(juce::Random::getSystemRandom().nextInt(juce::Range(100, 255)))
 	);
 	graph_attributes.push_back(colourForLine);
 }

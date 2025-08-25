@@ -149,8 +149,10 @@ public:
 	Task setTask();
 
 private:
+	double sysSampleRate = 48000.0f; // Hz
+
 	DenoiseState* rnnoiseState;
-	int frameSize;
+	int rnnoiseFrameSize;
 	bool useRnNoise = false;
 
 	int yLimIntervalMs = 5000;
@@ -165,7 +167,7 @@ private:
 
 	unsigned int fftOrder = defaultFFTValues::fftOrder;
 	unsigned int fftSize = defaultFFTValues::fftSize;
-	double curSampleRate = 44100.0f; // Hz
+	double curSampleRate = sysSampleRate;
 
 	std::shared_ptr<freqPlotModule> module_freqPlot;
 	std::vector <std::vector<float>> frequencyValues{ { 1 }, { 1 } };
