@@ -16,7 +16,7 @@
 enum  numInAndOutputs
 {
 	defaultNumInputChannels = 1
-	, defaultNumOutputChannels = 1
+	, defaultNumOutputChannels = 2
 };
 
 enum
