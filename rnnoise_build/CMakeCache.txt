@@ -18,7 +18,7 @@
 BUILD_EXAMPLES:BOOL=ON
 
 //Build tools (dump_features, dump_weights_blob)
-BUILD_TOOLS:BOOL=ON
+BUILD_TOOLS:BOOL=OFF
 
 //Path to a program.
 CMAKE_AR:FILEPATH=D:/Program_Files/Microsoft_Visual_Studio/2022/Preview/VC/Tools/MSVC/14.44.35207/bin/Hostx64/x64/lib.exe
@@ -192,10 +192,10 @@ CMAKE_STATIC_LINKER_FLAGS_RELWITHDEBINFO:STRING=
 CMAKE_VERBOSE_MAKEFILE:BOOL=OFF
 
 //Enable AVX2 optimized sources
-ENABLE_AVX2:BOOL=OFF
+ENABLE_AVX2:BOOL=ON
 
 //Enable SSE4.1 optimized sources
-ENABLE_SSE4_1:BOOL=OFF
+ENABLE_SSE4_1:BOOL=ON
 
 //Skip model download and extraction (use existing rnnoise_data.c)
 RNNOISE_SKIP_MODEL_DOWNLOAD:BOOL=OFF

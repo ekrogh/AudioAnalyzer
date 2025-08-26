@@ -174,14 +174,6 @@ if %errorlevel% neq 0 goto :VCEnd</Command>
       <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
       <CopyToOutputDirectory>Never</CopyToOutputDirectory>
     </ProjectReference>
-    <ProjectReference Include="D:\Users\eigil\projects\juceProjs\AudioAnalyzer\rnnoise_build\dump_features.vcxproj">
-      <Project>{CCFAEA6C-E6AE-3C86-90AB-FF7F36557E68}</Project>
-      <Name>dump_features</Name>
-    </ProjectReference>
-    <ProjectReference Include="D:\Users\eigil\projects\juceProjs\AudioAnalyzer\rnnoise_build\dump_weights_blob.vcxproj">
-      <Project>{D95A5ED4-09B8-328F-B7F9-FEF555C60F94}</Project>
-      <Name>dump_weights_blob</Name>
-    </ProjectReference>
     <ProjectReference Include="D:\Users\eigil\projects\juceProjs\AudioAnalyzer\rnnoise_build\rnnoise.vcxproj">
       <Project>{CD6E8A22-4C2D-345B-A147-5FF3B54CF5D8}</Project>
       <Name>rnnoise</Name>
@@ -189,10 +181,6 @@ if %errorlevel% neq 0 goto :VCEnd</Command>
     <ProjectReference Include="D:\Users\eigil\projects\juceProjs\AudioAnalyzer\rnnoise_build\rnnoise_demo.vcxproj">
       <Project>{5D7A2E53-5533-3EF0-8069-4997043189B4}</Project>
       <Name>rnnoise_demo</Name>
-    </ProjectReference>
-    <ProjectReference Include="D:\Users\eigil\projects\juceProjs\AudioAnalyzer\rnnoise_build\rnnoise_smoke.vcxproj">
-      <Project>{886E672C-81C4-3681-B89B-D1C28BF0E1AC}</Project>
-      <Name>rnnoise_smoke</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

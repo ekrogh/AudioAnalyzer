@@ -152,7 +152,7 @@ events:
       The output was:
       0
       MSBuild version 17.14.19+164abd434 for .NET Framework
-      Build started 26-08-2025 03:46:35.
+      Build started 26-08-2025 20:33:44.
       
       Project "D:\\Users\\eigil\\projects\\juceProjs\\AudioAnalyzer\\rnnoise_build\\CMakeFiles\\4.1.0\\CompilerIdC\\CompilerIdC.vcxproj" on node 1 (default targets).
       PrepareForBuild:
@@ -186,7 +186,7 @@ events:
           0 Warning(s)
           0 Error(s)
       
-      Time Elapsed 00:00:01.73
+      Time Elapsed 00:00:01.98
       
       
       Compilation of the C compiler identification source "CMakeCCompilerId.c" produced "CompilerIdC.exe"
@@ -2102,8 +2102,8 @@ events:
     checks:
       - "Detecting C compiler ABI info"
     directories:
-      source: "D:/Users/eigil/projects/juceProjs/AudioAnalyzer/rnnoise_build/CMakeFiles/CMakeScratch/TryCompile-ck7iv1"
-      binary: "D:/Users/eigil/projects/juceProjs/AudioAnalyzer/rnnoise_build/CMakeFiles/CMakeScratch/TryCompile-ck7iv1"
+      source: "D:/Users/eigil/projects/juceProjs/AudioAnalyzer/rnnoise_build/CMakeFiles/CMakeScratch/TryCompile-dwkgv1"
+      binary: "D:/Users/eigil/projects/juceProjs/AudioAnalyzer/rnnoise_build/CMakeFiles/CMakeScratch/TryCompile-dwkgv1"
     cmakeVariables:
       CMAKE_C_FLAGS: "/DWIN32 /D_WINDOWS"
       CMAKE_C_FLAGS_DEBUG: "/Zi /Ob0 /Od /RTC1"
@@ -2112,45 +2112,45 @@ events:
       variable: "CMAKE_C_ABI_COMPILED"
       cached: true
       stdout: |
-        Change Dir: 'D:/Users/eigil/projects/juceProjs/AudioAnalyzer/rnnoise_build/CMakeFiles/CMakeScratch/TryCompile-ck7iv1'
+        Change Dir: 'D:/Users/eigil/projects/juceProjs/AudioAnalyzer/rnnoise_build/CMakeFiles/CMakeScratch/TryCompile-dwkgv1'
         
-        Run Build Command(s): D:/Program_Files/Microsoft_Visual_Studio/2022/Preview/MSBuild/Current/Bin/amd64/MSBuild.exe cmTC_3be0e.vcxproj /p:Configuration=Debug /p:Platform=x64 /p:VisualStudioVersion=17.0 /v:n
+        Run Build Command(s): D:/Program_Files/Microsoft_Visual_Studio/2022/Preview/MSBuild/Current/Bin/amd64/MSBuild.exe cmTC_dfb3b.vcxproj /p:Configuration=Debug /p:Platform=x64 /p:VisualStudioVersion=17.0 /v:n
         MSBuild version 17.14.19+164abd434 for .NET Framework
-        Build started 26-08-2025 03:46:38.
+        Build started 26-08-2025 20:33:47.
         
-        Project "D:\\Users\\eigil\\projects\\juceProjs\\AudioAnalyzer\\rnnoise_build\\CMakeFiles\\CMakeScratch\\TryCompile-ck7iv1\\cmTC_3be0e.vcxproj" on node 1 (default targets).
+        Project "D:\\Users\\eigil\\projects\\juceProjs\\AudioAnalyzer\\rnnoise_build\\CMakeFiles\\CMakeScratch\\TryCompile-dwkgv1\\cmTC_dfb3b.vcxproj" on node 1 (default targets).
         PrepareForBuild:
-          Creating directory "cmTC_3be0e.dir\\Debug\\".
+          Creating directory "cmTC_dfb3b.dir\\Debug\\".
           Structured output is enabled. The formatting of compiler diagnostics will reflect the error hierarchy. See https://aka.ms/cpp/structured-output for more details.
-          Creating directory "D:\\Users\\eigil\\projects\\juceProjs\\AudioAnalyzer\\rnnoise_build\\CMakeFiles\\CMakeScratch\\TryCompile-ck7iv1\\Debug\\".
-          Creating directory "cmTC_3be0e.dir\\Debug\\cmTC_3be0e.tlog\\".
+          Creating directory "D:\\Users\\eigil\\projects\\juceProjs\\AudioAnalyzer\\rnnoise_build\\CMakeFiles\\CMakeScratch\\TryCompile-dwkgv1\\Debug\\".
+          Creating directory "cmTC_dfb3b.dir\\Debug\\cmTC_dfb3b.tlog\\".
         InitializeBuildStatus:
-          Creating "cmTC_3be0e.dir\\Debug\\cmTC_3be0e.tlog\\unsuccessfulbuild" because "AlwaysCreate" was specified.
-          Touching "cmTC_3be0e.dir\\Debug\\cmTC_3be0e.tlog\\unsuccessfulbuild".
+          Creating "cmTC_dfb3b.dir\\Debug\\cmTC_dfb3b.tlog\\unsuccessfulbuild" because "AlwaysCreate" was specified.
+          Touching "cmTC_dfb3b.dir\\Debug\\cmTC_dfb3b.tlog\\unsuccessfulbuild".
         VcpkgTripletSelection:
           Using triplet "x64-windows" from "D:\\Users\\eigil\\projects\\CPP\\vcpkg\\installed\\x64-windows\\"
           Using normalized configuration "Debug"
         ClCompile:
-          D:\\Program_Files\\Microsoft_Visual_Studio\\2022\\Preview\\VC\\Tools\\MSVC\\14.44.35207\\bin\\HostX64\\x64\\CL.exe /c /I"D:\\Users\\eigil\\projects\\CPP\\vcpkg\\installed\\x64-windows\\include" /Zi /W1 /WX- /diagnostics:column /Od /Ob0 /D _MBCS /D WIN32 /D _WINDOWS /D "CMAKE_INTDIR=\\"Debug\\"" /RTC1 /MDd /GS /fp:precise /Fo"cmTC_3be0e.dir\\Debug\\\\" /Fd"cmTC_3be0e.dir\\Debug\\vc143.pdb" /external:W1 /Gd /TC /errorReport:queue "D:\\Program_Files\\CMake\\share\\cmake-4.1\\Modules\\CMakeCCompilerABI.c"
+          D:\\Program_Files\\Microsoft_Visual_Studio\\2022\\Preview\\VC\\Tools\\MSVC\\14.44.35207\\bin\\HostX64\\x64\\CL.exe /c /I"D:\\Users\\eigil\\projects\\CPP\\vcpkg\\installed\\x64-windows\\include" /Zi /W1 /WX- /diagnostics:column /Od /Ob0 /D _MBCS /D WIN32 /D _WINDOWS /D "CMAKE_INTDIR=\\"Debug\\"" /RTC1 /MDd /GS /fp:precise /Fo"cmTC_dfb3b.dir\\Debug\\\\" /Fd"cmTC_dfb3b.dir\\Debug\\vc143.pdb" /external:W1 /Gd /TC /errorReport:queue "D:\\Program_Files\\CMake\\share\\cmake-4.1\\Modules\\CMakeCCompilerABI.c"
           Microsoft (R) C/C++ Optimizing Compiler Version 19.44.35215 for x64
           Copyright (C) Microsoft Corporation.  All rights reserved.
-          cl /c /I"D:\\Users\\eigil\\projects\\CPP\\vcpkg\\installed\\x64-windows\\include" /Zi /W1 /WX- /diagnostics:column /Od /Ob0 /D _MBCS /D WIN32 /D _WINDOWS /D "CMAKE_INTDIR=\\"Debug\\"" /RTC1 /MDd /GS /fp:precise /Fo"cmTC_3be0e.dir\\Debug\\\\" /Fd"cmTC_3be0e.dir\\Debug\\vc143.pdb" /external:W1 /Gd /TC /errorReport:queue "D:\\Program_Files\\CMake\\share\\cmake-4.1\\Modules\\CMakeCCompilerABI.c"
+          cl /c /I"D:\\Users\\eigil\\projects\\CPP\\vcpkg\\installed\\x64-windows\\include" /Zi /W1 /WX- /diagnostics:column /Od /Ob0 /D _MBCS /D WIN32 /D _WINDOWS /D "CMAKE_INTDIR=\\"Debug\\"" /RTC1 /MDd /GS /fp:precise /Fo"cmTC_dfb3b.dir\\Debug\\\\" /Fd"cmTC_dfb3b.dir\\Debug\\vc143.pdb" /external:W1 /Gd /TC /errorReport:queue "D:\\Program_Files\\CMake\\share\\cmake-4.1\\Modules\\CMakeCCompilerABI.c"
           CMakeCCompilerABI.c
         Link:
-          D:\\Program_Files\\Microsoft_Visual_Studio\\2022\\Preview\\VC\\Tools\\MSVC\\14.44.35207\\bin\\HostX64\\x64\\link.exe /OUT:"D:\\Users\\eigil\\projects\\juceProjs\\AudioAnalyzer\\rnnoise_build\\CMakeFiles\\CMakeScratch\\TryCompile-ck7iv1\\Debug\\cmTC_3be0e.exe" /INCREMENTAL /ILK:"cmTC_3be0e.dir\\Debug\\cmTC_3be0e.ilk" /NOLOGO /LIBPATH:"D:\\Users\\eigil\\projects\\CPP\\vcpkg\\installed\\x64-windows\\debug\\lib" /LIBPATH:"D:\\Users\\eigil\\projects\\CPP\\vcpkg\\installed\\x64-windows\\debug\\lib\\manual-link" kernel32.lib user32.lib gdi32.lib winspool.lib shell32.lib ole32.lib oleaut32.lib uuid.lib comdlg32.lib advapi32.lib "D:\\Users\\eigil\\projects\\CPP\\vcpkg\\installed\\x64-windows\\debug\\lib\\*.lib" /MANIFEST /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /manifest:embed /DEBUG /PDB:"D:/Users/eigil/projects/juceProjs/AudioAnalyzer/rnnoise_build/CMakeFiles/CMakeScratch/TryCompile-ck7iv1/Debug/cmTC_3be0e.pdb" /SUBSYSTEM:CONSOLE /TLBID:1 /IMPLIB:"D:/Users/eigil/projects/juceProjs/AudioAnalyzer/rnnoise_build/CMakeFiles/CMakeScratch/TryCompile-ck7iv1/Debug/cmTC_3be0e.lib" /MACHINE:X64  /machine:x64 cmTC_3be0e.dir\\Debug\\CMakeCCompilerABI.obj
-          cmTC_3be0e.vcxproj -> D:\\Users\\eigil\\projects\\juceProjs\\AudioAnalyzer\\rnnoise_build\\CMakeFiles\\CMakeScratch\\TryCompile-ck7iv1\\Debug\\cmTC_3be0e.exe
+          D:\\Program_Files\\Microsoft_Visual_Studio\\2022\\Preview\\VC\\Tools\\MSVC\\14.44.35207\\bin\\HostX64\\x64\\link.exe /OUT:"D:\\Users\\eigil\\projects\\juceProjs\\AudioAnalyzer\\rnnoise_build\\CMakeFiles\\CMakeScratch\\TryCompile-dwkgv1\\Debug\\cmTC_dfb3b.exe" /INCREMENTAL /ILK:"cmTC_dfb3b.dir\\Debug\\cmTC_dfb3b.ilk" /NOLOGO /LIBPATH:"D:\\Users\\eigil\\projects\\CPP\\vcpkg\\installed\\x64-windows\\debug\\lib" /LIBPATH:"D:\\Users\\eigil\\projects\\CPP\\vcpkg\\installed\\x64-windows\\debug\\lib\\manual-link" kernel32.lib user32.lib gdi32.lib winspool.lib shell32.lib ole32.lib oleaut32.lib uuid.lib comdlg32.lib advapi32.lib "D:\\Users\\eigil\\projects\\CPP\\vcpkg\\installed\\x64-windows\\debug\\lib\\*.lib" /MANIFEST /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /manifest:embed /DEBUG /PDB:"D:/Users/eigil/projects/juceProjs/AudioAnalyzer/rnnoise_build/CMakeFiles/CMakeScratch/TryCompile-dwkgv1/Debug/cmTC_dfb3b.pdb" /SUBSYSTEM:CONSOLE /TLBID:1 /IMPLIB:"D:/Users/eigil/projects/juceProjs/AudioAnalyzer/rnnoise_build/CMakeFiles/CMakeScratch/TryCompile-dwkgv1/Debug/cmTC_dfb3b.lib" /MACHINE:X64  /machine:x64 cmTC_dfb3b.dir\\Debug\\CMakeCCompilerABI.obj
+          cmTC_dfb3b.vcxproj -> D:\\Users\\eigil\\projects\\juceProjs\\AudioAnalyzer\\rnnoise_build\\CMakeFiles\\CMakeScratch\\TryCompile-dwkgv1\\Debug\\cmTC_dfb3b.exe
         AppLocalFromInstalled:
-          pwsh.exe -ExecutionPolicy Bypass -noprofile -File "D:\\Users\\eigil\\projects\\CPP\\vcpkg\\scripts\\buildsystems\\msbuild\\applocal.ps1" "D:\\Users\\eigil\\projects\\juceProjs\\AudioAnalyzer\\rnnoise_build\\CMakeFiles\\CMakeScratch\\TryCompile-ck7iv1\\Debug\\cmTC_3be0e.exe" "D:\\Users\\eigil\\projects\\CPP\\vcpkg\\installed\\x64-windows\\debug\\bin" "cmTC_3be0e.dir\\Debug\\cmTC_3be0e.tlog\\cmTC_3be0e.write.1u.tlog" "cmTC_3be0e.dir\\Debug\\vcpkg.applocal.log"
+          pwsh.exe -ExecutionPolicy Bypass -noprofile -File "D:\\Users\\eigil\\projects\\CPP\\vcpkg\\scripts\\buildsystems\\msbuild\\applocal.ps1" "D:\\Users\\eigil\\projects\\juceProjs\\AudioAnalyzer\\rnnoise_build\\CMakeFiles\\CMakeScratch\\TryCompile-dwkgv1\\Debug\\cmTC_dfb3b.exe" "D:\\Users\\eigil\\projects\\CPP\\vcpkg\\installed\\x64-windows\\debug\\bin" "cmTC_dfb3b.dir\\Debug\\cmTC_dfb3b.tlog\\cmTC_dfb3b.write.1u.tlog" "cmTC_dfb3b.dir\\Debug\\vcpkg.applocal.log"
         FinalizeBuildStatus:
-          Deleting file "cmTC_3be0e.dir\\Debug\\cmTC_3be0e.tlog\\unsuccessfulbuild".
-          Touching "cmTC_3be0e.dir\\Debug\\cmTC_3be0e.tlog\\cmTC_3be0e.lastbuildstate".
-        Done Building Project "D:\\Users\\eigil\\projects\\juceProjs\\AudioAnalyzer\\rnnoise_build\\CMakeFiles\\CMakeScratch\\TryCompile-ck7iv1\\cmTC_3be0e.vcxproj" (default targets).
+          Deleting file "cmTC_dfb3b.dir\\Debug\\cmTC_dfb3b.tlog\\unsuccessfulbuild".
+          Touching "cmTC_dfb3b.dir\\Debug\\cmTC_dfb3b.tlog\\cmTC_dfb3b.lastbuildstate".
+        Done Building Project "D:\\Users\\eigil\\projects\\juceProjs\\AudioAnalyzer\\rnnoise_build\\CMakeFiles\\CMakeScratch\\TryCompile-dwkgv1\\cmTC_dfb3b.vcxproj" (default targets).
         
         Build succeeded.
             0 Warning(s)
             0 Error(s)
         
-        Time Elapsed 00:00:01.65
+        Time Elapsed 00:00:01.62
         
       exitCode: 0
   -
