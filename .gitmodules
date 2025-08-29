@@ -1,4 +1,8 @@
 [submodule "cmake_rnnoise"]
 	path = cmake_rnnoise
-	url = ../cmake_rnnoise.git
+	url = ../cmake_rnnoise
 	branch = main
+[submodule "rnnoise"]
+	path = rnnoise
+	url = ../rnnoise
+	branch = Branch_v0.2
