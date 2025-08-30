@@ -112,6 +112,38 @@ target_link_libraries(AudioAnalyzer
         juce::juce_gui_extra
 )
 
+# Define ANDROID_VERSION_CODE by reading from the .jucer if available.
+# You can also override via -DANDROID_VERSION_CODE=123 when configuring.
+set(ANDROID_VERSION_CODE "${ANDROID_VERSION_CODE}" CACHE STRING "Android versionCode for macro ANDROID_VERSION_CODE (auto-read from .jucer if empty)")
+
+if (NOT ANDROID_VERSION_CODE)
+    set(_JUCER_FILE "${CMAKE_SOURCE_DIR}/AudioAnalyzer.jucer")
+    if (EXISTS "${_JUCER_FILE}")
+        file(READ "${_JUCER_FILE}" _JUCER_XML)
+        # Prefer extraDefs entry like: extraDefs="ANDROID_VERSION_CODE=2"
+        string(REGEX MATCH "extraDefs=\"([^\"]*)\"" _matchExtra "${_JUCER_XML}")
+        if (_matchExtra)
+            set(_extraDefs "${CMAKE_MATCH_1}")
+            string(REGEX MATCH "ANDROID_VERSION_CODE=([0-9]+)" _matchAvc "${_extraDefs}")
+            if (_matchAvc)
+                set(ANDROID_VERSION_CODE "${CMAKE_MATCH_1}")
+            endif()
+        endif()
+        # Fallback to exporter attribute: androidVersionCode="2"
+        if (NOT ANDROID_VERSION_CODE)
+            string(REGEX MATCH "androidVersionCode=\"([0-9]+)\"" _matchVer "${_JUCER_XML}")
+            if (_matchVer)
+                set(ANDROID_VERSION_CODE "${CMAKE_MATCH_1}")
+            endif()
+        endif()
+    endif()
+endif()
+
+if (ANDROID_VERSION_CODE)
+    message(STATUS "Defining ANDROID_VERSION_CODE=${ANDROID_VERSION_CODE}")
+    target_compile_definitions(AudioAnalyzer PRIVATE "ANDROID_VERSION_CODE=${ANDROID_VERSION_CODE}")
+endif()
+
 # Link rnnoise; handle common target names defensively
 if (TARGET rnnoise)
     target_link_libraries(AudioAnalyzer PRIVATE rnnoise)
