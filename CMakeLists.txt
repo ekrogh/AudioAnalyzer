@@ -212,17 +212,42 @@ else()
     message(STATUS "adb not found. Set ANDROID_SDK_ROOT or add platform-tools to PATH to enable android_devices target.")
 endif()
 
+# Read SDK/NDK paths from local.properties (if present) and prepare environment for Gradle
+set(AA_SDK_DIR "")
+set(AA_NDK_DIR "")
+set(_AA_LOCAL_PROPERTIES "${AA_ANDROID_DIR}/local.properties")
+if (EXISTS "${_AA_LOCAL_PROPERTIES}")
+    file(READ "${_AA_LOCAL_PROPERTIES}" _AA_LP)
+    string(REGEX MATCH "sdk\.dir=([^\r\n]+)" _aa_sdk_match "${_AA_LP}")
+    if (_aa_sdk_match)
+        set(AA_SDK_DIR "${CMAKE_MATCH_1}")
+        file(TO_CMAKE_PATH "${AA_SDK_DIR}" AA_SDK_DIR)
+    endif()
+    string(REGEX MATCH "ndk\.dir=([^\r\n]+)" _aa_ndk_match "${_AA_LP}")
+    if (_aa_ndk_match)
+        set(AA_NDK_DIR "${CMAKE_MATCH_1}")
+        file(TO_CMAKE_PATH "${AA_NDK_DIR}" AA_NDK_DIR)
+    endif()
+endif()
+set(AA_ENV_ARGS)
+if (AA_SDK_DIR)
+    list(APPEND AA_ENV_ARGS "ANDROID_SDK_ROOT=${AA_SDK_DIR}" "ANDROID_HOME=${AA_SDK_DIR}")
+endif()
+if (AA_NDK_DIR)
+    list(APPEND AA_ENV_ARGS "ANDROID_NDK_HOME=${AA_NDK_DIR}" "ANDROID_NDK_ROOT=${AA_NDK_DIR}")
+endif()
+
 if (EXISTS "${GRADLEW}")
     # Build Debug APK (both ABIs configured in build.gradle)
     add_custom_target(android_assemble_debug
-        COMMAND "${GRADLEW}" -p "${AA_ANDROID_DIR}" :app:assembleDebug --no-daemon --console=plain
+        COMMAND ${CMAKE_COMMAND} -E env ${AA_ENV_ARGS} "${GRADLEW}" -p "${AA_ANDROID_DIR}" :app:assembleDebug --no-daemon --console=plain
         WORKING_DIRECTORY "${AA_ANDROID_DIR}"
         COMMENT "Assembling Android Debug APKs via Gradle"
         USES_TERMINAL)
 
     # Install Debug on a connected device/emulator (JUCE flavor name)
     add_custom_target(android_install_debug
-        COMMAND "${GRADLEW}" -p "${AA_ANDROID_DIR}" :app:installDebug_Debug --no-daemon --console=plain
+        COMMAND ${CMAKE_COMMAND} -E env ${AA_ENV_ARGS} "${GRADLEW}" -p "${AA_ANDROID_DIR}" :app:installDebug_Debug --no-daemon --console=plain
         WORKING_DIRECTORY "${AA_ANDROID_DIR}"
         COMMENT "Installing Android Debug APK on connected device"
         USES_TERMINAL)
@@ -230,12 +255,12 @@ if (EXISTS "${GRADLEW}")
     # ABI-specific assemble/install helpers (useful for emulators/devices)
     foreach(ABI IN ITEMS x86_64 arm64-v8a armeabi-v7a)
         add_custom_target(android_assemble_debug_${ABI}
-            COMMAND "${GRADLEW}" -p "${AA_ANDROID_DIR}" :app:assembleDebug -Pandroid.injected.build.abi=${ABI} --no-daemon --console=plain
+            COMMAND ${CMAKE_COMMAND} -E env ${AA_ENV_ARGS} "${GRADLEW}" -p "${AA_ANDROID_DIR}" :app:assembleDebug -Pandroid.injected.build.abi=${ABI} --no-daemon --console=plain
             WORKING_DIRECTORY "${AA_ANDROID_DIR}"
             COMMENT "Assembling Android Debug APK for ABI ${ABI}"
             USES_TERMINAL)
         add_custom_target(android_install_debug_${ABI}
-            COMMAND "${GRADLEW}" -p "${AA_ANDROID_DIR}" :app:installDebug_Debug -Pandroid.injected.build.abi=${ABI} --no-daemon --console=plain
+            COMMAND ${CMAKE_COMMAND} -E env ${AA_ENV_ARGS} "${GRADLEW}" -p "${AA_ANDROID_DIR}" :app:installDebug_Debug -Pandroid.injected.build.abi=${ABI} --no-daemon --console=plain
             WORKING_DIRECTORY "${AA_ANDROID_DIR}"
             COMMENT "Installing Android Debug APK (ABI ${ABI}) on connected device"
             USES_TERMINAL)
@@ -260,7 +285,7 @@ if (EXISTS "${GRADLEW}")
 
     # Clean Gradle project (useful after CMake changes)
     add_custom_target(android_clean
-        COMMAND "${GRADLEW}" -p "${AA_ANDROID_DIR}" clean --no-daemon --console=plain
+        COMMAND ${CMAKE_COMMAND} -E env ${AA_ENV_ARGS} "${GRADLEW}" -p "${AA_ANDROID_DIR}" clean --no-daemon --console=plain
         WORKING_DIRECTORY "${AA_ANDROID_DIR}"
         COMMENT "Cleaning Android Gradle project"
         USES_TERMINAL)
