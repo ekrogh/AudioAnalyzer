@@ -3,7 +3,7 @@
 <JUCERPROJECT id="SUXWw8" name="AudioAnalyzer" projectType="guiapp" useAppConfig="0"
               displaySplashScreen="1" jucerFormatVersion="1" companyWebsite="www.eksit.dk"
               bundleIdentifier="dk.eksit.AudioAnalyzer" cppLanguageStandard="latest"
-              version="1.2.2" headerPath="../../rnnoise">
+              version="1.2.2" headerPath="../../rnnoise/include">
   <MAINGROUP id="J330RL" name="AudioAnalyzer">
     <GROUP id="{444701EC-2BDB-E376-CB2D-A176BB8655A4}" name="Source">
       <GROUP id="{E0980DD4-085C-A615-407B-AC22978106DF}" name="Resources">
@@ -120,7 +120,7 @@
     <ANDROIDSTUDIO targetFolder="Builds/Android" microphonePermissionNeeded="1"
                    gradleVersion="8.13" gradleWrapperVersion="8.12.2" androidEnableContentSharing="1"
                    smallIcon="zrVA6e" bigIcon="Hd60ks" extraDefs="ANDROID_VERSION_CODE=2"
-                   androidVersionCode="2" androidMinimumSDK="21" androidInternetNeeded="0"
+                   androidVersionCode="2" androidMinimumSDK="30" androidInternetNeeded="0"
                    androidKeyStore="../../../Android_Special/keystore.jks" androidKeyStorePass="6taura"
                    androidKeyAlias="upload" androidKeyAliasPass="6taura">
       <CONFIGURATIONS>

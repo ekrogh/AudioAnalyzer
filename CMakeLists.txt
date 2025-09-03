@@ -1,3 +1,6 @@
+# CMake 4.1.0 is the Android SDK-bundled version string, but projects typically
+# require at least 3.19+ for modern JUCE CMake. Keep the minimum low for the
+# Gradle file-api, but gracefully handle newer hosts.
 cmake_minimum_required(VERSION 3.19)
 
 # Project
@@ -19,6 +22,15 @@ set(JUCE_BUILD_EXTRAS OFF   CACHE BOOL "" FORCE)
 set(JUCE_BUILD_HELPER_TOOLS OFF CACHE BOOL "" FORCE)
 if (ANDROID)
     set(JUCE_BUILD_TOOLS OFF CACHE BOOL "" FORCE)
+    # Ensure juceaide builds for host even when cross-compiling via Gradle.
+    # On Windows, prefer Visual Studio generator for the helper.
+    if (WIN32)
+        set(JUCE_HOST_GENERATOR "Visual Studio 17 2022" CACHE STRING "Host generator for juceaide")
+        # Let users override these via -DJUCE_HOST_C_COMPILER/CXX but provide sensible defaults.
+        if (DEFINED ENV{VSINSTALLDIR})
+            # Assume cl.exe is on PATH in a VS developer prompt; otherwise leave unset.
+        endif()
+    endif()
 endif()
 
 # Place JUCE's binary directory in a small third-party folder, not at ${CMAKE_BINARY_DIR}/JUCE
@@ -88,6 +100,11 @@ target_include_directories(AudioAnalyzer PRIVATE
     ${RNNOISE_DIR}/include
 )
 
+# Ensure Android shared library target also sees rnnoise headers when JUCE names it 'juce_jni'
+if (TARGET juce_jni)
+    target_include_directories(juce_jni PRIVATE ${RNNOISE_DIR} ${RNNOISE_DIR}/include)
+endif()
+
 # JUCE compile definitions from .jucer
 target_compile_definitions(AudioAnalyzer PRIVATE
     JUCE_STRICT_REFCOUNTEDPOINTER=1
@@ -113,6 +130,12 @@ target_link_libraries(AudioAnalyzer
         juce::juce_gui_basics
         juce::juce_gui_extra
 )
+
+# Ensure Android JNI library has the expected name so JUCE's Java loads it.
+if (ANDROID)
+    # JUCE Java bootstrap calls System.loadLibrary("juce_jni")
+    set_target_properties(AudioAnalyzer PROPERTIES OUTPUT_NAME "juce_jni")
+endif()
 
 # Define ANDROID_VERSION_CODE by reading from the .jucer if available.
 # You can also override via -DANDROID_VERSION_CODE=123 when configuring.
