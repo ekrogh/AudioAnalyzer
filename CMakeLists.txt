@@ -135,6 +135,16 @@ target_link_libraries(AudioAnalyzer
 if (ANDROID)
     # JUCE Java bootstrap calls System.loadLibrary("juce_jni")
     set_target_properties(AudioAnalyzer PROPERTIES OUTPUT_NAME "juce_jni")
+
+    # Ensure JUCE registers native callbacks for JuceActivity (appOnResume/appNewIntent)
+    # juce_gui_basics/native/juce_Windowing_android.cpp guards the registration
+    # with JUCE_PUSH_NOTIFICATIONS_ACTIVITY and expects a string literal classpath.
+    # Also enable JUCE_PUSH_NOTIFICATIONS so juce_handleNotificationIntent is declared/defined
+    # when building juce_gui_basics together with juce_gui_extra on Android.
+    target_compile_definitions(AudioAnalyzer PRIVATE
+        JUCE_PUSH_NOTIFICATIONS=1
+        JUCE_PUSH_NOTIFICATIONS_ACTIVITY=\"com/rmsl/juce/JuceActivity\"
+    )
 endif()
 
 # Define ANDROID_VERSION_CODE by reading from the .jucer if available.
