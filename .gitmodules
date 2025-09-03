@@ -5,3 +5,6 @@
 [submodule "rnnoise"]
 	path = rnnoise
 	url = https://github.com/ekrogh/rnnoise.git
+[submodule "JUCE"]
+	path = JUCE
+	url = https://github.com/ekrogh/JUCE
