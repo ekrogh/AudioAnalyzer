@@ -158,7 +158,10 @@ else()
 endif()
 
 # Platform tweaks
-if (APPLE)
+if (ANDROID)
+    # On Android, avoid CURL and UNIX-specific linkage; JUCE handles NDK libs
+    target_compile_definitions(AudioAnalyzer PRIVATE JUCE_USE_CURL=0)
+elseif (APPLE)
     # Example: additional frameworks if needed
     target_link_libraries(AudioAnalyzer PRIVATE "-framework AVFoundation")
 elseif (WIN32)
@@ -217,13 +220,43 @@ if (EXISTS "${GRADLEW}")
         COMMENT "Assembling Android Debug APKs via Gradle"
         USES_TERMINAL)
 
-    # Install Debug on a connected device/emulator
-    # Standard task name is :app:installDebug
+    # Install Debug on a connected device/emulator (JUCE flavor name)
     add_custom_target(android_install_debug
-        COMMAND "${GRADLEW}" -p "${AA_ANDROID_DIR}" :app:installDebug --no-daemon --console=plain
+        COMMAND "${GRADLEW}" -p "${AA_ANDROID_DIR}" :app:installDebug_Debug --no-daemon --console=plain
         WORKING_DIRECTORY "${AA_ANDROID_DIR}"
         COMMENT "Installing Android Debug APK on connected device"
         USES_TERMINAL)
+
+    # ABI-specific assemble/install helpers (useful for emulators/devices)
+    foreach(ABI IN ITEMS x86_64 arm64-v8a armeabi-v7a)
+        add_custom_target(android_assemble_debug_${ABI}
+            COMMAND "${GRADLEW}" -p "${AA_ANDROID_DIR}" :app:assembleDebug -Pandroid.injected.build.abi=${ABI} --no-daemon --console=plain
+            WORKING_DIRECTORY "${AA_ANDROID_DIR}"
+            COMMENT "Assembling Android Debug APK for ABI ${ABI}"
+            USES_TERMINAL)
+        add_custom_target(android_install_debug_${ABI}
+            COMMAND "${GRADLEW}" -p "${AA_ANDROID_DIR}" :app:installDebug_Debug -Pandroid.injected.build.abi=${ABI} --no-daemon --console=plain
+            WORKING_DIRECTORY "${AA_ANDROID_DIR}"
+            COMMENT "Installing Android Debug APK (ABI ${ABI}) on connected device"
+            USES_TERMINAL)
+    endforeach()
+
+    # Launch the app on a connected device/emulator
+    if (ADB_EXECUTABLE)
+        # Package and default JUCE activity
+        set(AA_ANDROID_PACKAGE   "dk.eksit.audioanalyzer")
+        set(AA_ANDROID_ACTIVITY  "com.rmsl.juce.JuceActivity")
+
+        add_custom_target(android_launch
+            COMMAND "${ADB_EXECUTABLE}" shell am start -a android.intent.action.MAIN -c android.intent.category.LAUNCHER -n ${AA_ANDROID_PACKAGE}/${AA_ANDROID_ACTIVITY}
+            COMMENT "Starting ${AA_ANDROID_PACKAGE} on connected Android device"
+            USES_TERMINAL)
+
+        add_custom_target(android_logcat
+            COMMAND "${ADB_EXECUTABLE}" logcat -v time
+            COMMENT "Streaming adb logcat (Ctrl+C to stop)"
+            USES_TERMINAL)
+    endif()
 
     # Clean Gradle project (useful after CMake changes)
     add_custom_target(android_clean
