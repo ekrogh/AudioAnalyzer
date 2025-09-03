@@ -181,3 +181,56 @@ endif()
 # Install rules (optional)
 include(GNUInstallDirs)
 install(TARGETS AudioAnalyzer RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR} BUNDLE DESTINATION .)
+
+# --- Convenience targets for Android SDK/Gradle and device listing ---
+# Provide these targets regardless of whether CMake was configured with ANDROID toolchain,
+# so they are clickable in VS/CMake UI.
+set(AA_ANDROID_DIR "${CMAKE_SOURCE_DIR}/Builds/Android")
+set(AA_APP_DIR     "${AA_ANDROID_DIR}/app")
+if (WIN32)
+    set(GRADLEW "${AA_ANDROID_DIR}/gradlew.bat")
+else()
+    set(GRADLEW "${AA_ANDROID_DIR}/gradlew")
+endif()
+
+# Try to locate adb even when it's not on PATH
+find_program(ADB_EXECUTABLE NAMES adb
+    HINTS "$ENV{ANDROID_SDK_ROOT}" "$ENV{ANDROID_HOME}" "$ENV{LOCALAPPDATA}/Android/Sdk"
+    PATH_SUFFIXES platform-tools
+)
+
+if (ADB_EXECUTABLE)
+    add_custom_target(android_devices
+        COMMAND "${ADB_EXECUTABLE}" devices
+        WORKING_DIRECTORY "${AA_ANDROID_DIR}"
+        COMMENT "Listing connected Android devices"
+        USES_TERMINAL)
+else()
+    message(STATUS "adb not found. Set ANDROID_SDK_ROOT or add platform-tools to PATH to enable android_devices target.")
+endif()
+
+if (EXISTS "${GRADLEW}")
+    # Build Debug APK (both ABIs configured in build.gradle)
+    add_custom_target(android_assemble_debug
+        COMMAND "${GRADLEW}" -p "${AA_ANDROID_DIR}" :app:assembleDebug --no-daemon --console=plain
+        WORKING_DIRECTORY "${AA_ANDROID_DIR}"
+        COMMENT "Assembling Android Debug APKs via Gradle"
+        USES_TERMINAL)
+
+    # Install Debug on a connected device/emulator
+    # Standard task name is :app:installDebug
+    add_custom_target(android_install_debug
+        COMMAND "${GRADLEW}" -p "${AA_ANDROID_DIR}" :app:installDebug --no-daemon --console=plain
+        WORKING_DIRECTORY "${AA_ANDROID_DIR}"
+        COMMENT "Installing Android Debug APK on connected device"
+        USES_TERMINAL)
+
+    # Clean Gradle project (useful after CMake changes)
+    add_custom_target(android_clean
+        COMMAND "${GRADLEW}" -p "${AA_ANDROID_DIR}" clean --no-daemon --console=plain
+        WORKING_DIRECTORY "${AA_ANDROID_DIR}"
+        COMMENT "Cleaning Android Gradle project"
+        USES_TERMINAL)
+else()
+    message(STATUS "Gradle wrapper not found at ${GRADLEW}. Android Gradle targets will be unavailable.")
+endif()
