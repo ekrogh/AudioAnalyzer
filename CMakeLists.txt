@@ -8,19 +8,21 @@ set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
-# Allow overriding local JUCE source path; default to sibling JUCE directory (../JUCE)
-set(JUCE_SOURCE_DIR "${CMAKE_SOURCE_DIR}/../JUCE" CACHE PATH "Path to local JUCE checkout (contains CMakeLists.txt and modules/)")
-
-# Try to locate JUCE (prefer a package install, else fall back to subdirectory)
-find_package(JUCE CONFIG QUIET)
-if (NOT JUCE_FOUND)
-    if (EXISTS "${JUCE_SOURCE_DIR}/CMakeLists.txt")
-        message(STATUS "JUCE package not found; adding JUCE from ${JUCE_SOURCE_DIR}")
-        add_subdirectory("${JUCE_SOURCE_DIR}" JUCE)
-    else()
-        message(FATAL_ERROR "JUCE not found. Either install JUCE and ensure JUCEConfig.cmake is discoverable, or set JUCE_SOURCE_DIR to your JUCE checkout (path containing CMakeLists.txt). Current JUCE_SOURCE_DIR='${JUCE_SOURCE_DIR}'.")
-    endif()
+# JUCE: add from submodule at ./JUCE (per JUCE CMake API guidance)
+if (NOT EXISTS "${CMAKE_SOURCE_DIR}/JUCE/CMakeLists.txt")
+    message(FATAL_ERROR "JUCE submodule not found at ${CMAKE_SOURCE_DIR}/JUCE. Initialize submodules with: git submodule update --init --recursive")
 endif()
+
+# Keep JUCE build files contained and avoid building extras/tools
+set(JUCE_BUILD_EXAMPLES OFF CACHE BOOL "" FORCE)
+set(JUCE_BUILD_EXTRAS OFF   CACHE BOOL "" FORCE)
+set(JUCE_BUILD_HELPER_TOOLS OFF CACHE BOOL "" FORCE)
+if (ANDROID)
+    set(JUCE_BUILD_TOOLS OFF CACHE BOOL "" FORCE)
+endif()
+
+# Place JUCE's binary directory in a small third-party folder, not at ${CMAKE_BINARY_DIR}/JUCE
+add_subdirectory("${CMAKE_SOURCE_DIR}/JUCE" "${CMAKE_BINARY_DIR}/_third_party/juce")
 
 # rnnoise: now included as a git submodule within this repo
 set(RNNOISE_DIR "${CMAKE_SOURCE_DIR}/rnnoise" CACHE PATH "Path to rnnoise project root (defaults to submodule at ./rnnoise)")
