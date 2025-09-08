@@ -3,6 +3,13 @@ cmake_minimum_required(VERSION 3.19)
 # Project
 project(AudioAnalyzer VERSION 1.2.2 LANGUAGES C CXX)
 
+# When using Ninja, suppress CMake's auto-regeneration step which triggers
+# the slow "Re-checking globbed directories..." phase on each build.
+# This keeps android_* helper targets snappy to execute.
+if (CMAKE_GENERATOR MATCHES "Ninja")
+    set(CMAKE_SUPPRESS_REGENERATION ON)
+endif()
+
 # Options derived from .jucer
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -42,13 +49,13 @@ juce_add_gui_app(AudioAnalyzer
 # # Ensure JUCE generates and exposes the canonical JuceHeader.h for this target
 #juce_generate_juce_header(AudioAnalyzer)
 
-# Embed resources with JUCE's binary-data target and link to the app
-juce_add_binary_data(AudioAnalyzerData
-    SOURCES
-    Source/audioAnalyzer_large_icon.png
-    Source/audioAnalyzer_small_icon.png
-        Source/audioanalyzerfirstimage.png
-)
+# Remove JUCE binary-data target that referenced missing files and instead compile existing JuceLibraryCode/BinaryData.cpp
+# juce_add_binary_data(AudioAnalyzerData
+#     SOURCES
+#     Source/audioAnalyzer_large_icon.png
+#     Source/audioAnalyzer_small_icon.png
+#     Source/audioanalyzerfirstimage.png
+# )
 
 # Sources from the .jucer (compile="1")
 target_sources(AudioAnalyzer PRIVATE
@@ -77,9 +84,12 @@ target_sources(AudioAnalyzer PRIVATE
     Source/PlotModule.cpp
     Source/SoundProcessorModule.cpp
     Source/SpectrogramComponent.cpp
+
+    # Existing generated binary data implementation from JuceLibraryCode
+    JuceLibraryCode/BinaryData.cpp
 )
 
-# Include dirs (headerPath in .jucer points to rnnoise; add Source/ and JuceLibraryCode as well)
+# Include dirs (headerPath in .jucer points to rnnoise; add Source/and JuceLibraryCode as well)
 target_include_directories(AudioAnalyzer PRIVATE
     ${CMAKE_SOURCE_DIR}/Source
     ${CMAKE_SOURCE_DIR}/JuceLibraryCode
@@ -99,7 +109,6 @@ target_compile_definitions(AudioAnalyzer PRIVATE
 # Link JUCE modules (match modules in .jucer)
 target_link_libraries(AudioAnalyzer
     PRIVATE
-    AudioAnalyzerData
         juce::juce_audio_basics
         juce::juce_audio_devices
         juce::juce_audio_formats
@@ -183,54 +192,69 @@ include(GNUInstallDirs)
 install(TARGETS AudioAnalyzer RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR} BUNDLE DESTINATION .)
 
 # --- Convenience targets for Android SDK/Gradle and device listing ---
-# Provide these targets regardless of whether CMake was configured with ANDROID toolchain,
-# so they are clickable in VS/CMake UI.
-set(AA_ANDROID_DIR "${CMAKE_SOURCE_DIR}/Builds/Android")
-set(AA_APP_DIR     "${AA_ANDROID_DIR}/app")
-if (WIN32)
-    set(GRADLEW "${AA_ANDROID_DIR}/gradlew.bat")
-else()
-    set(GRADLEW "${AA_ANDROID_DIR}/gradlew")
-endif()
+# Default ON so the android_* targets are available without extra flags
+option(AA_ENABLE_ANDROID_HELPERS "Add convenience android_* targets (adb/logcat/gradle)" ON)
 
-# Try to locate adb even when it's not on PATH
-find_program(ADB_EXECUTABLE NAMES adb
-    HINTS "$ENV{ANDROID_SDK_ROOT}" "$ENV{ANDROID_HOME}" "$ENV{LOCALAPPDATA}/Android/Sdk"
-    PATH_SUFFIXES platform-tools
-)
+if (AA_ENABLE_ANDROID_HELPERS)
+    set(AA_ANDROID_DIR "${CMAKE_SOURCE_DIR}/Builds/Android")
+    set(AA_APP_DIR     "${AA_ANDROID_DIR}/app")
+    set(AA_ANDROID_APPLICATION_ID "dk.eksit.audioanalyzer" CACHE STRING "Android applicationId used for logcat filtering")
 
-if (ADB_EXECUTABLE)
-    add_custom_target(android_devices
-        COMMAND "${ADB_EXECUTABLE}" devices
-        WORKING_DIRECTORY "${AA_ANDROID_DIR}"
-        COMMENT "Listing connected Android devices"
-        USES_TERMINAL)
-else()
-    message(STATUS "adb not found. Set ANDROID_SDK_ROOT or add platform-tools to PATH to enable android_devices target.")
-endif()
+    if (WIN32)
+        set(GRADLEW "${AA_ANDROID_DIR}/gradlew.bat")
+    else()
+        set(GRADLEW "${AA_ANDROID_DIR}/gradlew")
+    endif()
 
-if (EXISTS "${GRADLEW}")
-    # Build Debug APK (both ABIs configured in build.gradle)
-    add_custom_target(android_assemble_debug
-        COMMAND "${GRADLEW}" -p "${AA_ANDROID_DIR}" :app:assembleDebug --no-daemon --console=plain
-        WORKING_DIRECTORY "${AA_ANDROID_DIR}"
-        COMMENT "Assembling Android Debug APKs via Gradle"
-        USES_TERMINAL)
+    # Try to locate adb even when it's not on PATH
+    find_program(ADB_EXECUTABLE NAMES adb
+        HINTS "$ENV{ANDROID_SDK_ROOT}" "$ENV{ANDROID_HOME}" "$ENV{LOCALAPPDATA}/Android/Sdk"
+        PATH_SUFFIXES platform-tools
+    )
 
-    # Install Debug on a connected device/emulator
-    # Standard task name is :app:installDebug
-    add_custom_target(android_install_debug
-        COMMAND "${GRADLEW}" -p "${AA_ANDROID_DIR}" :app:installDebug --no-daemon --console=plain
-        WORKING_DIRECTORY "${AA_ANDROID_DIR}"
-        COMMENT "Installing Android Debug APK on connected device"
-        USES_TERMINAL)
+    if (ADB_EXECUTABLE)
+        add_custom_target(android_devices
+            COMMAND ${ADB_EXECUTABLE} devices
+            WORKING_DIRECTORY ${AA_ANDROID_DIR}
+            USES_TERMINAL
+            COMMENT "Listing connected Android devices")
 
-    # Clean Gradle project (useful after CMake changes)
-    add_custom_target(android_clean
-        COMMAND "${GRADLEW}" -p "${AA_ANDROID_DIR}" clean --no-daemon --console=plain
-        WORKING_DIRECTORY "${AA_ANDROID_DIR}"
-        COMMENT "Cleaning Android Gradle project"
-        USES_TERMINAL)
-else()
-    message(STATUS "Gradle wrapper not found at ${GRADLEW}. Android Gradle targets will be unavailable.")
+        add_custom_target(android_logcat
+            COMMAND ${ADB_EXECUTABLE} logcat
+            WORKING_DIRECTORY ${AA_ANDROID_DIR}
+            USES_TERMINAL
+            COMMENT "Streaming Android logcat (all)")
+
+        add_custom_target(android_logcat_clear
+            COMMAND ${ADB_EXECUTABLE} logcat -c
+            WORKING_DIRECTORY ${AA_ANDROID_DIR}
+            USES_TERMINAL
+            COMMENT "Clearing Android logcat buffer")
+
+        # Note: a per-app filtered logcat target is intentionally omitted to avoid shell quoting issues on Windows
+    else()
+        message(STATUS "adb not found. Set ANDROID_SDK_ROOT or add platform-tools to PATH to enable android_* convenience targets.")
+    endif()
+
+    if (EXISTS "${GRADLEW}")
+        add_custom_target(android_assemble_debug
+            COMMAND ${GRADLEW} -p ${AA_ANDROID_DIR} :app:assembleDebug_Debug --console=plain
+            WORKING_DIRECTORY ${AA_ANDROID_DIR}
+            USES_TERMINAL
+            COMMENT "Assembling Android Debug APKs via Gradle")
+
+        add_custom_target(android_install_debug
+            COMMAND ${GRADLEW} -p ${AA_ANDROID_DIR} :app:installDebug_Debug --console=plain
+            WORKING_DIRECTORY ${AA_ANDROID_DIR}
+            USES_TERMINAL
+            COMMENT "Installing Android Debug APK on connected device")
+
+        add_custom_target(android_clean
+            COMMAND ${GRADLEW} -p ${AA_ANDROID_DIR} clean --console=plain
+            WORKING_DIRECTORY ${AA_ANDROID_DIR}
+            USES_TERMINAL
+            COMMENT "Cleaning Android Gradle project")
+    else()
+        message(STATUS "Gradle wrapper not found at ${GRADLEW}. Android Gradle targets will be unavailable.")
+    endif()
 endif()
