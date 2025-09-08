@@ -1,0 +1,51 @@
+{
+  "version": 6,
+  "cmakeMinimumRequired": {
+    "major": 3,
+    "minor": 19,
+    "patch": 0
+  },
+  "configurePresets": [
+    {
+      "name": "x64-Debug",
+      "displayName": "x64 Debug (Ninja)",
+      "generator": "Ninja",
+      "binaryDir": "${sourceDir}/out/build/${presetName}",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Debug",
+        "AA_ENABLE_ANDROID_HELPERS": true,
+        "RNNOISE_SKIP_MODEL_DOWNLOAD": true,
+        "CMAKE_TOOLCHAIN_FILE": "D:/Users/eigil/projects/CPP/vcpkg/scripts/buildsystems/vcpkg.cmake"
+      }
+    },
+    {
+      "name": "x64-Release",
+      "displayName": "x64 Release (Ninja)",
+      "generator": "Ninja",
+      "binaryDir": "${sourceDir}/out/build/${presetName}",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Release",
+        "AA_ENABLE_ANDROID_HELPERS": true,
+        "RNNOISE_SKIP_MODEL_DOWNLOAD": true,
+        "CMAKE_TOOLCHAIN_FILE": "D:/Users/eigil/projects/CPP/vcpkg/scripts/buildsystems/vcpkg.cmake"
+      }
+    },
+    {
+      "name": "x86-Debug",
+      "displayName": "x86 Debug (Ninja)",
+      "generator": "Ninja",
+      "binaryDir": "${sourceDir}/out/build/${presetName}",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Debug",
+        "AA_ENABLE_ANDROID_HELPERS": true,
+        "RNNOISE_SKIP_MODEL_DOWNLOAD": true,
+        "CMAKE_TOOLCHAIN_FILE": "D:/Users/eigil/projects/CPP/vcpkg/scripts/buildsystems/vcpkg.cmake"
+      }
+    }
+  ],
+  "buildPresets": [
+    { "name": "x64-Debug",   "configurePreset": "x64-Debug" },
+    { "name": "x64-Release", "configurePreset": "x64-Release" },
+    { "name": "x86-Debug",   "configurePreset": "x86-Debug" }
+  ]
+}
