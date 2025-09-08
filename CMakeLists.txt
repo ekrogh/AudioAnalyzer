@@ -1,10 +1,14 @@
-# CMake 4.1.0 is the Android SDK-bundled version string, but projects typically
-# require at least 3.19+ for modern JUCE CMake. Keep the minimum low for the
-# Gradle file-api, but gracefully handle newer hosts.
 cmake_minimum_required(VERSION 3.19)
 
 # Project
 project(AudioAnalyzer VERSION 1.2.2 LANGUAGES C CXX)
+
+# When using Ninja, suppress CMake's auto-regeneration step which triggers
+# the slow "Re-checking globbed directories..." phase on each build.
+# This keeps android_* helper targets snappy to execute.
+if (CMAKE_GENERATOR MATCHES "Ninja")
+    set(CMAKE_SUPPRESS_REGENERATION ON)
+endif()
 
 # Options derived from .jucer
 set(CMAKE_CXX_STANDARD 20)
@@ -22,15 +26,6 @@ set(JUCE_BUILD_EXTRAS OFF   CACHE BOOL "" FORCE)
 set(JUCE_BUILD_HELPER_TOOLS OFF CACHE BOOL "" FORCE)
 if (ANDROID)
     set(JUCE_BUILD_TOOLS OFF CACHE BOOL "" FORCE)
-    # Ensure juceaide builds for host even when cross-compiling via Gradle.
-    # On Windows, prefer Visual Studio generator for the helper.
-    if (WIN32)
-        set(JUCE_HOST_GENERATOR "Visual Studio 17 2022" CACHE STRING "Host generator for juceaide")
-        # Let users override these via -DJUCE_HOST_C_COMPILER/CXX but provide sensible defaults.
-        if (DEFINED ENV{VSINSTALLDIR})
-            # Assume cl.exe is on PATH in a VS developer prompt; otherwise leave unset.
-        endif()
-    endif()
 endif()
 
 # Place JUCE's binary directory in a small third-party folder, not at ${CMAKE_BINARY_DIR}/JUCE
@@ -54,13 +49,13 @@ juce_add_gui_app(AudioAnalyzer
 # # Ensure JUCE generates and exposes the canonical JuceHeader.h for this target
 #juce_generate_juce_header(AudioAnalyzer)
 
-# Embed resources with JUCE's binary-data target and link to the app
-juce_add_binary_data(AudioAnalyzerData
-    SOURCES
-    Source/audioAnalyzer_large_icon.png
-    Source/audioAnalyzer_small_icon.png
-        Source/audioanalyzerfirstimage.png
-)
+# Remove JUCE binary-data target that referenced missing files and instead compile existing JuceLibraryCode/BinaryData.cpp
+# juce_add_binary_data(AudioAnalyzerData
+#     SOURCES
+#     Source/audioAnalyzer_large_icon.png
+#     Source/audioAnalyzer_small_icon.png
+#     Source/audioanalyzerfirstimage.png
+# )
 
 # Sources from the .jucer (compile="1")
 target_sources(AudioAnalyzer PRIVATE
@@ -89,9 +84,12 @@ target_sources(AudioAnalyzer PRIVATE
     Source/PlotModule.cpp
     Source/SoundProcessorModule.cpp
     Source/SpectrogramComponent.cpp
+
+    # Existing generated binary data implementation from JuceLibraryCode
+    JuceLibraryCode/BinaryData.cpp
 )
 
-# Include dirs (headerPath in .jucer points to rnnoise; add Source/ and JuceLibraryCode as well)
+# Include dirs (headerPath in .jucer points to rnnoise; add Source/and JuceLibraryCode as well)
 target_include_directories(AudioAnalyzer PRIVATE
     ${CMAKE_SOURCE_DIR}/Source
     ${CMAKE_SOURCE_DIR}/JuceLibraryCode
@@ -99,11 +97,6 @@ target_include_directories(AudioAnalyzer PRIVATE
     ${RNNOISE_DIR}
     ${RNNOISE_DIR}/include
 )
-
-# Ensure Android shared library target also sees rnnoise headers when JUCE names it 'juce_jni'
-if (TARGET juce_jni)
-    target_include_directories(juce_jni PRIVATE ${RNNOISE_DIR} ${RNNOISE_DIR}/include)
-endif()
 
 # JUCE compile definitions from .jucer
 target_compile_definitions(AudioAnalyzer PRIVATE
@@ -113,10 +106,17 @@ target_compile_definitions(AudioAnalyzer PRIVATE
     JUCE_USE_LAME_AUDIO_FORMAT=1
 )
 
+# On Android, ensure the produced shared library matches JUCE's Java loader expectation: libjuce_jni.so
+if (ANDROID)
+    set_target_properties(AudioAnalyzer PROPERTIES OUTPUT_NAME "juce_jni")
+    target_compile_definitions(AudioAnalyzer PRIVATE
+        JUCE_PUSH_NOTIFICATIONS=1
+        JUCE_PUSH_NOTIFICATIONS_ACTIVITY="com/rmsl/juce/JuceActivity")
+endif()
+
 # Link JUCE modules (match modules in .jucer)
 target_link_libraries(AudioAnalyzer
     PRIVATE
-    AudioAnalyzerData
         juce::juce_audio_basics
         juce::juce_audio_devices
         juce::juce_audio_formats
@@ -130,22 +130,6 @@ target_link_libraries(AudioAnalyzer
         juce::juce_gui_basics
         juce::juce_gui_extra
 )
-
-# Ensure Android JNI library has the expected name so JUCE's Java loads it.
-if (ANDROID)
-    # JUCE Java bootstrap calls System.loadLibrary("juce_jni")
-    set_target_properties(AudioAnalyzer PROPERTIES OUTPUT_NAME "juce_jni")
-
-    # Ensure JUCE registers native callbacks for JuceActivity (appOnResume/appNewIntent)
-    # juce_gui_basics/native/juce_Windowing_android.cpp guards the registration
-    # with JUCE_PUSH_NOTIFICATIONS_ACTIVITY and expects a string literal classpath.
-    # Also enable JUCE_PUSH_NOTIFICATIONS so juce_handleNotificationIntent is declared/defined
-    # when building juce_gui_basics together with juce_gui_extra on Android.
-    target_compile_definitions(AudioAnalyzer PRIVATE
-        JUCE_PUSH_NOTIFICATIONS=1
-        JUCE_PUSH_NOTIFICATIONS_ACTIVITY=\"com/rmsl/juce/JuceActivity\"
-    )
-endif()
 
 # Define ANDROID_VERSION_CODE by reading from the .jucer if available.
 # You can also override via -DANDROID_VERSION_CODE=123 when configuring.
@@ -214,3 +198,71 @@ endif()
 # Install rules (optional)
 include(GNUInstallDirs)
 install(TARGETS AudioAnalyzer RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR} BUNDLE DESTINATION .)
+
+# --- Convenience targets for Android SDK/Gradle and device listing ---
+# Default ON so the android_* targets are available without extra flags
+option(AA_ENABLE_ANDROID_HELPERS "Add convenience android_* targets (adb/logcat/gradle)" ON)
+
+if (AA_ENABLE_ANDROID_HELPERS)
+    set(AA_ANDROID_DIR "${CMAKE_SOURCE_DIR}/Builds/Android")
+    set(AA_APP_DIR     "${AA_ANDROID_DIR}/app")
+    set(AA_ANDROID_APPLICATION_ID "dk.eksit.audioanalyzer" CACHE STRING "Android applicationId used for logcat filtering")
+
+    if (WIN32)
+        set(GRADLEW "${AA_ANDROID_DIR}/gradlew.bat")
+    else()
+        set(GRADLEW "${AA_ANDROID_DIR}/gradlew")
+    endif()
+
+    # Try to locate adb even when it's not on PATH
+    find_program(ADB_EXECUTABLE NAMES adb
+        HINTS "$ENV{ANDROID_SDK_ROOT}" "$ENV{ANDROID_HOME}" "$ENV{LOCALAPPDATA}/Android/Sdk"
+        PATH_SUFFIXES platform-tools
+    )
+
+    if (ADB_EXECUTABLE)
+        add_custom_target(android_devices
+            COMMAND ${ADB_EXECUTABLE} devices
+            WORKING_DIRECTORY ${AA_ANDROID_DIR}
+            USES_TERMINAL
+            COMMENT "Listing connected Android devices")
+
+        add_custom_target(android_logcat
+            COMMAND ${ADB_EXECUTABLE} logcat
+            WORKING_DIRECTORY ${AA_ANDROID_DIR}
+            USES_TERMINAL
+            COMMENT "Streaming Android logcat (all)")
+
+        add_custom_target(android_logcat_clear
+            COMMAND ${ADB_EXECUTABLE} logcat -c
+            WORKING_DIRECTORY ${AA_ANDROID_DIR}
+            USES_TERMINAL
+            COMMENT "Clearing Android logcat buffer")
+
+        # Note: a per-app filtered logcat target is intentionally omitted to avoid shell quoting issues on Windows
+    else()
+        message(STATUS "adb not found. Set ANDROID_SDK_ROOT or add platform-tools to PATH to enable android_* convenience targets.")
+    endif()
+
+    if (EXISTS "${GRADLEW}")
+        add_custom_target(android_assemble_debug
+            COMMAND ${GRADLEW} -p ${AA_ANDROID_DIR} :app:assembleDebug_Debug --console=plain
+            WORKING_DIRECTORY ${AA_ANDROID_DIR}
+            USES_TERMINAL
+            COMMENT "Assembling Android Debug APKs via Gradle")
+
+        add_custom_target(android_install_debug
+            COMMAND ${GRADLEW} -p ${AA_ANDROID_DIR} :app:installDebug_Debug --console=plain
+            WORKING_DIRECTORY ${AA_ANDROID_DIR}
+            USES_TERMINAL
+            COMMENT "Installing Android Debug APK on connected device")
+
+        add_custom_target(android_clean
+            COMMAND ${GRADLEW} -p ${AA_ANDROID_DIR} clean --console=plain
+            WORKING_DIRECTORY ${AA_ANDROID_DIR}
+            USES_TERMINAL
+            COMMENT "Cleaning Android Gradle project")
+    else()
+        message(STATUS "Gradle wrapper not found at ${GRADLEW}. Android Gradle targets will be unavailable.")
+    endif()
+endif()
