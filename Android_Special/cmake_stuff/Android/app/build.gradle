@@ -3,29 +3,29 @@ apply plugin: 'com.android.application'
 def ndkVersionString = "28.1.13356709"
 
 android {
-    compileSdk 35
-    ndkVersion ndkVersionString
-    namespace "dk.eksit.audioanalyzer"
+    compileSdk = 35
+    ndkVersion = ndkVersionString
+    namespace = "dk.eksit.audioanalyzer"
     externalNativeBuild {
         cmake {
-            path "../../../CMakeLists.txt"
-            version "3.22.1"
+            path = file("../../../CMakeLists.txt")
+            version = "3.22.1"
         }
     }
     signingConfigs {
         juceSigning {
-            storeFile     file("..${File.separator}..${File.separator}..${File.separator}Android_Special${File.separator}keystore.jks")
-            storePassword "6taura"
-            keyAlias      "upload"
-            keyPassword   "6taura"
-            storeType     "jks"
+            storeFile     = file("..${File.separator}..${File.separator}..${File.separator}Android_Special${File.separator}keystore.jks")
+            storePassword = "6taura"
+            keyAlias      = "upload"
+            keyPassword   = "6taura"
+            storeType     = "jks"
         }
     }
 
     defaultConfig {
-        applicationId "dk.eksit.audioanalyzer"
-        minSdkVersion    21
-        targetSdkVersion 35
+        applicationId = "dk.eksit.audioanalyzer"
+        minSdkVersion    = 21
+        targetSdkVersion = 35
         externalNativeBuild {
             cmake {
                 arguments "-DANDROID_TOOLCHAIN=clang", "-DANDROID_PLATFORM=android-21", "-DANDROID_STL=c++_static", "-DANDROID_CPP_FEATURES=exceptions rtti", "-DANDROID_ARM_MODE=arm", "-DANDROID_ARM_NEON=TRUE", "-DANDROID_WEAK_API_DEFS=ON", "-DCMAKE_CXX_STANDARD=20", "-DCMAKE_CXX_EXTENSIONS=OFF"
@@ -36,15 +36,15 @@ android {
     buildTypes {
          debug {
              initWith debug
-             debuggable    true
-             jniDebuggable true
-             signingConfig signingConfigs.juceSigning
+             debuggable    = true
+             jniDebuggable = true
+             signingConfig = signingConfigs.juceSigning
          }
          release {
              initWith release
-             debuggable    false
-             jniDebuggable false
-             signingConfig signingConfigs.juceSigning
+             debuggable    = false
+             jniDebuggable = false
+             signingConfig = signingConfigs.juceSigning
          }
     }
 
@@ -91,9 +91,9 @@ android {
 
     sourceSets {
         main.java.srcDirs +=
-            ["../../../../JUCE/modules/juce_core/native/javacore/init",
-             "../../../../JUCE/modules/juce_core/native/javacore/app",
-             "../../../../JUCE/modules/juce_gui_basics/native/javaopt/app"]
+            ["../../../JUCE/modules/juce_core/native/javacore/init",
+             "../../../JUCE/modules/juce_core/native/javacore/app",
+             "../../../JUCE/modules/juce_gui_basics/native/javaopt/app"]
 
         main.res.srcDirs +=
             []
