@@ -106,6 +106,14 @@ target_compile_definitions(AudioAnalyzer PRIVATE
     JUCE_USE_LAME_AUDIO_FORMAT=1
 )
 
+# On Android, ensure the produced shared library matches JUCE's Java loader expectation: libjuce_jni.so
+if (ANDROID)
+    set_target_properties(AudioAnalyzer PROPERTIES OUTPUT_NAME "juce_jni")
+    target_compile_definitions(AudioAnalyzer PRIVATE
+        JUCE_PUSH_NOTIFICATIONS=1
+        JUCE_PUSH_NOTIFICATIONS_ACTIVITY="com/rmsl/juce/JuceActivity")
+endif()
+
 # Link JUCE modules (match modules in .jucer)
 target_link_libraries(AudioAnalyzer
     PRIVATE
