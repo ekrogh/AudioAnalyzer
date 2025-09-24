@@ -76,6 +76,7 @@ target_sources(AudioAnalyzer PRIVATE
     Source/FFTCtrl.cpp
     Source/FFTModule.cpp
     Source/freqPlotModule.cpp
+    Source/guitarSeparator.cpp
     Source/helpPage.cpp
     Source/Main.cpp
     Source/MainComponent.cpp

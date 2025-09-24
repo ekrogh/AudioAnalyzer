@@ -98,6 +98,10 @@
       <FILE id="v2iVqQ" name="SpectrogramComponent.h" compile="0" resource="0"
             file="Source/SpectrogramComponent.h"/>
       <FILE id="cqhsP1" name="Utilities.h" compile="0" resource="0" file="Source/Utilities.h"/>
+      <FILE id="cDz9Qo" name="guitarSeparator.cpp" compile="1" resource="0"
+            file="Source/guitarSeparator.cpp"/>
+      <FILE id="hJ1EHV" name="guitarSeparator.h" compile="0" resource="0"
+            file="Source/guitarSeparator.h"/>
     </GROUP>
   </MAINGROUP>
   <MODULES>
