@@ -19,27 +19,6 @@
 #include <semaphore>
 #include <coroutine>
 #include "eksClamp.h"
-#include <rnnoise.h>
-#ifdef RNNOISE_PURE_ONNX
-#include <rnnoise_pure_onnx.h>
-#endif
-
-#include <atomic>
-
-// Global (file-scope) probability state to avoid modifying header
-static std::atomic<float> g_rnnoiseActivityProb {0.0f};
-static float rnnoiseResidualProb = 0.0f; // kept for backward compatibility with earlier edits
-
-// Helper: choose default ONNX model filename
-static juce::File findDefaultOnnxModel() {
-	// Look next to executable, then working directory fallback
-	auto exeDir = juce::File::getSpecialLocation(juce::File::currentExecutableFile).getParentDirectory();
-	juce::File f = exeDir.getChildFile("model.onnx");
-	if (f.existsAsFile()) return f;
-	juce::File cwd = juce::File::getCurrentWorkingDirectory().getChildFile("model.onnx");
-	if (cwd.existsAsFile()) return cwd;
-	return juce::File();
-}
 
 //==============================================================================
 SpectrogramComponent::SpectrogramComponent
@@ -64,37 +43,10 @@ SpectrogramComponent::SpectrogramComponent
 
 	forwardFFT = std::make_unique<juce::dsp::FFT>(fftOrder);
 
-	// RNNoise / ONNX accumulation buffers
-	rnnoiseFrameSize = rnnoise_get_frame_size();
-	rnnoiseInAccum.reserve(rnnoiseFrameSize * 2);
-	rnnoiseOutAccum.reserve(rnnoiseFrameSize * 2);
-	rnnoiseInAccum.clear();
-	rnnoiseOutAccum.clear();
-	rnnoiseResidualProb = 0.f;
-
-	// Attempt ONNX model load when PURE_ONNX build is linked
-#ifdef RNNOISE_PURE_ONNX
-	if (rnnoiseState) {
-		auto modelFile = findDefaultOnnxModel();
-		if (modelFile.existsAsFile()) {
-			if (rnnoise_pure_onnx_load(rnnoiseState, modelFile.getFullPathName().toRawUTF8()) != 0) {
-				DBG("[RNNoise] Failed to load ONNX model: " << modelFile.getFullPathName());
-			}
-			else {
-				DBG("[RNNoise] Loaded ONNX model: " << modelFile.getFullPathName());
-			}
-		}
-		else {
-			DBG("[RNNoise] No model.onnx found alongside executable.");
-		}
-	}
-#endif
-
 	initRealTimeFftChartPlot();
 
 	// Initialize RNNoise
 	rnnoiseState = rnnoise_create(nullptr);
-	// rnnoiseFrameSize already set above for accumulation; keep for safety
 	rnnoiseFrameSize = rnnoise_get_frame_size();
 
 	curNumInputChannels = 1;
@@ -609,40 +561,41 @@ void SpectrogramComponent::releaseResources()
 
 // The wrapped of rnnoise's |rnnoise_process_frame| function so as to make sure its input/outpu is |f32| format.
 // Note tha the frame size is fixed 480.
-float SpectrogramComponent::rnnoise_process_frame_block(float* frameInOut)
+float SpectrogramComponent::rnnoise_process(float* pFrameOut, const float* pFrameIn)
 {
-	// In-place: scale to expected amplitude, process, scale back.
-	for (int i = 0; i < rnnoiseFrameSize; ++i) frameInOut[i] *= 32768.f;
-	float prob = rnnoise_process_frame(rnnoiseState, frameInOut, frameInOut);
-	for (int i = 0; i < rnnoiseFrameSize; ++i) frameInOut[i] = eks_clamp(frameInOut[i], -32768.f, 32767.f) / 32768.f;
-	return prob;
-}
+	float vadProb;
+	float* buffer = new float[rnnoiseFrameSize];
 
-void SpectrogramComponent::rnnoise_process_accumulate(float* samples, int numSamples)
-{
-	if (!rnnoiseState) return;
-	int processed = 0;
-	while (processed < numSamples) {
-		int space = rnnoiseFrameSize - (int)rnnoiseInAccum.size();
-		int toCopy = std::min(space, numSamples - processed);
-		rnnoiseInAccum.insert(rnnoiseInAccum.end(), samples + processed, samples + processed + toCopy);
-		processed += toCopy;
-		if ((int)rnnoiseInAccum.size() == rnnoiseFrameSize) {
-			// Process one frame
-			rnnoiseOutAccum = rnnoiseInAccum; // copy
-			float prob = rnnoise_process_frame_block(rnnoiseOutAccum.data());
-			rnnoiseResidualProb = prob; // last probability (legacy variable)
-			g_rnnoiseActivityProb.store(prob, std::memory_order_relaxed);
-			// Commit to output: we overwrite the corresponding samples at the *start* of this frame window.
-			int frameStart = processed - rnnoiseFrameSize;
-			std::copy(rnnoiseOutAccum.begin(), rnnoiseOutAccum.end(), samples + frameStart);
-			rnnoiseInAccum.clear();
+	// Note: Be careful for the format of the input data.
+	std::transform
+	(
+		&pFrameIn[0]
+		, &pFrameIn[rnnoiseFrameSize]
+		, &buffer[0]
+		, [](float x)
+		{
+			return x * 32768.0f;
 		}
-	}
+	);
+
+	vadProb = rnnoise_process_frame(rnnoiseState, &buffer[0], &buffer[0]);
+
+	std::transform
+	(
+		&buffer[0]
+		, &buffer[rnnoiseFrameSize]
+		, &pFrameOut[0]
+		, [](float x)
+		{
+			return eks_clamp(x, -32768, 32767)  / 32768.0f;
+		}
+	);
+
+	return vadProb;
 }
 
 void SpectrogramComponent::getNextAudioBlock(const juce::AudioSourceChannelInfo& bufferToFill)
-	{
+{
 	auto numChans = bufferToFill.buffer->getNumChannels();
 	auto noSampels = bufferToFill.numSamples;
 
@@ -654,13 +607,25 @@ void SpectrogramComponent::getNextAudioBlock(const juce::AudioSourceChannelInfo&
 		// Process audio with RNNoise
 		if (useRnNoise)
 		{
-			// In-place processing accumulating to full frames, minimal latency.
-			auto* channelWritePtr2 = bufferToFill.buffer->getWritePointer(0);
-			// Ensure input copy for in-place transform
-			if (channelWritePtr2 != channelData) {
-				std::memmove(channelWritePtr2, channelData, sizeof(float) * noSampels);
+			auto channelWritePtr = bufferToFill.buffer->getWritePointer(0);
+			auto iStop = noSampels - rnnoiseFrameSize;
+			int i = 0;
+			for (; i <= iStop; i += rnnoiseFrameSize)
+			{
+				rnnoise_process(&channelWritePtr[i], &channelData[i]);
+				// Add logging to check the processed data
+				DBG("Processed frame starting at sample " << i);
 			}
-			rnnoise_process_accumulate(channelWritePtr2, noSampels);
+
+			// Process remaining samples
+			if (i < noSampels)
+			{
+				std::vector<float> remainingSamples(rnnoiseFrameSize, 0.0f);
+				std::copy(&channelData[i], &channelData[noSampels], remainingSamples.begin());
+				rnnoise_process(remainingSamples.data(), remainingSamples.data());
+				std::copy(remainingSamples.begin(), remainingSamples.begin() + (noSampels - i), &channelWritePtr[i]);
+				DBG("Processed remaining samples starting at sample " << i);
+			}
 		}
 
 		if (numChans >= 2)
@@ -710,22 +675,6 @@ void SpectrogramComponent::paint(juce::Graphics& g)
 
 	g.setOpacity(1.0f);
 	g.drawImage(spectrogramImage, getLocalBounds().toFloat());
-
-	// Draw activity probability meter on the right edge (simple vertical bar)
-	const float prob = g_rnnoiseActivityProb.load(std::memory_order_relaxed);
-	const auto bounds = getLocalBounds();
-	const int meterWidth = 12;
-	juce::Rectangle<int> meterArea(bounds.getRight() - meterWidth, bounds.getY(), meterWidth, bounds.getHeight());
-	g.setColour(juce::Colours::darkgrey.withAlpha(0.5f));
-	g.fillRect(meterArea);
-	int fillH = (int)std::round(prob * meterArea.getHeight());
-	juce::Rectangle<int> fillRect = meterArea.removeFromBottom(fillH);
-	juce::Colour topC = juce::Colours::limegreen.interpolatedWith(juce::Colours::red, 1.0f - prob);
-	g.setGradientFill(juce::ColourGradient(topC, (float)fillRect.getCentreX(), (float)fillRect.getY(), juce::Colours::black, (float)fillRect.getCentreX(), (float)fillRect.getBottom(), false));
-	g.fillRect(fillRect);
-	g.setColour(juce::Colours::white);
-	g.setFont(10.f);
-	g.drawFittedText(juce::String(prob, 2), meterArea.reduced(1), juce::Justification::centredTop, 1);
 }
 
 
