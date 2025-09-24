@@ -23,29 +23,32 @@ guitarSeparator::~guitarSeparator()
 {
 }
 
-void guitarSeparator::paint (juce::Graphics& g)
+void guitarSeparator::prepareToPlay(int samplesPerBlockExpected, double newSampleRate)
 {
-    /* This demo code just fills the component's background and
-       draws some placeholder text to get you started.
+    const ScopedLock sl(callbackLock);
 
-       You should replace everything in this method with your own
-       drawing code..
-    */
+    sampleRate = newSampleRate;
+    blockSize = samplesPerBlockExpected;
 
-    g.fillAll (getLookAndFeel().findColour (juce::ResizableWindow::backgroundColourId));   // clear the background
-
-    g.setColour (juce::Colours::grey);
-    g.drawRect (getLocalBounds(), 1);   // draw an outline around the component
-
-    g.setColour (juce::Colours::white);
-    g.setFont (juce::FontOptions (14.0f));
-    g.drawText ("guitarSeparator", getLocalBounds(),
-                juce::Justification::centred, true);   // draw some placeholder text
+    if (source != nullptr)
+        source->prepareToPlay(samplesPerBlockExpected, sampleRate);
 }
 
-void guitarSeparator::resized()
+void guitarSeparator::setSource(AudioSource* newSource)
 {
-    // This method is where you should set the bounds of any child
-    // components that your component contains..
+    if (source != newSource)
+    {
+        auto* oldSource = source;
 
+        if (newSource != nullptr && bufferSize > 0 && sampleRate > 0)
+            newSource->prepareToPlay(bufferSize, sampleRate);
+
+        {
+            const ScopedLock sl(readLock);
+            source = newSource;
+        }
+
+        if (oldSource != nullptr)
+            oldSource->releaseResources();
+    }
 }

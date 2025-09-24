@@ -88,7 +88,48 @@ target_sources(AudioAnalyzer PRIVATE
 
     # Existing generated binary data implementation from JuceLibraryCode
     JuceLibraryCode/BinaryData.cpp
+
+    # Header files (for IDE visibility)
+    Source/AudioAnalyzerGlobalEnums.h
+    Source/AudioLiveScrollingDisplay.h
+    Source/AudioPlaybackModule.h
+    Source/AudioRecorderModule.h
+    Source/AudioSettingsModule.h
+    Source/cmp_datamodels.h
+    Source/cmp_downsampler.h
+    Source/cmp_frame.h
+    Source/cmp_graph_area.h
+    Source/cmp_graph_line.h
+    Source/cmp_grid.h
+    Source/cmp_label.h
+    Source/cmp_legend.h
+    Source/cmp_lookandfeel.h
+    Source/cmp_plot.h
+    Source/cmp_trace.h
+    Source/cmp_utils.h
+    Source/cmp_version.h
+    Source/cpEKSNotchFilter.h
+    Source/eksClamp.h
+    Source/example_utils.h
+    Source/FFTCtrl.h
+    Source/FFTModule.h
+    Source/freqPlotModule.h
+    Source/guitarSeparator.h
+    Source/helpPage.h
+    Source/MainComponent.h
+    Source/microphoneAccessPermissionAlert.h
+    Source/NotchFilter.h
+    Source/NOTCH_50_60_Hz_filter_Coeffs.h
+    Source/OLD_FFTModule.h
+    Source/package.h
+    Source/PlotModule.h
+    Source/SoundProcessorComponent.h
+    Source/SoundProcessorModule.h
+    Source/SpectrogramComponent.h
+    Source/Utilities.h
 )
+
+
 
 # Include dirs (headerPath in .jucer points to rnnoise; add Source/and JuceLibraryCode as well)
 target_include_directories(AudioAnalyzer PRIVATE
