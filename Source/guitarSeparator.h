@@ -11,6 +11,8 @@
 #pragma once
 
 #include <JuceHeader.h>
+#include "rnnoise.h"
+#include <vector>
 
 //==============================================================================
 /*
@@ -20,6 +22,10 @@ class guitarSeparator : public AudioSource
 public:
     guitarSeparator();
     ~guitarSeparator() override;
+
+    void initializeRNNoise();
+
+    float rnnoise_process(float* pFrameOut, const float* pFrameIn);
 
     //==============================================================================
     /** Implementation of the AudioSource method. */
@@ -49,6 +55,14 @@ public:
     void setSource(AudioSource* newSource);
 
 private:
+    // RNNoise state and configuration
+    DenoiseState* rnnoiseState = nullptr;
+    int rnnoiseFrameSize = 0;
+
+    // Scratch buffers reused every process call to avoid allocations
+    std::vector<float> rnFrameScratch; // per-frame temporary buffer
+    std::vector<float> rnTailScratch;  // remainder frame buffer (zero-padded)
+
     CriticalSection readLock;
 
     AudioSource* source = nullptr;

@@ -47,6 +47,7 @@
 #pragma once
 
 #include "Utilities.h"
+#include "guitarSeparator.h"
 
 
 class ModuleThumbnailComp final : public Component,
@@ -270,6 +271,9 @@ public:
 		addAndMakeVisible(followTransportButton);
 		followTransportButton.onClick = [this] { updateFollowTransportState(); };
 
+		addAndMakeVisible(useRnNoiseButton);
+		useRnNoiseButton.onClick = [this] { updateUseRnNoiseState(); };
+
 		addAndMakeVisible(gainSlider);
 		gainSlider.setRange(0, 100.0f, 0);
 		gainSlider.onValueChange =
@@ -379,12 +383,14 @@ private:
 	URL currentAudioFile;
 	AudioSourcePlayer audioSourcePlayer;
 	AudioTransportSource transportSource;
+	guitarSeparator audioSeparator;
 	std::unique_ptr<AudioFormatReaderSource> currentAudioFileSource;
 
 	std::unique_ptr<ModuleThumbnailComp> thumbnail;
 	Label zoomLabel{ {}, "zoom:" };
 	Slider zoomSlider{ Slider::LinearHorizontal, Slider::NoTextBox };
 	ToggleButton followTransportButton{ "Follow Transport" };
+	ToggleButton useRnNoiseButton{ "Use RNNoise" };
 	TextButton startStopButton{ "Play/Stop" };
 	Slider gainSlider{ Slider::LinearVertical, Slider::TextBoxAbove };
 
@@ -452,6 +458,21 @@ private:
 	void updateFollowTransportState()
 	{
 		thumbnail->setFollowsTransport(followTransportButton.getToggleState());
+	}
+
+	void updateUseRnNoiseState()
+	{
+		if (useRnNoiseButton.getToggleState())
+		{
+
+			audioSourcePlayer.setSource(&audioSeparator);
+			audioSeparator.setSource(&transportSource);
+		}
+		else
+		{
+			audioSourcePlayer.setSource(&transportSource);
+			audioSeparator.setSource(nullptr);
+		}
 	}
 
 	void buttonClicked(Button* btn) override
