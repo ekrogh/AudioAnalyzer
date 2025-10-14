@@ -271,9 +271,6 @@ public:
 		addAndMakeVisible(followTransportButton);
 		followTransportButton.onClick = [this] { updateFollowTransportState(); };
 
-		addAndMakeVisible(useRnNoiseButton);
-		useRnNoiseButton.onClick = [this] { updateUseRnNoiseState(); };
-
 		addAndMakeVisible(gainSlider);
 		gainSlider.setRange(0, 100.0f, 0);
 		gainSlider.onValueChange =
@@ -300,6 +297,9 @@ public:
 		startStopButton.setColour(TextButton::buttonColourId, Colour(0xff79ed7f));
 		startStopButton.setColour(TextButton::textColourOffId, Colours::black);
 		startStopButton.onClick = [this] { startOrStop(); };
+
+		addAndMakeVisible(useRnNoiseButton);
+		useRnNoiseButton.onClick = [this] { updateUseRnNoiseState(); };
 
 		// audio setup
 		formatManager.registerBasicFormats();
@@ -348,7 +348,9 @@ public:
 		zoomSlider.setBounds(zoom);
 
 		followTransportButton.setBounds(controls.removeFromTop(25));
-		startStopButton.setBounds(controls);
+		startStopButton.setBounds(controls.removeFromLeft(controls.getWidth() / 2));
+
+		useRnNoiseButton.setBounds(controls.removeFromRight(controls.getWidth() / 2));
 
 		r.removeFromBottom(6);
 
