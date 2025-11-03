@@ -464,16 +464,32 @@ private:
 
 	void updateUseRnNoiseState()
 	{
+		const bool wasPlaying = transportSource.isPlaying();
+		double position;
+
+		if (wasPlaying)
+		{
+			position = transportSource.getCurrentPosition();
+			transportSource.stop();
+		}
+
 		if (useRnNoiseButton.getToggleState())
 		{
-
 			audioSourcePlayer.setSource(&audioSeparator);
 			audioSeparator.setSource(&transportSource);
 		}
 		else
 		{
-			audioSourcePlayer.setSource(&transportSource);
+			// Switch back to direct transport
 			audioSeparator.setSource(nullptr);
+			audioSourcePlayer.setSource(&transportSource);
+		}
+
+		// Restore playback seamlessly
+		if (wasPlaying)
+		{
+			transportSource.setPosition(position);
+			transportSource.start();
 		}
 	}
 
