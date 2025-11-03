@@ -13,6 +13,7 @@
 #include <JuceHeader.h>
 #include "rnnoise.h"
 #include <vector>
+#include <deque>
 
 //==============================================================================
 /*
@@ -25,6 +26,8 @@ public:
 
     void initializeRNNoise();
 
+    // Replaced implementation: this now runs our guitar-only spectral separator.
+    // It preserves the signature to avoid changing call sites.
     float rnnoise_process(float* pFrameOut, const float* pFrameIn);
 
     //==============================================================================
@@ -55,13 +58,55 @@ public:
     void setSource(AudioSource* newSource);
 
 private:
-    // RNNoise state and configuration
+    // RNNoise state (kept for compatibility)
     DenoiseState* rnnoiseState = nullptr;
     int rnnoiseFrameSize = 0;
 
     // Scratch buffers reused every process call to avoid allocations
     std::vector<float> rnFrameScratch; // per-frame temporary buffer
     std::vector<float> rnTailScratch;  // remainder frame buffer (zero-padded)
+
+    // === Guitar-only spectral separator (HPSS-like) ===
+    void initGuitarSeparationDSP();
+    void resetGuitarSeparationDSP();
+    void processGuitarStream(const float* in, float* out, int numSamples);
+
+    // STFT parameters
+    int stftSize = 1024; // FFT size (power of two)
+    int hopSize = 512; //50% overlap for Hann COLA
+    int fftOrder = 10; // log2(stftSize)
+
+    // Windows and FFT
+    std::vector<float> analysisWindow;
+    std::vector<float> synthesisWindow;
+    std::vector<float> fftBuffer; // size =2 * stftSize (JUCE real-only format)
+    std::unique_ptr<dsp::FFT> fft;
+
+    // Streaming buffers
+    std::vector<float> inFifo; // size = stftSize
+    int inFifoIndex = 0; // number of new samples in FIFO
+
+    std::vector<float> olaBuffer; // overlap-add buffer size = stftSize
+    int olaWritePos = 0; // position within hop for writing out
+
+    std::vector<float> outQueue; // produced samples waiting to be read
+
+    // Magnitude history for time median smoothing
+    std::deque<std::vector<float>> magHistory; // each frame has N/2+1 mags
+
+    // Tunables
+    int timeSmoothFrames = 7; // median window length across time
+    int freqSmoothBins = 5; // half-width (bins) for freq median
+    float maskExponent = 2.0f; // Wiener mask exponent
+    float maskThreshold = 0.55f; // gate to remove non-guitar bins
+
+    // Guitar spectral emphasis (per-bin weights)
+    std::vector<float> guitarWeight; // size = bins
+    void updateGuitarFreqWeight();
+
+    // Helper to compute smoothed magnitudes and masks
+    void computeHarmonicPercussiveMasks(const std::vector<float>& curMag,
+                                         std::vector<float>& harmMask);
 
     CriticalSection readLock;
 
