@@ -146,26 +146,6 @@
         <MODULEPATH id="juce_dsp" path="JUCE\modules"/>
       </MODULEPATHS>
     </ANDROIDSTUDIO>
-    <CODEBLOCKS_LINUX targetFolder="Builds/CodeBlocksLinux" smallIcon="zrVA6e" bigIcon="Hd60ks">
-      <CONFIGURATIONS>
-        <CONFIGURATION isDebug="1" name="Debug" targetName="AudioAnalyzer"/>
-        <CONFIGURATION isDebug="0" name="Release" targetName="AudioAnalyzer"/>
-      </CONFIGURATIONS>
-      <MODULEPATHS>
-        <MODULEPATH id="juce_audio_basics" path="..\JUCE\modules"/>
-        <MODULEPATH id="juce_audio_devices" path="..\JUCE\modules"/>
-        <MODULEPATH id="juce_audio_formats" path="..\JUCE\modules"/>
-        <MODULEPATH id="juce_audio_processors" path="..\JUCE\modules"/>
-        <MODULEPATH id="juce_audio_utils" path="..\JUCE\modules"/>
-        <MODULEPATH id="juce_core" path="..\JUCE\modules"/>
-        <MODULEPATH id="juce_data_structures" path="..\JUCE\modules"/>
-        <MODULEPATH id="juce_events" path="..\JUCE\modules"/>
-        <MODULEPATH id="juce_graphics" path="..\JUCE\modules"/>
-        <MODULEPATH id="juce_gui_basics" path="..\JUCE\modules"/>
-        <MODULEPATH id="juce_gui_extra" path="..\JUCE\modules"/>
-        <MODULEPATH id="juce_dsp" path="..\JUCE\modules"/>
-      </MODULEPATHS>
-    </CODEBLOCKS_LINUX>
     <LINUX_MAKE targetFolder="Builds/LinuxMakefile" smallIcon="zrVA6e" bigIcon="Hd60ks">
       <CONFIGURATIONS>
         <CONFIGURATION isDebug="1" name="Debug" targetName="AudioAnalyzer"/>
@@ -186,27 +166,6 @@
         <MODULEPATH id="juce_dsp" path="JUCE\modules"/>
       </MODULEPATHS>
     </LINUX_MAKE>
-    <VS2022 targetFolder="Builds/VisualStudio2022" smallIcon="zrVA6e" bigIcon="Hd60ks"
-            externalLibraries="..\..\rnnoise\rnnoise.lib">
-      <CONFIGURATIONS>
-        <CONFIGURATION isDebug="1" name="Debug" targetName="AudioAnalyzer"/>
-        <CONFIGURATION isDebug="0" name="Release" targetName="AudioAnalyzer"/>
-      </CONFIGURATIONS>
-      <MODULEPATHS>
-        <MODULEPATH id="juce_audio_basics" path="JUCE\modules"/>
-        <MODULEPATH id="juce_audio_devices" path="JUCE\modules"/>
-        <MODULEPATH id="juce_audio_formats" path="JUCE\modules"/>
-        <MODULEPATH id="juce_audio_processors" path="JUCE\modules"/>
-        <MODULEPATH id="juce_audio_utils" path="JUCE\modules"/>
-        <MODULEPATH id="juce_core" path="JUCE\modules"/>
-        <MODULEPATH id="juce_data_structures" path="JUCE\modules"/>
-        <MODULEPATH id="juce_events" path="JUCE\modules"/>
-        <MODULEPATH id="juce_graphics" path="JUCE\modules"/>
-        <MODULEPATH id="juce_gui_basics" path="JUCE\modules"/>
-        <MODULEPATH id="juce_gui_extra" path="JUCE\modules"/>
-        <MODULEPATH id="juce_dsp" path="JUCE\modules"/>
-      </MODULEPATHS>
-    </VS2022>
     <XCODE_IPHONE targetFolder="Builds/iOS" microphonePermissionNeeded="1" iosScreenOrientation="UIInterfaceOrientationLandscapeLeft,UIInterfaceOrientationLandscapeRight,UIInterfaceOrientationPortrait,UIInterfaceOrientationPortraitUpsideDown"
                   iPadScreenOrientation="UIInterfaceOrientationLandscapeLeft,UIInterfaceOrientationLandscapeRight,UIInterfaceOrientationPortrait,UIInterfaceOrientationPortraitUpsideDown"
                   UIFileSharingEnabled="1" iosDevelopmentTeamID="4657Q2Y6NH" UIStatusBarHidden="1"
@@ -261,5 +220,25 @@
         <MODULEPATH id="juce_dsp" path="JUCE\modules"/>
       </MODULEPATHS>
     </XCODE_MAC>
+    <VS2026 targetFolder="Builds/VisualStudio2026" smallIcon="zrVA6e" bigIcon="Hd60ks">
+      <CONFIGURATIONS>
+        <CONFIGURATION isDebug="1" name="Debug"/>
+        <CONFIGURATION isDebug="0" name="Release"/>
+      </CONFIGURATIONS>
+      <MODULEPATHS>
+        <MODULEPATH id="juce_audio_basics" path="JUCE\modules"/>
+        <MODULEPATH id="juce_audio_devices" path="JUCE\modules"/>
+        <MODULEPATH id="juce_audio_formats" path="JUCE\modules"/>
+        <MODULEPATH id="juce_audio_processors" path="JUCE\modules"/>
+        <MODULEPATH id="juce_audio_utils" path="JUCE\modules"/>
+        <MODULEPATH id="juce_core" path="JUCE\modules"/>
+        <MODULEPATH id="juce_data_structures" path="JUCE\modules"/>
+        <MODULEPATH id="juce_dsp" path="JUCE\modules"/>
+        <MODULEPATH id="juce_events" path="JUCE\modules"/>
+        <MODULEPATH id="juce_graphics" path="JUCE\modules"/>
+        <MODULEPATH id="juce_gui_basics" path="JUCE\modules"/>
+        <MODULEPATH id="juce_gui_extra" path="JUCE\modules"/>
+      </MODULEPATHS>
+    </VS2026>
   </EXPORTFORMATS>
 </JUCERPROJECT>
