@@ -31,13 +31,6 @@ endif()
 # Place JUCE's binary directory in a small third-party folder, not at ${CMAKE_BINARY_DIR}/JUCE
 add_subdirectory("${CMAKE_SOURCE_DIR}/JUCE" "${CMAKE_BINARY_DIR}/_third_party/juce")
 
-# rnnoise: now included as a git submodule within this repo
-set(RNNOISE_DIR "${CMAKE_SOURCE_DIR}/rnnoise" CACHE PATH "Path to rnnoise project root (defaults to submodule at ./rnnoise)")
-if (NOT EXISTS "${RNNOISE_DIR}/CMakeLists.txt")
-    message(FATAL_ERROR "rnnoise CMakeLists.txt not found at ${RNNOISE_DIR}. Please adjust RNNOISE_DIR.")
-endif()
-add_subdirectory("${RNNOISE_DIR}" "${CMAKE_BINARY_DIR}/rnnoise_build")
-
 # JUCE GUI application target
 juce_add_gui_app(AudioAnalyzer
     COMPANY_NAME "eksit.dk"
@@ -76,7 +69,6 @@ target_sources(AudioAnalyzer PRIVATE
     Source/FFTCtrl.cpp
     Source/FFTModule.cpp
     Source/freqPlotModule.cpp
-    Source/guitarSeparator.cpp
     Source/helpPage.cpp
     Source/Main.cpp
     Source/MainComponent.cpp
@@ -131,13 +123,10 @@ target_sources(AudioAnalyzer PRIVATE
 
 
 
-# Include dirs (headerPath in .jucer points to rnnoise; add Source/and JuceLibraryCode as well)
+# Include dirs
 target_include_directories(AudioAnalyzer PRIVATE
     ${CMAKE_SOURCE_DIR}/Source
     ${CMAKE_SOURCE_DIR}/JuceLibraryCode
-    # rnnoise headers: prefer subdir include/, keep root for backward compatibility
-    ${RNNOISE_DIR}
-    ${RNNOISE_DIR}/include
 )
 
 # JUCE compile definitions from .jucer
@@ -203,17 +192,6 @@ endif()
 if (ANDROID_VERSION_CODE)
     message(STATUS "Defining ANDROID_VERSION_CODE=${ANDROID_VERSION_CODE}")
     target_compile_definitions(AudioAnalyzer PRIVATE "ANDROID_VERSION_CODE=${ANDROID_VERSION_CODE}")
-endif()
-
-# Link rnnoise; handle common target names defensively
-if (TARGET rnnoise)
-    target_link_libraries(AudioAnalyzer PRIVATE rnnoise)
-elseif(TARGET rnnoise_static)
-    target_link_libraries(AudioAnalyzer PRIVATE rnnoise_static)
-elseif(TARGET RNNoise)
-    target_link_libraries(AudioAnalyzer PRIVATE RNNoise)
-else()
-    message(FATAL_ERROR "rnnoise target was not created by its CMakeLists. Known names not found (rnnoise, rnnoise_static, RNNoise). Please check ${RNNOISE_DIR}.")
 endif()
 
 # Platform tweaks

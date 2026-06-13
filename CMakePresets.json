@@ -14,7 +14,6 @@
       "cacheVariables": {
         "CMAKE_BUILD_TYPE": "Debug",
         "AA_ENABLE_ANDROID_HELPERS": true,
-        "RNNOISE_SKIP_MODEL_DOWNLOAD": true,
         "CMAKE_TOOLCHAIN_FILE": "D:/Users/eigil/projects/CPP/vcpkg/scripts/buildsystems/vcpkg.cmake"
       }
     },
@@ -26,7 +25,6 @@
       "cacheVariables": {
         "CMAKE_BUILD_TYPE": "Release",
         "AA_ENABLE_ANDROID_HELPERS": true,
-        "RNNOISE_SKIP_MODEL_DOWNLOAD": true,
         "CMAKE_TOOLCHAIN_FILE": "D:/Users/eigil/projects/CPP/vcpkg/scripts/buildsystems/vcpkg.cmake"
       }
     },
@@ -38,7 +36,6 @@
       "cacheVariables": {
         "CMAKE_BUILD_TYPE": "Debug",
         "AA_ENABLE_ANDROID_HELPERS": true,
-        "RNNOISE_SKIP_MODEL_DOWNLOAD": true,
         "CMAKE_TOOLCHAIN_FILE": "D:/Users/eigil/projects/CPP/vcpkg/scripts/buildsystems/vcpkg.cmake"
       }
     }

@@ -100,7 +100,6 @@ private:
     std::unique_ptr<juce::ToggleButton> useNoFilter__toggleButton;
     std::unique_ptr<juce::ToggleButton> makeFFtRealTimeChartPlot__toggleButton;
     std::unique_ptr<juce::ToggleButton> showFilter__toggleButton;
-    std::unique_ptr<juce::ToggleButton> rnnoise_toggleButton;
 
 
     //==============================================================================

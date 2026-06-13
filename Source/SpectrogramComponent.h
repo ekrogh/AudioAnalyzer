@@ -19,7 +19,6 @@
 #include <semaphore>
 #include <coroutine>
 #include "NotchFilter.h"
-#include "rnnoise.h"
 
 class FFTModule;
 class FFTCtrl;
@@ -67,8 +66,6 @@ public:
 
 	void prepareToPlay(int /*samplesPerBlockExpected*/, double /*newSampleRate*/) override;
 
-	float rnnoise_process(float* pFrameOut, const float* pFrameIn);
-
 	void releaseResources() override;
 
 	void getNextAudioBlock(const juce::AudioSourceChannelInfo& bufferToFill) override;
@@ -102,8 +99,6 @@ public:
 	void registerFFTCtrl(FFTCtrl* FFTC);
 
 	void setShowFilters(bool showFilters);
-	
-	void setUseRnNoises(bool useRnNoiseIn);
 
 
 	void setXTicksForPowerGridFrequencies();
@@ -150,10 +145,6 @@ public:
 
 private:
 	double sysSampleRate = 48000.0f; // Hz
-
-	DenoiseState* rnnoiseState;
-	int rnnoiseFrameSize;
-	bool useRnNoise = false;
 
 	int yLimIntervalMs = 5000;
 	int yLimNumTimerCallBacks = 294; // yLimIntervalMs / curTimerInterValMs;

@@ -47,7 +47,6 @@
 #pragma once
 
 #include "Utilities.h"
-#include "guitarSeparator.h"
 
 
 class ModuleThumbnailComp final : public Component,
@@ -298,9 +297,6 @@ public:
 		startStopButton.setColour(TextButton::textColourOffId, Colours::black);
 		startStopButton.onClick = [this] { startOrStop(); };
 
-		addAndMakeVisible(useRnNoiseButton);
-		useRnNoiseButton.onClick = [this] { updateUseRnNoiseState(); };
-
 		// audio setup
 		formatManager.registerBasicFormats();
 
@@ -348,9 +344,7 @@ public:
 		zoomSlider.setBounds(zoom);
 
 		followTransportButton.setBounds(controls.removeFromTop(25));
-		startStopButton.setBounds(controls.removeFromLeft(controls.getWidth() / 2));
-
-		useRnNoiseButton.setBounds(controls.removeFromRight(controls.getWidth() / 2));
+		startStopButton.setBounds(controls);
 
 		r.removeFromBottom(6);
 
@@ -385,14 +379,12 @@ private:
 	URL currentAudioFile;
 	AudioSourcePlayer audioSourcePlayer;
 	AudioTransportSource transportSource;
-	guitarSeparator audioSeparator;
 	std::unique_ptr<AudioFormatReaderSource> currentAudioFileSource;
 
 	std::unique_ptr<ModuleThumbnailComp> thumbnail;
 	Label zoomLabel{ {}, "zoom:" };
 	Slider zoomSlider{ Slider::LinearHorizontal, Slider::NoTextBox };
 	ToggleButton followTransportButton{ "Follow Transport" };
-	ToggleButton useRnNoiseButton{ "Use RNNoise" };
 	TextButton startStopButton{ "Play/Stop" };
 	Slider gainSlider{ Slider::LinearVertical, Slider::TextBoxAbove };
 
@@ -460,37 +452,6 @@ private:
 	void updateFollowTransportState()
 	{
 		thumbnail->setFollowsTransport(followTransportButton.getToggleState());
-	}
-
-	void updateUseRnNoiseState()
-	{
-		const bool wasPlaying = transportSource.isPlaying();
-		double position;
-
-		if (wasPlaying)
-		{
-			position = transportSource.getCurrentPosition();
-			transportSource.stop();
-		}
-
-		if (useRnNoiseButton.getToggleState())
-		{
-			audioSourcePlayer.setSource(&audioSeparator);
-			audioSeparator.setSource(&transportSource);
-		}
-		else
-		{
-			// Switch back to direct transport
-			audioSeparator.setSource(nullptr);
-			audioSourcePlayer.setSource(&transportSource);
-		}
-
-		// Restore playback seamlessly
-		if (wasPlaying)
-		{
-			transportSource.setPosition(position);
-			transportSource.start();
-		}
 	}
 
 	void buttonClicked(Button* btn) override

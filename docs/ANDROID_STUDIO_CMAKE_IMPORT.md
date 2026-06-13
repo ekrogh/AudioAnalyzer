@@ -1,6 +1,6 @@
 ## Android Studio project generation (recommended: Projucer export)
 
-This project ships with a script that generates a real Android Studio Gradle project using JUCE’s Android exporter (Projucer). It places the project under `Builds/Android` and patches it to use this repo’s root CMakeLists.txt so rnnoise and your JUCE setup are respected.
+This project ships with a script that generates a real Android Studio Gradle project using JUCE’s Android exporter (Projucer). It places the project under `Builds/Android` and patches it to use this repo’s root CMakeLists.txt so your JUCE setup is respected.
 
 ### Prerequisites
 - Android Studio (latest stable) with SDK/NDK/CMake installed (via SDK Manager)
@@ -18,7 +18,7 @@ pwsh -NoProfile -ExecutionPolicy Bypass -File .\Generate-AndroidStudioProject.ps
 
 What happens
 - Projucer is run headless to export the Gradle project to `Builds/Android`.
-- The script patches `externalNativeBuild.cmake.path` to point at `../../../CMakeLists.txt` (repo root), so headers and the rnnoise target are included without editing generated files.
+- The script patches `externalNativeBuild.cmake.path` to point at `../../../CMakeLists.txt` (repo root), so the shared native build configuration is used without editing generated files.
 - The script prints the Gradle root it found, for example:
 
 ```

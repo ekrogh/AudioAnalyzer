@@ -45,10 +45,6 @@ SpectrogramComponent::SpectrogramComponent
 
 	initRealTimeFftChartPlot();
 
-	// Initialize RNNoise
-	rnnoiseState = rnnoise_create(nullptr);
-	rnnoiseFrameSize = rnnoise_get_frame_size();
-
 	curNumInputChannels = 1;
 	setAudioChannels(1, 2);
 	audioSysInit();
@@ -67,10 +63,6 @@ bool SpectrogramComponent::audioSysInit()
 	juce::AudioDeviceManager::AudioDeviceSetup currentAudioConfig;
 	sharedAudioDeviceManager->getAudioDeviceSetup(currentAudioConfig);
 
-	if (currentAudioConfig.bufferSize < rnnoiseFrameSize)
-	{
-		currentAudioConfig.bufferSize = rnnoiseFrameSize;
-	}
 	if (currentAudioConfig.sampleRate != sysSampleRate)
 	{
 		currentAudioConfig.sampleRate = sysSampleRate;
@@ -559,41 +551,6 @@ void SpectrogramComponent::releaseResources()
 	// (nothing to do here)
 }
 
-// The wrapped of rnnoise's |rnnoise_process_frame| function so as to make sure its input/outpu is |f32| format.
-// Note tha the frame size is fixed 480.
-float SpectrogramComponent::rnnoise_process(float* pFrameOut, const float* pFrameIn)
-{
-	float vadProb;
-	float* buffer = new float[rnnoiseFrameSize];
-
-	// Note: Be careful for the format of the input data.
-	std::transform
-	(
-		&pFrameIn[0]
-		, &pFrameIn[rnnoiseFrameSize]
-		, &buffer[0]
-		, [](float x)
-		{
-			return x * 32768.0f;
-		}
-	);
-
-	vadProb = rnnoise_process_frame(rnnoiseState, &buffer[0], &buffer[0]);
-
-	std::transform
-	(
-		&buffer[0]
-		, &buffer[rnnoiseFrameSize]
-		, &pFrameOut[0]
-		, [](float x)
-		{
-			return eks_clamp(x, -32768, 32767)  / 32768.0f;
-		}
-	);
-
-	return vadProb;
-}
-
 void SpectrogramComponent::getNextAudioBlock(const juce::AudioSourceChannelInfo& bufferToFill)
 {
 	auto numChans = bufferToFill.buffer->getNumChannels();
@@ -602,31 +559,6 @@ void SpectrogramComponent::getNextAudioBlock(const juce::AudioSourceChannelInfo&
 	if (numChans > 0)
 	{
 		const auto* channelData = bufferToFill.buffer->getReadPointer(0, bufferToFill.startSample);
-		auto* channelWritePtr = bufferToFill.buffer->getWritePointer(0);
-
-		// Process audio with RNNoise
-		if (useRnNoise)
-		{
-			auto channelWritePtr = bufferToFill.buffer->getWritePointer(0);
-			auto iStop = noSampels - rnnoiseFrameSize;
-			int i = 0;
-			for (; i <= iStop; i += rnnoiseFrameSize)
-			{
-				rnnoise_process(&channelWritePtr[i], &channelData[i]);
-				// Add logging to check the processed data
-				DBG("Processed frame starting at sample " << i);
-			}
-
-			// Process remaining samples
-			if (i < noSampels)
-			{
-				std::vector<float> remainingSamples(rnnoiseFrameSize, 0.0f);
-				std::copy(&channelData[i], &channelData[noSampels], remainingSamples.begin());
-				rnnoise_process(remainingSamples.data(), remainingSamples.data());
-				std::copy(remainingSamples.begin(), remainingSamples.begin() + (noSampels - i), &channelWritePtr[i]);
-				DBG("Processed remaining samples starting at sample " << i);
-			}
-		}
 
 		if (numChans >= 2)
 		{
@@ -681,9 +613,6 @@ void SpectrogramComponent::paint(juce::Graphics& g)
 SpectrogramComponent::~SpectrogramComponent()
 {
 	shutDownIO();
-
-	rnnoise_destroy(rnnoiseState);
-
 }
 
 void SpectrogramComponent::drawNextLineOfSpectrogramAndFftPlotUpdate(float* fftDataBuffer, unsigned int& fftSize)
@@ -979,10 +908,4 @@ void SpectrogramComponent::setShowFilters(bool showF)
 	showFilters = showF;
 
 	startShowingFilters();
-}
-
-
-void SpectrogramComponent::setUseRnNoises(bool useRnNoiseIn)
-{
-	useRnNoise = useRnNoiseIn;
 }

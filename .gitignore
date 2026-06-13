@@ -369,5 +369,4 @@ FodyWeavers.xsd
 /Builds
 *.DS_Store
 /.DS_Store
-/rnnoise_build/
 /build/

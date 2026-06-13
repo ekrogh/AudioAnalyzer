@@ -4,7 +4,4 @@
    <FileRef
       location = "absolute:/Users/eks/projects/juceProjs/AudioAnalyzer/Builds/MacOSX/AudioAnalyzer.xcodeproj">
    </FileRef>
-   <FileRef
-      location = "absolute:/Users/eks/projects/juceProjs/AudioAnalyzer/rnnoise_build/xcode-macos/rnnoise.xcodeproj">
-   </FileRef>
 </Workspace>
