@@ -11,7 +11,6 @@
 #pragma once
 
 #include <JuceHeader.h>
-#include "rnnoise.h"
 #include <vector>
 
 //==============================================================================
@@ -25,7 +24,7 @@ public:
 
     void initializeRNNoise();
 
-    float rnnoise_process(float* pFrameOut, const float* pFrameIn);
+    float guitar_soundExtract(float* pFrameOut, const float* pFrameIn);
 
     //==============================================================================
     /** Implementation of the AudioSource method. */
@@ -56,7 +55,6 @@ public:
 
 private:
     // RNNoise state and configuration
-    DenoiseState* rnnoiseState = nullptr;
     int rnnoiseFrameSize = 0;
 
     // Scratch buffers reused every process call to avoid allocations

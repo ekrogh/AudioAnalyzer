@@ -24,11 +24,6 @@ guitarSeparator::~guitarSeparator()
 	releaseResources();
 
 	// Destroy RNNoise state
-	if (rnnoiseState != nullptr)
-	{
-		rnnoise_destroy(rnnoiseState);
-		rnnoiseState = nullptr;
-	}
 }
 
 void guitarSeparator::prepareToPlay(int samplesPerBlockExpected, double newSampleRate)
@@ -45,8 +40,6 @@ void guitarSeparator::prepareToPlay(int samplesPerBlockExpected, double newSampl
 
 void guitarSeparator::initializeRNNoise()
 {
-	rnnoiseState = rnnoise_create(nullptr);
-	rnnoiseFrameSize = rnnoise_get_frame_size();
 
 	// Pre-size scratch buffers to avoid per-callback allocations
 	rnFrameScratch.resize(rnnoiseFrameSize);
@@ -55,7 +48,7 @@ void guitarSeparator::initializeRNNoise()
 
 // The wrapper of rnnoise's |rnnoise_process_frame| function so as to make sure its input/output is |f32| format.
 // Note that the frame size is fixed 480.
-float guitarSeparator::rnnoise_process(float* pFrameOut, const float* pFrameIn)
+float guitarSeparator::guitar_soundExtract(float* pFrameOut, const float* pFrameIn)
 {
 	// Use reusable scratch buffer
 	float* buffer = rnFrameScratch.data();
@@ -70,7 +63,6 @@ float guitarSeparator::rnnoise_process(float* pFrameOut, const float* pFrameIn)
 			return x * 32768.0f;
 		});
 
-	const float vadProb = rnnoise_process_frame(rnnoiseState, buffer, buffer);
 
 	// Scale back to [-1, 1]
 	std::transform(
@@ -82,7 +74,7 @@ float guitarSeparator::rnnoise_process(float* pFrameOut, const float* pFrameIn)
 			return eks_clamp(x, -32768.0f, 32767.0f) / 32768.0f;
 		});
 
-	return vadProb;
+	return 0.0f; // Placeholder return value, modify as needed
 }
 
 void guitarSeparator::getNextAudioBlock(const AudioSourceChannelInfo& info)
@@ -103,7 +95,7 @@ void guitarSeparator::getNextAudioBlock(const AudioSourceChannelInfo& info)
 		int i = 0;
 		for (; i <= iStop; i += rnnoiseFrameSize)
 		{
-			rnnoise_process(&channelWritePtr[i], &channelData[i]);
+			guitar_soundExtract(&channelWritePtr[i], &channelData[i]);
 			// Add logging to check the processed data
 			DBG("Processed frame starting at sample " << i);
 		}
@@ -116,7 +108,7 @@ void guitarSeparator::getNextAudioBlock(const AudioSourceChannelInfo& info)
 			std::fill(tail, tail + rnnoiseFrameSize, 0.0f);
 			std::copy(&channelData[i], &channelData[noSampels], tail);
 
-			rnnoise_process(tail, tail);
+			guitar_soundExtract(tail, tail);
 			std::copy(tail, tail + (noSampels - i), &channelWritePtr[i]);
 			DBG("Processed remaining samples starting at sample " << i);
 		}
