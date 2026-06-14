@@ -42,8 +42,8 @@ void guitarSeparator::initializeRNNoise()
 {
 
 	// Pre-size scratch buffers to avoid per-callback allocations
-	rnFrameScratch.resize(rnnoiseFrameSize);
-	rnTailScratch.resize(rnnoiseFrameSize);
+	extracFrameScratch.resize(extractionFrameSize);
+	extracTailScratch.resize(extractionFrameSize);
 }
 
 // The wrapper of rnnoise's |rnnoise_process_frame| function so as to make sure its input/output is |f32| format.
@@ -51,12 +51,12 @@ void guitarSeparator::initializeRNNoise()
 float guitarSeparator::guitar_soundExtract(float* pFrameOut, const float* pFrameIn)
 {
 	// Use reusable scratch buffer
-	float* buffer = rnFrameScratch.data();
+	float* buffer = extracFrameScratch.data();
 
 	// Scale input to int16 range expected internally
 	std::transform(
 		pFrameIn,
-		pFrameIn + rnnoiseFrameSize,
+		pFrameIn + extractionFrameSize,
 		buffer,
 		[](float x)
 		{
@@ -67,7 +67,7 @@ float guitarSeparator::guitar_soundExtract(float* pFrameOut, const float* pFrame
 	// Scale back to [-1, 1]
 	std::transform(
 		buffer,
-		buffer + rnnoiseFrameSize,
+		buffer + extractionFrameSize,
 		pFrameOut,
 		[](float x)
 		{
@@ -91,9 +91,9 @@ void guitarSeparator::getNextAudioBlock(const AudioSourceChannelInfo& info)
 
 		// Process audio with RNNoise
 		auto channelWritePtr = info.buffer->getWritePointer(0, info.startSample);
-		auto iStop = noSampels - rnnoiseFrameSize;
+		auto iStop = noSampels - extractionFrameSize;
 		int i = 0;
-		for (; i <= iStop; i += rnnoiseFrameSize)
+		for (; i <= iStop; i += extractionFrameSize)
 		{
 			guitar_soundExtract(&channelWritePtr[i], &channelData[i]);
 			// Add logging to check the processed data
@@ -104,8 +104,8 @@ void guitarSeparator::getNextAudioBlock(const AudioSourceChannelInfo& info)
 		if (i < noSampels)
 		{
 			// Reuse tail scratch buffer
-			float* tail = rnTailScratch.data();
-			std::fill(tail, tail + rnnoiseFrameSize, 0.0f);
+			float* tail = extracTailScratch.data();
+			std::fill(tail, tail + extractionFrameSize, 0.0f);
 			std::copy(&channelData[i], &channelData[noSampels], tail);
 
 			guitar_soundExtract(tail, tail);

@@ -55,11 +55,11 @@ public:
 
 private:
     // RNNoise state and configuration
-    int rnnoiseFrameSize = 0;
+    int extractionFrameSize = 0;
 
     // Scratch buffers reused every process call to avoid allocations
-    std::vector<float> rnFrameScratch; // per-frame temporary buffer
-    std::vector<float> rnTailScratch;  // remainder frame buffer (zero-padded)
+    std::vector<float> extracFrameScratch; // per-frame temporary buffer
+    std::vector<float> extracTailScratch;  // remainder frame buffer (zero-padded)
 
     CriticalSection readLock;
 
