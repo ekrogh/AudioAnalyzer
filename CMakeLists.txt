@@ -69,6 +69,7 @@ target_sources(AudioAnalyzer PRIVATE
     Source/FFTCtrl.cpp
     Source/FFTModule.cpp
     Source/freqPlotModule.cpp
+    Source/guitarSeparator.cpp
     Source/helpPage.cpp
     Source/Main.cpp
     Source/MainComponent.cpp
@@ -128,6 +129,38 @@ target_include_directories(AudioAnalyzer PRIVATE
     ${CMAKE_SOURCE_DIR}/Source
     ${CMAKE_SOURCE_DIR}/JuceLibraryCode
 )
+
+option(AA_ENABLE_ONNXRUNTIME "Enable HTDemucs inference through ONNX Runtime when available" ON)
+
+if (AA_ENABLE_ONNXRUNTIME)
+    find_path(ONNXRUNTIME_INCLUDE_DIR
+        NAMES onnxruntime_cxx_api.h
+        HINTS
+            ENV ONNXRUNTIME_ROOT
+        PATH_SUFFIXES
+            include
+            include/onnxruntime)
+
+    find_library(ONNXRUNTIME_LIBRARY
+        NAMES onnxruntime
+        HINTS
+            ENV ONNXRUNTIME_ROOT
+        PATH_SUFFIXES
+            lib
+            lib64)
+
+    if (ONNXRUNTIME_INCLUDE_DIR AND ONNXRUNTIME_LIBRARY)
+        target_include_directories(AudioAnalyzer PRIVATE ${ONNXRUNTIME_INCLUDE_DIR})
+        target_link_libraries(AudioAnalyzer PRIVATE ${ONNXRUNTIME_LIBRARY})
+        target_compile_definitions(AudioAnalyzer PRIVATE AA_ENABLE_ONNXRUNTIME=1)
+        message(STATUS "ONNX Runtime detected: enabling HTDemucs inference support")
+    else()
+        target_compile_definitions(AudioAnalyzer PRIVATE AA_ENABLE_ONNXRUNTIME=0)
+        message(STATUS "ONNX Runtime not found: building guitarSeparator with fallback backend support only")
+    endif()
+else()
+    target_compile_definitions(AudioAnalyzer PRIVATE AA_ENABLE_ONNXRUNTIME=0)
+endif()
 
 # JUCE compile definitions from .jucer
 target_compile_definitions(AudioAnalyzer PRIVATE

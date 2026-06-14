@@ -255,14 +255,15 @@ private:
 //==============================================================================
 class AudioPlaybackModule final : public Component,
 	private Button::Listener,
-	private ChangeListener
+	private ChangeListener,
+	private Timer
 {
 public:
 	AudioPlaybackModule(std::shared_ptr<AudioDeviceManager> SADM)
 		: sharedAudioDeviceManager(SADM)
 	{
 		addAndMakeVisible(zoomLabel);
-		zoomLabel.setFont(Font(15.00f, Font::plain));
+		zoomLabel.setFont(Font(withDefaultMetrics(FontOptions(15.00f, Font::plain))));
 		zoomLabel.setJustificationType(Justification::centredRight);
 		zoomLabel.setEditable(false, false, false);
 		zoomLabel.setColour(TextEditor::textColourId, Colours::black);
@@ -298,8 +299,13 @@ public:
 		startStopButton.setColour(TextButton::textColourOffId, Colours::black);
 		startStopButton.onClick = [this] { startOrStop(); };
 
-		addAndMakeVisible(useRnNoiseButton);
-		useRnNoiseButton.onClick = [this] { updateUseRnNoiseState(); };
+		addAndMakeVisible(useGuitarSeparationButton);
+		useGuitarSeparationButton.onClick = [this] { updateUseGuitarSeparationState(); };
+
+		addAndMakeVisible(separatorStatusLabel);
+		separatorStatusLabel.setJustificationType(Justification::centredLeft);
+		separatorStatusLabel.setMinimumHorizontalScale(0.8f);
+		updateSeparatorStatus();
 
 		// audio setup
 		formatManager.registerBasicFormats();
@@ -308,6 +314,7 @@ public:
 
 		sharedAudioDeviceManager->addAudioCallback(&audioSourcePlayer);
 		audioSourcePlayer.setSource(&transportSource);
+		startTimerHz(4);
 
 		setOpaque(true);
 		setSize(500, 500);
@@ -347,10 +354,11 @@ public:
 		zoomLabel.setBounds(zoom.removeFromLeft(50));
 		zoomSlider.setBounds(zoom);
 
+		separatorStatusLabel.setBounds(controls.removeFromTop(25));
 		followTransportButton.setBounds(controls.removeFromTop(25));
 		startStopButton.setBounds(controls.removeFromLeft(controls.getWidth() / 2));
 
-		useRnNoiseButton.setBounds(controls.removeFromRight(controls.getWidth() / 2));
+		useGuitarSeparationButton.setBounds(controls.removeFromRight(controls.getWidth() / 2));
 
 		r.removeFromBottom(6);
 
@@ -391,8 +399,9 @@ private:
 	std::unique_ptr<ModuleThumbnailComp> thumbnail;
 	Label zoomLabel{ {}, "zoom:" };
 	Slider zoomSlider{ Slider::LinearHorizontal, Slider::NoTextBox };
+	Label separatorStatusLabel{ {}, {} };
 	ToggleButton followTransportButton{ "Follow Transport" };
-	ToggleButton useRnNoiseButton{ "Use RNNoise" };
+	ToggleButton useGuitarSeparationButton{ "Use Guitar Separation" };
 	TextButton startStopButton{ "Play/Stop" };
 	Slider gainSlider{ Slider::LinearVertical, Slider::TextBoxAbove };
 
@@ -462,10 +471,10 @@ private:
 		thumbnail->setFollowsTransport(followTransportButton.getToggleState());
 	}
 
-	void updateUseRnNoiseState()
+	void updateUseGuitarSeparationState()
 	{
 		const bool wasPlaying = transportSource.isPlaying();
-		double position;
+		double position = 0.0;
 
 		if (wasPlaying)
 		{
@@ -473,16 +482,18 @@ private:
 			transportSource.stop();
 		}
 
-		if (useRnNoiseButton.getToggleState())
+		if (useGuitarSeparationButton.getToggleState())
 		{
 			audioSourcePlayer.setSource(&audioSeparator);
 			audioSeparator.setSource(&transportSource);
+			updateSeparatorStatus();
 		}
 		else
 		{
 			// Switch back to direct transport
 			audioSeparator.setSource(nullptr);
 			audioSourcePlayer.setSource(&transportSource);
+			updateSeparatorStatus();
 		}
 
 		// Restore playback seamlessly
@@ -491,6 +502,21 @@ private:
 			transportSource.setPosition(position);
 			transportSource.start();
 		}
+	}
+
+	void updateSeparatorStatus()
+	{
+		const auto prefix = useGuitarSeparationButton.getToggleState() ? "Guitar Separation: " : "Guitar Separation Off";
+
+		if (! useGuitarSeparationButton.getToggleState())
+		{
+			separatorStatusLabel.setText(prefix, dontSendNotification);
+			return;
+		}
+
+		separatorStatusLabel.setText(prefix + audioSeparator.getBackendStatusText(), dontSendNotification);
+		separatorStatusLabel.setColour(Label::textColourId,
+			audioSeparator.isModelReady() ? Colours::lightgreen : Colours::orange);
 	}
 
 	void buttonClicked(Button* btn) override
@@ -520,6 +546,11 @@ private:
 	{
 		if (source == thumbnail.get())
 			showAudioResource(URL(thumbnail->getLastDroppedFile()));
+	}
+
+	void timerCallback() override
+	{
+		updateSeparatorStatus();
 	}
 
 	JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(AudioPlaybackModule)

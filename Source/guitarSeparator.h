@@ -11,20 +11,17 @@
 #pragma once
 
 #include <JuceHeader.h>
+#include <array>
+#include <atomic>
 #include <vector>
 
 //==============================================================================
-/*
-*/
-class guitarSeparator : public AudioSource
+class guitarSeparator : public AudioSource,
+                        private juce::Thread
 {
 public:
     guitarSeparator();
     ~guitarSeparator() override;
-
-    void initializeRNNoise();
-
-    float guitar_soundExtract(float* pFrameOut, const float* pFrameIn);
 
     //==============================================================================
     /** Implementation of the AudioSource method. */
@@ -53,22 +50,94 @@ public:
     */
     void setSource(AudioSource* newSource);
 
+    bool isModelReady() const;
+    juce::String getBackendStatusText() const;
+
 private:
-    // RNNoise state and configuration
-    int extractionFrameSize = 0;
+    struct ModelManifest
+    {
+        int sampleRate = 44100;
+        int channels = 2;
+        int windowFrames = 8192;
+        int guitarStemIndex = 4;
+        juce::String modelFileName{ "htdemucs_6s_guitar.onnx" };
+        juce::String manifestFileName{ "htdemucs_guitar_manifest.json" };
+    };
 
-    // Scratch buffers reused every process call to avoid allocations
-    std::vector<float> extracFrameScratch; // per-frame temporary buffer
-    std::vector<float> extracTailScratch;  // remainder frame buffer (zero-padded)
+    struct HtDemucsOnnxBackend;
 
-    CriticalSection readLock;
+    enum class BackendState
+    {
+        idle,
+        downloadingModel,
+        ready,
+        fallback,
+        failed
+    };
+
+    void run() override;
+
+    void initialiseSeparator();
+    void configureFallbackFilters();
+    void resetProcessingState();
+    void updateBackendState(BackendState newState, const juce::String& newStatus);
+
+    juce::File getModelDirectory() const;
+    juce::File getModelFile() const;
+    juce::File getManifestFile() const;
+    juce::String getConfiguredModelUrl() const;
+    juce::String getConfiguredManifestUrl() const;
+
+    bool ensureModelAssetsAvailable();
+    bool downloadModelAssets();
+    bool parseModelManifest();
+    bool downloadFileTo(const juce::URL& url, const juce::File& destination) const;
+    bool tryLoadHtDemucsBackend();
+    bool processAvailableWindow();
+    bool processCurrentWindow(std::vector<float>& outputWindow);
+    void processFallbackWindow(const std::vector<float>& inputWindow, std::vector<float>& outputWindow);
+
+    void queueInputSamples(const juce::AudioBuffer<float>& buffer, int startSample, int numSamples);
+    bool popOutputSamples(juce::AudioBuffer<float>& buffer, int startSample, int numSamples);
+    bool popInputWindow(std::vector<float>& inputWindow);
+    void pushOutputWindow(const std::vector<float>& outputWindow);
 
     AudioSource* source = nullptr;
-    double sampleRate = 0;
-    int bufferSize = 0;
+    double sampleRate = 44100.0;
 
     CriticalSection callbackLock;
-    int blockSize = 128, readAheadBufferSize = 0;
+    CriticalSection queueLock;
+    mutable CriticalSection stateLock;
+    int blockSize = 512;
+
+    ModelManifest modelManifest;
+    std::unique_ptr<HtDemucsOnnxBackend> onnxBackend;
+
+    std::vector<float> inputRing;
+    std::vector<float> outputRing;
+    std::vector<float> processInputWindow;
+    std::vector<float> processOutputWindow;
+    std::array<std::vector<float>, 2> fallbackChannelScratch;
+
+    int ioChannels = 2;
+    int inputCapacityFrames = 0;
+    int outputCapacityFrames = 0;
+    int inputWriteFrame = 0;
+    int inputReadFrame = 0;
+    int inputQueuedFrames = 0;
+    int outputWriteFrame = 0;
+    int outputReadFrame = 0;
+    int outputQueuedFrames = 0;
+
+    std::array<juce::IIRFilter, 2> highPassFilters;
+    std::array<juce::IIRFilter, 2> lowPassFilters;
+
+    std::atomic<bool> backendReady{ false };
+    bool modelAssetsChecked = false;
+    bool modelAssetsAvailable = false;
+    bool preferDryWhileWarmingUp = true;
+    BackendState backendState = BackendState::idle;
+    juce::String backendStatusText{ "HTDemucs not initialised" };
 
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (guitarSeparator)
