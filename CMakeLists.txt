@@ -131,32 +131,71 @@ target_include_directories(AudioAnalyzer PRIVATE
 )
 
 option(AA_ENABLE_ONNXRUNTIME "Enable HTDemucs inference through ONNX Runtime when available" ON)
+set(ONNXRUNTIME_ROOT "" CACHE PATH "Root directory of an ONNX Runtime installation (contains include and lib folders)")
 
 if (AA_ENABLE_ONNXRUNTIME)
-    find_path(ONNXRUNTIME_INCLUDE_DIR
-        NAMES onnxruntime_cxx_api.h
-        HINTS
-            ENV ONNXRUNTIME_ROOT
-        PATH_SUFFIXES
-            include
-            include/onnxruntime)
+    set(_AA_ONNXRUNTIME_HINTS
+        ${ONNXRUNTIME_ROOT}
+        $ENV{ONNXRUNTIME_ROOT}
+        $ENV{onnxruntime_ROOT}
+        $ENV{ONNXRUNTIME_DIR}
+        $ENV{onnxruntime_DIR}
+        ${CMAKE_SOURCE_DIR}/external/onnxruntime
+        ${CMAKE_SOURCE_DIR}/third_party/onnxruntime
+        ${CMAKE_SOURCE_DIR}/deps/onnxruntime)
 
-    find_library(ONNXRUNTIME_LIBRARY
-        NAMES onnxruntime
-        HINTS
-            ENV ONNXRUNTIME_ROOT
-        PATH_SUFFIXES
-            lib
-            lib64)
+    if (POLICY CMP0144)
+        cmake_policy(PUSH)
+        cmake_policy(SET CMP0144 NEW)
+    endif()
 
-    if (ONNXRUNTIME_INCLUDE_DIR AND ONNXRUNTIME_LIBRARY)
-        target_include_directories(AudioAnalyzer PRIVATE ${ONNXRUNTIME_INCLUDE_DIR})
-        target_link_libraries(AudioAnalyzer PRIVATE ${ONNXRUNTIME_LIBRARY})
+    find_package(onnxruntime CONFIG QUIET)
+
+    if (POLICY CMP0144)
+        cmake_policy(POP)
+    endif()
+
+    if (TARGET onnxruntime::onnxruntime)
+        target_link_libraries(AudioAnalyzer PRIVATE onnxruntime::onnxruntime)
         target_compile_definitions(AudioAnalyzer PRIVATE AA_ENABLE_ONNXRUNTIME=1)
-        message(STATUS "ONNX Runtime detected: enabling HTDemucs inference support")
+        message(STATUS "ONNX Runtime detected via package config: enabling HTDemucs inference support")
     else()
-        target_compile_definitions(AudioAnalyzer PRIVATE AA_ENABLE_ONNXRUNTIME=0)
-        message(STATUS "ONNX Runtime not found: building guitarSeparator with fallback backend support only")
+        find_path(ONNXRUNTIME_INCLUDE_DIR
+            NAMES onnxruntime_cxx_api.h
+            HINTS ${_AA_ONNXRUNTIME_HINTS}
+            PATH_SUFFIXES
+                include
+                include/onnxruntime
+                build/native/include)
+
+        find_library(ONNXRUNTIME_LIBRARY
+            NAMES onnxruntime
+            HINTS ${_AA_ONNXRUNTIME_HINTS}
+            PATH_SUFFIXES
+                lib
+                lib64
+                lib/native
+                runtimes/win-x64/native
+                runtimes/win-arm64/native
+                runtimes/linux-x64/native
+                runtimes/osx-x64/native
+                runtimes/osx-arm64/native)
+
+        if (ONNXRUNTIME_INCLUDE_DIR AND ONNXRUNTIME_LIBRARY)
+            target_include_directories(AudioAnalyzer PRIVATE ${ONNXRUNTIME_INCLUDE_DIR})
+            target_link_libraries(AudioAnalyzer PRIVATE ${ONNXRUNTIME_LIBRARY})
+            target_compile_definitions(AudioAnalyzer PRIVATE AA_ENABLE_ONNXRUNTIME=1)
+            message(STATUS "ONNX Runtime detected: enabling HTDemucs inference support")
+        else()
+            target_compile_definitions(AudioAnalyzer PRIVATE AA_ENABLE_ONNXRUNTIME=0)
+            message(STATUS "ONNX Runtime not found: building guitarSeparator with fallback backend support only. Set ONNXRUNTIME_ROOT or onnxruntime_DIR to enable HTDemucs inference support.")
+        endif()
+    endif()
+
+    unset(_AA_ONNXRUNTIME_HINTS)
+
+    if (TARGET onnxruntime::onnxruntime OR (ONNXRUNTIME_INCLUDE_DIR AND ONNXRUNTIME_LIBRARY))
+        target_compile_definitions(AudioAnalyzer PRIVATE AA_ENABLE_ONNXRUNTIME=1)
     endif()
 else()
     target_compile_definitions(AudioAnalyzer PRIVATE AA_ENABLE_ONNXRUNTIME=0)
