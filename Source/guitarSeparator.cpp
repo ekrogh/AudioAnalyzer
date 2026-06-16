@@ -17,7 +17,7 @@ GuitarSeparator::~GuitarSeparator()
 // AudioSource lifecycle
 void GuitarSeparator::prepareToPlay(int samplesPerBlockExpected, double sampleRate)
 {
-    const ScopedLock sl(callbackLock);
+    //const ScopedLock sl(callbackLock);
     
     currentSampleRate = sampleRate;
     blockSize = samplesPerBlockExpected;
@@ -48,7 +48,7 @@ void GuitarSeparator::prepareToPlay(int samplesPerBlockExpected, double sampleRa
 
 void GuitarSeparator::releaseResources()
 {
-    const ScopedLock sl(callbackLock);
+    //const ScopedLock sl(callbackLock);
 
     stopWorker();
 
@@ -64,7 +64,7 @@ void GuitarSeparator::releaseResources()
 
 void GuitarSeparator::getNextAudioBlock(const juce::AudioSourceChannelInfo& bufferToFill)
 {
-    const ScopedLock sl(callbackLock);
+    //const ScopedLock sl(callbackLock);
     
     auto* buffer = bufferToFill.buffer;
     const int numSamples = bufferToFill.numSamples;
@@ -107,14 +107,13 @@ void GuitarSeparator::getNextAudioBlock(const juce::AudioSourceChannelInfo& buff
     fifo.finishedWrite(size1 + size2);
 
     // Notify worker that new data is available
-    {
-        const juce::ScopedLock sl(workerLock);
+    //{
+    //    const juce::ScopedLock sl(workerLock);
         workerCv.notify_all();
-    }
+    //}
 
     // Read processed audio from overlap buffer and mix into output
     {
-        const juce::ScopedLock sl(outputLock);
         auto* outPtr = outputOverlapBuffer.getReadPointer(0);
         for (int ch = 0; ch < numChannels; ++ch)
         {
@@ -183,10 +182,10 @@ void GuitarSeparator::stopWorker()
         return;
 
     workerRunning = false;
-    {
-        const juce::ScopedLock sl(workerLock);
+    //{
+    //    const juce::ScopedLock sl(workerLock);
         workerCv.notify_all();
-    }
+    //}
     if (workerThread.joinable())
         workerThread.join();
 }
@@ -195,7 +194,6 @@ void GuitarSeparator::stopWorker()
 // Worker loop: reads full windows from FIFO, applies window, runs inference, overlap-adds result
 void GuitarSeparator::workerLoop()
 {
-    // Precompute Hann window (already computed in prepareToPlay, but ensure)
     if (hannWindow.empty())
         hannWindow = makeHannWindow(windowSize);
 
@@ -203,20 +201,22 @@ void GuitarSeparator::workerLoop()
     {
         // Wait until enough samples are available for a full window
         {
-            const juce::ScopedLock sl(workerLock);
-            if (fifo.getNumReady() < windowSize)
+            std::unique_lock<std::mutex> lock(workerMutex);
+            // wait_for returns when notified or timeout elapses; re-check condition after wake
+            workerCv.wait_for(lock, std::chrono::milliseconds(50), [this]()
             {
-                // Wait with timeout to allow clean shutdown
-                //std::unique_lock<std::mutex> lock(workerLock);
-                //workerCv.wait_for(lock, std::chrono::milliseconds(50));
-                if (!workerRunning.load())
-                    break;
+                return !workerRunning.load() || fifo.getNumReady() >= windowSize;
+            });
+
+            if (!workerRunning.load())
+                break;
+
+            if (fifo.getNumReady() < windowSize)
                 continue;
-            }
         }
 
         // Read a full window from circular buffer
-        int rstart1, rsize1, rstart2, rsize2;
+        int rstart1 = 0, rsize1 = 0, rstart2 = 0, rsize2 = 0;
         fifo.prepareToRead(windowSize, rstart1, rsize1, rstart2, rsize2);
 
         std::vector<float> window(windowSize);
@@ -237,33 +237,22 @@ void GuitarSeparator::workerLoop()
 
         if (ok && guitarOut.size() >= static_cast<size_t>(windowSize))
         {
-            // Overlap-add into outputOverlapBuffer
-            const juce::ScopedLock sl(outputLock);
-
-            // Ensure buffer large enough
+            std::lock_guard<std::mutex> outLock(workerMutex); // protect overlap buffer updates
             if (outputOverlapBuffer.getNumSamples() < windowSize + hopSize)
                 outputOverlapBuffer.setSize(1, windowSize + hopSize, true, true, true);
 
-            // Add guitarOut to the start of overlap buffer
             for (int i = 0; i < windowSize; ++i)
             {
                 float prev = outputOverlapBuffer.getSample(0, i);
                 outputOverlapBuffer.setSample(0, i, prev + guitarOut[i]);
             }
         }
-        else
-        {
-            // On failure, skip adding
-        }
 
-        // Advance read pointer by hopSize to implement overlap (we already consumed windowSize samples from FIFO)
-        // To implement hop-based streaming, we need to push back (windowSize - hopSize) samples to FIFO front.
-        // Simpler approach: after reading windowSize, we re-insert (windowSize - hopSize) last samples to the front.
-        // This is a heuristic; for production, maintain a sliding read pointer instead.
         if (!workerRunning.load())
             break;
     }
 }
+
 
 // -----------------------------------------------------------------------------
 // Run ONNX inference on a single window (window already windowed)
@@ -327,7 +316,7 @@ std::vector<float> GuitarSeparator::makeHannWindow(int size)
 {
     std::vector<float> w(size);
     for (int n = 0; n < size; ++n)
-        w[n] = 0.5f * (1.0f - std::cos(2.0 * juce::MathConstants<double>::pi * n / (size - 1)));
+        w[n] = (float)(0.5 * (1.0 - std::cos(2.0 * juce::MathConstants<double>::pi * n / (size - 1))));
     return w;
 }
 
@@ -337,7 +326,6 @@ void GuitarSeparator::runStartupDiagnostics()
     // Non-blocking: notify worker to attempt a smoke inference if model loaded
     if (onnxReady)
     {
-        const juce::ScopedLock sl(workerLock);
         workerCv.notify_all();
     }
 }

@@ -53,7 +53,8 @@ private:
     std::thread workerThread;
     std::atomic<bool> workerRunning{ false };
     std::condition_variable_any workerCv;
-    juce::CriticalSection workerLock;
+    //juce::CriticalSection workerLock;
+    std::mutex workerMutex;
 
     // Streaming buffers (mono)
     juce::AudioBuffer<float> circularBuffer; // mono circular buffer
@@ -87,7 +88,7 @@ private:
     int blockSize = 128;
     juce::AudioSource* source = nullptr;
     //juce::CriticalSection readLock;
-    juce::CriticalSection callbackLock;
+    //juce::CriticalSection callbackLock;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(GuitarSeparator)
 };
