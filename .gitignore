@@ -370,3 +370,7 @@ FodyWeavers.xsd
 *.DS_Store
 /.DS_Store
 /build/
+/Resources/htdemucs_fp16weights.onnx
+/Source/GuitarSeparatorDiagnostics.cpp
+/Source/GuitarSeparatorDiagnostics.h
+/Builds/Android/app/build.gradle

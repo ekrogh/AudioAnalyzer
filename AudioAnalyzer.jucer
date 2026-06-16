@@ -3,7 +3,7 @@
 <JUCERPROJECT id="SUXWw8" name="AudioAnalyzer" projectType="guiapp" useAppConfig="0"
               displaySplashScreen="1" jucerFormatVersion="1" companyWebsite="www.eksit.dk"
               bundleIdentifier="dk.eksit.AudioAnalyzer" cppLanguageStandard="latest"
-              version="1.2.2">
+              version="1.2.2" headerPath="../../../../vcpkg/installed/x64-windows/include/onnxruntime/">
   <MAINGROUP id="J330RL" name="AudioAnalyzer">
     <GROUP id="{444701EC-2BDB-E376-CB2D-A176BB8655A4}" name="Source">
       <GROUP id="{E0980DD4-085C-A615-407B-AC22978106DF}" name="Resources">
@@ -222,7 +222,7 @@
     </XCODE_MAC>
     <VS2026 targetFolder="Builds/VisualStudio2026" smallIcon="zrVA6e" bigIcon="Hd60ks">
       <CONFIGURATIONS>
-        <CONFIGURATION isDebug="1" name="Debug"/>
+        <CONFIGURATION isDebug="1" name="Debug" postbuildCommand="copy &quot;$(ProjectDir)Resources\htdemucs_fp16weights.onnx&quot; &quot;$(OutDir)&quot;&#10;"/>
         <CONFIGURATION isDebug="0" name="Release"/>
       </CONFIGURATIONS>
       <MODULEPATHS>

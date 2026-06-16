@@ -1,41 +1,25 @@
-/*
-  ==============================================================================
-
-    guitarSeparator.h
-    Created: 24 Sep 2025 1:27:21am
-    Author:  eigil
-
-  ==============================================================================
-*/
-
 #pragma once
 
 #include <JuceHeader.h>
-#include <vector>
+#include <onnxruntime_cxx_api.h>
+#include <thread>
+#include <atomic>
+#include <condition_variable>
 
-//==============================================================================
-/*
-*/
-class guitarSeparator : public AudioSource
+// GuitarSeparator
+// - JUCE AudioSource that performs windowed HTDemucs ONNX inference off the audio thread.
+// - Model is loaded from BinaryData::htdemucs_fp16weights_onnx (embed via Projucer Binary Resources).
+
+class GuitarSeparator : public juce::AudioSource
 {
 public:
-    guitarSeparator();
-    ~guitarSeparator() override;
+    GuitarSeparator();
+    ~GuitarSeparator() override;
 
-    void initializeRNNoise();
-
-    float guitar_soundExtract(float* pFrameOut, const float* pFrameIn);
-
-    //==============================================================================
-    /** Implementation of the AudioSource method. */
-    void prepareToPlay(int samplesPerBlockExpected, double newSampleRate) override;
-
-    /** Implementation of the AudioSource method. */
+    // AudioSource interface
+    void prepareToPlay(int samplesPerBlockExpected, double sampleRate) override;
     void releaseResources() override;
-
-    /** Implementation of the AudioSource method. */
-    void getNextAudioBlock(const AudioSourceChannelInfo&) override;
-
+    void getNextAudioBlock(const juce::AudioSourceChannelInfo& bufferToFill) override;
 
     //==============================================================================
     /** Changes the current audio source to play from.
@@ -53,23 +37,57 @@ public:
     */
     void setSource(AudioSource* newSource);
 
+    // Optional: call to run a quick smoke test (non-blocking)
+    void runStartupDiagnostics();
+
 private:
-    // RNNoise state and configuration
-    int extractionFrameSize = 0;
+    // ONNX Runtime
+    std::unique_ptr<Ort::Env> ortEnv;
+    std::unique_ptr<Ort::Session> ortSession;
+    Ort::SessionOptions sessionOptions;
 
-    // Scratch buffers reused every process call to avoid allocations
-    std::vector<float> extracFrameScratch; // per-frame temporary buffer
-    std::vector<float> extracTailScratch;  // remainder frame buffer (zero-padded)
+    // Model file written from BinaryData (temp file path)
+    juce::File modelTempFile;
 
-    CriticalSection readLock;
+    // Worker thread + synchronization
+    std::thread workerThread;
+    std::atomic<bool> workerRunning{ false };
+    std::condition_variable_any workerCv;
+    juce::CriticalSection workerLock;
 
-    AudioSource* source = nullptr;
-    double sampleRate = 0;
-    int bufferSize = 0;
+    // Streaming buffers (mono)
+    juce::AudioBuffer<float> circularBuffer; // mono circular buffer
+    juce::AbstractFifo fifo;
+    int circularCapacity = 0;
 
-    CriticalSection callbackLock;
-    int blockSize = 128, readAheadBufferSize = 0;
+    // Overlap-add output buffer
+    juce::AudioBuffer<float> outputOverlapBuffer;
+    juce::CriticalSection outputLock;
 
+    // Windowing parameters
+    int windowSize = 4096;   // default window size
+    int hopSize = 2048;      // default hop (50% overlap)
+    std::vector<float> hannWindow;
 
-    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (guitarSeparator)
+    // Runtime state
+    double currentSampleRate = 44100.0;
+    std::atomic<bool> onnxReady{ false };
+
+    // Simple counters
+    int writeIndex = 0;
+
+    // Helpers
+    void initOnnxFromBinaryData();
+    void startWorker();
+    void stopWorker();
+    void workerLoop();
+    bool runInferenceOnWindow(const std::vector<float>& window, std::vector<float>& outGuitar);
+    std::vector<float> makeHannWindow(int size);
+
+    int blockSize = 128;
+    juce::AudioSource* source = nullptr;
+    //juce::CriticalSection readLock;
+    juce::CriticalSection callbackLock;
+
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(GuitarSeparator)
 };

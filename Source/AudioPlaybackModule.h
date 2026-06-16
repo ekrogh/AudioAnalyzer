@@ -385,7 +385,7 @@ private:
 	URL currentAudioFile;
 	AudioSourcePlayer audioSourcePlayer;
 	AudioTransportSource transportSource;
-	guitarSeparator audioSeparator;
+	GuitarSeparator audioSeparator;
 	std::unique_ptr<AudioFormatReaderSource> currentAudioFileSource;
 
 	std::unique_ptr<ModuleThumbnailComp> thumbnail;
