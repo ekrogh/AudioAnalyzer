@@ -298,8 +298,8 @@ public:
 		startStopButton.setColour(TextButton::textColourOffId, Colours::black);
 		startStopButton.onClick = [this] { startOrStop(); };
 
-		addAndMakeVisible(useRnNoiseButton);
-		useRnNoiseButton.onClick = [this] { updateUseRnNoiseState(); };
+		addAndMakeVisible(useGuitarSeparatorButton);
+		useGuitarSeparatorButton.onClick = [this] { updateUseGuitarSeparatorState(); };
 
 		// audio setup
 		formatManager.registerBasicFormats();
@@ -350,7 +350,7 @@ public:
 		followTransportButton.setBounds(controls.removeFromTop(25));
 		startStopButton.setBounds(controls.removeFromLeft(controls.getWidth() / 2));
 
-		useRnNoiseButton.setBounds(controls.removeFromRight(controls.getWidth() / 2));
+		useGuitarSeparatorButton.setBounds(controls.removeFromRight(controls.getWidth() / 2));
 
 		r.removeFromBottom(6);
 
@@ -392,7 +392,7 @@ private:
 	Label zoomLabel{ {}, "zoom:" };
 	Slider zoomSlider{ Slider::LinearHorizontal, Slider::NoTextBox };
 	ToggleButton followTransportButton{ "Follow Transport" };
-	ToggleButton useRnNoiseButton{ "Use RNNoise" };
+	ToggleButton useGuitarSeparatorButton{ "Use GuitarSeparator" };
 	TextButton startStopButton{ "Play/Stop" };
 	Slider gainSlider{ Slider::LinearVertical, Slider::TextBoxAbove };
 
@@ -462,7 +462,7 @@ private:
 		thumbnail->setFollowsTransport(followTransportButton.getToggleState());
 	}
 
-	void updateUseRnNoiseState()
+	void updateUseGuitarSeparatorState()
 	{
 		const bool wasPlaying = transportSource.isPlaying();
 		double position;
@@ -473,7 +473,7 @@ private:
 			transportSource.stop();
 		}
 
-		if (useRnNoiseButton.getToggleState())
+		if (useGuitarSeparatorButton.getToggleState())
 		{
 			audioSourcePlayer.setSource(&audioSeparator);
 			audioSeparator.setSource(&transportSource);

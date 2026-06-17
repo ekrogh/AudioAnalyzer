@@ -568,7 +568,7 @@ void SpectrogramComponent::getNextAudioBlock(const juce::AudioSourceChannelInfo&
 		for (auto i = 0; i < noSampels; ++i)
 			pushNextSampleIntoFifo(channelData[i]);
 
-		//bufferToFill.clearActiveBufferRegion();
+		bufferToFill.clearActiveBufferRegion();
 	}
 }
 
