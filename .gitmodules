@@ -1,3 +1,7 @@
 [submodule "JUCE"]
 	path = JUCE
 	url = https://github.com/ekrogh/JUCE
+[submodule "Resources"]
+	path = Resources
+	url = ssh://git@stendell/juceProjs/HTdemucs_model
+	branch = main
