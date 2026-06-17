@@ -18,7 +18,7 @@ GuitarSeparator::~GuitarSeparator()
 // AudioSource lifecycle
 void GuitarSeparator::prepareToPlay(int samplesPerBlockExpected, double sampleRate)
 {
-    //const ScopedLock sl(callbackLock);
+    const ScopedLock sl(callbackLock);
     
     currentSampleRate = sampleRate;
     blockSize = samplesPerBlockExpected;
@@ -49,7 +49,7 @@ void GuitarSeparator::prepareToPlay(int samplesPerBlockExpected, double sampleRa
 
 void GuitarSeparator::releaseResources()
 {
-    //const ScopedLock sl(callbackLock);
+    const ScopedLock sl(callbackLock);
 
     stopWorker();
 
@@ -65,11 +65,16 @@ void GuitarSeparator::releaseResources()
 
 void GuitarSeparator::getNextAudioBlock(const juce::AudioSourceChannelInfo& bufferToFill)
 {
-    //const ScopedLock sl(callbackLock);
+    const ScopedLock sl(callbackLock);
     
     auto* buffer = bufferToFill.buffer;
     const int numSamples = bufferToFill.numSamples;
     const int numChannels = buffer->getNumChannels();
+
+    if (source != nullptr)
+    {
+        //source->getNextAudioBlock(bufferToFill);
+    }
 
     // If ONNX not ready, pass audio through
     if (!onnxReady)

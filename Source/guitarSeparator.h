@@ -88,7 +88,7 @@ private:
     int blockSize = 128;
     juce::AudioSource* source = nullptr;
     //juce::CriticalSection readLock;
-    //juce::CriticalSection callbackLock;
+    juce::CriticalSection callbackLock;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(GuitarSeparator)
 };
