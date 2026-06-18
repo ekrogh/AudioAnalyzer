@@ -77,6 +77,7 @@ target_sources(AudioAnalyzer PRIVATE
     Source/PlotModule.cpp
     Source/SoundProcessorModule.cpp
     Source/SpectrogramComponent.cpp
+    Source/guitarSeparator.cpp
 
     # Existing generated binary data implementation from JuceLibraryCode
     JuceLibraryCode/BinaryData.cpp
@@ -128,6 +129,44 @@ target_include_directories(AudioAnalyzer PRIVATE
     ${CMAKE_SOURCE_DIR}/Source
     ${CMAKE_SOURCE_DIR}/JuceLibraryCode
 )
+
+# ONNX Runtime integration for HTDemucs separator
+# Assumes vcpkg-provided onnxruntime or manual installation
+find_package(onnxruntime QUIET)
+if (onnxruntime_FOUND)
+    target_link_libraries(AudioAnalyzer PRIVATE onnxruntime::onnxruntime)
+    message(STATUS "ONNX Runtime found via find_package")
+else()
+    # Fallback: vcpkg install directories or manual paths
+    # Adjust these paths to match your onnxruntime installation
+    set(ONNXRUNTIME_INCLUDE_DIR "${CMAKE_SOURCE_DIR}/../../../vcpkg/installed/x64-windows/include" CACHE PATH "ONNX Runtime include directory")
+    set(ONNXRUNTIME_LIB_DIR "${CMAKE_SOURCE_DIR}/../../../vcpkg/installed/x64-windows/lib" CACHE PATH "ONNX Runtime library directory")
+
+    if (EXISTS "${ONNXRUNTIME_INCLUDE_DIR}/onnxruntime_cxx_api.h")
+        target_include_directories(AudioAnalyzer PRIVATE "${ONNXRUNTIME_INCLUDE_DIR}")
+        message(STATUS "ONNX Runtime include found at: ${ONNXRUNTIME_INCLUDE_DIR}")
+
+        # Link the runtime library
+        if (WIN32)
+            find_library(ONNXRUNTIME_LIB NAMES onnxruntime PATHS "${ONNXRUNTIME_LIB_DIR}" NO_DEFAULT_PATH)
+            if (ONNXRUNTIME_LIB)
+                target_link_libraries(AudioAnalyzer PRIVATE "${ONNXRUNTIME_LIB}")
+                message(STATUS "ONNX Runtime library: ${ONNXRUNTIME_LIB}")
+            else()
+                message(WARNING "ONNX Runtime library not found. GuitarSeparator will not link.")
+            endif()
+        else()
+            # Unix/Linux/Mac
+            find_library(ONNXRUNTIME_LIB NAMES onnxruntime PATHS "${ONNXRUNTIME_LIB_DIR}" NO_DEFAULT_PATH)
+            if (ONNXRUNTIME_LIB)
+                target_link_libraries(AudioAnalyzer PRIVATE "${ONNXRUNTIME_LIB}")
+                message(STATUS "ONNX Runtime library: ${ONNXRUNTIME_LIB}")
+            endif()
+        endif()
+    else()
+        message(WARNING "ONNX Runtime not found. Set ONNXRUNTIME_INCLUDE_DIR and ONNXRUNTIME_LIB_DIR or install via vcpkg. GuitarSeparator feature will not build.")
+    endif()
+endif()
 
 # JUCE compile definitions from .jucer
 target_compile_definitions(AudioAnalyzer PRIVATE
@@ -218,6 +257,20 @@ endif()
 # Install rules (optional)
 include(GNUInstallDirs)
 install(TARGETS AudioAnalyzer RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR} BUNDLE DESTINATION .)
+
+# Copy ONNX model file to build output for runtime access
+set(ONNX_MODEL_SOURCE "${CMAKE_SOURCE_DIR}/Resources/htdemucs_fp16weights.onnx")
+if (EXISTS "${ONNX_MODEL_SOURCE}")
+    add_custom_command(TARGET AudioAnalyzer POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E copy_if_different
+            "${ONNX_MODEL_SOURCE}"
+            "$<TARGET_FILE_DIR:AudioAnalyzer>/htdemucs_fp16weights.onnx"
+        COMMENT "Copying ONNX model to output directory"
+    )
+    message(STATUS "ONNX model will be copied from: ${ONNX_MODEL_SOURCE}")
+else()
+    message(WARNING "ONNX model not found at ${ONNX_MODEL_SOURCE}. GuitarSeparator will fail at runtime. Please place htdemucs_fp16weights.onnx in Resources/ directory.")
+endif()
 
 # --- Convenience targets for Android SDK/Gradle and device listing ---
 # Default ON so the android_* targets are available without extra flags

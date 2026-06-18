@@ -19,13 +19,19 @@ GuitarSeparator::~GuitarSeparator()
 void GuitarSeparator::prepareToPlay(int samplesPerBlockExpected, double sampleRate)
 {
     const ScopedLock sl(callbackLock);
-    
+
+    DBG("GuitarSeparator::prepareToPlay - blockSize=" + juce::String(samplesPerBlockExpected) + 
+        ", sampleRate=" + juce::String(sampleRate));
+
     currentSampleRate = sampleRate;
     blockSize = samplesPerBlockExpected;
 
     // Tune window/hop if needed (these are safe defaults for real-time)
     if (windowSize <= 0) windowSize = 4096;
     if (hopSize <= 0) hopSize = windowSize / 2;
+
+    DBG("GuitarSeparator: Using windowSize=" + juce::String(windowSize) + 
+        ", hopSize=" + juce::String(hopSize));
 
     // Circular buffer capacity: hold several windows
     circularCapacity = windowSize * 8;
@@ -43,13 +49,24 @@ void GuitarSeparator::prepareToPlay(int samplesPerBlockExpected, double sampleRa
     hannWindow = makeHannWindow(windowSize);
 
     // Initialize ONNX and start worker
-    initOnnxFromBinaryData();
-    startWorker();
+    initOnnxFromFile();
+
+    if (onnxReady)
+    {
+        DBG("GuitarSeparator: ONNX initialized successfully, starting worker thread");
+        startWorker();
+    }
+    else
+    {
+        DBG("GuitarSeparator: ONNX initialization failed, separator will pass silence");
+    }
 }
 
 void GuitarSeparator::releaseResources()
 {
     const ScopedLock sl(callbackLock);
+
+    DBG("GuitarSeparator::releaseResources");
 
     stopWorker();
 
@@ -66,20 +83,27 @@ void GuitarSeparator::releaseResources()
 void GuitarSeparator::getNextAudioBlock(const juce::AudioSourceChannelInfo& bufferToFill)
 {
     const ScopedLock sl(callbackLock);
-    
+
     auto* buffer = bufferToFill.buffer;
     const int numSamples = bufferToFill.numSamples;
     const int numChannels = buffer->getNumChannels();
 
+    // First, get audio from the source (e.g., transport)
     if (source != nullptr)
     {
-        //source->getNextAudioBlock(bufferToFill);
+        source->getNextAudioBlock(bufferToFill);
+    }
+    else
+    {
+        // No source, clear the buffer
+        buffer->clear(bufferToFill.startSample, numSamples);
+        return;
     }
 
-    // If ONNX not ready, pass audio through
+    // If ONNX not ready, pass audio through unchanged
     if (!onnxReady)
     {
-        // No processing: leave input as-is (or you can zero output)
+        // Audio from source is already in buffer, just return it
         return;
     }
 
@@ -118,16 +142,19 @@ void GuitarSeparator::getNextAudioBlock(const juce::AudioSourceChannelInfo& buff
         workerCv.notify_all();
     //}
 
-    // Read processed audio from overlap buffer and mix into output
+    // Read processed audio from overlap buffer and output guitar-only signal
     {
+        const juce::ScopedLock sl(outputLock);
+
         auto* outPtr = outputOverlapBuffer.getReadPointer(0);
         for (int ch = 0; ch < numChannels; ++ch)
         {
             auto* writePtr = buffer->getWritePointer(ch, bufferToFill.startSample);
             for (int i = 0; i < numSamples; ++i)
             {
-                // Add processed guitar signal (if any) to the output
-                writePtr[i] += outPtr[i];
+                // Output only the separated guitar signal
+                // If no processed data is available yet, output will be silence
+                writePtr[i] = outPtr[i];
             }
         }
 
@@ -149,27 +176,46 @@ void GuitarSeparator::getNextAudioBlock(const juce::AudioSourceChannelInfo& buff
 // -----------------------------------------------------------------------------
 // ONNX initialization and worker management
 
-void GuitarSeparator::initOnnxFromBinaryData()
+void GuitarSeparator::initOnnxFromFile()
 {
     if (onnxReady)
         return;
 
     try
     {
+        // Locate model file next to executable
+        auto modelFile = juce::File::getSpecialLocation(juce::File::currentExecutableFile)
+            .getParentDirectory().getChildFile("htdemucs_fp16weights.onnx");
+
+        if (!modelFile.existsAsFile())
+        {
+            DBG("GuitarSeparator: ONNX model file not found at: " + modelFile.getFullPathName());
+            DBG("GuitarSeparator: Please ensure htdemucs_fp16weights.onnx is next to the executable.");
+            onnxReady = false;
+            return;
+        }
+
+        DBG("GuitarSeparator: Loading ONNX model from: " + modelFile.getFullPathName());
+
         ortEnv = std::make_unique<Ort::Env>(ORT_LOGGING_LEVEL_WARNING, "GuitarSeparator");
         sessionOptions.SetGraphOptimizationLevel(GraphOptimizationLevel::ORT_ENABLE_EXTENDED);
 
         // TODO: Add Execution Provider selection here (CUDA/DirectML/CoreML/NNAPI) per platform
 
-        // Create session from file path (wide char)
-        auto modelFile = juce::File::getSpecialLocation(juce::File::currentExecutableFile)
-            .getParentDirectory().getChildFile("htdemucs_fp16weights.onnx");
+        // Create session from file path (wide char on Windows)
         ortSession = std::make_unique<Ort::Session>(*ortEnv, modelFile.getFullPathName().toWideCharPointer(), sessionOptions);
 
+        DBG("GuitarSeparator: ONNX session created successfully");
         onnxReady = true;
+    }
+    catch (const Ort::Exception& e)
+    {
+        DBG("GuitarSeparator: ONNX Runtime exception during init: " + juce::String(e.what()));
+        onnxReady = false;
     }
     catch (...)
     {
+        DBG("GuitarSeparator: Unknown exception during ONNX init");
         onnxReady = false;
     }
 }
@@ -222,7 +268,7 @@ void GuitarSeparator::workerLoop()
                 continue;
         }
 
-        // Read a full window from circular buffer
+        // Read a full window from circular buffer (peek, don't consume full window)
         int rstart1 = 0, rsize1 = 0, rstart2 = 0, rsize2 = 0;
         fifo.prepareToRead(windowSize, rstart1, rsize1, rstart2, rsize2);
 
@@ -232,7 +278,10 @@ void GuitarSeparator::workerLoop()
         if (rsize2 > 0)
             juce::FloatVectorOperations::copy(window.data() + rsize1, circularBuffer.getReadPointer(0, rstart2), rsize2);
 
-        fifo.finishedRead(rsize1 + rsize2);
+        // Advance FIFO by hopSize for overlap-add (not full windowSize)
+        // We read windowSize but only consume hopSize to create overlap
+        int actualAdvance = juce::jmin(hopSize, rsize1 + rsize2);
+        fifo.finishedRead(actualAdvance);
 
         // Apply Hann window
         for (int i = 0; i < windowSize; ++i)
@@ -242,13 +291,15 @@ void GuitarSeparator::workerLoop()
         std::vector<float> guitarOut;
         bool ok = runInferenceOnWindow(window, guitarOut);
 
-        if (ok && guitarOut.size() >= static_cast<size_t>(windowSize))
+        if (ok && guitarOut.size() > 0)
         {
-            std::lock_guard<std::mutex> outLock(workerMutex); // protect overlap buffer updates
-            if (outputOverlapBuffer.getNumSamples() < windowSize + hopSize)
-                outputOverlapBuffer.setSize(1, windowSize + hopSize, true, true, true);
+            const juce::ScopedLock outLock(outputLock); // protect overlap buffer updates
 
-            for (int i = 0; i < windowSize; ++i)
+            int outputLength = static_cast<int>(guitarOut.size());
+            if (outputOverlapBuffer.getNumSamples() < outputLength + hopSize)
+                outputOverlapBuffer.setSize(1, outputLength + hopSize, true, true, true);
+
+            for (int i = 0; i < outputLength; ++i)
             {
                 float prev = outputOverlapBuffer.getSample(0, i);
                 outputOverlapBuffer.setSample(0, i, prev + guitarOut[i]);
@@ -270,7 +321,7 @@ bool GuitarSeparator::runInferenceOnWindow(const std::vector<float>& window, std
 
     try
     {
-        const int64_t inputShape[3] = { 1, 1, static_cast<int64_t> (windowSize) };
+        const int64_t inputShape[3] = { 1, 1, static_cast<int64_t>(windowSize) };
 
         Ort::MemoryInfo memInfo = Ort::MemoryInfo::CreateCpu(OrtArenaAllocator, OrtMemTypeDefault);
         // Note: CreateTensor expects non-const pointer; copy if necessary
@@ -290,29 +341,112 @@ bool GuitarSeparator::runInferenceOnWindow(const std::vector<float>& window, std
             outputNames, 1);
 
         if (outputs.empty())
-            return false;
-
-        if (!outputs[0].IsTensor())
-            return false;
-
-        float* outData = outputs[0].GetTensorMutableData<float>();
-        size_t outCount = outputs[0].GetTensorTypeAndShapeInfo().GetElementCount();
-
-        // TODO: Parse actual output shape for HTDemucs:
-        // HTDemucs ONNX typically outputs [1, num_stems, N] or [1, num_stems, 1, N].
-        // Here we use a conservative heuristic: if outCount >= windowSize, copy first windowSize floats.
-        outGuitar.assign(windowSize, 0.0f);
-        if (outCount >= static_cast<size_t> (windowSize))
         {
-            for (int i = 0; i < windowSize; ++i)
-                outGuitar[i] = outData[i];
-            return true;
+            DBG("GuitarSeparator: Inference returned no outputs");
+            return false;
         }
 
+        if (!outputs[0].IsTensor())
+        {
+            DBG("GuitarSeparator: Output is not a tensor");
+            return false;
+        }
+
+        float* outData = outputs[0].GetTensorMutableData<float>();
+        auto tensorInfo = outputs[0].GetTensorTypeAndShapeInfo();
+        auto shape = tensorInfo.GetShape();
+        size_t outCount = tensorInfo.GetElementCount();
+
+        // HTDemucs output parsing:
+        // Expected shapes: [batch, stems, channels, time] or [batch, stems, time] for mono
+        // Typical stem order: [drums, bass, other, vocals]
+        // Guitar is typically in the "other" stem (index 2)
+
+        DBG("GuitarSeparator: Output tensor rank=" + juce::String(shape.size()) + 
+            ", total elements=" + juce::String((int)outCount));
+
+        if (shape.size() == 4)
+        {
+            // Shape: [batch, stems, channels, time]
+            int64_t batch = shape[0];
+            int64_t numStems = shape[1];
+            int64_t numChannels = shape[2];
+            int64_t timeSteps = shape[3];
+
+            DBG("GuitarSeparator: 4D output [batch=" + juce::String((int)batch) +
+                ", stems=" + juce::String((int)numStems) +
+                ", channels=" + juce::String((int)numChannels) +
+                ", time=" + juce::String((int)timeSteps) + "]");
+
+            // Extract guitar stem (typically "other" = index 2)
+            // If model has 4 stems: drums(0), bass(1), other(2), vocals(3)
+            const int guitarStemIndex = (numStems >= 3) ? 2 : 0; // fallback to first stem if < 3
+
+            // Prepare output buffer (mono downmix if stereo)
+            outGuitar.resize(static_cast<size_t>(timeSteps), 0.0f);
+
+            // Extract guitar stem and downmix channels to mono
+            for (int64_t t = 0; t < timeSteps; ++t)
+            {
+                float sum = 0.0f;
+                for (int64_t ch = 0; ch < numChannels; ++ch)
+                {
+                    // Index calculation: [batch, stem, channel, time]
+                    int64_t idx = (batch * numStems * numChannels * timeSteps) * 0  // batch 0
+                                + (numStems * numChannels * timeSteps) * 0          // (batch offset, already 0)
+                                + guitarStemIndex * numChannels * timeSteps
+                                + ch * timeSteps
+                                + t;
+                    sum += outData[idx];
+                }
+                outGuitar[t] = sum / static_cast<float>(numChannels);
+            }
+
+            DBG("GuitarSeparator: Extracted guitar stem (index " + juce::String(guitarStemIndex) + 
+                "), output length=" + juce::String((int)timeSteps));
+            return true;
+        }
+        else if (shape.size() == 3)
+        {
+            // Shape: [batch, stems, time] (mono or pre-mixed)
+            int64_t batch = shape[0];
+            int64_t numStems = shape[1];
+            int64_t timeSteps = shape[2];
+
+            DBG("GuitarSeparator: 3D output [batch=" + juce::String((int)batch) +
+                ", stems=" + juce::String((int)numStems) +
+                ", time=" + juce::String((int)timeSteps) + "]");
+
+            // Extract guitar stem (typically "other" = index 2)
+            const int guitarStemIndex = (numStems >= 3) ? 2 : 0;
+
+            outGuitar.resize(static_cast<size_t>(timeSteps), 0.0f);
+
+            for (int64_t t = 0; t < timeSteps; ++t)
+            {
+                int64_t idx = guitarStemIndex * timeSteps + t;
+                outGuitar[t] = outData[idx];
+            }
+
+            DBG("GuitarSeparator: Extracted guitar stem (index " + juce::String(guitarStemIndex) + 
+                "), output length=" + juce::String((int)timeSteps));
+            return true;
+        }
+        else
+        {
+            DBG("GuitarSeparator: Unexpected output tensor rank " + juce::String(shape.size()) + 
+                ". Expected 3D [batch,stems,time] or 4D [batch,stems,channels,time]");
+            return false;
+        }
+    }
+    catch (const Ort::Exception& e)
+    {
+        DBG("GuitarSeparator: ONNX Runtime exception during inference: " + juce::String(e.what()));
         return false;
     }
     catch (...)
     {
+        DBG("GuitarSeparator: Unknown exception during inference");
         return false;
     }
 }
@@ -330,10 +464,17 @@ std::vector<float> GuitarSeparator::makeHannWindow(int size)
 // Optional diagnostics trigger
 void GuitarSeparator::runStartupDiagnostics()
 {
+    DBG("GuitarSeparator::runStartupDiagnostics - onnxReady=" + juce::String(onnxReady ? "true" : "false"));
+
     // Non-blocking: notify worker to attempt a smoke inference if model loaded
     if (onnxReady)
     {
+        DBG("GuitarSeparator: Model ready, notifying worker for diagnostics");
         workerCv.notify_all();
+    }
+    else
+    {
+        DBG("GuitarSeparator: Model not ready, diagnostics skipped");
     }
 }
 

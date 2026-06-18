@@ -78,7 +78,7 @@ private:
     int writeIndex = 0;
 
     // Helpers
-    void initOnnxFromBinaryData();
+    void initOnnxFromFile();
     void startWorker();
     void stopWorker();
     void workerLoop();
