@@ -275,10 +275,10 @@ public:
 		gainSlider.setRange(0, 100.0f, 0);
 		gainSlider.onValueChange =
 			[this]
-			{
-				//audioSourcePlayer.setGain(gainSlider.getValue());
-				transportSource.setGain(static_cast<float>(gainSlider.getValue()));
-			};
+		{
+			//audioSourcePlayer.setGain(gainSlider.getValue());
+			transportSource.setGain(static_cast<float>(gainSlider.getValue()));
+		};
 		gainSlider.setValue(1.0f);
 
 		addAndMakeVisible(chooseFileButton);
@@ -307,7 +307,9 @@ public:
 		thread.startThread(Thread::Priority::normal);
 
 		sharedAudioDeviceManager->addAudioCallback(&audioSourcePlayer);
-		audioSourcePlayer.setSource(&transportSource);
+		//audioSourcePlayer.setSource(&transportSource);
+
+		setUseGuitarSeparator(); // default to using the guitar separator for fun :)
 
 		setOpaque(true);
 		setSize(500, 500);
@@ -493,6 +495,28 @@ private:
 		}
 	}
 
+	void setUseGuitarSeparator()
+	{
+		const bool wasPlaying = transportSource.isPlaying();
+		double position;
+
+		if (wasPlaying)
+		{
+			position = transportSource.getCurrentPosition();
+			transportSource.stop();
+		}
+
+		audioSourcePlayer.setSource(&audioSeparator);
+		audioSeparator.setSource(&transportSource);
+
+		// Restore playback seamlessly
+		if (wasPlaying)
+		{
+			transportSource.setPosition(position);
+			transportSource.start();
+		}
+	}
+
 	void buttonClicked(Button* btn) override
 	{
 		if (btn == &chooseFileButton)
@@ -504,14 +528,14 @@ private:
 				FileBrowserComponent::canSelectFiles
 				,
 				[this](const FileChooser& fc) /*mutable*/
+			{
+				if (fc.getURLResults().size() > 0)
 				{
-					if (fc.getURLResults().size() > 0)
-					{
-						auto u = fc.getURLResult();
+					auto u = fc.getURLResult();
 
-						showAudioResource(std::move(u));
-					}
+					showAudioResource(std::move(u));
 				}
+			}
 			);
 		}
 	}
