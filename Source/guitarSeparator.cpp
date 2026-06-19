@@ -88,6 +88,8 @@ void GuitarSeparator::getNextAudioBlock(const juce::AudioSourceChannelInfo& buff
     const int numSamples = bufferToFill.numSamples;
     const int numChannels = buffer->getNumChannels();
 
+    auto rp = bufferToFill.buffer->getReadPointer(0, bufferToFill.startSample);
+
     // First, get audio from the source (e.g., transport)
     if (source != nullptr)
     {
