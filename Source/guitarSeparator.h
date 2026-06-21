@@ -28,8 +28,8 @@ public:
         If the source is not null, its prepareToPlay() method will be called
         before it starts being used for playback.
 
-        If there's another source currently playing, its releaseResources() method
-        will be called after it has been swapped for the new one.
+        If there's another source currently playing, it will be swapped for the
+        new one.
 
         @param newSource                the new source to use - this will NOT be deleted
                                         by this object when no longer needed, so it's the
@@ -64,15 +64,17 @@ private:
     // Overlap-add output buffer
     juce::AudioBuffer<float> outputOverlapBuffer;
     juce::CriticalSection outputLock;
+    int processedOutputSamples = 0;
 
     // Windowing parameters
     int windowSize = 4096;   // default window size
     int hopSize = 2048;      // default hop (50% overlap)
-    std::vector<float> hannWindow;
 
     // Runtime state
     double currentSampleRate = 44100.0;
     std::atomic<bool> onnxReady{ false };
+    int modelInputChannels = 1;
+    int modelInputSamples = 0;
 
     // Simple counters
     int writeIndex = 0;
@@ -83,7 +85,6 @@ private:
     void stopWorker();
     void workerLoop();
     bool runInferenceOnWindow(const std::vector<float>& window, std::vector<float>& outGuitar);
-    std::vector<float> makeHannWindow(int size);
 
     int blockSize = 128;
     juce::AudioSource* source = nullptr;

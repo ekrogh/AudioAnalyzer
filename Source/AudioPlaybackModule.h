@@ -515,6 +515,8 @@ private:
 			transportSource.setPosition(position);
 			transportSource.start();
 		}
+
+		useGuitarSeparatorButton.setToggleState(true, dontSendNotification);
 	}
 
 	void buttonClicked(Button* btn) override

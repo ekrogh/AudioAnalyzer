@@ -26,9 +26,20 @@ void GuitarSeparator::prepareToPlay(int samplesPerBlockExpected, double sampleRa
     currentSampleRate = sampleRate;
     blockSize = samplesPerBlockExpected;
 
-    // Tune window/hop if needed (these are safe defaults for real-time)
-    if (windowSize <= 0) windowSize = 4096;
-    if (hopSize <= 0) hopSize = windowSize / 2;
+    // Initialize ONNX first so buffer sizes can follow model input dimensions
+    initOnnxFromFile();
+
+    if (onnxReady && modelInputSamples > 0)
+    {
+        windowSize = modelInputSamples;
+        hopSize = juce::jmax(blockSize, modelInputSamples / 4);
+    }
+    else
+    {
+        // Fallback defaults when model dimensions are unavailable
+        if (windowSize <= 0) windowSize = 4096;
+        if (hopSize <= 0) hopSize = windowSize / 2;
+    }
 
     DBG("GuitarSeparator: Using windowSize=" + juce::String(windowSize) + 
         ", hopSize=" + juce::String(hopSize));
@@ -44,12 +55,7 @@ void GuitarSeparator::prepareToPlay(int samplesPerBlockExpected, double sampleRa
     // Output overlap buffer sized to hold at least one window + hop
     outputOverlapBuffer.setSize(1, circularCapacity);
     outputOverlapBuffer.clear();
-
-    // Precompute Hann window
-    hannWindow = makeHannWindow(windowSize);
-
-    // Initialize ONNX and start worker
-    initOnnxFromFile();
+    processedOutputSamples = 0;
 
     if (onnxReady)
     {
@@ -74,6 +80,9 @@ void GuitarSeparator::releaseResources()
     ortSession.reset();
     ortEnv.reset();
     onnxReady = false;
+    processedOutputSamples = 0;
+    modelInputChannels = 1;
+    modelInputSamples = 0;
 
     if (source != nullptr)
         source->releaseResources();
@@ -148,6 +157,9 @@ void GuitarSeparator::getNextAudioBlock(const juce::AudioSourceChannelInfo& buff
     {
         const juce::ScopedLock sl(outputLock);
 
+        if (processedOutputSamples < numSamples)
+            return;
+
         auto* outPtr = outputOverlapBuffer.getReadPointer(0);
         for (int ch = 0; ch < numChannels; ++ch)
         {
@@ -167,10 +179,12 @@ void GuitarSeparator::getNextAudioBlock(const juce::AudioSourceChannelInfo& buff
             auto* dst = outputOverlapBuffer.getWritePointer(0);
             std::memmove(dst, dst + numSamples, static_cast<size_t>(totalSamples - numSamples) * sizeof(float));
             outputOverlapBuffer.clear(0, totalSamples - numSamples, numSamples);
+            processedOutputSamples = juce::jmax(0, processedOutputSamples - numSamples);
         }
         else
         {
             outputOverlapBuffer.clear();
+            processedOutputSamples = 0;
         }
     }
 }
@@ -206,6 +220,26 @@ void GuitarSeparator::initOnnxFromFile()
 
         // Create session from file path (wide char on Windows)
         ortSession = std::make_unique<Ort::Session>(*ortEnv, modelFile.getFullPathName().toWideCharPointer(), sessionOptions);
+
+        modelInputChannels = 1;
+        modelInputSamples = windowSize;
+
+        auto inputTypeInfo = ortSession->GetInputTypeInfo(0);
+        auto inputTensorInfo = inputTypeInfo.GetTensorTypeAndShapeInfo();
+        auto inputShape = inputTensorInfo.GetShape();
+
+        if (inputShape.size() >= 3)
+        {
+            if (inputShape[1] > 0)
+                modelInputChannels = static_cast<int>(inputShape[1]);
+
+            if (inputShape[2] > 0)
+                modelInputSamples = static_cast<int>(inputShape[2]);
+        }
+
+        DBG("GuitarSeparator: Model input shape rank=" + juce::String((int)inputShape.size()) +
+            ", channels=" + juce::String(modelInputChannels) +
+            ", samples=" + juce::String(modelInputSamples));
 
         DBG("GuitarSeparator: ONNX session created successfully");
         onnxReady = true;
@@ -249,9 +283,6 @@ void GuitarSeparator::stopWorker()
 // Worker loop: reads full windows from FIFO, applies window, runs inference, overlap-adds result
 void GuitarSeparator::workerLoop()
 {
-    if (hannWindow.empty())
-        hannWindow = makeHannWindow(windowSize);
-
     while (workerRunning.load())
     {
         // Wait until enough samples are available for a full window
@@ -285,10 +316,6 @@ void GuitarSeparator::workerLoop()
         int actualAdvance = juce::jmin(hopSize, rsize1 + rsize2);
         fifo.finishedRead(actualAdvance);
 
-        // Apply Hann window
-        for (int i = 0; i < windowSize; ++i)
-            window[i] *= hannWindow[i];
-
         // Run inference
         std::vector<float> guitarOut;
         bool ok = runInferenceOnWindow(window, guitarOut);
@@ -306,6 +333,9 @@ void GuitarSeparator::workerLoop()
                 float prev = outputOverlapBuffer.getSample(0, i);
                 outputOverlapBuffer.setSample(0, i, prev + guitarOut[i]);
             }
+
+            processedOutputSamples = juce::jmin(outputOverlapBuffer.getNumSamples(),
+                                                processedOutputSamples + juce::jmin(outputLength, hopSize));
         }
 
         if (!workerRunning.load())
@@ -323,11 +353,17 @@ bool GuitarSeparator::runInferenceOnWindow(const std::vector<float>& window, std
 
     try
     {
-        const int64_t inputShape[3] = { 1, 1, static_cast<int64_t>(windowSize) };
+        const int channels = juce::jmax(1, modelInputChannels);
+        const int samples = juce::jmax(1, modelInputSamples > 0 ? modelInputSamples : static_cast<int>(window.size()));
+        const int64_t inputShape[3] = { 1, static_cast<int64_t>(channels), static_cast<int64_t>(samples) };
 
         Ort::MemoryInfo memInfo = Ort::MemoryInfo::CreateCpu(OrtArenaAllocator, OrtMemTypeDefault);
-        // Note: CreateTensor expects non-const pointer; copy if necessary
-        std::vector<float> inputCopy = window;
+        std::vector<float> inputCopy(static_cast<size_t>(channels * samples), 0.0f);
+        const int copyCount = juce::jmin(samples, static_cast<int>(window.size()));
+
+        for (int ch = 0; ch < channels; ++ch)
+            std::memcpy(inputCopy.data() + static_cast<size_t>(ch * samples), window.data(), static_cast<size_t>(copyCount) * sizeof(float));
+
         Ort::Value inputTensor = Ort::Value::CreateTensor<float>(
             memInfo, inputCopy.data(), inputCopy.size(), inputShape, 3);
 
@@ -453,16 +489,6 @@ bool GuitarSeparator::runInferenceOnWindow(const std::vector<float>& window, std
     }
 }
 
-// -----------------------------------------------------------------------------
-// Utilities
-std::vector<float> GuitarSeparator::makeHannWindow(int size)
-{
-    std::vector<float> w(size);
-    for (int n = 0; n < size; ++n)
-        w[n] = (float)(0.5 * (1.0 - std::cos(2.0 * juce::MathConstants<double>::pi * n / (size - 1))));
-    return w;
-}
-
 // Optional diagnostics trigger
 void GuitarSeparator::runStartupDiagnostics()
 {
@@ -484,17 +510,9 @@ void GuitarSeparator::setSource(AudioSource* newSource)
 {
     if (source != newSource)
     {
-        auto* oldSource = source;
-
         if (newSource != nullptr && blockSize > 0 && currentSampleRate > 0)
             newSource->prepareToPlay(blockSize, currentSampleRate);
 
-        {
-            //const ScopedLock sl(readLock);
-            source = newSource;
-        }
-
-        if (oldSource != nullptr)
-            oldSource->releaseResources();
+        source = newSource;
     }
 }
