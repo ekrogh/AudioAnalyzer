@@ -56,6 +56,15 @@ void GuitarSeparator::prepareToPlay(int samplesPerBlockExpected, double sampleRa
     outputOverlapBuffer.setSize(1, circularCapacity);
     outputOverlapBuffer.clear();
     processedOutputSamples = 0;
+    hasProcessedOutput = false;
+
+    // Delayed dry fallback ring buffer (match separator algorithmic latency)
+    dryDelaySamples = windowSize;
+    const int minDryCapacity = dryDelaySamples + juce::jmax(blockSize * 2, hopSize);
+    dryDelayBuffer.setSize(1, juce::jmax(minDryCapacity, dryDelaySamples * 2));
+    dryDelayBuffer.clear();
+    dryDelayWritePos = 0;
+    dryDelaySamplesWritten = 0;
 
     if (onnxReady)
     {
@@ -81,6 +90,11 @@ void GuitarSeparator::releaseResources()
     ortEnv.reset();
     onnxReady = false;
     processedOutputSamples = 0;
+    hasProcessedOutput = false;
+    dryDelayBuffer.clear();
+    dryDelayWritePos = 0;
+    dryDelaySamples = 0;
+    dryDelaySamplesWritten = 0;
     modelInputChannels = 1;
     modelInputSamples = 0;
 
@@ -136,6 +150,39 @@ void GuitarSeparator::getNextAudioBlock(const juce::AudioSourceChannelInfo& buff
             w[i] = 0.5f * (r0[i] + r1[i]);
     }
 
+    // Build a latency-matched delayed dry fallback block from mono input
+    juce::AudioBuffer<float> delayedDry;
+    delayedDry.setSize(1, numSamples);
+    delayedDry.clear();
+
+    if (dryDelayBuffer.getNumSamples() > 0)
+    {
+        auto* delayedWrite = delayedDry.getWritePointer(0);
+        auto* monoRead = mono.getReadPointer(0);
+        auto* dryRing = dryDelayBuffer.getWritePointer(0);
+        const int capacity = dryDelayBuffer.getNumSamples();
+        const int delay = juce::jlimit(0, juce::jmax(0, capacity - 1), dryDelaySamples);
+
+        for (int i = 0; i < numSamples; ++i)
+        {
+            if (dryDelaySamplesWritten >= delay)
+            {
+                int readPos = dryDelayWritePos - delay;
+                if (readPos < 0)
+                    readPos += capacity;
+                delayedWrite[i] = dryRing[readPos];
+            }
+            else
+            {
+                delayedWrite[i] = 0.0f;
+            }
+
+            dryRing[dryDelayWritePos] = monoRead[i];
+            dryDelayWritePos = (dryDelayWritePos + 1) % capacity;
+            ++dryDelaySamplesWritten;
+        }
+    }
+
     // Write mono samples into circular buffer using AbstractFifo
     int start1, size1, start2, size2;
     fifo.prepareToWrite(numSamples, start1, size1, start2, size2);
@@ -158,7 +205,24 @@ void GuitarSeparator::getNextAudioBlock(const juce::AudioSourceChannelInfo& buff
         const juce::ScopedLock sl(outputLock);
 
         if (processedOutputSamples < numSamples)
+        {
+            if (useDelayedDryFallback.load() && dryDelayBuffer.getNumSamples() > 0)
+            {
+                auto* delayedRead = delayedDry.getReadPointer(0);
+                for (int ch = 0; ch < numChannels; ++ch)
+                {
+                    auto* writePtr = buffer->getWritePointer(ch, bufferToFill.startSample);
+                    for (int i = 0; i < numSamples; ++i)
+                        writePtr[i] = delayedRead[i];
+                }
+            }
+            else if (hasProcessedOutput)
+            {
+                buffer->clear(bufferToFill.startSample, numSamples);
+            }
+
             return;
+        }
 
         auto* outPtr = outputOverlapBuffer.getReadPointer(0);
         for (int ch = 0; ch < numChannels; ++ch)
@@ -334,6 +398,7 @@ void GuitarSeparator::workerLoop()
                 outputOverlapBuffer.setSample(0, i, prev + guitarOut[i]);
             }
 
+            hasProcessedOutput = true;
             processedOutputSamples = juce::jmin(outputOverlapBuffer.getNumSamples(),
                                                 processedOutputSamples + juce::jmin(outputLength, hopSize));
         }
@@ -515,4 +580,9 @@ void GuitarSeparator::setSource(AudioSource* newSource)
 
         source = newSource;
     }
+}
+
+void GuitarSeparator::setUseDelayedDryFallback(bool shouldUse)
+{
+    useDelayedDryFallback = shouldUse;
 }

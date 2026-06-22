@@ -36,6 +36,7 @@ public:
                                         caller's responsibility to manage it.
     */
     void setSource(AudioSource* newSource);
+    void setUseDelayedDryFallback(bool shouldUse);
 
     // Optional: call to run a quick smoke test (non-blocking)
     void runStartupDiagnostics();
@@ -65,6 +66,14 @@ private:
     juce::AudioBuffer<float> outputOverlapBuffer;
     juce::CriticalSection outputLock;
     int processedOutputSamples = 0;
+    bool hasProcessedOutput = false;
+    std::atomic<bool> useDelayedDryFallback{ false };
+
+    // Latency-matched delayed dry fallback (mono)
+    juce::AudioBuffer<float> dryDelayBuffer;
+    int dryDelayWritePos = 0;
+    int dryDelaySamples = 0;
+    int64_t dryDelaySamplesWritten = 0;
 
     // Windowing parameters
     int windowSize = 4096;   // default window size
