@@ -263,14 +263,33 @@ void GuitarSeparator::initOnnxFromFile()
 
     try
     {
-        // Locate model file next to executable
-        auto modelFile = juce::File::getSpecialLocation(juce::File::currentExecutableFile)
-            .getParentDirectory().getChildFile("htdemucs_fp16weights.onnx");
+        // Locate a supported model file next to executable
+        auto modelDirectory = juce::File::getSpecialLocation(juce::File::currentExecutableFile)
+            .getParentDirectory();
+        const char* candidateModels[] =
+        {
+            "uvr_mdx.onnx",
+            "UVR_MDX.onnx",
+            "mdxnet.onnx",
+            "MDXNet.onnx",
+            "htdemucs_fp16weights.onnx"
+        };
+
+        juce::File modelFile;
+        for (auto* candidate : candidateModels)
+        {
+            auto candidateFile = modelDirectory.getChildFile(candidate);
+            if (candidateFile.existsAsFile())
+            {
+                modelFile = candidateFile;
+                break;
+            }
+        }
 
         if (!modelFile.existsAsFile())
         {
-            DBG("GuitarSeparator: ONNX model file not found at: " + modelFile.getFullPathName());
-            DBG("GuitarSeparator: Please ensure htdemucs_fp16weights.onnx is next to the executable.");
+            DBG("GuitarSeparator: No supported ONNX model file found next to executable.");
+            DBG("GuitarSeparator: Tried uvr_mdx.onnx, UVR_MDX.onnx, mdxnet.onnx, MDXNet.onnx, htdemucs_fp16weights.onnx.");
             onnxReady = false;
             return;
         }
@@ -460,15 +479,37 @@ bool GuitarSeparator::runInferenceOnWindow(const std::vector<float>& window, std
         auto shape = tensorInfo.GetShape();
         size_t outCount = tensorInfo.GetElementCount();
 
-        // HTDemucs output parsing:
-        // Expected shapes: [batch, stems, channels, time] or [batch, stems, time] for mono
-        // Typical stem order: [drums, bass, other, vocals]
-        // Guitar is typically in the "other" stem (index 2)
+        // Supported output parsing:
+        // - MDX/UVR-MDX: [channels, time], [batch, channels, time], or [time]
+        // - HTDemucs: [batch, stems, channels, time] or [batch, stems, time]
 
         DBG("GuitarSeparator: Output tensor rank=" + juce::String(shape.size()) + 
             ", total elements=" + juce::String((int)outCount));
 
-        if (shape.size() == 4)
+        if (shape.size() == 2)
+        {
+            // Shape: [channels, time]
+            int64_t numChannels = shape[0];
+            int64_t timeSteps = shape[1];
+
+            DBG("GuitarSeparator: 2D output [channels=" + juce::String((int)numChannels) +
+                ", time=" + juce::String((int)timeSteps) + "]");
+
+            outGuitar.resize(static_cast<size_t>(timeSteps), 0.0f);
+
+            for (int64_t t = 0; t < timeSteps; ++t)
+            {
+                float sum = 0.0f;
+                for (int64_t ch = 0; ch < numChannels; ++ch)
+                    sum += outData[ch * timeSteps + t];
+
+                outGuitar[t] = sum / static_cast<float>(juce::jmax<int64_t>(1, numChannels));
+            }
+
+            DBG("GuitarSeparator: Parsed MDX-style 2D output, length=" + juce::String((int)timeSteps));
+            return true;
+        }
+        else if (shape.size() == 4)
         {
             // Shape: [batch, stems, channels, time]
             int64_t batch = shape[0];
@@ -511,16 +552,42 @@ bool GuitarSeparator::runInferenceOnWindow(const std::vector<float>& window, std
         }
         else if (shape.size() == 3)
         {
-            // Shape: [batch, stems, time] (mono or pre-mixed)
+            // Prefer MDX-style [batch, channels, time] when axis 1 looks like channels.
             int64_t batch = shape[0];
-            int64_t numStems = shape[1];
+            int64_t axis1 = shape[1];
             int64_t timeSteps = shape[2];
 
-            DBG("GuitarSeparator: 3D output [batch=" + juce::String((int)batch) +
+            if (axis1 == 1 || axis1 == 2 || axis1 == modelInputChannels)
+            {
+                DBG("GuitarSeparator: 3D output treated as MDX [batch=" + juce::String((int)batch) +
+                    ", channels=" + juce::String((int)axis1) +
+                    ", time=" + juce::String((int)timeSteps) + "]");
+
+                outGuitar.resize(static_cast<size_t>(timeSteps), 0.0f);
+
+                for (int64_t t = 0; t < timeSteps; ++t)
+                {
+                    float sum = 0.0f;
+                    for (int64_t ch = 0; ch < axis1; ++ch)
+                    {
+                        int64_t idx = ch * timeSteps + t; // batch 0
+                        sum += outData[idx];
+                    }
+
+                    outGuitar[t] = sum / static_cast<float>(juce::jmax<int64_t>(1, axis1));
+                }
+
+                DBG("GuitarSeparator: Parsed MDX-style 3D output, length=" + juce::String((int)timeSteps));
+                return true;
+            }
+
+            // Shape: [batch, stems, time] (mono or pre-mixed)
+            int64_t numStems = axis1;
+
+            DBG("GuitarSeparator: 3D output treated as HTDemucs [batch=" + juce::String((int)batch) +
                 ", stems=" + juce::String((int)numStems) +
                 ", time=" + juce::String((int)timeSteps) + "]");
 
-            // Extract guitar stem (typically "other" = index 2)
             const int guitarStemIndex = (numStems >= 3) ? 2 : 0;
 
             outGuitar.resize(static_cast<size_t>(timeSteps), 0.0f);
@@ -531,14 +598,25 @@ bool GuitarSeparator::runInferenceOnWindow(const std::vector<float>& window, std
                 outGuitar[t] = outData[idx];
             }
 
-            DBG("GuitarSeparator: Extracted guitar stem (index " + juce::String(guitarStemIndex) + 
+            DBG("GuitarSeparator: Extracted guitar stem (index " + juce::String(guitarStemIndex) +
                 "), output length=" + juce::String((int)timeSteps));
+            return true;
+        }
+        else if (shape.size() == 1)
+        {
+            int64_t timeSteps = shape[0];
+            outGuitar.resize(static_cast<size_t>(timeSteps), 0.0f);
+
+            for (int64_t t = 0; t < timeSteps; ++t)
+                outGuitar[t] = outData[t];
+
+            DBG("GuitarSeparator: Parsed 1D output, length=" + juce::String((int)timeSteps));
             return true;
         }
         else
         {
             DBG("GuitarSeparator: Unexpected output tensor rank " + juce::String(shape.size()) + 
-                ". Expected 3D [batch,stems,time] or 4D [batch,stems,channels,time]");
+                ". Expected 1D [time], 2D [channels,time], 3D [batch,channels,time]/[batch,stems,time], or 4D [batch,stems,channels,time]");
             return false;
         }
     }
