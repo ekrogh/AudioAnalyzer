@@ -268,6 +268,9 @@ void GuitarSeparator::initOnnxFromFile()
             .getParentDirectory();
         const char* candidateModels[] =
         {
+            "UVR-MDX-NET-Inst_HQ_3.onnx",
+            "UVR-MDX-NET-Inst_HQ_5.onnx",
+            "UVR-MDX-NET-Inst_full_292.onnx",
             "uvr_mdx.onnx",
             "UVR_MDX.onnx",
             "mdxnet.onnx",
@@ -289,7 +292,7 @@ void GuitarSeparator::initOnnxFromFile()
         if (!modelFile.existsAsFile())
         {
             DBG("GuitarSeparator: No supported ONNX model file found next to executable.");
-            DBG("GuitarSeparator: Tried uvr_mdx.onnx, UVR_MDX.onnx, mdxnet.onnx, MDXNet.onnx, htdemucs_fp16weights.onnx.");
+            DBG("GuitarSeparator: Tried UVR-MDX-NET-Inst_HQ_3.onnx, UVR-MDX-NET-Inst_HQ_5.onnx, UVR-MDX-NET-Inst_full_292.onnx, uvr_mdx.onnx, UVR_MDX.onnx, mdxnet.onnx, MDXNet.onnx, htdemucs_fp16weights.onnx.");
             onnxReady = false;
             return;
         }
