@@ -419,15 +419,8 @@ void GuitarSeparator::workerLoop()
         int actualAdvance = juce::jmin(hopSize, rsize1 + rsize2);
         fifo.finishedRead(actualAdvance);
 
-        // Apply Hann window to both channels before inference
-        for (int i = 0; i < segmentSize; ++i)
-        {
-            const float w = hannWindow[i];
-            segment[i] *= w;
-            segment[segmentSize + i] *= w;
-        }
-
-        // Run inference
+        // Run inference on the raw stereo segment.
+        // The Hann window is used for synthesis/overlap-add, not input attenuation.
         std::vector<float> stereoOut;
         bool ok = runInferenceOnWindow(segment, stereoOut);
 
@@ -469,7 +462,7 @@ bool GuitarSeparator::runInferenceOnWindow(const std::vector<float>& segment, st
     try
     {
         const int channels = juce::jmax(1, 2);
-        const int samples = juce::jmax(1, modelInputSamples > 0 ? modelInputSamples : static_cast<int>(segment.size() / juce::jmax(1, channels)));
+        const int samples = juce::jmax(1, segmentSize > 0 ? segmentSize : static_cast<int>(segment.size() / juce::jmax(1, channels)));
         const int64_t inputShape[3] = { 1, static_cast<int64_t>(channels), static_cast<int64_t>(samples) };
 
         Ort::MemoryInfo memInfo = Ort::MemoryInfo::CreateCpu(OrtArenaAllocator, OrtMemTypeDefault);
@@ -510,78 +503,103 @@ bool GuitarSeparator::runInferenceOnWindow(const std::vector<float>& segment, st
         auto shape = tensorInfo.GetShape();
         size_t outCount = tensorInfo.GetElementCount();
 
-        // MDX-Net output parsing: expect stereo separated audio.
-        // Supported shapes include [1, 2, N], [2, N], or [1, N] for mono fallback.
-        // The output is copied into a stereo vector in channel-major layout.
+        // MDX-Net output parsing: support the common layouts seen in UVR exports.
+        // Supported shapes include [1, 2, N], [1, N, 2], [2, N], [N, 2], or [1, N] for mono fallback.
 
-        DBG("GuitarSeparator: Output tensor rank=" + juce::String(shape.size()) + 
+        DBG("GuitarSeparator: Output tensor rank=" + juce::String(shape.size()) +
             ", total elements=" + juce::String((int)outCount));
 
-        auto copyToStereo = [outData, &outStereo] (int64_t channels, int64_t timeSteps)
+        auto copyInterleavedToStereo = [&outStereo] (const float* data, int64_t timeSteps, bool timeMajor)
         {
             outStereo.resize(static_cast<size_t>(2 * timeSteps), 0.0f);
-            if (channels >= 2)
+            if (timeMajor)
             {
                 for (int64_t t = 0; t < timeSteps; ++t)
                 {
-                    outStereo[t] = outData[t];
-                    outStereo[timeSteps + t] = outData[timeSteps + t];
+                    outStereo[t] = data[2 * t];
+                    outStereo[timeSteps + t] = data[2 * t + 1];
                 }
             }
             else
             {
                 for (int64_t t = 0; t < timeSteps; ++t)
                 {
-                    outStereo[t] = outData[t];
-                    outStereo[timeSteps + t] = outData[t];
+                    outStereo[t] = data[t];
+                    outStereo[timeSteps + t] = data[timeSteps + t];
                 }
+            }
+        };
+
+        auto copyMonoToStereo = [&outStereo] (const float* data, int64_t timeSteps)
+        {
+            outStereo.resize(static_cast<size_t>(2 * timeSteps), 0.0f);
+            for (int64_t t = 0; t < timeSteps; ++t)
+            {
+                outStereo[t] = data[t];
+                outStereo[timeSteps + t] = data[t];
             }
         };
 
         if (shape.size() == 3)
         {
-            int64_t batch = shape[0];
-            int64_t numChannels = shape[1];
-            int64_t timeSteps = shape[2];
+            const int64_t batch = shape[0];
+            const int64_t d1 = shape[1];
+            const int64_t d2 = shape[2];
 
             DBG("GuitarSeparator: MDX output [batch=" + juce::String((int)batch) +
-                ", channels=" + juce::String((int)numChannels) +
-                ", time=" + juce::String((int)timeSteps) + "]");
+                ", d1=" + juce::String((int)d1) +
+                ", d2=" + juce::String((int)d2) + "]");
 
-            copyToStereo(numChannels, timeSteps);
-            DBG("GuitarSeparator: Parsed MDX-style 3D output, stereo samples=" + juce::String((int)(2 * timeSteps)));
-            return true;
+            if (d1 == 2)
+            {
+                copyInterleavedToStereo(outData, d2, false);
+                DBG("GuitarSeparator: Parsed [1,2,N] output, stereo samples=" + juce::String((int)(2 * d2)));
+                return true;
+            }
+            if (d2 == 2)
+            {
+                copyInterleavedToStereo(outData, d1, true);
+                DBG("GuitarSeparator: Parsed [1,N,2] output, stereo samples=" + juce::String((int)(2 * d1)));
+                return true;
+            }
+
+            DBG("GuitarSeparator: Unexpected 3D output layout, expected channel dimension of 2");
+            return false;
         }
         else if (shape.size() == 2)
         {
-            int64_t numChannels = shape[0];
-            int64_t timeSteps = shape[1];
+            const int64_t d0 = shape[0];
+            const int64_t d1 = shape[1];
 
-            DBG("GuitarSeparator: MDX output [channels=" + juce::String((int)numChannels) +
-                ", time=" + juce::String((int)timeSteps) + "]");
+            DBG("GuitarSeparator: MDX output [d0=" + juce::String((int)d0) +
+                ", d1=" + juce::String((int)d1) + "]");
 
-            copyToStereo(numChannels, timeSteps);
-            DBG("GuitarSeparator: Parsed MDX-style 2D output, stereo samples=" + juce::String((int)(2 * timeSteps)));
-            return true;
+            if (d0 == 2)
+            {
+                copyInterleavedToStereo(outData, d1, false);
+                DBG("GuitarSeparator: Parsed [2,N] output, stereo samples=" + juce::String((int)(2 * d1)));
+                return true;
+            }
+            if (d1 == 2)
+            {
+                copyInterleavedToStereo(outData, d0, true);
+                DBG("GuitarSeparator: Parsed [N,2] output, stereo samples=" + juce::String((int)(2 * d0)));
+                return true;
+            }
+
+            DBG("GuitarSeparator: Unexpected 2D output layout, expected one dimension of 2");
+            return false;
         }
         else if (shape.size() == 1)
         {
-            int64_t timeSteps = shape[0];
-
+            const int64_t timeSteps = shape[0];
             DBG("GuitarSeparator: Mono output [time=" + juce::String((int)timeSteps) + "]");
-
-            outStereo.resize(static_cast<size_t>(2 * timeSteps), 0.0f);
-            for (int64_t t = 0; t < timeSteps; ++t)
-            {
-                outStereo[t] = outData[t];
-                outStereo[timeSteps + t] = outData[t];
-            }
-
+            copyMonoToStereo(outData, timeSteps);
             return true;
         }
         else
         {
-            DBG("GuitarSeparator: Unexpected output tensor rank " + juce::String(shape.size()) + 
+            DBG("GuitarSeparator: Unexpected output tensor rank " + juce::String(shape.size()) +
                 ". Expected 1D [time], 2D [channels,time], or 3D [batch,channels,time]");
             return false;
         }
