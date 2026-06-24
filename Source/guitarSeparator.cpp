@@ -220,7 +220,7 @@ void GuitarSeparator::getNextAudioBlock(const juce::AudioSourceChannelInfo& buff
     {
         const juce::ScopedLock sl(outputLock);
 
-        if (processedOutputSamples < numSamples)
+        if (!hasProcessedOutput || processedOutputSamples < numSamples)
         {
             if (useDelayedDryFallback.load() && dryDelayBuffer.getNumSamples() > 0)
             {
@@ -234,11 +234,6 @@ void GuitarSeparator::getNextAudioBlock(const juce::AudioSourceChannelInfo& buff
                     if (numChannels > 1)
                         write1[i] = delayedR[i];
                 }
-            }
-            else
-            {
-                for (int ch = 0; ch < numChannels; ++ch)
-                    buffer->clear(ch, bufferToFill.startSample, numSamples);
             }
 
             return;
