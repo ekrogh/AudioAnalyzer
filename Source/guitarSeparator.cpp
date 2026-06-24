@@ -31,40 +31,48 @@ void GuitarSeparator::prepareToPlay(int samplesPerBlockExpected, double sampleRa
 
     if (onnxReady && modelInputSamples > 0)
     {
-        windowSize = modelInputSamples;
-        hopSize = juce::jmax(blockSize, modelInputSamples / 4);
+        segmentSize = modelInputSamples;
     }
     else
     {
         // Fallback defaults when model dimensions are unavailable
-        if (windowSize <= 0) windowSize = 4096;
-        if (hopSize <= 0) hopSize = windowSize / 2;
+        if (segmentSize <= 0)
+            segmentSize = static_cast<int>(currentSampleRate * 0.25);
     }
 
-    DBG("GuitarSeparator: Using windowSize=" + juce::String(windowSize) + 
+    segmentSize = juce::jlimit(static_cast<int>(currentSampleRate * 0.25),
+                               static_cast<int>(currentSampleRate * 0.5),
+                               segmentSize);
+    overlapSize = juce::jmax(1, segmentSize / 2);
+    hopSize = overlapSize;
+
+    DBG("GuitarSeparator: Using segmentSize=" + juce::String(segmentSize) +
         ", hopSize=" + juce::String(hopSize));
 
-    // Circular buffer capacity: hold several windows
-    circularCapacity = windowSize * 8;
-    circularBuffer.setSize(1, circularCapacity);
+    // Circular buffer capacity: hold several segments
+    circularCapacity = segmentSize * 8;
+    circularBuffer.setSize(2, circularCapacity);
     circularBuffer.clear();
     fifo.setTotalSize(circularCapacity);
     fifo.reset();
     writeIndex = 0;
 
-    // Output overlap buffer sized to hold at least one window + hop
-    outputOverlapBuffer.setSize(1, circularCapacity);
+    // Output overlap buffer sized to hold at least one segment + hop
+    outputOverlapBuffer.setSize(2, circularCapacity);
     outputOverlapBuffer.clear();
     processedOutputSamples = 0;
     hasProcessedOutput = false;
 
     // Delayed dry fallback ring buffer (match separator algorithmic latency)
-    dryDelaySamples = windowSize;
+    dryDelaySamples = segmentSize;
     const int minDryCapacity = dryDelaySamples + juce::jmax(blockSize * 2, hopSize);
-    dryDelayBuffer.setSize(1, juce::jmax(minDryCapacity, dryDelaySamples * 2));
+    dryDelayBuffer.setSize(2, juce::jmax(minDryCapacity, dryDelaySamples * 2));
     dryDelayBuffer.clear();
     dryDelayWritePos = 0;
     dryDelaySamplesWritten = 0;
+    hannWindow = makeHannWindow(segmentSize);
+    inputSegment.assign(static_cast<size_t>(2 * segmentSize), 0.0f);
+    outputSegment.assign(static_cast<size_t>(2 * segmentSize), 0.0f);
 
     if (onnxReady)
     {
@@ -132,34 +140,33 @@ void GuitarSeparator::getNextAudioBlock(const juce::AudioSourceChannelInfo& buff
         return;
     }
 
-    // Mix input to mono into a temporary buffer
-    juce::AudioBuffer<float> mono;
-    mono.setSize(1, numSamples);
-    mono.clear();
+    // Build stereo input segment in channel-major layout [L...R...]
+    juce::AudioBuffer<float> stereoInput;
+    stereoInput.setSize(2, numSamples);
+    stereoInput.clear();
 
-    if (numChannels == 1)
+    auto* inL = stereoInput.getWritePointer(0);
+    auto* inR = stereoInput.getWritePointer(1);
+    auto* srcL = buffer->getReadPointer(0, bufferToFill.startSample);
+    auto* srcR = (numChannels > 1) ? buffer->getReadPointer(1, bufferToFill.startSample) : srcL;
+
+    for (int i = 0; i < numSamples; ++i)
     {
-        mono.copyFrom(0, 0, *buffer, 0, bufferToFill.startSample, numSamples);
-    }
-    else
-    {
-        auto* w = mono.getWritePointer(0);
-        auto* r0 = buffer->getReadPointer(0, bufferToFill.startSample);
-        auto* r1 = buffer->getReadPointer(1, bufferToFill.startSample);
-        for (int i = 0; i < numSamples; ++i)
-            w[i] = 0.5f * (r0[i] + r1[i]);
+        inL[i] = srcL[i];
+        inR[i] = srcR[i];
     }
 
-    // Build a latency-matched delayed dry fallback block from mono input
+    // Build a latency-matched delayed dry fallback block from stereo input
     juce::AudioBuffer<float> delayedDry;
-    delayedDry.setSize(1, numSamples);
+    delayedDry.setSize(2, numSamples);
     delayedDry.clear();
 
     if (dryDelayBuffer.getNumSamples() > 0)
     {
-        auto* delayedWrite = delayedDry.getWritePointer(0);
-        auto* monoRead = mono.getReadPointer(0);
-        auto* dryRing = dryDelayBuffer.getWritePointer(0);
+        auto* delayedL = delayedDry.getWritePointer(0);
+        auto* delayedR = delayedDry.getWritePointer(1);
+        auto* dryL = dryDelayBuffer.getWritePointer(0);
+        auto* dryR = dryDelayBuffer.getWritePointer(1);
         const int capacity = dryDelayBuffer.getNumSamples();
         const int delay = juce::jlimit(0, juce::jmax(0, capacity - 1), dryDelaySamples);
 
@@ -170,27 +177,36 @@ void GuitarSeparator::getNextAudioBlock(const juce::AudioSourceChannelInfo& buff
                 int readPos = dryDelayWritePos - delay;
                 if (readPos < 0)
                     readPos += capacity;
-                delayedWrite[i] = dryRing[readPos];
+                delayedL[i] = dryL[readPos];
+                delayedR[i] = dryR[readPos];
             }
             else
             {
-                delayedWrite[i] = 0.0f;
+                delayedL[i] = 0.0f;
+                delayedR[i] = 0.0f;
             }
 
-            dryRing[dryDelayWritePos] = monoRead[i];
+            dryL[dryDelayWritePos] = inL[i];
+            dryR[dryDelayWritePos] = inR[i];
             dryDelayWritePos = (dryDelayWritePos + 1) % capacity;
             ++dryDelaySamplesWritten;
         }
     }
 
-    // Write mono samples into circular buffer using AbstractFifo
+    // Write stereo samples into circular buffer using AbstractFifo
     int start1, size1, start2, size2;
     fifo.prepareToWrite(numSamples, start1, size1, start2, size2);
 
     if (size1 > 0)
-        circularBuffer.copyFrom(0, start1, mono, 0, 0, size1);
+    {
+        circularBuffer.copyFrom(0, start1, stereoInput, 0, 0, size1);
+        circularBuffer.copyFrom(1, start1, stereoInput, 1, 0, size1);
+    }
     if (size2 > 0)
-        circularBuffer.copyFrom(0, start2, mono, 0, size1, size2);
+    {
+        circularBuffer.copyFrom(0, start2, stereoInput, 0, size1, size2);
+        circularBuffer.copyFrom(1, start2, stereoInput, 1, size1, size2);
+    }
 
     fifo.finishedWrite(size1 + size2);
 
@@ -208,41 +224,47 @@ void GuitarSeparator::getNextAudioBlock(const juce::AudioSourceChannelInfo& buff
         {
             if (useDelayedDryFallback.load() && dryDelayBuffer.getNumSamples() > 0)
             {
-                auto* delayedRead = delayedDry.getReadPointer(0);
-                for (int ch = 0; ch < numChannels; ++ch)
+                auto* delayedL = delayedDry.getReadPointer(0);
+                auto* delayedR = delayedDry.getReadPointer(1);
+                auto* write0 = buffer->getWritePointer(0, bufferToFill.startSample);
+                auto* write1 = buffer->getWritePointer(1, bufferToFill.startSample);
+                for (int i = 0; i < numSamples; ++i)
                 {
-                    auto* writePtr = buffer->getWritePointer(ch, bufferToFill.startSample);
-                    for (int i = 0; i < numSamples; ++i)
-                        writePtr[i] = delayedRead[i];
+                    write0[i] = delayedL[i];
+                    if (numChannels > 1)
+                        write1[i] = delayedR[i];
                 }
             }
-            else if (hasProcessedOutput)
+            else
             {
-                buffer->clear(bufferToFill.startSample, numSamples);
+                for (int ch = 0; ch < numChannels; ++ch)
+                    buffer->clear(ch, bufferToFill.startSample, numSamples);
             }
 
             return;
         }
 
-        auto* outPtr = outputOverlapBuffer.getReadPointer(0);
-        for (int ch = 0; ch < numChannels; ++ch)
+        auto* outL = outputOverlapBuffer.getReadPointer(0);
+        auto* outR = outputOverlapBuffer.getReadPointer(1);
+        auto* writeL = buffer->getWritePointer(0, bufferToFill.startSample);
+        auto* writeR = buffer->getWritePointer(1, bufferToFill.startSample);
+        for (int i = 0; i < numSamples; ++i)
         {
-            auto* writePtr = buffer->getWritePointer(ch, bufferToFill.startSample);
-            for (int i = 0; i < numSamples; ++i)
-            {
-                // Output only the separated guitar signal
-                // If no processed data is available yet, output will be silence
-                writePtr[i] = outPtr[i];
-            }
+            writeL[i] = outL[i];
+            if (numChannels > 1)
+                writeR[i] = outR[i];
         }
 
-        // Shift overlap buffer left by numSamples
+        // Shift overlap buffer left by numSamples for both stereo channels
         const int totalSamples = outputOverlapBuffer.getNumSamples();
         if (numSamples < totalSamples)
         {
-            auto* dst = outputOverlapBuffer.getWritePointer(0);
-            std::memmove(dst, dst + numSamples, static_cast<size_t>(totalSamples - numSamples) * sizeof(float));
+            auto* dstL = outputOverlapBuffer.getWritePointer(0);
+            auto* dstR = outputOverlapBuffer.getWritePointer(1);
+            std::memmove(dstL, dstL + numSamples, static_cast<size_t>(totalSamples - numSamples) * sizeof(float));
+            std::memmove(dstR, dstR + numSamples, static_cast<size_t>(totalSamples - numSamples) * sizeof(float));
             outputOverlapBuffer.clear(0, totalSamples - numSamples, numSamples);
+            outputOverlapBuffer.clear(1, totalSamples - numSamples, numSamples);
             processedOutputSamples = juce::jmax(0, processedOutputSamples - numSamples);
         }
         else
@@ -268,14 +290,7 @@ void GuitarSeparator::initOnnxFromFile()
             .getParentDirectory();
         const char* candidateModels[] =
         {
-            "UVR-MDX-NET-Inst_HQ_3.onnx",
-            "UVR-MDX-NET-Inst_HQ_5.onnx",
-            "UVR-MDX-NET-Inst_full_292.onnx",
-            "uvr_mdx.onnx",
-            "UVR_MDX.onnx",
-            "mdxnet.onnx",
-            "MDXNet.onnx",
-            "htdemucs_fp16weights.onnx"
+            "UVR-MDX-NET-Inst_HQ_3.onnx"
         };
 
         juce::File modelFile;
@@ -291,8 +306,7 @@ void GuitarSeparator::initOnnxFromFile()
 
         if (!modelFile.existsAsFile())
         {
-            DBG("GuitarSeparator: No supported ONNX model file found next to executable.");
-            DBG("GuitarSeparator: Tried UVR-MDX-NET-Inst_HQ_3.onnx, UVR-MDX-NET-Inst_HQ_5.onnx, UVR-MDX-NET-Inst_full_292.onnx, uvr_mdx.onnx, UVR_MDX.onnx, mdxnet.onnx, MDXNet.onnx, htdemucs_fp16weights.onnx.");
+            DBG("GuitarSeparator: UVR-MDX-NET-Inst_HQ_3.onnx not found next to executable.");
             onnxReady = false;
             return;
         }
@@ -307,8 +321,8 @@ void GuitarSeparator::initOnnxFromFile()
         // Create session from file path (wide char on Windows)
         ortSession = std::make_unique<Ort::Session>(*ortEnv, modelFile.getFullPathName().toWideCharPointer(), sessionOptions);
 
-        modelInputChannels = 1;
-        modelInputSamples = windowSize;
+        modelInputChannels = 2;
+        modelInputSamples = segmentSize;
 
         auto inputTypeInfo = ortSession->GetInputTypeInfo(0);
         auto inputTensorInfo = inputTypeInfo.GetTensorTypeAndShapeInfo();
@@ -323,9 +337,12 @@ void GuitarSeparator::initOnnxFromFile()
                 modelInputSamples = static_cast<int>(inputShape[2]);
         }
 
-        DBG("GuitarSeparator: Model input shape rank=" + juce::String((int)inputShape.size()) +
+        DBG("GuitarSeparator: MDX model input shape rank=" + juce::String((int)inputShape.size()) +
             ", channels=" + juce::String(modelInputChannels) +
             ", samples=" + juce::String(modelInputSamples));
+
+        if (modelInputChannels != 2)
+            DBG("GuitarSeparator: Warning - expected stereo input channels for MDX-Net model");
 
         DBG("GuitarSeparator: ONNX session created successfully");
         onnxReady = true;
@@ -371,58 +388,74 @@ void GuitarSeparator::workerLoop()
 {
     while (workerRunning.load())
     {
-        // Wait until enough samples are available for a full window
+        // Wait until enough samples are available for a full segment
         {
             std::unique_lock<std::mutex> lock(workerMutex);
             // wait_for returns when notified or timeout elapses; re-check condition after wake
             workerCv.wait_for(lock, std::chrono::milliseconds(50), [this]()
             {
-                return !workerRunning.load() || fifo.getNumReady() >= windowSize;
+                return !workerRunning.load() || fifo.getNumReady() >= segmentSize;
             });
 
             if (!workerRunning.load())
                 break;
 
-            if (fifo.getNumReady() < windowSize)
+            if (fifo.getNumReady() < segmentSize)
                 continue;
         }
 
-        // Read a full window from circular buffer (peek, don't consume full window)
+        // Read a full MDX segment from circular buffer (peek, don't consume full segment)
         int rstart1 = 0, rsize1 = 0, rstart2 = 0, rsize2 = 0;
-        fifo.prepareToRead(windowSize, rstart1, rsize1, rstart2, rsize2);
+        fifo.prepareToRead(segmentSize, rstart1, rsize1, rstart2, rsize2);
 
-        std::vector<float> window(windowSize);
+        std::vector<float> segment(static_cast<size_t>(2 * segmentSize), 0.0f);
         if (rsize1 > 0)
-            juce::FloatVectorOperations::copy(window.data(), circularBuffer.getReadPointer(0, rstart1), rsize1);
+        {
+            juce::FloatVectorOperations::copy(segment.data(), circularBuffer.getReadPointer(0, rstart1), rsize1);
+            juce::FloatVectorOperations::copy(segment.data() + segmentSize, circularBuffer.getReadPointer(1, rstart1), rsize1);
+        }
         if (rsize2 > 0)
-            juce::FloatVectorOperations::copy(window.data() + rsize1, circularBuffer.getReadPointer(0, rstart2), rsize2);
+        {
+            juce::FloatVectorOperations::copy(segment.data() + rsize1, circularBuffer.getReadPointer(0, rstart2), rsize2);
+            juce::FloatVectorOperations::copy(segment.data() + segmentSize + rsize1, circularBuffer.getReadPointer(1, rstart2), rsize2);
+        }
 
-        // Advance FIFO by hopSize for overlap-add (not full windowSize)
-        // We read windowSize but only consume hopSize to create overlap
+        // Advance FIFO by hopSize for overlap-add (50% overlap)
         int actualAdvance = juce::jmin(hopSize, rsize1 + rsize2);
         fifo.finishedRead(actualAdvance);
 
-        // Run inference
-        std::vector<float> guitarOut;
-        bool ok = runInferenceOnWindow(window, guitarOut);
+        // Apply Hann window to both channels before inference
+        for (int i = 0; i < segmentSize; ++i)
+        {
+            const float w = hannWindow[i];
+            segment[i] *= w;
+            segment[segmentSize + i] *= w;
+        }
 
-        if (ok && guitarOut.size() > 0)
+        // Run inference
+        std::vector<float> stereoOut;
+        bool ok = runInferenceOnWindow(segment, stereoOut);
+
+        if (ok && stereoOut.size() >= static_cast<size_t>(2 * segmentSize))
         {
             const juce::ScopedLock outLock(outputLock); // protect overlap buffer updates
 
-            int outputLength = static_cast<int>(guitarOut.size());
-            if (outputOverlapBuffer.getNumSamples() < outputLength + hopSize)
-                outputOverlapBuffer.setSize(1, outputLength + hopSize, true, true, true);
+            if (outputOverlapBuffer.getNumSamples() < segmentSize + hopSize)
+                outputOverlapBuffer.setSize(2, segmentSize + hopSize, true, true, true);
 
-            for (int i = 0; i < outputLength; ++i)
+            auto* outL = outputOverlapBuffer.getWritePointer(0);
+            auto* outR = outputOverlapBuffer.getWritePointer(1);
+
+            for (int i = 0; i < segmentSize; ++i)
             {
-                float prev = outputOverlapBuffer.getSample(0, i);
-                outputOverlapBuffer.setSample(0, i, prev + guitarOut[i]);
+                const float w = hannWindow[i];
+                outL[i] += stereoOut[i] * w;
+                outR[i] += stereoOut[segmentSize + i] * w;
             }
 
             hasProcessedOutput = true;
             processedOutputSamples = juce::jmin(outputOverlapBuffer.getNumSamples(),
-                                                processedOutputSamples + juce::jmin(outputLength, hopSize));
+                                                processedOutputSamples + juce::jmin(segmentSize, hopSize));
         }
 
         if (!workerRunning.load())
@@ -432,24 +465,24 @@ void GuitarSeparator::workerLoop()
 
 
 // -----------------------------------------------------------------------------
-// Run ONNX inference on a single window (window already windowed)
-bool GuitarSeparator::runInferenceOnWindow(const std::vector<float>& window, std::vector<float>& outGuitar)
+// Run ONNX inference on a single segment (stereo, channel-major layout)
+bool GuitarSeparator::runInferenceOnWindow(const std::vector<float>& segment, std::vector<float>& outStereo)
 {
     if (!onnxReady || !ortSession)
         return false;
 
     try
     {
-        const int channels = juce::jmax(1, modelInputChannels);
-        const int samples = juce::jmax(1, modelInputSamples > 0 ? modelInputSamples : static_cast<int>(window.size()));
+        const int channels = juce::jmax(1, 2);
+        const int samples = juce::jmax(1, modelInputSamples > 0 ? modelInputSamples : static_cast<int>(segment.size() / juce::jmax(1, channels)));
         const int64_t inputShape[3] = { 1, static_cast<int64_t>(channels), static_cast<int64_t>(samples) };
 
         Ort::MemoryInfo memInfo = Ort::MemoryInfo::CreateCpu(OrtArenaAllocator, OrtMemTypeDefault);
         std::vector<float> inputCopy(static_cast<size_t>(channels * samples), 0.0f);
-        const int copyCount = juce::jmin(samples, static_cast<int>(window.size()));
+        const int copyCount = juce::jmin(samples, static_cast<int>(segment.size() / juce::jmax(1, channels)));
 
         for (int ch = 0; ch < channels; ++ch)
-            std::memcpy(inputCopy.data() + static_cast<size_t>(ch * samples), window.data(), static_cast<size_t>(copyCount) * sizeof(float));
+            std::memcpy(inputCopy.data() + static_cast<size_t>(ch * samples), segment.data() + static_cast<size_t>(ch * samples), static_cast<size_t>(copyCount) * sizeof(float));
 
         Ort::Value inputTensor = Ort::Value::CreateTensor<float>(
             memInfo, inputCopy.data(), inputCopy.size(), inputShape, 3);
@@ -482,144 +515,79 @@ bool GuitarSeparator::runInferenceOnWindow(const std::vector<float>& window, std
         auto shape = tensorInfo.GetShape();
         size_t outCount = tensorInfo.GetElementCount();
 
-        // Supported output parsing:
-        // - MDX/UVR-MDX: [channels, time], [batch, channels, time], or [time]
-        // - HTDemucs: [batch, stems, channels, time] or [batch, stems, time]
+        // MDX-Net output parsing: expect stereo separated audio.
+        // Supported shapes include [1, 2, N], [2, N], or [1, N] for mono fallback.
+        // The output is copied into a stereo vector in channel-major layout.
 
         DBG("GuitarSeparator: Output tensor rank=" + juce::String(shape.size()) + 
             ", total elements=" + juce::String((int)outCount));
 
-        if (shape.size() == 2)
+        auto copyToStereo = [outData, &outStereo] (int64_t channels, int64_t timeSteps)
         {
-            // Shape: [channels, time]
-            int64_t numChannels = shape[0];
-            int64_t timeSteps = shape[1];
-
-            DBG("GuitarSeparator: 2D output [channels=" + juce::String((int)numChannels) +
-                ", time=" + juce::String((int)timeSteps) + "]");
-
-            outGuitar.resize(static_cast<size_t>(timeSteps), 0.0f);
-
-            for (int64_t t = 0; t < timeSteps; ++t)
+            outStereo.resize(static_cast<size_t>(2 * timeSteps), 0.0f);
+            if (channels >= 2)
             {
-                float sum = 0.0f;
-                for (int64_t ch = 0; ch < numChannels; ++ch)
-                    sum += outData[ch * timeSteps + t];
-
-                outGuitar[t] = sum / static_cast<float>(juce::jmax<int64_t>(1, numChannels));
+                for (int64_t t = 0; t < timeSteps; ++t)
+                {
+                    outStereo[t] = outData[t];
+                    outStereo[timeSteps + t] = outData[timeSteps + t];
+                }
             }
+            else
+            {
+                for (int64_t t = 0; t < timeSteps; ++t)
+                {
+                    outStereo[t] = outData[t];
+                    outStereo[timeSteps + t] = outData[t];
+                }
+            }
+        };
 
-            DBG("GuitarSeparator: Parsed MDX-style 2D output, length=" + juce::String((int)timeSteps));
-            return true;
-        }
-        else if (shape.size() == 4)
+        if (shape.size() == 3)
         {
-            // Shape: [batch, stems, channels, time]
             int64_t batch = shape[0];
-            int64_t numStems = shape[1];
-            int64_t numChannels = shape[2];
-            int64_t timeSteps = shape[3];
+            int64_t numChannels = shape[1];
+            int64_t timeSteps = shape[2];
 
-            DBG("GuitarSeparator: 4D output [batch=" + juce::String((int)batch) +
-                ", stems=" + juce::String((int)numStems) +
+            DBG("GuitarSeparator: MDX output [batch=" + juce::String((int)batch) +
                 ", channels=" + juce::String((int)numChannels) +
                 ", time=" + juce::String((int)timeSteps) + "]");
 
-            // Extract guitar stem (typically "other" = index 2)
-            // If model has 4 stems: drums(0), bass(1), other(2), vocals(3)
-            const int guitarStemIndex = (numStems >= 3) ? 2 : 0; // fallback to first stem if < 3
-
-            // Prepare output buffer (mono downmix if stereo)
-            outGuitar.resize(static_cast<size_t>(timeSteps), 0.0f);
-
-            // Extract guitar stem and downmix channels to mono
-            for (int64_t t = 0; t < timeSteps; ++t)
-            {
-                float sum = 0.0f;
-                for (int64_t ch = 0; ch < numChannels; ++ch)
-                {
-                    // Index calculation: [batch, stem, channel, time]
-                    int64_t idx = (batch * numStems * numChannels * timeSteps) * 0  // batch 0
-                                + (numStems * numChannels * timeSteps) * 0          // (batch offset, already 0)
-                                + guitarStemIndex * numChannels * timeSteps
-                                + ch * timeSteps
-                                + t;
-                    sum += outData[idx];
-                }
-                outGuitar[t] = sum / static_cast<float>(numChannels);
-            }
-
-            DBG("GuitarSeparator: Extracted guitar stem (index " + juce::String(guitarStemIndex) + 
-                "), output length=" + juce::String((int)timeSteps));
+            copyToStereo(numChannels, timeSteps);
+            DBG("GuitarSeparator: Parsed MDX-style 3D output, stereo samples=" + juce::String((int)(2 * timeSteps)));
             return true;
         }
-        else if (shape.size() == 3)
+        else if (shape.size() == 2)
         {
-            // Prefer MDX-style [batch, channels, time] when axis 1 looks like channels.
-            int64_t batch = shape[0];
-            int64_t axis1 = shape[1];
-            int64_t timeSteps = shape[2];
+            int64_t numChannels = shape[0];
+            int64_t timeSteps = shape[1];
 
-            if (axis1 == 1 || axis1 == 2 || axis1 == modelInputChannels)
-            {
-                DBG("GuitarSeparator: 3D output treated as MDX [batch=" + juce::String((int)batch) +
-                    ", channels=" + juce::String((int)axis1) +
-                    ", time=" + juce::String((int)timeSteps) + "]");
-
-                outGuitar.resize(static_cast<size_t>(timeSteps), 0.0f);
-
-                for (int64_t t = 0; t < timeSteps; ++t)
-                {
-                    float sum = 0.0f;
-                    for (int64_t ch = 0; ch < axis1; ++ch)
-                    {
-                        int64_t idx = ch * timeSteps + t; // batch 0
-                        sum += outData[idx];
-                    }
-
-                    outGuitar[t] = sum / static_cast<float>(juce::jmax<int64_t>(1, axis1));
-                }
-
-                DBG("GuitarSeparator: Parsed MDX-style 3D output, length=" + juce::String((int)timeSteps));
-                return true;
-            }
-
-            // Shape: [batch, stems, time] (mono or pre-mixed)
-            int64_t numStems = axis1;
-
-            DBG("GuitarSeparator: 3D output treated as HTDemucs [batch=" + juce::String((int)batch) +
-                ", stems=" + juce::String((int)numStems) +
+            DBG("GuitarSeparator: MDX output [channels=" + juce::String((int)numChannels) +
                 ", time=" + juce::String((int)timeSteps) + "]");
 
-            const int guitarStemIndex = (numStems >= 3) ? 2 : 0;
-
-            outGuitar.resize(static_cast<size_t>(timeSteps), 0.0f);
-
-            for (int64_t t = 0; t < timeSteps; ++t)
-            {
-                int64_t idx = guitarStemIndex * timeSteps + t;
-                outGuitar[t] = outData[idx];
-            }
-
-            DBG("GuitarSeparator: Extracted guitar stem (index " + juce::String(guitarStemIndex) +
-                "), output length=" + juce::String((int)timeSteps));
+            copyToStereo(numChannels, timeSteps);
+            DBG("GuitarSeparator: Parsed MDX-style 2D output, stereo samples=" + juce::String((int)(2 * timeSteps)));
             return true;
         }
         else if (shape.size() == 1)
         {
             int64_t timeSteps = shape[0];
-            outGuitar.resize(static_cast<size_t>(timeSteps), 0.0f);
 
+            DBG("GuitarSeparator: Mono output [time=" + juce::String((int)timeSteps) + "]");
+
+            outStereo.resize(static_cast<size_t>(2 * timeSteps), 0.0f);
             for (int64_t t = 0; t < timeSteps; ++t)
-                outGuitar[t] = outData[t];
+            {
+                outStereo[t] = outData[t];
+                outStereo[timeSteps + t] = outData[t];
+            }
 
-            DBG("GuitarSeparator: Parsed 1D output, length=" + juce::String((int)timeSteps));
             return true;
         }
         else
         {
             DBG("GuitarSeparator: Unexpected output tensor rank " + juce::String(shape.size()) + 
-                ". Expected 1D [time], 2D [channels,time], 3D [batch,channels,time]/[batch,stems,time], or 4D [batch,stems,channels,time]");
+                ". Expected 1D [time], 2D [channels,time], or 3D [batch,channels,time]");
             return false;
         }
     }
@@ -633,6 +601,18 @@ bool GuitarSeparator::runInferenceOnWindow(const std::vector<float>& window, std
         DBG("GuitarSeparator: Unknown exception during inference");
         return false;
     }
+}
+
+std::vector<float> GuitarSeparator::makeHannWindow(int size)
+{
+    std::vector<float> w(size);
+    if (size <= 1)
+        return w;
+
+    for (int n = 0; n < size; ++n)
+        w[n] = (float)(0.5 * (1.0 - std::cos(2.0 * juce::MathConstants<double>::pi * n / (size - 1))));
+
+    return w;
 }
 
 // Optional diagnostics trigger
