@@ -643,7 +643,7 @@ void SoundProcessorModule::startStopRecording()
 void SoundProcessorModule::makeGraphAttributes()
 {
 	cmp::GraphAttribute colourForLine;
-	colourForLine.graph_colour = juce::Colour
+	colourForLine.series_colour = juce::Colour
 	(
 		static_cast<juce::int8>(juce::Random::getSystemRandom().nextInt(juce::Range(100, 255)))
 		,

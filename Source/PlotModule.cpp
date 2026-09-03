@@ -44,8 +44,7 @@ PlotModule::PlotModule()
 	//[Constructor] You can add your own custom stuff here..
 
 	// Always plot atleast ones before calling realTimePlot
-	m_plot.plot(
-		{ cmp::generateSineWaveVector<float>((1 << 10), -1.0f, 1.0f, 1, 1) });
+	m_plot.plot({ { 0.0f } });
 
 	//[/Constructor]
 }

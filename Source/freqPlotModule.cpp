@@ -21,7 +21,6 @@
 //[/Headers]
 
 #include "freqPlotModule.h"
-#include "example_utils.h"
 
 
 //[MiscUserDefs] You can add your own user definitions and misc code here...
@@ -45,8 +44,7 @@ freqPlotModule::freqPlotModule()
 	//[Constructor] You can add your own custom stuff here..
 
 	// Always plot atleast ones before calling realTimePlot
-	m_plot.plot(
-		{ cmp::generateSineWaveVector<float>((1 << 10), -1.0f, 1.0f, 1, 1) });
+	m_plot.plot({ { 0.0f } });
 
 	//[/Constructor]
 }
@@ -92,7 +90,7 @@ void freqPlotModule::resized()
 //[MiscUserCode] You can add your own definitions of your custom methods or any other code here...
 void freqPlotModule::xLim(const float min, const float max)
 {
-	m_plot.xLim(min, max);
+	m_plot.setXLim(min, max);
 	
 	//MessageManager::callAsync
 	//(
@@ -115,7 +113,7 @@ void freqPlotModule::yLim(const float min, const float max)
 		[this, min, max]
 		()
 		{
-			m_plot.yLim(min, max);
+			m_plot.setYLim(min, max);
 			m_plot.repaint();
 		}
 	);

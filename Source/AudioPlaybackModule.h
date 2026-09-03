@@ -72,8 +72,6 @@ public:
 		scrollbar.setAutoHide(false);
 		scrollbar.addListener(this);
 
-		currentPositionMarker.setFill(Colours::white.withAlpha(0.85f));
-		addAndMakeVisible(currentPositionMarker);
 	}
 
 	~ModuleThumbnailComp() override
@@ -134,6 +132,13 @@ public:
 			thumbArea.removeFromBottom(scrollbar.getHeight() + 4);
 			thumbnail.drawChannels(g, thumbArea.reduced(2),
 				visibleRange.getStart(), visibleRange.getEnd(), 1.0f);
+
+			if (transportSource.isPlaying() || isMouseButtonDown())
+			{
+				g.setColour(Colours::white.withAlpha(0.85f));
+				g.fillRect(timeToX(transportSource.getCurrentPosition()) - 0.75f,
+					0.0f, 1.5f, (float)(getHeight() - scrollbar.getHeight()));
+			}
 		}
 		else
 		{
@@ -208,8 +213,6 @@ private:
 	bool isFollowingTransport = false;
 	URL lastFileDropped;
 
-	DrawableRectangle currentPositionMarker;
-
 	float timeToX(const double time) const
 	{
 		if (visibleRange.getLength() <= 0)
@@ -245,10 +248,7 @@ private:
 
 	void updateCursorPosition()
 	{
-		currentPositionMarker.setVisible(transportSource.isPlaying() || isMouseButtonDown());
-
-		currentPositionMarker.setRectangle(Rectangle<float>(timeToX(transportSource.getCurrentPosition()) - 0.75f, 0,
-			1.5f, (float)(getHeight() - scrollbar.getHeight())));
+		repaint();
 	}
 };
 
