@@ -1,3 +1,6 @@
 [submodule "JUCE"]
 	path = JUCE
 	url = https://github.com/ekrogh/JUCE
+[submodule "CustomMatPlot"]
+	path = CustomMatPlot
+	url = https://github.com/franshej/CustomMatPlot.git
