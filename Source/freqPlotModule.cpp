@@ -44,7 +44,7 @@ freqPlotModule::freqPlotModule()
 	//[Constructor] You can add your own custom stuff here..
 
 	// Always plot atleast ones before calling realTimePlot
-	m_plot.plot({ { 0.0f } });
+	m_plot.plot(cmp::SeriesData{ .y = { 0.0f } });
 
 	//[/Constructor]
 }

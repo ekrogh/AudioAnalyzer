@@ -44,7 +44,9 @@ PlotModule::PlotModule()
 	//[Constructor] You can add your own custom stuff here..
 
 	// Always plot atleast ones before calling realTimePlot
-	m_plot.plot({ { 0.0f } });
+	// Provide both x and y values explicitly; a single nested initializer
+	// populates x only and fails Plot's x/y size validation.
+	m_plot.plot({ { 0.0f }, { 0.0f } });
 
 	//[/Constructor]
 }
