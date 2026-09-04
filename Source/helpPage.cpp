@@ -35,7 +35,7 @@ aboutPage::aboutPage ()
     aboutLabel.reset (new juce::Label ("aboutLabel",
                                        juce::String()));
     addAndMakeVisible (aboutLabel.get());
-    aboutLabel->setFont (juce::Font (16.00f, juce::Font::plain).withTypefaceStyle ("Regular"));
+    aboutLabel->setFont (juce::Font (juce::FontOptions (16.00f, juce::Font::plain).withStyle ("Regular")));
     aboutLabel->setJustificationType (juce::Justification::centred);
     aboutLabel->setEditable (false, false, false);
     aboutLabel->setColour (juce::Label::textColourId, juce::Colours::white);
@@ -56,7 +56,7 @@ aboutPage::aboutPage ()
     eigilLabel.reset (new juce::Label ("eigilLabel",
                                        TRANS ("Eigil Krogh Sorensen\n")));
     addAndMakeVisible (eigilLabel.get());
-    eigilLabel->setFont (juce::Font (16.00f, juce::Font::plain).withTypefaceStyle ("Regular"));
+    eigilLabel->setFont (juce::Font (juce::FontOptions (16.00f, juce::Font::plain).withStyle ("Regular")));
     eigilLabel->setJustificationType (juce::Justification::centred);
     eigilLabel->setEditable (false, false, false);
     eigilLabel->setColour (juce::Label::textColourId, juce::Colours::white);
@@ -86,7 +86,7 @@ aboutPage::aboutPage ()
     juceVer__label.reset (new juce::Label ("juceVer label",
                                            TRANS ("-")));
     addAndMakeVisible (juceVer__label.get());
-    juceVer__label->setFont (juce::Font (15.00f, juce::Font::plain).withTypefaceStyle ("Regular"));
+    juceVer__label->setFont (juce::Font (juce::FontOptions (15.00f, juce::Font::plain).withStyle ("Regular")));
     juceVer__label->setJustificationType (juce::Justification::centred);
     juceVer__label->setEditable (false, false, false);
     juceVer__label->setColour (juce::TextEditor::textColourId, juce::Colours::black);

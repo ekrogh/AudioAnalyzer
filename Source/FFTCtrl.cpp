@@ -78,7 +78,7 @@ FFTCtrl::FFTCtrl (std::shared_ptr<FFTModule> ptr_module_FFT, std::shared_ptr<Aud
     freqs__label.reset (new juce::Label ("freqs label",
                                          TRANS ("Frequences\n")));
     addAndMakeVisible (freqs__label.get());
-    freqs__label->setFont (juce::Font (15.00f, juce::Font::plain).withTypefaceStyle ("Regular"));
+    freqs__label->setFont (juce::Font (juce::FontOptions (15.00f, juce::Font::plain).withStyle ("Regular")));
     freqs__label->setJustificationType (juce::Justification::centredLeft);
     freqs__label->setEditable (false, false, false);
     freqs__label->setColour (juce::TextEditor::textColourId, juce::Colours::black);
@@ -103,7 +103,7 @@ FFTCtrl::FFTCtrl (std::shared_ptr<FFTModule> ptr_module_FFT, std::shared_ptr<Aud
     max_Freq__label.reset (new juce::Label ("max_Freq label",
                                             TRANS ("Max. frequency in chart")));
     addAndMakeVisible (max_Freq__label.get());
-    max_Freq__label->setFont (juce::Font (15.00f, juce::Font::plain).withTypefaceStyle ("Regular"));
+    max_Freq__label->setFont (juce::Font (juce::FontOptions (15.00f, juce::Font::plain).withStyle ("Regular")));
     max_Freq__label->setJustificationType (juce::Justification::centredLeft);
     max_Freq__label->setEditable (false, false, false);
     max_Freq__label->setColour (juce::TextEditor::textColourId, juce::Colours::black);
@@ -115,7 +115,7 @@ FFTCtrl::FFTCtrl (std::shared_ptr<FFTModule> ptr_module_FFT, std::shared_ptr<Aud
                                                TRANS ("Sample Freq")));
     addAndMakeVisible (Sample_Freq__label.get());
     Sample_Freq__label->setTooltip (TRANS ("Sample_Freq"));
-    Sample_Freq__label->setFont (juce::Font (15.00f, juce::Font::plain).withTypefaceStyle ("Regular"));
+    Sample_Freq__label->setFont (juce::Font (juce::FontOptions (15.00f, juce::Font::plain).withStyle ("Regular")));
     Sample_Freq__label->setJustificationType (juce::Justification::centredLeft);
     Sample_Freq__label->setEditable (false, false, false);
     Sample_Freq__label->setColour (juce::TextEditor::textColourId, juce::Colours::black);
@@ -141,7 +141,7 @@ FFTCtrl::FFTCtrl (std::shared_ptr<FFTModule> ptr_module_FFT, std::shared_ptr<Aud
                                                TRANS ("Nbr samples")));
     addAndMakeVisible (Nbr_samples__label.get());
     Nbr_samples__label->setTooltip (TRANS ("Nbr_samples"));
-    Nbr_samples__label->setFont (juce::Font (15.00f, juce::Font::plain).withTypefaceStyle ("Regular"));
+    Nbr_samples__label->setFont (juce::Font (juce::FontOptions (15.00f, juce::Font::plain).withStyle ("Regular")));
     Nbr_samples__label->setJustificationType (juce::Justification::centredLeft);
     Nbr_samples__label->setEditable (false, false, false);
     Nbr_samples__label->setColour (juce::TextEditor::textColourId, juce::Colours::black);
@@ -196,7 +196,7 @@ FFTCtrl::FFTCtrl (std::shared_ptr<FFTModule> ptr_module_FFT, std::shared_ptr<Aud
     fftOrder__label.reset (new juce::Label ("fftOrder label",
                                             TRANS ("fftOrder")));
     addAndMakeVisible (fftOrder__label.get());
-    fftOrder__label->setFont (juce::Font (15.00f, juce::Font::plain).withTypefaceStyle ("Regular"));
+    fftOrder__label->setFont (juce::Font (juce::FontOptions (15.00f, juce::Font::plain).withStyle ("Regular")));
     fftOrder__label->setJustificationType (juce::Justification::centredLeft);
     fftOrder__label->setEditable (false, false, false);
     fftOrder__label->setColour (juce::TextEditor::textColourId, juce::Colours::black);
@@ -207,7 +207,7 @@ FFTCtrl::FFTCtrl (std::shared_ptr<FFTModule> ptr_module_FFT, std::shared_ptr<Aud
     fftSize__label.reset (new juce::Label ("fftSize label",
                                            TRANS ("FFT Size")));
     addAndMakeVisible (fftSize__label.get());
-    fftSize__label->setFont (juce::Font (15.00f, juce::Font::plain).withTypefaceStyle ("Regular"));
+    fftSize__label->setFont (juce::Font (juce::FontOptions (15.00f, juce::Font::plain).withStyle ("Regular")));
     fftSize__label->setJustificationType (juce::Justification::centredLeft);
     fftSize__label->setEditable (false, false, false);
     fftSize__label->setColour (juce::TextEditor::textColourId, juce::Colours::black);
@@ -218,7 +218,7 @@ FFTCtrl::FFTCtrl (std::shared_ptr<FFTModule> ptr_module_FFT, std::shared_ptr<Aud
     fftSizeNbr__label.reset (new juce::Label ("fftSizeNbr label",
                                               TRANS ("8192")));
     addAndMakeVisible (fftSizeNbr__label.get());
-    fftSizeNbr__label->setFont (juce::Font (15.00f, juce::Font::plain).withTypefaceStyle ("Regular"));
+    fftSizeNbr__label->setFont (juce::Font (juce::FontOptions (15.00f, juce::Font::plain).withStyle ("Regular")));
     fftSizeNbr__label->setJustificationType (juce::Justification::centredLeft);
     fftSizeNbr__label->setEditable (false, false, false);
     fftSizeNbr__label->setColour (juce::TextEditor::textColourId, juce::Colours::black);
@@ -740,13 +740,13 @@ void FFTCtrl::updateSampleRate(double newSampleRate)
 	}
 }
 
-void FFTCtrl::setValues(unsigned int fftOrder, unsigned int fftSize)
+void FFTCtrl::setValues(unsigned int newFftOrder, unsigned int newFftSize)
 {
-	refSpectrogramComponent.setFftOrderAndFftSize(fftOrder, fftSize);
+    refSpectrogramComponent.setFftOrderAndFftSize(newFftOrder, newFftSize);
 
-	fftOrder__textEditor->setText(String(fftOrder), false);
-	Nbr_Samples__textEditor->setText(String(fftSize), false);
-	fftSizeNbr__label->setText(String(fftSize), NotificationType::dontSendNotification);
+    fftOrder__textEditor->setText(String(newFftOrder), false);
+    Nbr_Samples__textEditor->setText(String(newFftSize), false);
+    fftSizeNbr__label->setText(String(newFftSize), NotificationType::dontSendNotification);
 }
 
 void FFTCtrl::switchUIToSpecialPlots()

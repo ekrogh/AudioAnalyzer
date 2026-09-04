@@ -79,18 +79,22 @@ public:
 			// Create an OutputStream to write to our destination file...
 			file.deleteFile();
 
-			if (auto fileStream = std::unique_ptr<FileOutputStream>(file.createOutputStream()))
+			if (auto fileStream = std::unique_ptr<OutputStream>(file.createOutputStream()))
 			{
 				// Now create a WAV writer object that writes to our output stream...
 				WavAudioFormat wavFormat;
 
-				if (auto writer = wavFormat.createWriterFor(fileStream.get(), sampleRate, numInputs, bitDepth, {}, 0))
+				if (auto writer = wavFormat.createWriterFor(fileStream,
+					AudioFormatWriterOptions().withSampleRate(sampleRate)
+						.withNumChannels(numInputs)
+						.withBitsPerSample(bitDepth)
+						.withQualityOptionIndex(0)))
 				{
 					fileStream.release(); // (passes responsibility for deleting the stream to the writer object that is now using it)
 
 					// Now we'll create one of these helper objects which will act as a FIFO buffer, and will
 					// write the data to disk on our background thread.
-					threadedWriter.reset(new AudioFormatWriter::ThreadedWriter(writer, backgroundThread, 32768));
+					threadedWriter.reset(new AudioFormatWriter::ThreadedWriter(writer.release(), backgroundThread, 32768));
 
 					// Reset our recording thumbnail
 					thumbnail.reset(writer->getNumChannels(), writer->getSampleRate());

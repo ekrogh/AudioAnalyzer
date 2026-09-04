@@ -22,7 +22,7 @@ void NotchFilter::newBaseFrequencyOrSampleRate(double baseFrequency, double samp
 {
 	// The right coefficients
 	/*std::tuple<int, int, std::vector<double>::const_iterator, std::vector<double>::const_iterator>*/
-	auto theCoefficients = notchFiltersCoefficientsMap[baseFrequency][sampleRate];
+	auto theCoefficients = notchFiltersCoefficientsMap[static_cast<int>(baseFrequency)][static_cast<int>(sampleRate)];
 	cNotchNoOfCoeffs = std::get<0>(theCoefficients);
 	dNotchNoOfCoeffs = std::get<1>(theCoefficients);
 	cNotchCoeffsBegin = std::get<2>(theCoefficients);
@@ -74,7 +74,7 @@ void NotchFilter::process(std::vector<float>& buffer)
 
 	auto vectorData = buffer.data();
 
-	for (int sn = 0; sn < buffer.size(); sn++)
+	for (std::size_t sn = 0; sn < buffer.size(); sn++)
 	{
 		filterXValues.pop_back();
 		filterXValues.push_front(static_cast<double>(vectorData[sn]));
@@ -94,7 +94,7 @@ void NotchFilter::process(float* buffer, unsigned int numSamples)
 {
 	double yNew = 0.0f;
 
-	for (int sn = 0; sn < numSamples; sn++)
+	for (unsigned int sn = 0; sn < numSamples; sn++)
 	{
 		filterXValues.pop_back();
 		filterXValues.push_front(static_cast<double>(buffer[sn]));

@@ -261,14 +261,14 @@ bool FFTModule::loadURLIntoFFT
 
 	const unsigned int fftDataSize = fftSize << 1;
 
-	float* fftData = new float[fftDataSize] { 0 };
+	float* fftDataLocal = new float[fftDataSize] { 0 };
 
 	theAudioBuffer =
 		std::make_unique<AudioBuffer<float>>
 		(
 			reader->numChannels
 			,
-			reader->lengthInSamples
+			static_cast<int>(reader->lengthInSamples)
 		);
 
 	reader->read
@@ -288,7 +288,7 @@ bool FFTModule::loadURLIntoFFT
 
 	auto rdptrs = theAudioBuffer->getArrayOfReadPointers();
 
-	memcpy(fftData, rdptrs[0], sizeof(float) * fftSize);
+	memcpy(fftDataLocal, rdptrs[0], sizeof(float) * fftSize);
 
 	juce::dsp::WindowingFunction<float> theHannWindow
 	(
@@ -299,15 +299,15 @@ bool FFTModule::loadURLIntoFFT
 
 	theHannWindow.multiplyWithWindowingTable
 	(
-		fftData
+		fftDataLocal
 		,
 		fftSize
 	);
 
-	std::unique_ptr<dsp::FFT> forwardFFT =
+	std::unique_ptr<dsp::FFT> forwardFFTLocal =
 		std::make_unique<dsp::FFT>(fftOrder);
 	// then render our FFT data..
-	forwardFFT->performFrequencyOnlyForwardTransform(fftData, true);
+	forwardFFTLocal->performFrequencyOnlyForwardTransform(fftDataLocal, true);
 
 	auto deltaHz = (float)reader->sampleRate / fftSize;
 
@@ -323,7 +323,7 @@ bool FFTModule::loadURLIntoFFT
 	auto nbrSamplesInPlot = tmpFreqVctr.size();
 
 	std::vector <std::vector<float>>
-		plotValues{ { fftData, fftData + nbrSamplesInPlot } };
+	plotValues{ { fftDataLocal, fftDataLocal + nbrSamplesInPlot } };
 
 	cmp::GraphAttributeList graph_attributes(0);
 	makeGraphAttributes(graph_attributes);
@@ -448,13 +448,13 @@ bool FFTModule::makeWhiteNoise
 
 	const unsigned int fftDataSize = fftSize << 1;
 
-	float* fftData = new float[fftDataSize] { 0 };
+	float* fftDataLocal = new float[fftDataSize] { 0 };
 
 	juce::Random random;
 
 	for (size_t i = 0; i < fftSize; i++)
 	{
-		fftData[i] = random.nextFloat() * 0.25f - 0.125f;
+		fftDataLocal[i] = random.nextFloat() * 0.25f - 0.125f;
 	}
 
 	juce::dsp::WindowingFunction<float> theHannWindow
@@ -466,16 +466,16 @@ bool FFTModule::makeWhiteNoise
 
 	theHannWindow.multiplyWithWindowingTable
 	(
-		fftData
+		fftDataLocal
 		,
 		fftSize
 	);
 
-	std::unique_ptr<dsp::FFT> forwardFFT =
+	std::unique_ptr<dsp::FFT> forwardFFTLocal =
 		std::make_unique<dsp::FFT>(fftOrder);
 
 	// then render our FFT data..
-	forwardFFT->performFrequencyOnlyForwardTransform(fftData, true);
+	forwardFFTLocal->performFrequencyOnlyForwardTransform(fftDataLocal, true);
 
 	auto deltaHz = (float)sampleRate / fftSize;
 
@@ -491,7 +491,7 @@ bool FFTModule::makeWhiteNoise
 	auto nbrSamplesInPlot = tmpFreqVctr.size();
 
 	std::vector <std::vector<float>>
-		plotValues{ { fftData, fftData + nbrSamplesInPlot } };
+	plotValues{ { fftDataLocal, fftDataLocal + nbrSamplesInPlot } };
 
 	cmp::GraphAttributeList graph_attributes(0);
 	makeGraphAttributes(graph_attributes);
@@ -526,7 +526,7 @@ bool FFTModule::makeSines
 
 	const unsigned int fftDataSize = fftSize << 1;
 
-	float* fftData = new float[fftDataSize] { 0 };
+	float* fftDataLocal = new float[fftDataSize] { 0 };
 
 	for (double freq : frequencies)
 	{
@@ -537,7 +537,7 @@ bool FFTModule::makeSines
 
 		for (size_t i = 0; i < fftSize; i++)
 		{
-			fftData[i] += static_cast<float>(std::sin(currentPhase));
+			fftDataLocal[i] += static_cast<float>(std::sin(currentPhase));
 			currentPhase = std::fmod
 			(
 				currentPhase + phaseDeltaPerSample
@@ -556,15 +556,15 @@ bool FFTModule::makeSines
 
 	theHannWindow.multiplyWithWindowingTable
 	(
-		fftData
+		fftDataLocal
 		,
 		fftSize
 	);
 
-	std::unique_ptr<dsp::FFT> forwardFFT =
+	std::unique_ptr<dsp::FFT> forwardFFTLocal =
 		std::make_unique<dsp::FFT>(fftOrder);
 	// then render our FFT data..
-	forwardFFT->performFrequencyOnlyForwardTransform(fftData, true);
+	forwardFFTLocal->performFrequencyOnlyForwardTransform(fftDataLocal, true);
 
 	auto deltaHz = (float)sampleRate / fftSize;
 
@@ -580,7 +580,7 @@ bool FFTModule::makeSines
 	auto nbrSamplesInPlot = tmpFreqVctr.size();
 
 	std::vector <std::vector<float>>
-		plotValues{ { fftData, fftData + nbrSamplesInPlot } };
+		plotValues{ { fftDataLocal, fftDataLocal + nbrSamplesInPlot } };
 
 	cmp::GraphAttributeList graph_attributes(0);
 	makeGraphAttributes(graph_attributes);
@@ -617,23 +617,23 @@ bool FFTModule::makeWindows
 	float yMax = std::numeric_limits<float>::min();
 
 	// hann window
-	float* fftData = new float[fftDataSize] { 0 };
+	float* fftDataLocal = new float[fftDataSize] { 0 };
 
 	juce::dsp::WindowingFunction<float>::fillWindowingTables
 	(
-		fftData
+		fftDataLocal
 		,
 		fftSize
 		,
 		juce::dsp::WindowingFunction<float>::hann
 	);
 
-	std::unique_ptr<dsp::FFT> forwardFFT =
+	std::unique_ptr<dsp::FFT> forwardFFTLocal =
 		std::make_unique<dsp::FFT>(fftOrder);
 
 	// then render our FFT data..
-	//forwardFFT->performFrequencyOnlyForwardTransform(fftData);
-	forwardFFT->performFrequencyOnlyForwardTransform(fftData, true);
+	//forwardFFTLocal->performFrequencyOnlyForwardTransform(fftDataLocal);
+	forwardFFTLocal->performFrequencyOnlyForwardTransform(fftDataLocal, true);
 
 	auto deltaHz = (float)sampleRate / fftSize;
 
@@ -649,9 +649,9 @@ bool FFTModule::makeWindows
 	auto nbrSamplesInPlot = tmpFreqVctr.size();
 
 	std::vector <std::vector<float>>
-		plotValues{ { fftData, fftData + nbrSamplesInPlot } };
+		plotValues{ { fftDataLocal, fftDataLocal + nbrSamplesInPlot } };
 	
-	auto maxMinLevel = FloatVectorOperations::findMinAndMax(fftData, static_cast<int>(nbrSamplesInPlot));
+	auto maxMinLevel = FloatVectorOperations::findMinAndMax(fftDataLocal, static_cast<int>(nbrSamplesInPlot));
 
 	if (maxMinLevel.getStart() < yMin)
 	{
@@ -668,11 +668,11 @@ bool FFTModule::makeWindows
 	cmp::StringVector plotLegend{ "hann" };
 
 	// hamming Window
-	fftData = new float[fftDataSize] { 0 };
+	fftDataLocal = new float[fftDataSize] { 0 };
 
 	juce::dsp::WindowingFunction<float>::fillWindowingTables
 	(
-		fftData
+		fftDataLocal
 		,
 		fftSize
 		,
@@ -680,12 +680,12 @@ bool FFTModule::makeWindows
 	);
 
 	// then render our FFT data..
-	forwardFFT->performFrequencyOnlyForwardTransform(fftData, true);
+	forwardFFTLocal->performFrequencyOnlyForwardTransform(fftDataLocal, true);
 
 	frequencyValues.push_back(tmpFreqVctr);
-	plotValues.push_back({ fftData, fftData + nbrSamplesInPlot });
+	plotValues.push_back({ fftDataLocal, fftDataLocal + nbrSamplesInPlot });
 
-	maxMinLevel = FloatVectorOperations::findMinAndMax(fftData, static_cast<int>(nbrSamplesInPlot));
+	maxMinLevel = FloatVectorOperations::findMinAndMax(fftDataLocal, static_cast<int>(nbrSamplesInPlot));
 	if (maxMinLevel.getStart() < yMin)
 	{
 		yMin = maxMinLevel.getStart();
@@ -699,10 +699,10 @@ bool FFTModule::makeWindows
 	plotLegend.push_back("hamming");
 
 	// blackman Window
-	fftData = new float[fftDataSize] { 0 };
+	fftDataLocal = new float[fftDataSize] { 0 };
 	juce::dsp::WindowingFunction<float>::fillWindowingTables
 	(
-		fftData
+		fftDataLocal
 		,
 		fftSize
 		,
@@ -710,7 +710,7 @@ bool FFTModule::makeWindows
 	);
 
 	// then render our FFT data..
-	forwardFFT->performFrequencyOnlyForwardTransform(fftData, true);
+	forwardFFTLocal->performFrequencyOnlyForwardTransform(fftDataLocal, true);
 
 	frequencyValues.push_back(tmpFreqVctr);
 	plotValues.push_back({ fftData, fftData + nbrSamplesInPlot });
@@ -729,7 +729,7 @@ bool FFTModule::makeWindows
 	plotLegend.push_back("blackman");
 
 	// blackmanHarris Window
-	fftData = new float[fftDataSize] { 0 };
+	fftDataLocal = new float[fftDataSize] { 0 };
 	juce::dsp::WindowingFunction<float>::fillWindowingTables
 	(
 		fftData
@@ -759,7 +759,7 @@ bool FFTModule::makeWindows
 	plotLegend.push_back("blackmanHarris");
 
 	// flatTop Window
-	fftData = new float[fftDataSize] { 0 };
+	fftDataLocal = new float[fftDataSize] { 0 };
 	juce::dsp::WindowingFunction<float>::fillWindowingTables
 	(
 		fftData
@@ -789,7 +789,7 @@ bool FFTModule::makeWindows
 	plotLegend.push_back("flatTop");
 
 	// kaiser Window
-	fftData = new float[fftDataSize] { 0 };
+	fftDataLocal = new float[fftDataSize] { 0 };
 	juce::dsp::WindowingFunction<float>::fillWindowingTables
 	(
 		fftData

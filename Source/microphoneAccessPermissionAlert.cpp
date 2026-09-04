@@ -35,7 +35,7 @@ microphoneAccessPermissionAlert::microphoneAccessPermissionAlert ()
     juce__label.reset (new juce::Label ("new label",
                                         TRANS ("Access to audio input device \\\\n NOT granted!")));
     addAndMakeVisible (juce__label.get());
-    juce__label->setFont (juce::Font (15.00f, juce::Font::plain).withTypefaceStyle ("Regular"));
+    juce__label->setFont (juce::Font (juce::FontOptions (15.00f, juce::Font::plain).withStyle ("Regular")));
     juce__label->setJustificationType (juce::Justification::topLeft);
     juce__label->setEditable (false, false, false);
     juce__label->setColour (juce::TextEditor::textColourId, juce::Colours::black);
@@ -44,7 +44,7 @@ microphoneAccessPermissionAlert::microphoneAccessPermissionAlert ()
     juce__label2.reset (new juce::Label ("new label",
                                          TRANS ("You might try to\\\\nEnbale AudioAnalyzer in\\\\nSettings -> Privacy -> Microphone\\\\nOr UNinstall\\\\nand REinstall AudioAnalyzer")));
     addAndMakeVisible (juce__label2.get());
-    juce__label2->setFont (juce::Font (15.00f, juce::Font::plain).withTypefaceStyle ("Regular"));
+    juce__label2->setFont (juce::Font (juce::FontOptions (15.00f, juce::Font::plain).withStyle ("Regular")));
     juce__label2->setJustificationType (juce::Justification::topLeft);
     juce__label2->setEditable (false, false, false);
     juce__label2->setColour (juce::TextEditor::textColourId, juce::Colours::black);

@@ -74,9 +74,9 @@ public:
 
 	void paint(juce::Graphics& g) override;
 
-	void drawNextLineOfSpectrogramAndFftPlotUpdate(float* fftDataBuffer, unsigned int& fftSize);
+	void drawNextLineOfSpectrogramAndFftPlotUpdate(float* fftDataBuffer, unsigned int& fftSizeToUse);
 
-	void doFFT(float* fftDataBuffer, unsigned int& fftSize);
+	void doFFT(float* fftDataBuffer, unsigned int& fftSizeToUse);
 
 	void run() override; // Called from Thread
 

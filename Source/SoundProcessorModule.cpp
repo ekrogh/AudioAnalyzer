@@ -46,7 +46,7 @@ SoundProcessorModule::SoundProcessorModule (std::shared_ptr<PlotModule> ptr_modu
     juce__label2.reset (new juce::Label ("new label",
                                          TRANS ("Delta Time [Sec]")));
     addAndMakeVisible (juce__label2.get());
-    juce__label2->setFont (juce::Font (15.00f, juce::Font::plain).withTypefaceStyle ("Regular"));
+	juce__label2->setFont (juce::Font (juce::FontOptions (15.00f, juce::Font::plain).withStyle ("Regular")));
     juce__label2->setJustificationType (juce::Justification::centredLeft);
     juce__label2->setEditable (false, false, false);
     juce__label2->setColour (juce::TextEditor::textColourId, juce::Colours::black);
@@ -55,7 +55,7 @@ SoundProcessorModule::SoundProcessorModule (std::shared_ptr<PlotModule> ptr_modu
     juce__label3.reset (new juce::Label ("new label",
                                          TRANS ("Delta freq [Hz]")));
     addAndMakeVisible (juce__label3.get());
-    juce__label3->setFont (juce::Font (15.00f, juce::Font::plain).withTypefaceStyle ("Regular"));
+	juce__label3->setFont (juce::Font (juce::FontOptions (15.00f, juce::Font::plain).withStyle ("Regular")));
     juce__label3->setJustificationType (juce::Justification::centredLeft);
     juce__label3->setEditable (false, false, false);
     juce__label3->setColour (juce::TextEditor::textColourId, juce::Colours::black);
@@ -66,7 +66,7 @@ SoundProcessorModule::SoundProcessorModule (std::shared_ptr<PlotModule> ptr_modu
     timeToRun__label.reset (new juce::Label ("time To Run label",
                                              TRANS ("Time remaining to run [Min]:")));
     addAndMakeVisible (timeToRun__label.get());
-    timeToRun__label->setFont (juce::Font (15.00f, juce::Font::plain).withTypefaceStyle ("Regular"));
+	timeToRun__label->setFont (juce::Font (juce::FontOptions (15.00f, juce::Font::plain).withStyle ("Regular")));
     timeToRun__label->setJustificationType (juce::Justification::centredLeft);
     timeToRun__label->setEditable (false, false, false);
     timeToRun__label->setColour (juce::TextEditor::textColourId, juce::Colours::black);
@@ -75,7 +75,7 @@ SoundProcessorModule::SoundProcessorModule (std::shared_ptr<PlotModule> ptr_modu
     qurFreq__label.reset (new juce::Label ("cur. freq. label",
                                            TRANS ("Current frequency [Hz]:")));
     addAndMakeVisible (qurFreq__label.get());
-    qurFreq__label->setFont (juce::Font (15.00f, juce::Font::plain).withTypefaceStyle ("Regular"));
+	qurFreq__label->setFont (juce::Font (juce::FontOptions (15.00f, juce::Font::plain).withStyle ("Regular")));
     qurFreq__label->setJustificationType (juce::Justification::centredLeft);
     qurFreq__label->setEditable (false, false, false);
     qurFreq__label->setColour (juce::TextEditor::textColourId, juce::Colours::black);
@@ -84,7 +84,7 @@ SoundProcessorModule::SoundProcessorModule (std::shared_ptr<PlotModule> ptr_modu
     juce__label5.reset (new juce::Label ("new label",
                                          TRANS ("Min. frequency [Hz]")));
     addAndMakeVisible (juce__label5.get());
-    juce__label5->setFont (juce::Font (15.00f, juce::Font::plain).withTypefaceStyle ("Regular"));
+	juce__label5->setFont (juce::Font (juce::FontOptions (15.00f, juce::Font::plain).withStyle ("Regular")));
     juce__label5->setJustificationType (juce::Justification::centredLeft);
     juce__label5->setEditable (false, false, false);
     juce__label5->setColour (juce::TextEditor::textColourId, juce::Colours::black);
@@ -93,7 +93,7 @@ SoundProcessorModule::SoundProcessorModule (std::shared_ptr<PlotModule> ptr_modu
     juce__label.reset (new juce::Label ("new label",
                                         TRANS ("Max. freq. [Hz]")));
     addAndMakeVisible (juce__label.get());
-    juce__label->setFont (juce::Font (15.00f, juce::Font::plain).withTypefaceStyle ("Regular"));
+	juce__label->setFont (juce::Font (juce::FontOptions (15.00f, juce::Font::plain).withStyle ("Regular")));
     juce__label->setJustificationType (juce::Justification::centredLeft);
     juce__label->setEditable (false, false, false);
     juce__label->setColour (juce::TextEditor::textColourId, juce::Colours::black);
@@ -102,7 +102,7 @@ SoundProcessorModule::SoundProcessorModule (std::shared_ptr<PlotModule> ptr_modu
     juce__label6.reset (new juce::Label ("new label",
                                          TRANS ("Time to run totally [Min]:")));
     addAndMakeVisible (juce__label6.get());
-    juce__label6->setFont (juce::Font (15.00f, juce::Font::plain).withTypefaceStyle ("Regular"));
+	juce__label6->setFont (juce::Font (juce::FontOptions (15.00f, juce::Font::plain).withStyle ("Regular")));
     juce__label6->setJustificationType (juce::Justification::centredLeft);
     juce__label6->setEditable (false, false, false);
     juce__label6->setColour (juce::TextEditor::textColourId, juce::Colours::black);

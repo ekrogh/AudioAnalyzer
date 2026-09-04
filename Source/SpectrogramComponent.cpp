@@ -93,8 +93,8 @@ void SpectrogramComponent::switchToMicrophoneInput()
 	thisIsNotAudioIOSystem = false;
 	notAudioIOSystemIsRunning = false;
 
-	drawSemaphore[0].try_acquire();
-	drawSemaphore[1].try_acquire();
+	(void) drawSemaphore[0].try_acquire();
+	(void) drawSemaphore[1].try_acquire();
 
 	curTimerFrequencyHz = 60;
 	yLimNumTimerCallBacks =
@@ -291,7 +291,7 @@ bool SpectrogramComponent::loadURLIntoSpectrum
 		curTimerInterValMs = static_cast<int>(std::round(timePerBuffer * 1000.0f));
 		yLimNumTimerCallBacks = static_cast<int>(std::round(yLimIntervalMs / curTimerInterValMs));
 
-		curTimerFrequencyHz = 1.0 / timePerBuffer;
+		curTimerFrequencyHz = static_cast<int>(1.0 / timePerBuffer);
 
 		startTimer(curTimerInterValMs);
 		//startTimerHz(curTimerFrequencyHz);
@@ -530,7 +530,7 @@ void SpectrogramComponent::calculateYLim()
 }
 
 
-void SpectrogramComponent::prepareToPlay(int samplesPerBlockExpected, double newSampleRate)
+void SpectrogramComponent::prepareToPlay(int, double newSampleRate)
 {
 	curSampleRate = newSampleRate;
 
@@ -577,7 +577,7 @@ void SpectrogramComponent::pushNextSampleIntoFifo(float sample) noexcept
 {
 	// if the fifo contains enough data, set a flag to say
 	// that the next line should now be rendered..
-	if (fifoIndex == fftSize)
+	if (fifoIndex == static_cast<int>(fftSize))
 	{
 		if (!nextFFTBlockReady)
 		{
@@ -615,7 +615,7 @@ SpectrogramComponent::~SpectrogramComponent()
 	shutDownIO();
 }
 
-void SpectrogramComponent::drawNextLineOfSpectrogramAndFftPlotUpdate(float* fftDataBuffer, unsigned int& fftSize)
+void SpectrogramComponent::drawNextLineOfSpectrogramAndFftPlotUpdate(float* fftDataBuffer, unsigned int& fftSizeToUse)
 {
 	if (doRealTimeFftChartPlot)
 	{
@@ -637,12 +637,12 @@ void SpectrogramComponent::drawNextLineOfSpectrogramAndFftPlotUpdate(float* fftD
 
 	// find the range of values produced, so we can scale our rendering to
 	// show up the detail clearly
-	auto maxLevel = FloatVectorOperations::findMinAndMax(fftDataBuffer, static_cast<int>(fftSize));
+		auto maxLevel = FloatVectorOperations::findMinAndMax(fftDataBuffer, static_cast<int>(fftSizeToUse));
 
 	for (auto y = 1; y < imageHeight; ++y)
 	{
 		auto skewedProportionY = 1.0f - std::exp(std::log((float)y / (float)imageHeight) * 0.2f);
-		auto fftDataIndex = jlimit(0, (int)fftSize / 2, (int)(skewedProportionY * (int)fftSize / 2));
+		auto fftDataIndex = jlimit(0, (int)fftSizeToUse / 2, (int)(skewedProportionY * (int)fftSizeToUse / 2));
 		auto level = jmap(fftDataBuffer[fftDataIndex], 0.0f, jmax(maxLevel.getEnd(), 1e-5f), 0.0f, 1.0f);
 
 		//spectrogramImage.setPixelAt(rightHandEdge, y, Colour::fromHSL(level, 1.0f, level + 0.1f, 1.0f));
@@ -651,12 +651,12 @@ void SpectrogramComponent::drawNextLineOfSpectrogramAndFftPlotUpdate(float* fftD
 
 }
 
-void SpectrogramComponent::doFFT(float* fftDataBuffer, unsigned int& fftSize)
+void SpectrogramComponent::doFFT(float* fftDataBuffer, unsigned int& fftSizeToUse)
 {
 	// Window the data
 	juce::dsp::WindowingFunction<float> theKaiserWindow
 	(
-		fftSize
+		fftSizeToUse
 		,
 		juce::dsp::WindowingFunction<float>::WindowingMethod::kaiser
 	);
@@ -665,7 +665,7 @@ void SpectrogramComponent::doFFT(float* fftDataBuffer, unsigned int& fftSize)
 	(
 		fftDataBuffer
 		,
-		fftSize
+		fftSizeToUse
 	);
 	//juce::dsp::WindowingFunction<float> theHannWindow
 	//(
@@ -695,8 +695,8 @@ void SpectrogramComponent::setAutoSwitchToInput(bool autoSwitch)
 void SpectrogramComponent::setFilterToUse(filterTypes theFilterType)
 {
 	// Stop thread
-	bool threadWasRunning = isThreadRunning();
-	if (threadWasRunning)
+	bool wasThreadRunning = isThreadRunning();
+	if (wasThreadRunning)
 	{
 		stopTimer();
 		drawSemaphore[0].release();
@@ -711,8 +711,8 @@ void SpectrogramComponent::setFilterToUse(filterTypes theFilterType)
 		}
 		while (!waitForThreadToExit(100));
 
-		drawSemaphore[0].try_acquire();
-		drawSemaphore[1].try_acquire();
+		(void) drawSemaphore[0].try_acquire();
+		(void) drawSemaphore[1].try_acquire();
 
 		resetVariables();
 
@@ -733,7 +733,7 @@ void SpectrogramComponent::setFilterToUse(filterTypes theFilterType)
 	{
 		startShowingFilters();
 	}
-	else if (threadWasRunning)
+	else if (wasThreadRunning)
 	{
 		startThread();
 		startTimer(curTimerInterValMs);
@@ -784,8 +784,8 @@ void SpectrogramComponent::initRealTimeFftChartPlot()
 		plotValues = frequencyValues;
 		module_freqPlot->updatePlot(plotValues, frequencyValues, graph_attributes, plotLegend);
 
-		drawSemaphore[0].try_acquire();
-		drawSemaphore[1].try_acquire();
+		(void) drawSemaphore[0].try_acquire();
+		(void) drawSemaphore[1].try_acquire();
 	}
 }
 
@@ -828,7 +828,7 @@ void SpectrogramComponent::setMaxFreqInRealTimeFftChartPlot(double maxFRTFftCP)
 
 	reStartIO();
 
-	module_freqPlot->xLim(-10.0f, maxFreqInRealTimeFftChartPlot);
+	module_freqPlot->xLim(-10.0f, static_cast<float>(maxFreqInRealTimeFftChartPlot));
 }
 
 void SpectrogramComponent::setFftOrderAndFftSize(unsigned int newFftOrder, unsigned int newFftSize)
@@ -865,7 +865,8 @@ void SpectrogramComponent::shutDownIO()
 	stopTimer();
 
 	// Stop thread
-	if (threadWasRunning = isThreadRunning())
+	threadWasRunning = isThreadRunning();
+	if (threadWasRunning)
 	{
 		do
 		{
