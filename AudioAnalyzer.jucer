@@ -4,7 +4,7 @@
               displaySplashScreen="1" jucerFormatVersion="1" companyWebsite="www.eksit.dk"
               bundleIdentifier="dk.eksit.AudioAnalyzer" cppLanguageStandard="latest"
               version="1.2.2" companyName="eksit" companyCopyright="Copyright 2026 eksit"
-              headerPath="../CustomMatPlot/include/include&#10;../CustomMatPlot/include/include_internal&#10;">
+              headerPath="../../../CustomMatPlot/include/include&#10;../../../CustomMatPlot/include/include_internal&#10;">
   <MAINGROUP id="J330RL" name="AudioAnalyzer">
     <GROUP id="{444701EC-2BDB-E376-CB2D-A176BB8655A4}" name="Source">
       <GROUP id="{E0980DD4-085C-A615-407B-AC22978106DF}" name="Resources">
@@ -121,7 +121,7 @@
         <CONFIGURATION isDebug="0" name="Release" targetName="AudioAnalyzer"/>
       </CONFIGURATIONS>
       <MODULEPATHS>
-         <MODULEPATH id="juce_audio_basics" path="../JUCE/modules"/>
+        <MODULEPATH id="juce_audio_basics" path="../JUCE/modules"/>
         <MODULEPATH id="juce_audio_devices" path="../JUCE/modules"/>
         <MODULEPATH id="juce_audio_formats" path="../JUCE/modules"/>
         <MODULEPATH id="juce_audio_processors" path="../JUCE/modules"/>
@@ -236,4 +236,3 @@
     </VS2026>
   </EXPORTFORMATS>
 </JUCERPROJECT>
-
