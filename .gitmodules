@@ -1,8 +1,0 @@
-[submodule "JUCE"]
-	path = JUCE
-	url = https://github.com/ekrogh/JUCE
-	branch = main
-[submodule "CustomMatPlot"]
-	path = CustomMatPlot
-	url = https://github.com/ekrogh/CustomMatPlot.git
-	branch = main
