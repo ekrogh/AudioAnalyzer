@@ -12,26 +12,26 @@
               file="Source/audioanalyzerfirstimage.png" xcodeResource="1"/>
       </GROUP>
       <GROUP id="{C9B21DB8-9C2F-4C12-39F0-876C23D8CFD4}" name="CustomMatPlot">
-        <FILE id="WfaRod" name="cmp_axes3dbox.cpp" compile="1" resource="0"
-              file="CustomMatPlot/source/cmp_axes3dbox.cpp"/>
-        <FILE id="DYnjaj" name="cmp_downsampler.cpp" compile="1" resource="0"
-              file="CustomMatPlot/source/cmp_downsampler.cpp"/>
-        <FILE id="AlEuHK" name="cmp_frame.cpp" compile="1" resource="0" file="CustomMatPlot/source/cmp_frame.cpp"/>
-        <FILE id="T1fdfO" name="cmp_grid.cpp" compile="1" resource="0" file="CustomMatPlot/source/cmp_grid.cpp"/>
-        <FILE id="Qixe9C" name="cmp_label.cpp" compile="1" resource="0" file="CustomMatPlot/source/cmp_label.cpp"/>
-        <FILE id="KUbrwV" name="cmp_legend.cpp" compile="1" resource="0" file="CustomMatPlot/source/cmp_legend.cpp"/>
-        <FILE id="Y2DITY" name="cmp_lookandfeel.cpp" compile="1" resource="0"
-              file="CustomMatPlot/source/cmp_lookandfeel.cpp"/>
-        <FILE id="jDPjG3" name="cmp_plot.cpp" compile="1" resource="0" file="CustomMatPlot/source/cmp_plot.cpp"/>
-        <FILE id="lTAil7" name="cmp_plot3d.cpp" compile="1" resource="0" file="CustomMatPlot/source/cmp_plot3d.cpp"/>
-        <FILE id="nxipk2" name="cmp_selection_area.cpp" compile="1" resource="0"
-              file="CustomMatPlot/source/cmp_selection_area.cpp"/>
-        <FILE id="GNK2qs" name="cmp_series.cpp" compile="1" resource="0" file="CustomMatPlot/source/cmp_series.cpp"/>
-        <FILE id="W2VI4v" name="cmp_series3d.cpp" compile="1" resource="0"
-              file="CustomMatPlot/source/cmp_series3d.cpp"/>
-        <FILE id="FoMFO4" name="cmp_trace.cpp" compile="1" resource="0" file="CustomMatPlot/source/cmp_trace.cpp"/>
-        <FILE id="SF7ZRn" name="cmp_version.h" compile="0" resource="0" file="CustomMatPlot/source/cmp_version.h"/>
-        <FILE id="KeY2vO" name="package.h" compile="0" resource="0" file="CustomMatPlot/source/package.h"/>
+        <FILE id="uhAlT6" name="cmp_axes3dbox.cpp" compile="1" resource="0"
+              file="../CustomMatPlot/source/cmp_axes3dbox.cpp"/>
+        <FILE id="ZXejMS" name="cmp_downsampler.cpp" compile="1" resource="0"
+              file="../CustomMatPlot/source/cmp_downsampler.cpp"/>
+        <FILE id="htzj72" name="cmp_frame.cpp" compile="1" resource="0" file="../CustomMatPlot/source/cmp_frame.cpp"/>
+        <FILE id="UJwph8" name="cmp_grid.cpp" compile="1" resource="0" file="../CustomMatPlot/source/cmp_grid.cpp"/>
+        <FILE id="ocaSO6" name="cmp_label.cpp" compile="1" resource="0" file="../CustomMatPlot/source/cmp_label.cpp"/>
+        <FILE id="OfPibZ" name="cmp_legend.cpp" compile="1" resource="0" file="../CustomMatPlot/source/cmp_legend.cpp"/>
+        <FILE id="ROMW90" name="cmp_lookandfeel.cpp" compile="1" resource="0"
+              file="../CustomMatPlot/source/cmp_lookandfeel.cpp"/>
+        <FILE id="piVp5z" name="cmp_plot.cpp" compile="1" resource="0" file="../CustomMatPlot/source/cmp_plot.cpp"/>
+        <FILE id="f11Lw8" name="cmp_plot3d.cpp" compile="1" resource="0" file="../CustomMatPlot/source/cmp_plot3d.cpp"/>
+        <FILE id="XXglUq" name="cmp_selection_area.cpp" compile="1" resource="0"
+              file="../CustomMatPlot/source/cmp_selection_area.cpp"/>
+        <FILE id="L2iAvd" name="cmp_series.cpp" compile="1" resource="0" file="../CustomMatPlot/source/cmp_series.cpp"/>
+        <FILE id="Mtgq8d" name="cmp_series3d.cpp" compile="1" resource="0"
+              file="../CustomMatPlot/source/cmp_series3d.cpp"/>
+        <FILE id="h4izgy" name="cmp_trace.cpp" compile="1" resource="0" file="../CustomMatPlot/source/cmp_trace.cpp"/>
+        <FILE id="GtrT9p" name="cmp_version.h" compile="0" resource="0" file="../CustomMatPlot/source/cmp_version.h"/>
+        <FILE id="MurHQo" name="package.h" compile="0" resource="0" file="../CustomMatPlot/source/package.h"/>
       </GROUP>
       <FILE id="LD9qND" name="eksClamp.h" compile="0" resource="0" file="Source/eksClamp.h"/>
       <FILE id="dVzrFQ" name="freqPlotModule.cpp" compile="1" resource="0"
