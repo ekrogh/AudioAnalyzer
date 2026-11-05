@@ -78,7 +78,7 @@ public:
 				.findColour(juce::ResizableWindow::backgroundColourId),
 				DocumentWindow::allButtons)
 		{
-			setUsingNativeTitleBar(true);
+			setUsingNativeTitleBar(false);
 #if JUCE_IOS || JUCE_ANDROID
 			setTitleBarHeight(0);
 #endif
@@ -88,16 +88,16 @@ public:
 			setFullScreen(true);
 #else
 			setResizable(true, true);
-
-			// Position at the left edge of the primary display, keeping the current size
-			const auto area = juce::Desktop::getInstance().getDisplays().getPrimaryDisplay()->userBounds;
-			setBounds(static_cast<int>(area.getX()), static_cast<int>(area.getY()), getWidth(), getHeight());
-
-			// If you prefer the left half of the screen, use this instead:
-			// setBounds(area.removeFromLeft(area.getWidth() / 2));
 #endif
 
 			setVisible(true);
+
+//#if !JUCE_IOS && !JUCE_ANDROID
+//			// Position after the window is created so the title bar is initialized correctly.
+//			const auto area = juce::Desktop::getInstance().getDisplays().getPrimaryDisplay()->userBounds;
+//			const auto centredBounds = area.toDouble().withSizeKeepingCentre(getWidth(), getHeight());
+//			setBounds(centredBounds.toNearestInt());
+//#endif
 		}
 
 		void closeButtonPressed() override

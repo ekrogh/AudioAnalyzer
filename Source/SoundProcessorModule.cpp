@@ -541,7 +541,7 @@ SoundProcessorModule::SoundProcessorModule (std::shared_ptr<PlotModule> ptr_modu
 SoundProcessorModule::~SoundProcessorModule()
 {
     //[Destructor_pre]. You can add your own custom destruction code here..
-	eksShutdownAudio();
+	//eksShutdownAudio();
 	stopThread(100);
     //[/Destructor_pre]
 
