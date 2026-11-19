@@ -80,6 +80,8 @@ private:
     void initialiseSeparator();
     void configureFallbackFilters();
     void resetProcessingState();
+    int getInputWindowFrames() const;
+    int getInputWindowHopFrames() const;
     void updateBackendState(BackendState newState, const juce::String& newStatus);
 
     juce::File getModelDirectory() const;
@@ -106,6 +108,7 @@ private:
     double sampleRate = 44100.0;
 
     CriticalSection callbackLock;
+    CriticalSection processingLock;
     CriticalSection queueLock;
     mutable CriticalSection stateLock;
     int blockSize = 512;
@@ -117,6 +120,9 @@ private:
     std::vector<float> outputRing;
     std::vector<float> processInputWindow;
     std::vector<float> processOutputWindow;
+    std::vector<float> modelInputWindow;
+    std::vector<float> modelOutputWindow;
+    std::vector<float> previousWindowTail;
     std::array<std::vector<float>, 2> fallbackChannelScratch;
 
     int ioChannels = 2;
@@ -128,6 +134,7 @@ private:
     int outputWriteFrame = 0;
     int outputReadFrame = 0;
     int outputQueuedFrames = 0;
+    bool hasPreviousWindowTail = false;
 
     std::array<juce::IIRFilter, 2> highPassFilters;
     std::array<juce::IIRFilter, 2> lowPassFilters;
@@ -135,7 +142,6 @@ private:
     std::atomic<bool> backendReady{ false };
     bool modelAssetsChecked = false;
     bool modelAssetsAvailable = false;
-    bool preferDryWhileWarmingUp = true;
     BackendState backendState = BackendState::idle;
     juce::String backendStatusText{ "HTDemucs not initialised" };
 

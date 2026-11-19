@@ -10,6 +10,7 @@
 
 #include <JuceHeader.h>
 #include "guitarSeparator.h"
+#include <cmath>
 
 #if defined(AA_ENABLE_ONNXRUNTIME) && AA_ENABLE_ONNXRUNTIME && __has_include(<onnxruntime_cxx_api.h>)
  #include <onnxruntime_cxx_api.h>
@@ -23,6 +24,7 @@ namespace
 constexpr int defaultModelSampleRate = 44100;
 constexpr int defaultModelChannels = 2;
 constexpr int defaultModelWindowFrames = 8192;
+constexpr int separatorIoChannels = 2;
 constexpr int defaultInputCapacityFrames = 65536;
 constexpr int defaultOutputCapacityFrames = 65536;
 constexpr float fallbackHighPassHz = 70.0f;
@@ -31,6 +33,63 @@ constexpr float fallbackGateThreshold = 0.01f;
 constexpr float fallbackResidualGain = 0.35f;
 constexpr auto modelUrlEnvVar = "AUDIO_ANALYZER_HTDEMUCS_MODEL_URL";
 constexpr auto manifestUrlEnvVar = "AUDIO_ANALYZER_HTDEMUCS_MANIFEST_URL";
+
+void resampleInterleaved(const std::vector<float>& input,
+	int inputFrames,
+	std::vector<float>& output,
+	int outputFrames,
+	int channels)
+{
+	output.assign(static_cast<size_t>(outputFrames * channels), 0.0f);
+	if (inputFrames <= 0 || outputFrames <= 0)
+		return;
+	if (inputFrames == outputFrames)
+	{
+		output = input;
+		return;
+	}
+
+	constexpr int filterRadius = 8;
+	const auto cutoff = 0.97 * juce::jmin(1.0, static_cast<double>(outputFrames) / inputFrames);
+	for (int frame = 0; frame < outputFrames; ++frame)
+	{
+		const auto position = (static_cast<double>(frame) + 0.5) * inputFrames / outputFrames - 0.5;
+		const auto firstFrame = static_cast<int>(std::floor(position)) - filterRadius + 1;
+		std::array<double, 16> weights{};
+		double weightSum = 0.0;
+
+		for (int tap = 0; tap < static_cast<int>(weights.size()); ++tap)
+		{
+			const auto sourceFrame = firstFrame + tap;
+			const auto distance = position - sourceFrame;
+			const auto windowPosition = distance / filterRadius;
+			if (sourceFrame < 0 || sourceFrame >= inputFrames || std::abs(windowPosition) >= 1.0)
+				continue;
+
+			const auto window = 0.5 + 0.5 * std::cos(juce::MathConstants<double>::pi * windowPosition);
+			const auto scaledDistance = distance * cutoff;
+			const auto sinc = std::abs(scaledDistance) < 1.0e-12
+				? cutoff
+				: std::sin(juce::MathConstants<double>::pi * scaledDistance)
+					/ (juce::MathConstants<double>::pi * distance);
+			weights[static_cast<size_t>(tap)] = sinc * window;
+			weightSum += weights[static_cast<size_t>(tap)];
+		}
+
+		for (int channel = 0; channel < channels; ++channel)
+		{
+			double value = 0.0;
+			for (int tap = 0; tap < static_cast<int>(weights.size()); ++tap)
+			{
+				const auto sourceFrame = firstFrame + tap;
+				if (sourceFrame >= 0 && sourceFrame < inputFrames)
+					value += input[static_cast<size_t>(sourceFrame * channels + channel)] * weights[static_cast<size_t>(tap)];
+			}
+			output[static_cast<size_t>(frame * channels + channel)]
+				= weightSum != 0.0 ? static_cast<float>(value / weightSum) : 0.0f;
+		}
+	}
+}
 }
 
 struct guitarSeparator::HtDemucsOnnxBackend
@@ -92,16 +151,30 @@ struct guitarSeparator::HtDemucsOnnxBackend
 
 		try
 		{
+			constexpr int ioChannels = separatorIoChannels;
 			const auto frames = manifest.windowFrames;
 			const auto channels = manifest.channels;
 
 			channelMajorInput.assign(static_cast<size_t>(channels * frames), 0.0f);
-			interleavedOutput.assign(interleavedInput.size(), 0.0f);
+			if (interleavedInput.size() < static_cast<size_t>(frames * ioChannels))
+			{
+				error = "HTDemucs input window is shorter than its configured shape.";
+				return false;
+			}
+
+			interleavedOutput.assign(static_cast<size_t>(frames * ioChannels), 0.0f);
 
 			for (int frame = 0; frame < frames; ++frame)
-				for (int channel = 0; channel < channels; ++channel)
-					channelMajorInput[static_cast<size_t>(channel * frames + frame)]
-						= interleavedInput[static_cast<size_t>(frame * channels + channel)];
+			{
+				if (channels == 1)
+					channelMajorInput[static_cast<size_t>(frame)]
+						= 0.5f * (interleavedInput[static_cast<size_t>(frame * ioChannels)]
+							+ interleavedInput[static_cast<size_t>(frame * ioChannels + 1)]);
+				else
+					for (int channel = 0; channel < channels; ++channel)
+						channelMajorInput[static_cast<size_t>(channel * frames + frame)]
+							= interleavedInput[static_cast<size_t>(frame * ioChannels + channel)];
+			}
 
 			auto memoryInfo = Ort::MemoryInfo::CreateCpu(OrtArenaAllocator, OrtMemTypeDefault);
 			auto inputTensor = Ort::Value::CreateTensor<float>(memoryInfo,
@@ -130,12 +203,19 @@ struct guitarSeparator::HtDemucsOnnxBackend
 			const auto outputShape = outputTensor.GetTensorTypeAndShapeInfo().GetShape();
 			const auto* outputData = outputTensor.GetTensorData<float>();
 
-			if (outputShape.size() == 4)
+			if (outputShape.size() == 4 && outputShape[0] == 1)
 			{
 				const auto stemCount = static_cast<int>(outputShape[1]);
 				const auto outputChannels = static_cast<int>(outputShape[2]);
 				const auto outputFrames = static_cast<int>(outputShape[3]);
-				const auto guitarStemIndex = juce::jlimit(0, stemCount - 1, manifest.guitarStemIndex);
+				if (stemCount <= 0 || outputChannels <= 0 || outputFrames <= 0
+					|| manifest.guitarStemIndex >= stemCount)
+				{
+					error = "HTDemucs output tensor has invalid dimensions or guitar stem index.";
+					return false;
+				}
+
+				const auto guitarStemIndex = manifest.guitarStemIndex;
 				const auto frameCountToCopy = juce::jmin(frames, outputFrames);
 				const auto channelCountToCopy = juce::jmin(channels, outputChannels);
 
@@ -143,10 +223,17 @@ struct guitarSeparator::HtDemucsOnnxBackend
 				{
 					for (int channel = 0; channel < channelCountToCopy; ++channel)
 					{
-						const auto outputIndex = static_cast<size_t>(frame * channels + channel);
+						const auto outputIndex = static_cast<size_t>(frame * ioChannels + channel);
 						const auto tensorIndex = static_cast<size_t>((((0 * stemCount) + guitarStemIndex) * outputChannels + channel) * outputFrames + frame);
 						interleavedOutput[outputIndex] = outputData[tensorIndex];
 					}
+
+					if (channels == 1)
+						interleavedOutput[static_cast<size_t>(frame * ioChannels + 1)]
+							= interleavedOutput[static_cast<size_t>(frame * ioChannels)];
+					else if (outputChannels == 1)
+						interleavedOutput[static_cast<size_t>(frame * ioChannels + 1)]
+							= interleavedOutput[static_cast<size_t>(frame * ioChannels)];
 				}
 
 				return true;
@@ -156,13 +243,28 @@ struct guitarSeparator::HtDemucsOnnxBackend
 			{
 				const auto outputChannels = static_cast<int>(outputShape[1]);
 				const auto outputFrames = static_cast<int>(outputShape[2]);
+				if (outputChannels <= 0 || outputFrames <= 0)
+				{
+					error = "HTDemucs output tensor has invalid dimensions.";
+					return false;
+				}
+
 				const auto frameCountToCopy = juce::jmin(frames, outputFrames);
 				const auto channelCountToCopy = juce::jmin(channels, outputChannels);
 
 				for (int frame = 0; frame < frameCountToCopy; ++frame)
+				{
 					for (int channel = 0; channel < channelCountToCopy; ++channel)
-						interleavedOutput[static_cast<size_t>(frame * channels + channel)]
+						interleavedOutput[static_cast<size_t>(frame * ioChannels + channel)]
 							= outputData[static_cast<size_t>(channel * outputFrames + frame)];
+
+					if (channels == 1)
+						interleavedOutput[static_cast<size_t>(frame * ioChannels + 1)]
+							= interleavedOutput[static_cast<size_t>(frame * ioChannels)];
+					else if (outputChannels == 1)
+						interleavedOutput[static_cast<size_t>(frame * ioChannels + 1)]
+							= interleavedOutput[static_cast<size_t>(frame * ioChannels)];
+				}
 
 				return true;
 			}
@@ -224,6 +326,7 @@ void guitarSeparator::initialiseSeparator()
 void guitarSeparator::prepareToPlay(int samplesPerBlockExpected, double newSampleRate)
 {
 	const ScopedLock sl(callbackLock);
+	const ScopedLock processingGuard(processingLock);
 
 	sampleRate = newSampleRate;
 	blockSize = samplesPerBlockExpected;
@@ -248,22 +351,40 @@ void guitarSeparator::configureFallbackFilters()
 void guitarSeparator::resetProcessingState()
 {
 	const ScopedLock queueGuard(queueLock);
-	inputCapacityFrames = juce::jmax(defaultInputCapacityFrames, blockSize * 32);
-	outputCapacityFrames = juce::jmax(defaultOutputCapacityFrames, blockSize * 32);
+	const auto windowFrames = getInputWindowFrames();
+	inputCapacityFrames = juce::jmax(defaultInputCapacityFrames, juce::jmax(blockSize * 32, windowFrames * 2));
+	outputCapacityFrames = juce::jmax(defaultOutputCapacityFrames, juce::jmax(blockSize * 32, windowFrames * 2));
 	inputRing.assign(static_cast<size_t>(inputCapacityFrames * ioChannels), 0.0f);
 	outputRing.assign(static_cast<size_t>(outputCapacityFrames * ioChannels), 0.0f);
-	processInputWindow.assign(static_cast<size_t>(modelManifest.windowFrames * ioChannels), 0.0f);
-	processOutputWindow.assign(static_cast<size_t>(modelManifest.windowFrames * ioChannels), 0.0f);
+	processInputWindow.assign(static_cast<size_t>(windowFrames * ioChannels), 0.0f);
+	processOutputWindow.assign(static_cast<size_t>(windowFrames * ioChannels), 0.0f);
+	modelInputWindow.clear();
+	modelOutputWindow.clear();
+	previousWindowTail.assign(static_cast<size_t>(getInputWindowHopFrames() * ioChannels), 0.0f);
+	hasPreviousWindowTail = false;
 
 	for (auto& scratch : fallbackChannelScratch)
-		scratch.assign(static_cast<size_t>(modelManifest.windowFrames), 0.0f);
+		scratch.assign(static_cast<size_t>(windowFrames), 0.0f);
 
 	inputWriteFrame = 0;
 	inputReadFrame = 0;
 	inputQueuedFrames = 0;
 	outputWriteFrame = 0;
 	outputReadFrame = 0;
-	outputQueuedFrames = 0;
+	outputQueuedFrames = windowFrames;
+	outputWriteFrame = outputQueuedFrames % outputCapacityFrames;
+}
+
+int guitarSeparator::getInputWindowFrames() const
+{
+	const auto modelRate = juce::jmax(1, modelManifest.sampleRate);
+	const auto nativeRate = juce::jmax(1.0, sampleRate);
+	return juce::jmax(2, juce::roundToInt(modelManifest.windowFrames * nativeRate / modelRate));
+}
+
+int guitarSeparator::getInputWindowHopFrames() const
+{
+	return juce::jmax(1, getInputWindowFrames() / 2);
 }
 
 void guitarSeparator::run()
@@ -296,7 +417,7 @@ void guitarSeparator::getNextAudioBlock(const AudioSourceChannelInfo& info)
 		source->getNextAudioBlock(info);
 		queueInputSamples(*info.buffer, info.startSample, numSamples);
 
-		if (!popOutputSamples(*info.buffer, info.startSample, numSamples) && !preferDryWhileWarmingUp)
+		if (!popOutputSamples(*info.buffer, info.startSample, numSamples))
 			info.clearActiveBufferRegion();
 	}
 	else
@@ -308,6 +429,7 @@ void guitarSeparator::getNextAudioBlock(const AudioSourceChannelInfo& info)
 void guitarSeparator::releaseResources()
 {
 	const ScopedLock sl(callbackLock);
+	const ScopedLock processingGuard(processingLock);
 	resetProcessingState();
 	configureFallbackFilters();
 
@@ -426,6 +548,7 @@ bool guitarSeparator::downloadModelAssets()
 
 bool guitarSeparator::parseModelManifest()
 {
+	const ScopedLock processingGuard(processingLock);
 	const auto manifestFile = getManifestFile();
 	if (!manifestFile.existsAsFile())
 		return true;
@@ -492,6 +615,7 @@ bool guitarSeparator::tryLoadHtDemucsBackend()
 
 bool guitarSeparator::processAvailableWindow()
 {
+	const ScopedLock processingGuard(processingLock);
 	if (!popInputWindow(processInputWindow))
 		return false;
 
@@ -506,9 +630,17 @@ bool guitarSeparator::processCurrentWindow(std::vector<float>& outputWindow)
 
 	if (backendReady.load() && onnxBackend != nullptr)
 	{
+		const auto nativeFrames = getInputWindowFrames();
+		resampleInterleaved(processInputWindow, nativeFrames,
+			modelInputWindow, modelManifest.windowFrames, ioChannels);
+
 		juce::String processError;
-		if (onnxBackend->processWindow(processInputWindow, outputWindow, modelManifest, processError))
+		if (onnxBackend->processWindow(modelInputWindow, modelOutputWindow, modelManifest, processError))
+		{
+			resampleInterleaved(modelOutputWindow, modelManifest.windowFrames,
+				outputWindow, nativeFrames, ioChannels);
 			return true;
+		}
 
 		updateBackendState(BackendState::fallback,
 			processError + " Falling back to guitar-emphasis filtering.");
@@ -521,14 +653,16 @@ bool guitarSeparator::processCurrentWindow(std::vector<float>& outputWindow)
 void guitarSeparator::processFallbackWindow(const std::vector<float>& inputWindow,
 	std::vector<float>& outputWindow)
 {
-	const auto frameCount = modelManifest.windowFrames;
-	const auto channelCount = juce::jlimit(1, ioChannels, modelManifest.channels);
+	const auto frameCount = static_cast<int>(inputWindow.size() / ioChannels);
+	const auto channelCount = ioChannels;
 
 	for (int channel = 0; channel < channelCount; ++channel)
 	{
 		auto& scratch = fallbackChannelScratch[static_cast<size_t>(channel)];
 		if (static_cast<int>(scratch.size()) != frameCount)
 			scratch.assign(static_cast<size_t>(frameCount), 0.0f);
+		highPassFilters[static_cast<size_t>(channel)].reset();
+		lowPassFilters[static_cast<size_t>(channel)].reset();
 
 		for (int frame = 0; frame < frameCount; ++frame)
 			scratch[static_cast<size_t>(frame)] = inputWindow[static_cast<size_t>(frame * ioChannels + channel)];
@@ -617,29 +751,33 @@ bool guitarSeparator::popOutputSamples(juce::AudioBuffer<float>& buffer,
 bool guitarSeparator::popInputWindow(std::vector<float>& inputWindow)
 {
 	const ScopedLock sl(queueLock);
-	if (inputQueuedFrames < modelManifest.windowFrames)
+	const auto windowFrames = getInputWindowFrames();
+	const auto hopFrames = getInputWindowHopFrames();
+	if (inputQueuedFrames < windowFrames)
 		return false;
 
-	inputWindow.assign(static_cast<size_t>(modelManifest.windowFrames * ioChannels), 0.0f);
+	inputWindow.assign(static_cast<size_t>(windowFrames * ioChannels), 0.0f);
 
-	for (int frame = 0; frame < modelManifest.windowFrames; ++frame)
+	for (int frame = 0; frame < windowFrames; ++frame)
 	{
-		const auto baseIndex = static_cast<size_t>(inputReadFrame * ioChannels);
+		const auto ringFrame = (inputReadFrame + frame) % inputCapacityFrames;
+		const auto baseIndex = static_cast<size_t>(ringFrame * ioChannels);
 		inputWindow[static_cast<size_t>(frame * ioChannels)] = inputRing[baseIndex];
 		if (ioChannels > 1)
 			inputWindow[static_cast<size_t>(frame * ioChannels + 1)] = inputRing[baseIndex + 1];
 
-		inputReadFrame = (inputReadFrame + 1) % inputCapacityFrames;
 	}
 
-	inputQueuedFrames -= modelManifest.windowFrames;
+	inputReadFrame = (inputReadFrame + hopFrames) % inputCapacityFrames;
+	inputQueuedFrames -= hopFrames;
 	return true;
 }
 
 void guitarSeparator::pushOutputWindow(const std::vector<float>& outputWindow)
 {
 	const ScopedLock sl(queueLock);
-	const auto frameCount = juce::jmin(modelManifest.windowFrames, static_cast<int>(outputWindow.size() / ioChannels));
+	const auto frameCount = juce::jmin(getInputWindowHopFrames(),
+		static_cast<int>(outputWindow.size() / ioChannels) - getInputWindowHopFrames());
 
 	for (int frame = 0; frame < frameCount; ++frame)
 	{
@@ -650,11 +788,20 @@ void guitarSeparator::pushOutputWindow(const std::vector<float>& outputWindow)
 		}
 
 		const auto baseIndex = static_cast<size_t>(outputWriteFrame * ioChannels);
-		outputRing[baseIndex] = outputWindow[static_cast<size_t>(frame * ioChannels)];
-		if (ioChannels > 1)
-			outputRing[baseIndex + 1] = outputWindow[static_cast<size_t>(frame * ioChannels + 1)];
+		const auto fadeIn = static_cast<float>(frame + 1) / frameCount;
+		for (int channel = 0; channel < ioChannels; ++channel)
+		{
+			const auto current = outputWindow[static_cast<size_t>(frame * ioChannels + channel)];
+			const auto previous = previousWindowTail[static_cast<size_t>(frame * ioChannels + channel)];
+			outputRing[baseIndex + static_cast<size_t>(channel)]
+				= hasPreviousWindowTail ? previous * (1.0f - fadeIn) + current * fadeIn : current;
+			previousWindowTail[static_cast<size_t>(frame * ioChannels + channel)]
+				= outputWindow[static_cast<size_t>((frame + frameCount) * ioChannels + channel)];
+		}
 
 		outputWriteFrame = (outputWriteFrame + 1) % outputCapacityFrames;
 		++outputQueuedFrames;
 	}
+
+	hasPreviousWindowTail = true;
 }
