@@ -83,7 +83,7 @@ private:
 	std::vector<float> forInsertFrequencyVector; // To be used for insert to frequencyValues
 	std::vector <std::vector<float>> rmsValues;
 	std::vector<float> forInsetRMSVector; // To be used for insert to rmsValues
-	cmp::GraphAttributeList graph_attributes;
+	cmp::SeriesAttributeList graph_attributes;
 	juce::Random randomRGB = juce::Random::getSystemRandom();
     //[/UserVariables]
 

@@ -56,7 +56,7 @@ public:
 		,
 		std::vector <std::vector<float>> x_values
 		,
-		cmp::GraphAttributeList graph_attributes
+		cmp::SeriesAttributeList graph_attributes
 		,
 		cmp::StringVector legend
 	);

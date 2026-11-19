@@ -24,6 +24,37 @@
 
 
 //[MiscUserDefs] You can add your own user definitions and misc code here...
+namespace
+{
+	cmp::SeriesDataList makeSeriesData
+	(
+		const std::vector<std::vector<float>>& y_values
+		,
+		const std::vector<std::vector<float>>& x_values
+		,
+		const cmp::SeriesAttributeList* graph_attributes = nullptr
+	)
+	{
+		cmp::SeriesDataList series_data;
+		series_data.reserve(y_values.size());
+
+		for (std::size_t i = 0; i < y_values.size(); ++i)
+		{
+			cmp::SeriesData series;
+			series.y = y_values[i];
+
+			if (i < x_values.size())
+				series.x = x_values[i];
+
+			if (graph_attributes != nullptr && i < graph_attributes->size())
+				series.attribute = (*graph_attributes)[i];
+
+			series_data.push_back(std::move(series));
+		}
+
+		return series_data;
+	}
+}
 //[/MiscUserDefs]
 
 //==============================================================================
@@ -43,10 +74,8 @@ PlotModule::PlotModule()
 
 	//[Constructor] You can add your own custom stuff here..
 
-	// Always plot atleast ones before calling realTimePlot
-	// Provide both x and y values explicitly; a single nested initializer
-	// populates x only and fails Plot's x/y size validation.
-	m_plot.plot({ { 0.0f }, { 0.0f } });
+	// Always plot at least once before calling realTimePlot
+	m_plot.plot(cmp::SeriesData{ .y = { 0.0f } });
 
 	//[/Constructor]
 }
@@ -109,7 +138,8 @@ void PlotModule::updatePlot
 		]
 		()
 		{
-			m_plot.plot(y_values, x_values);
+			const auto series_data = makeSeriesData(y_values, x_values);
+			m_plot.plot(series_data);
 		}
 	);
 }
@@ -120,7 +150,7 @@ void PlotModule::updatePlot
 	,
 	std::vector <std::vector<float>> x_values
 	,
-	cmp::GraphAttributeList graph_attributes
+	cmp::SeriesAttributeList graph_attributes
 	,
 	cmp::StringVector legend
 )
@@ -143,7 +173,8 @@ void PlotModule::updatePlot
 		{
 			try
 			{
-				m_plot.plot(y_values, x_values, graph_attributes);
+				const auto series_data = makeSeriesData(y_values, x_values, &graph_attributes);
+				m_plot.plot(series_data);
 				m_plot.setLegend(legend);
 			}
 			catch (const std::exception&)
@@ -156,12 +187,12 @@ void PlotModule::updatePlot
 
 void PlotModule::updatePlotRealTime(std::vector <std::vector<float>> y_values)
 {
-	MessageManager::callAsync([this, y_values]() { m_plot.realTimePlot(y_values); });
+	MessageManager::callAsync([this, y_values]() { m_plot.plotUpdateYOnly(y_values); });
 }
 
 void PlotModule::clearPlot()
 {
-	m_plot.plot({ { 1 } }, { { 1 } });
+	m_plot.clear();
 }
 //[/MiscUserCode]
 

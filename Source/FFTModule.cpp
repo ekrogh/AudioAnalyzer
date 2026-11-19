@@ -325,7 +325,7 @@ bool FFTModule::loadURLIntoFFT
 	std::vector <std::vector<float>>
 	plotValues{ { fftDataLocal, fftDataLocal + nbrSamplesInPlot } };
 
-	cmp::GraphAttributeList graph_attributes(0);
+	cmp::SeriesAttributeList graph_attributes(0);
 	makeGraphAttributes(graph_attributes);
 
 	cmp::StringVector plotLegend{ "p " + std::to_string(plotLegend.size() + 1) };
@@ -493,7 +493,7 @@ bool FFTModule::makeWhiteNoise
 	std::vector <std::vector<float>>
 	plotValues{ { fftDataLocal, fftDataLocal + nbrSamplesInPlot } };
 
-	cmp::GraphAttributeList graph_attributes(0);
+	cmp::SeriesAttributeList graph_attributes(0);
 	makeGraphAttributes(graph_attributes);
 
 	cmp::StringVector plotLegend{ "p " + std::to_string(plotLegend.size() + 1) };
@@ -582,7 +582,7 @@ bool FFTModule::makeSines
 	std::vector <std::vector<float>>
 		plotValues{ { fftDataLocal, fftDataLocal + nbrSamplesInPlot } };
 
-	cmp::GraphAttributeList graph_attributes(0);
+	cmp::SeriesAttributeList graph_attributes(0);
 	makeGraphAttributes(graph_attributes);
 
 	cmp::StringVector plotLegend{ { "p " + std::to_string(plotLegend.size() + 1) } };
@@ -662,7 +662,7 @@ bool FFTModule::makeWindows
 		yMax = maxMinLevel.getEnd();
 	}
 
-	cmp::GraphAttributeList graph_attributes(0);
+	cmp::SeriesAttributeList graph_attributes(0);
 	makeGraphAttributes(graph_attributes);
 
 	cmp::StringVector plotLegend{ "hann" };
@@ -828,9 +828,9 @@ bool FFTModule::makeWindows
 	return true;
 }
 
-void FFTModule::makeGraphAttributes(cmp::GraphAttributeList& ga)
+void FFTModule::makeGraphAttributes(cmp::SeriesAttributeList& ga)
 {
-	cmp::GraphAttribute colourForLine;
+	cmp::SeriesAttribute colourForLine;
 	colourForLine.series_colour = juce::Colour
 	(
 		static_cast<juce::int8>(juce::Random::getSystemRandom().nextInt(juce::Range(100, 255)))

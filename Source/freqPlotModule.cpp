@@ -88,6 +88,38 @@ void freqPlotModule::resized()
 
 
 //[MiscUserCode] You can add your own definitions of your custom methods or any other code here...
+namespace
+{
+	cmp::SeriesDataList makeSeriesData
+	(
+		const std::vector<std::vector<float>>& y_values
+		,
+		const std::vector<std::vector<float>>& x_values
+		,
+		const cmp::SeriesAttributeList* graph_attributes = nullptr
+	)
+	{
+		cmp::SeriesDataList series_data;
+		series_data.reserve(y_values.size());
+
+		for (std::size_t i = 0; i < y_values.size(); ++i)
+		{
+			cmp::SeriesData series;
+			series.y = y_values[i];
+
+			if (i < x_values.size())
+				series.x = x_values[i];
+
+			if (graph_attributes != nullptr && i < graph_attributes->size())
+				series.attribute = (*graph_attributes)[i];
+
+			series_data.push_back(std::move(series));
+		}
+
+		return series_data;
+	}
+}
+
 void freqPlotModule::xLim(const float min, const float max)
 {
 	m_plot.setXLim(min, max);
@@ -138,7 +170,8 @@ void freqPlotModule::updatePlot
 		]
 		()
 		{
-			m_plot.plot(y_values, x_values);
+			const auto series_data = makeSeriesData(y_values, x_values);
+			m_plot.plot(series_data);
 		}
 	);
 }
@@ -149,7 +182,7 @@ void freqPlotModule::updatePlot
 	,
 	std::vector <std::vector<float>> x_values
 	,
-	cmp::GraphAttributeList graph_attributes
+	cmp::SeriesAttributeList graph_attributes
 	,
 	cmp::StringVector legend
 )
@@ -170,7 +203,8 @@ void freqPlotModule::updatePlot
 		]
 		()
 		{
-			m_plot.plot(y_values, x_values, graph_attributes);
+			const auto series_data = makeSeriesData(y_values, x_values, &graph_attributes);
+			m_plot.plot(series_data);
 			m_plot.setLegend(legend);
 		}
 	);
@@ -185,7 +219,7 @@ void freqPlotModule::updatePlotRealTime(std::vector <std::vector<float>> y_value
 		[this, y_values]
 		()
 		{
-			m_plot.realTimePlot(y_values);
+			m_plot.plotUpdateYOnly(y_values);
 		}
 	);
 }
@@ -268,7 +302,7 @@ void freqPlotModule::plotVerticalLines
 (
 	const std::vector<float>& x_coordinates
 	,
-	const cmp::GraphAttributeList& graph_attributes
+	const cmp::SeriesAttributeList& graph_attributes
 )
 {
 	//m_plot.realTimePlot(y_values);
@@ -284,7 +318,7 @@ void freqPlotModule::plotVerticalLines
 
 void freqPlotModule::clearPlot()
 {
-	m_plot.plot({ { 1 } }, { { 1 } });
+	m_plot.clear();
 }
 
 //[/MiscUserCode]

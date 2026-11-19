@@ -59,7 +59,7 @@ public:
 		,
 		std::vector <std::vector<float>> x_values
 		,
-		cmp::GraphAttributeList graph_attributes
+		cmp::SeriesAttributeList graph_attributes
 		,
 		cmp::StringVector legend
 	);
@@ -74,7 +74,7 @@ public:
 	void setYTicks(const std::vector<float>& x_ticks);
 	void setYTickLabels(const std::vector<std::string>& x_labels);
 	void plotVerticalLines(const std::vector<float>& x_coordinates,
-		const cmp::GraphAttributeList& graph_attributes = {});
+		const cmp::SeriesAttributeList& graph_attributes = {});
 	//[/UserMethods]
 
 	void paint(juce::Graphics& g) override;

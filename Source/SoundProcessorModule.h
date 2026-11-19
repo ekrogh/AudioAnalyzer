@@ -89,7 +89,7 @@ private:
 	std::vector<float> forPush_BackFrequencyVector; // To be used for insert to frequencyValues
 	std::vector <std::vector<float>> rmsValues;
 	std::vector<float> forPush_BackRMSVector; // To be used for insert to rmsValues
-	cmp::GraphAttributeList graph_attributes;
+	cmp::SeriesAttributeList graph_attributes;
 	FileChooser chooser
 	{
 		"File..."

@@ -145,7 +145,7 @@ public:
 	);
 	
 
-	void makeGraphAttributes(cmp::GraphAttributeList& ga);
+	void makeGraphAttributes(cmp::SeriesAttributeList& ga);
 
 	void showValues
 	(

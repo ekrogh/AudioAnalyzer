@@ -163,7 +163,7 @@ private:
 	std::shared_ptr<freqPlotModule> module_freqPlot;
 	std::vector <std::vector<float>> frequencyValues{ { 1 }, { 1 } };
 	std::vector <std::vector<float>> plotValues{ { 1 }, { 1 } };
-	cmp::GraphAttributeList graph_attributes;
+	cmp::SeriesAttributeList graph_attributes;
 	cmp::StringVector plotLegend;
 
 	bool doRealTimeFftChartPlot = true;

@@ -193,8 +193,8 @@ SoundProcessorModule::SoundProcessorModule(std::shared_ptr<PlotModule> ptr_modul
 				{
 					frequencyValues.insert(frequencyValues.begin(), forInsertFrequencyVector);
 					rmsValues.insert(rmsValues.begin(), forInsetRMSVector);
-					cmp::GraphAttribute colourForLine;
-					colourForLine.graph_colour = juce::Colour
+					cmp::SeriesAttribute colourForLine;
+					colourForLine.series_colour = juce::Colour
 					(
 						randomRGB.nextInt(256)
 						,
@@ -220,8 +220,8 @@ SoundProcessorModule::SoundProcessorModule(std::shared_ptr<PlotModule> ptr_modul
 				//frequencyValues.reserve(0);
 				frequencyValues.insert(frequencyValues.begin(), forInsertFrequencyVector);
 				rmsValues.insert(rmsValues.begin(), forInsetRMSVector);
-				cmp::GraphAttribute colourForLine;
-				colourForLine.graph_colour = juce::Colour
+				cmp::SeriesAttribute colourForLine;
+				colourForLine.series_colour = juce::Colour
 				(
 					randomRGB.nextInt(juce::Range(100, 255))
 					,
